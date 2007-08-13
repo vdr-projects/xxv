@@ -1,0 +1,44 @@
+0.0.11
+    update to build with ffmpeg-svn (r9303)
+    add options for frame span
+0.0.10
+    add rules for debian package 
+    update to build with ffmpeg-svn (r6898)
+0.0.9
+    update VERSION checking to build with ffmpeg-svn (r5812)
+    COPYING missed inside package
+    cleanup code
+	  static linking failed, reorder library for linking
+    strip debugging symbols on non-DEBUG target
+    change Makefile to default build without FFMDIR must defined
+0.0.8b
+    add missing header math.h (thanks to Tobias Grimm)
+    add missing header errno.h
+0.0.8
+    now wantet frame grabed, instead of i-frame only grabbing
+      * if frame extraction failed neighbor image are duplicate.
+      * change name schematic to pic (8) 
+	Reimplement encoding based on ffmpeg-main-0.4.9-cvs
+    enlarge own self-protection memory limit to support bigger HD Recordings from 1,5M to 16M
+    add check if wanted and readed chunk size has same value
+    add testfunction for reread dumped gob-file, only present if compile with DEBUG=1
+0.0.7
+    add Make.config for user defined compile settings
+    keep now aspect ratio, if nothing or only one od scaled width or height of output image are defined
+    fix name schematic gob/pic from 4/4 to 8/2 for better numerical sorting
+    fix wrong size detection on files over symbolic links (thanks to HFlor-at-vdrportal-de)
+0.0.6
+	fix parse commandline
+0.0.5
+	first public release
+	some cleanup
+0.0.4
+	Feature Scaling
+	Reimplement encoding based on ffmpeg-main
+0.0.3
+	Fix handle of more then 001.vdr (thanks to Peter Sebbel)
+	Fix a other Compile probs with 2.95
+0.0.2
+	Fix Compile probs with 2.95
+0.0.1 
+	Initial release based on vdrsync.pl and ffmpeg/Libavformat API example

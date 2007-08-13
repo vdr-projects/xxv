@@ -1,0 +1,30 @@
+This package was debianized by Andreas Brachold <vdr04 -at- deltab.de> on
+Fri, 10 Nov 2006 16:25:22 +0100.
+
+It was downloaded from http://www.deltab.de/vdr/vdr2jpeg.html
+
+Upstream Author: <Andreas Brachold <vdr04 -at- deltab.de>
+
+Copyright: 2005-2006 Andreas Brachold
+            based on FFmpeg main (c) 2000-2003 Fabrice Bellard
+
+License:
+
+    This package is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This package is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this package; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+
+The Debian packaging is (C) 2006, Andreas Brachold <vdr04@deltab.de> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+

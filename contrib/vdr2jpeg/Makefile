@@ -1,0 +1,147 @@
+##########################################################################
+#
+# Makefile -- for building vdr2jpeg
+#
+# Copyright (c) 2005-2007 Andreas Brachold
+#
+# This code is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This code is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Or, point your browser to http://www.gnu.org/copyleft/gpl.html
+
+
+# You can change the compile options here or create a Make.config
+
+
+# Build ffmpeg e.g. with ./configure --enable-shared
+#FFMDIR = /usr/local/include/ffmpeg
+
+# Build with debugging symbol and lots of dumped messages
+#DEBUG = 1
+
+# Build full static paket, if ffmpeg build without --enable-shared
+# you must defined FFMDIR 
+#STATIC = 1
+
+# Place where vdr2jpeg should installed
+INSTALLBINDIR ?= /usr/local/bin
+
+# Place where should package created, need some space.
+TMPDIR = /tmp
+
+###############################################
+###############################################
+#
+# no user configurable options below this point
+#
+###############################################
+
+INSTALLDIR = $(DESTDIR)/$(INSTALLBINDIR)
+
+###############################################
+
+# Compiler/linker settings
+CXX      ?= g++
+STRIP    ?= strip
+PKG-CONFIG ?= pkg-config
+
+### Allow user defined options to overwrite defaults:
+-include Make.config
+
+# General settings:
+
+ifdef DEBUG
+	CXXFLAGS ?= -O0
+	CXXFLAGS += -g -ggdb
+	LDFLAGS += -g -ggdb
+	DEFINES += -DDEBUG
+else
+	CXXFLAGS ?= -O2
+endif
+CXXFLAGS += -fPIC -Wall -Woverloaded-virtual
+
+
+
+ifdef FFMDIR
+INCLUDES += -I$(FFMDIR)/libavformat -I$(FFMDIR)/libavcodec -I$(FFMDIR)/libavutil -I$(FFMDIR)/libswscale 
+LIBS += -L$(FFMDIR)/libavformat -L$(FFMDIR)/libavcodec -L$(FFMDIR)/libavutil  -L$(FFMDIR)/libswscale
+else
+INCLUDES += $(shell $(PKG-CONFIG) --cflags libavformat libavcodec libswscale)
+LIBS    += $(shell $(PKG-CONFIG) --libs libavformat libavcodec libswscale)
+endif
+
+ifdef STATIC
+    CXXFLAGS += -static
+endif
+
+#-------------------------------------------------------------------------
+# Target configuration
+
+PRGNAME = vdr2jpeg
+VERSION = 0.0.11
+ARCHIVE = $(PRGNAME)-$(VERSION)
+DEFINES += -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS
+FILES = README LIESMICH HISTORY COPYING Makefile vdr2jpeg.cpp ffm.cpp ffm.h
+DEBIAN = debian/changelog debian/control debian/dirs debian/rules debian/compat \
+				 debian/copyright debian/docs debian/README.Debian debian/watch
+DEBPATCH = debian/patches/00list debian/patches/01_changed_api.dpatch
+OBJS = vdr2jpeg.o ffm.o
+
+
+#-------------------------------------------------------------------------
+# Implicit rules:
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $(DEFINES) $(INCLUDES) $<
+
+
+#-------------------------------------------------------------------------
+# Main Targets
+
+all:    $(PRGNAME)
+.PHONY: all
+
+$(PRGNAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) $(FFOBJS) $(LIBS) -o $(PRGNAME)
+ifndef DEBUG
+	$(STRIP) $@	
+endif
+
+install: $(PRGNAME)
+	install -d $(INSTALLDIR)
+	install -m 755 -o root -g root -s $(PRGNAME) $(INSTALLDIR)
+
+uninstall:
+	rm -f $(INSTALLDIR)/$(PRGNAME)
+
+clean:
+	@-rm -f $(PRGNAME) a.out *.o *.tgz core* *~
+
+distclean:  clean
+	@-rm -f *.jpg *.mpv
+
+dist:	distclean
+	@-rm -rf $(TMPDIR)/$(ARCHIVE)
+	@mkdir -p $(TMPDIR)/$(ARCHIVE)
+	@mkdir -p $(TMPDIR)/$(ARCHIVE)/debian
+	@mkdir -p $(TMPDIR)/$(ARCHIVE)/debian/patches
+	@cp -a $(FILES) $(TMPDIR)/$(ARCHIVE)
+	@cp -a $(DEBIAN) $(TMPDIR)/$(ARCHIVE)/debian
+	@cp -a $(DEBPATCH) $(TMPDIR)/$(ARCHIVE)/debian/patches
+	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;
+	@find $(TMPDIR)/$(ARCHIVE) -type f -exec chmod 644 {} \;
+	@chown root.root -R $(TMPDIR)/$(ARCHIVE)/*
+	@chmod a+x $(TMPDIR)/$(ARCHIVE)/debian/patches/*.dpatch $(TMPDIR)/$(ARCHIVE)/debian/rules
+	@tar czfh $(ARCHIVE).tgz -C $(TMPDIR) $(ARCHIVE) 
+	@-rm -rf $(TMPDIR)/$(ARCHIVE)
+	@echo Distribution package created as $(ARCHIVE).tgz
