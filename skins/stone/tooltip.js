@@ -9,6 +9,7 @@ var ttp_offset_x = 0;
 var ttp_x_start = -1;
 var ttp_y_start = -1;
 var ttp_active  = 1;
+var ttp_inside  = 0;
 
 var ie5=document.all&&document.getElementById;
 var ns6=document.getElementById&&!document.all;
@@ -89,8 +90,8 @@ if (ttp_x < 0)  {ttp_x = 0;}
 if (ttp_y < 0)  {ttp_y = 0;}
 
 if(ttp_visable) {
-  if(Math.abs(ttp_x_start - ttp_x) > 5
-   || Math.abs(ttp_y_start - ttp_y) > 5) {
+  if(Math.abs(ttp_x_start - ttp_x) > 15
+   || Math.abs(ttp_y_start - ttp_y) > 15) {
     ttp_make_invisable();
   }
   ttp_update_pos();
@@ -117,15 +118,17 @@ function ttp_make_visable(title, description){
     var ele = document.getElementById('TOOLTIP');
 		ele.innerHTML = ttp_content;
 		ele.style.visibility = "visible";
-		ttp_visable = 1;
 }
 
 function ttp_make_invisable(){
-    if(ttp_visable) {
-    clearTimeout(ttp_timer);
-		document.getElementById('TOOLTIP').style.visibility = "hidden";
-		ttp_visable = 0;
+    var ele = document.getElementById('TOOLTIP');
+
+    if(ttp_visable || ele.style.visibility == "visible") {
+      clearTimeout(ttp_timer);
+	  	ele.style.visibility = "hidden";
     }
+    ttp_visable = 0;
+    ttp_inside = 0;
 }
 
 function ttp_enable(enable){
@@ -133,35 +136,19 @@ function ttp_enable(enable){
   ttp_active = enable
 }
 
-function ttp(self, title, description, offset_x){
-  if(ttp_active) {
-    self.onmouseout=function(){ ttp_make_invisable(); };
-  	if(description && ttp_x != -1 && ttp_y != -1){
-      ttp_offset_x  = offset_x;
-      ttp_timer = setTimeout("ttp_make_visable('"+escape(title)+"', '"+escape(description)+"')", 750);
-  	}
-  }
-}
-
-
-
 function ttp_make_req_visable(title, eventid, x, y){
 
-    if(!eventid || eventid<=0
-      || Math.abs(x - ttp_x) > 20
-      || Math.abs(y - ttp_y) > 20) {
+    if(!eventid || eventid<=0 || ttp_inside==0
+      || Math.abs(x - ttp_x) > 15
+      || Math.abs(y - ttp_y) > 15) {
+        clearTimeout(ttp_timer);
+        ttp_inside = 0;
         return false;
     }
 
-  	ttp_update_pos();
-    ttp_update_content(title,'WAIT');
-    var ele = document.getElementById('TOOLTIP');
-		ele.innerHTML = ttp_content;
-		ele.style.visibility = "visible";
-
- 		ttp_visable = 1;
     ttp_x_start = ttp_x;
     ttp_y_start = ttp_y;
+    ttp_make_visable(title,'WAIT');
 
     var fnWhenDone = function (oXML, sData) {
 
@@ -173,18 +160,14 @@ function ttp_make_req_visable(title, eventid, x, y){
             content = '...';
         }
 
-      	ttp_update_pos();
-        ttp_update_content(title,content);
-
-    		sData.innerHTML = ttp_content;
-    		sData.style.visibility = "visible";
+        ttp_make_visable(title,content);
     };
 
     var url = "?cmd=edescription&data=" + eventid + "&ajax=json";
     var aconn = new XHRequest();
     if(!aconn)
       return false;
-    return aconn.connect(url, fnWhenDone, ele);
+    return aconn.connect(url, fnWhenDone, eventid);
 }
 
 
@@ -193,11 +176,37 @@ function ttpreq(self, title, eventid, offset_x){
     self.onmouseout=function(){ ttp_make_invisable(); };
   	if(eventid && ttp_x != -1 && ttp_y != -1){
       ttp_offset_x  = offset_x;
+      ttp_inside = 1;
       ttp_timer = setTimeout("ttp_make_req_visable('"+escape(title)+"', '"+eventid+"', '"+ttp_x+"', '"+ttp_y+"')", 750);
   	}
   }
 }
 
+function ttp_make_direct_visable(title, description, x, y){
+
+    if(ttp_inside==0
+      || Math.abs(x - ttp_x) > 15
+      || Math.abs(y - ttp_y) > 15) {
+        clearTimeout(ttp_timer);
+        ttp_inside = 0;
+        return false;
+    }
+
+    ttp_x_start = ttp_x;
+    ttp_y_start = ttp_y;
+    ttp_make_visable(title,description);
+}
+
+function ttp(self, title, description, offset_x){
+  if(ttp_active) {
+    self.onmouseout=function(){ ttp_make_invisable(); };
+  	if(description && ttp_x != -1 && ttp_y != -1){
+      ttp_offset_x  = offset_x;
+      ttp_inside = 1;
+      ttp_timer = setTimeout("ttp_make_direct_visable('"+escape(title)+"', '"+escape(description)+"')", 750);
+  	}
+  }
+}
 /** XHRequest based on                                                       **
  ** XHConn - Simple XMLHTTP Interface - bfults@gmail.com - 2005-04-08        **
  ** Code licensed under Creative Commons Attribution-ShareAlike License      **
