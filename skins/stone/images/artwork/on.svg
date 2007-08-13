@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Sodipodi ("http://www.sodipodi.com/") -->
+<svg
+   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="0.41"
+   sodipodi:docbase="/mnt/vdrsrc/xxv/devlop/XXV-Skins/stone/images/artwork"
+   sodipodi:docname="on.svg"
+   sodipodi:version="0.32"
+   id="svg602"
+   xml:space="preserve"
+   viewBox="0 0 24 24"
+   height="24pt"
+   width="24pt">
+  <defs
+     id="defs624">
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       fy="7.8398"
+       fx="8.7124"
+       r="14.3823"
+       cy="7.8398"
+       cx="8.7124"
+       id="aigrd1">
+      <stop
+         id="stop607"
+         style="stop-color:#c3e0c3;stop-opacity:1.0000000;"
+         offset="0.0000000" />
+      <stop
+         id="stop608"
+         style="stop-color:#1fcd2b;stop-opacity:1.0000000;"
+         offset="0.28090000" />
+      <stop
+         id="stop609"
+         style="stop-color:#007b00;stop-opacity:1.0000000;"
+         offset="1.0000000" />
+    </radialGradient>
+  </defs>
+  <sodipodi:namedview
+     inkscape:current-layer="svg602"
+     inkscape:window-y="21"
+     inkscape:window-x="5"
+     inkscape:window-height="541"
+     inkscape:window-width="740"
+     inkscape:cy="17.522006"
+     inkscape:cx="11.999999"
+     inkscape:zoom="14.958333"
+     id="base" />
+  <path
+     inkscape:export-ydpi="48.000000"
+     inkscape:export-xdpi="48.000000"
+     inkscape:export-filename="/mnt/vdrsrc/xxv/XXV-0.11/gray/pic/on.png"
+     id="path605"
+     d="M 4.4334262,4.4334262 C 2.4334262,6.4334262 1.3334262,9.1334262 1.3334262,12.033426 C 1.3334262,14.933426 2.4334262,17.633426 4.4334262,19.633426 C 6.4334262,21.633426 9.1334262,22.733426 12.033426,22.733426 C 14.933426,22.733426 17.633426,21.633426 19.633426,19.633426 C 21.633426,17.633426 22.733426,14.933426 22.733426,12.033426 C 22.733426,9.1334262 21.633426,6.4334262 19.633426,4.4334262 C 17.633426,2.4334262 14.933426,1.3334262 12.033426,1.3334262 C 9.1334262,1.3334262 6.4334262,2.4334262 4.4334262,4.4334262 z "
+     style="font-size:12.000000;fill-rule:nonzero;stroke:#000000;stroke-width:0.86360002;" />
+  <path
+     inkscape:export-ydpi="48.000000"
+     inkscape:export-xdpi="48.000000"
+     inkscape:export-filename="/mnt/vdrsrc/xxv/XXV-0.11/gray/pic/on.png"
+     id="path610"
+     d="M 21.933426,12.033426 C 21.933426,17.433426 17.533426,21.933426 12.033426,21.933426 C 6.6334262,21.933426 2.1334262,17.533426 2.1334262,12.033426 C 2.1334262,6.6334262 6.5334262,2.1334262 12.033426,2.1334262 C 17.433426,2.1334262 21.933426,6.5334262 21.933426,12.033426 L 21.933426,12.033426 z "
+     style="font-size:12.000000;fill:url(#aigrd1);fill-rule:nonzero;" />
+  <g
+     transform="translate(3.342618e-2,3.342618e-2)"
+     inkscape:export-ydpi="48.000000"
+     inkscape:export-xdpi="48.000000"
+     inkscape:export-filename="/mnt/vdrsrc/xxv/XXV-0.11/gray/pic/on.png"
+     style="fill-rule:nonzero;stroke:#000000;stroke-miterlimit:4.0000000;"
+     id="Layer_x0020_2">
+    <path
+       id="path622"
+       d="M 24.000000,24.000000 L 0.0000000,24.000000 L 0.0000000,0.0000000 L 24.000000,0.0000000 L 24.000000,24.000000 z "
+       style="fill:none;fill-rule:evenodd;stroke:none;" />
+  </g>
+  <metadata
+     id="metadata15">
+    <rdf:RDF
+       id="RDF16">
+      <cc:Work
+         id="Work17"
+         rdf:about="">
+        <dc:format
+           id="format18">image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+           id="type20" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

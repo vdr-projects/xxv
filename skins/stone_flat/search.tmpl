@@ -1,0 +1,152 @@
+<!-- search -->
+<?% USE date %?>
+<body class="frame">
+<div id="body">
+<?% ######################################################################## %?>
+<?% BLOCK RowButtons %?>
+                        <a href="?cmd=search&amp;data=<?% url( title ) %?>">
+                            <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
+                        </a>
+                        <?% IF param.timers.${id} && allow('tedit') %?>
+                        <a href="javascript:popup('tedit','<?% param.timers.${id}.Id %?>',620,670,1)">
+                            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this Timer") %?>" />
+                        </a>
+                        <?% ELSIF allow('tnew') %?>
+                        <a href="javascript:popup('tnew','<?% id %?>',620,670,1)">
+                            <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
+                        </a>
+                        <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK SetState %?>
+    <?% state = '' %?>
+    <?% IF param.runningTimer.exists(id) %?>
+        <?% state = "running" %?>
+    <?% ELSIF param.timers.exists(id) %?>
+      <?% UNLESS param.timers.${id}.Status %?>
+        <?% state = "deactive" %?>
+      <?% ELSE %?>
+        <?% state = "active" %?>
+      <?% END %?>
+    <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK ItemAsFlat %?>
+      <?% PROCESS SetState %?>
+        <tr<?% ' class="two"' IF z mod 2 == 0 %?>>
+            <td class="fieldinline">
+            <a class="fieldinline" style="vertical-align:bottom;" href="?cmd=program&amp;data=<?% channel %?><?% IF id > 0 %?>#E<?% id %?><?% END %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% sender %?>">
+            <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;<?% chop(sender,20) %?></font>
+            </a>
+            </td>
+            <td class="fieldinline">
+                  <a href="javascript:popup('display','<?% id %?>',620,670,0)" class="fieldinline">
+                  <font class="title<?% IF state != "";" ";state;END %?>"><?% chop(title,45) %?></font>
+                  <?% IF subtitle.length > 0 %?><font class="subtitle<?% IF state != "";" ";state;END %?>">&nbsp;-&nbsp;<?% chop(subtitle,55) %?></font><?% END %?>
+				  </a>
+            </td>
+            <td class="fieldinline<?% IF state != "";" ";state;END %?>" style="white-space: nowrap; text-align: right;">                        
+            <?% IF vps && vps != start %?> (<?% gettext("VPS") %?>:<?% vps %?>) <?% END %?>
+            <?% start %?>&nbsp;-&nbsp;<?% stop %?>
+            </td>
+            <td class="fieldinline push">
+                <?% INCLUDE widgets/tooltip.inc cmd="display" eventid=id linkid=id ttp_offset=-300 %?>
+                <?% PROCESS RowButtons %?>
+            </td>
+        </tr>
+        <?% IF global.hideDescription != 1  && description.length > 0 %?>
+        <tr<?% ' class="two"' IF z mod 2 == 0 %?>>
+            <td class="fieldinline" >&nbsp;</td>
+            <td class="fieldinline" colspan="4">
+                  <a href="javascript:popup('display','<?% id %?>',620,670,0)" class="fieldinline">
+                  <font class="description<?% IF state != "";" ";state;END %?>"><?% chop(description,100,1) %?></font>
+				  </a>
+            </td>
+        </tr>
+        <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?></h1>
+<?% IF data.size > 1 %?>
+<?% fields = data.shift %?>
+    <?% FOREACH zeile = data %?>
+        <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;vps=zeile.9 %?>
+        <?% day = date.format(zeile.7, "%A, %x", locale) %?>
+        <?% IF !old.defined || day != old %?>
+            <?% IF old.defined  %?>
+            </table>
+            </td>
+        </tr>
+    <tr><td class="largebottom"></td></tr>
+</table> 
+            <?% END %?>
+<table class="largetable" summary="">
+    <tr><td class="largehead"><?% day %?></td></tr>
+        <tr>
+            <td class="largetext" align="left">
+            <table  summary="" width="100%">
+            <?% z = 1 %?>
+            <tr height="0"><th width="120"></th><th></th><th width="60"></th><th width="40" align="right"></th></tr>
+        <?% END %?>
+        <?% old = day %?>
+        <?% PROCESS ItemAsFlat %?>
+        <?% z = z + 1 %?>
+        <?% END %?>
+            </table>
+            </td>
+        </tr>
+    <tr><td class="largebottom"></td></tr>
+</table> 
+<?% END %?>
+</div>
+<!-- ###### Seite ###### -->
+<div id="sidebar">
+  <table summary="">
+    <tr><td class="sidehead"><?% gettext("Search text",20) %?></td></tr>
+    <tr>
+    <td class="sidetext">
+        <form action="" name="searchform" >
+            <input type='hidden' name='cmd' value='search' />
+            <input type="text" id="epgtext" name="data" alt="<?% gettext("Search") %?>" 
+               onkeyup="suggest('esuggest&__channel=' + escape(this.form.__channel[this.form.__channel.options.selectedIndex].value),'epgtext','epgsuggest');"
+               value="<?% cgi.param('data') %?>"
+               autocomplete="off" />
+            <br /><div class="suggestbox" id="epgsuggest"></div>
+            <br />
+            <?% gettext('Search in fields',30) %?><br />
+            <input style="width:auto;" type="radio" name="__Where" value="all" <?% IF ! cgi.param('__Where') || cgi.param('__Where') == 'all' %?>checked<?% END %?> /><?% gettext('All') %?><br />
+            <input style="width:auto;" type="radio" name="__Where" value="title" <?% IF cgi.param('__Where') == 'title' %?>checked<?% END %?> /><?% gettext('Only in title') %?><br />
+            <input style="width:auto;" type="radio" name="__Where" value="titlesubtitle" <?% IF cgi.param('__Where') == 'titlesubtitle' %?>checked<?% END %?> /><?% gettext('Only in title and subtitle') %?><br />
+            <br />
+            <?% gettext('Video format',30) %?><br />
+            <input style="width:auto;" type="radio" name="__VideoFormat" value="all" <?% IF ! cgi.param('__VideoFormat') || cgi.param('__VideoFormat') == 'all' %?>checked<?% END %?> /><?% gettext('All') %?><br />
+            <input style="width:auto;" type="radio" name="__VideoFormat" value="widescreen" <?% IF cgi.param('__VideoFormat') == 'widescreen' %?>checked<?% END %?> /><?% gettext('16:9 Wide-screen') %?><br />
+            <br />
+            <?% gettext('Audio format',30) %?><br />
+            <input style="width:auto;" type="radio" name="__AudioFormat" value="all" <?% IF ! cgi.param('__AudioFormat') || cgi.param('__AudioFormat') == 'all' %?>checked<?% END %?> /><?% gettext('All') %?><br />
+            <input style="width:auto;" type="radio" name="__AudioFormat" value="dts" <?% IF cgi.param('__AudioFormat') == 'dts' %?>checked<?% END %?> /><?% gettext('Dolby Digital') %?><br />
+            <input style="width:auto;" type="radio" name="__AudioFormat" value="stereo" <?% IF cgi.param('__AudioFormat') == 'stereo' %?>checked<?% END %?> /><?% gettext('Stereo') %?><br />
+            <br />
+            <?% gettext('Minimum length (in minutes)',30) %?><br />
+            <input type="text" name="__MinLength" value="<?% cgi.param('__MinLength') %?>" />
+            <br /><br />
+            <?% gettext('Channel',30) %?><br />
+            <select name='__channel'>
+                <option value="0"><?% gettext('All channels') %?></option>
+            <?% FOREACH chan = getModule('CHANNELS').ChannelArray('Name') %?>
+                <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected<?% END %?>><?% chan.first %?></option>
+            <?% END %?>
+            </select>
+            <br /><br />
+            <input type='submit' value='<?% gettext('Search') %?>' />
+        </form>
+    </td>
+    </tr>
+    <tr>
+    <td class="sidebottom"></td>
+    </tr>
+  </table>
+  <p id="sidefooter">&nbsp;</p>
+</div>
+<?% INCLUDE header.inc %?>

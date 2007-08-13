@@ -1,0 +1,41 @@
+<script language="javascript" type="text/javascript">
+<!--
+
+    <?% INCLUDE javascript/records.js %?>
+
+-->
+</SCRIPT>
+
+<!-- TableTemplate -->
+<?% USE date %?>
+<h1><?% gettext("TopTen Entrys") %?></h1>
+<h6><?% gettext("This Screen list the most programmed EPG Events from all XXV Users. Of course, we list only Events these are exists in your EPG Table!") %?></h6>
+<p/>
+<table>
+<tr>
+
+<div id="navcontainer">
+<ul id="navlist">
+    <li><a href='?cmd=t10&amp;data=10'><?% gettext('Top10') %?></a></li>
+    <li><a href='?cmd=t10&amp;data=50'><?% gettext('Top50') %?></a></li>
+    <li><a href='?cmd=t10&amp;data=100'><?% gettext('Top100') %?></a></li>
+</ul>
+</div>
+
+<table border="0" width="95%">
+<?% IF data.size %?>
+    <?% fields = data.shift %?>
+        <tr>
+        <?% FOREACH field = [gettext('Service'),gettext('Title'),gettext('Channel'),gettext('Start'),gettext('Rank')] %?>
+            <th><?% field %?></th>
+        <?% END %?>
+        </tr>
+        <?% FOREACH zeile = data %?>
+            <?% c = 0 %?>
+        <tr class="<?% myclass %?>"<?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
+        <?% INCLUDE 'bloecke/event_row.tmpl' fielddata=[zeile.0,zeile.1,zeile.2,date.format(zeile.5,"%x %X",locale),zeile.3] %?>
+        </tr>
+        <?% oldday = day %?>
+        <?% END %?>
+<?% END %?>
+</table>

@@ -1,0 +1,110 @@
+<!-- Memory Template -->
+<?% IF ! global.bodyinc.defined;global.bodyinc = 1 %?>
+<body class="frame">
+<?% INCLUDE status.inc %?>
+<?% INCLUDE header.inc %?>
+<div id="body">
+<?% END %?>
+
+<?%
+    USE date;
+    statusfiles = [];
+
+    FILTER null;
+        name = 'memory_stat';
+        swapdata = [];
+        activedata = [];
+        cacheddata = [];
+        buffersdata = [];
+        timestamps = [];
+        FOREACH item = param.stack;
+            t = date.format(item.timestamp, '%H:%M:%S');
+            timestamps.push(t);
+            swapdata.push(item.memory.SwapTotal);
+            activedata.push(item.memory.Active);
+            cacheddata.push(item.memory.Cached);
+            buffersdata.push(item.memory.Buffers);
+        END;
+
+        # Maximum wert
+        max = param.stack.last.memory.MemTotal;
+
+        # Data ...
+        d = [
+             timestamps ,
+             swapdata ,
+             cacheddata ,
+             activedata ,
+             buffersdata ,
+        ];
+
+        USE my_graph = GD.Graph.lines(575,300);
+
+        # Xsteps
+        steps = param.stack.size div 5;
+
+        label = gettext('Memory usage since');
+        y_label = gettext('Memory usage in bytes'),
+        label = "${label} ${d.first.first} (${y_label})";
+        my_graph.set(
+                x_label_skip => steps,
+                x_long_ticks => 1,
+
+                y_long_ticks => 1,
+
+                line_width   => 2,
+                box_axis     => 1,
+                boxclr       => '#FFFFCC',
+                fgclr        => '#BBBBBB'
+                legend_placement => 'RD',
+                legend_spacing => 5,
+        );
+        my_graph.set_title_font(param.font,10);
+        my_graph.set_y_label_font(param.font,10);
+        my_graph.set_x_label_font(param.font,10);
+        my_graph.set_x_axis_font(param.font,6);
+        my_graph.set_y_axis_font(param.font,6);
+        my_graph.set_legend( 'Swap', 'Active', 'Cached', 'Buffers');
+        file = writefile("status_${name}.gif", my_graph.plot(d).gif );
+        statusfiles.push([label, file]);
+        END;
+
+        # ------------------- Piegraph für Speicher
+        FILTER null;
+        name = 'memory_now';
+        d2 = [
+            ["Active ${data.Active}","Cached ${data.Cached}","Inactive ${data.Inactive}","MemFree ${data.MemFree}","Buffers ${data.Buffers}"],
+            [ data.Active, data.Cached, data.Inactive, data.MemFree, data.Buffers]
+        ];
+        USE my_graph = GD.Graph.pie(500, 300);
+        label = gettext('Total Memory');
+        label = "${label} ${data.MemTotal}";
+        my_graph.set(
+                axislabelclr => 'black',
+                pie_height => 20,
+                transparent => 1,
+        );
+        my_graph.set_title_font(param.font,10);
+        my_graph.set_label_font(param.font,10);
+        my_graph.set_value_font(param.font,8);
+        file = writefile("status_${name}.gif", my_graph.plot(d2).gif );
+        statusfiles.push([label, file]);
+
+      END;
+ %?>
+
+<?% IF param.headingText %?>
+<h1><?% param.headingText %?></h1>
+<?% END %?>
+
+<?% FOREACH file = statusfiles %?>
+<table class="editortable" summary="">
+    <tr><td class="editorhead"><?% file.0 %?></td></tr>
+    <tr>
+        <td class="editortext" align="center">
+          <img src="<?% file.1 %?>" alt="<?% file.0 %?>" />
+        </td>
+    </tr>
+    <tr><td class="editorbottom"></td></tr>
+</table>
+<?% END %?>

@@ -1,0 +1,315 @@
+html {
+	border:		0;
+}
+
+body {
+ font-family:   Verdana, Arial, sans-serif;
+ font-size:     80%;
+ color:         #000064;
+ border:		0px;
+ margin:        0px;
+ background :   #FFF;
+}
+
+.content {
+ margin: 10px;
+ padding-top: 15px;
+ padding-bottom: 20px;
+}
+
+/* Überschriften */
+h1 { font-size:1.3em;margin-top:0px;}
+h2 { font-size:1.1em;}
+h3 { font-size:1em; margin-top:0px; margin-bottom:0px;}
+h4 { font-size:1em;}
+h6 { font-size:0.7em; font-style:italic; margin:20px}
+h2,h4 { margin-top:0px;margin-bottom:0px; }
+h1,h2,h3,h4 { color:#0075e3;}
+
+/* Keine Rahmen um Grafiken als Link */
+a img {border-width:0px;}
+
+/* Standard Hyperlinks */
+a:link, a:visited, a:hover, a:active{
+ text-decoration:none;
+ color:#005199;
+ background-color:inherit;
+}
+a:visited { color:#0075e3; }
+a:hover, a:active {
+ color:#770;
+ text-decoration:underline;
+}
+
+/* funktioniert leider nur im neuesten Firefox fehlerfrei ;(
+input:focus, textarea:focus, select:focus {
+  border: #FF0000 1px solid;
+  background-color:#ffff99;
+}
+*/
+
+input[type~=text],input[type~=password]  {
+    width : 200px;
+}
+
+input, textarea  {
+    cursor: text;
+    border: 3px double #999999;
+    border-top-color: #CCCCCC;
+    border-left-color: #CCCCCC;
+    padding: 0.25em;
+    background-color: #FFFFFF;
+    color: #333333;
+}
+
+input:hover, textarea:hover  {
+    cursor: text;
+    border: 3px double #FF0000;
+    background-color: #FFFFFF;
+    color: #FF0000;
+}
+
+input[type~=button],input[type~=submit], input[type~=reset], input[type~=radio], input[type~=checkbox], select  {
+    cursor: pointer;
+}
+
+/* Timerlist*/
+.deactive{
+    text-decoration:line-through;
+    color:#aaaaaa;
+}
+
+.active{
+    color:#00aa00;
+    font-weight:bold;
+}
+
+.problem{
+    color:#ff0000;
+}
+
+
+/* VTX */
+p.vtx{
+ font-size:16px;
+ font-family:monospace;
+ white-space:nowrap;
+}
+
+img.vtx{
+ position:absolute;
+ z-index: 1;
+ width:  10px;
+ height: 19px;
+}
+
+/* VTX Hyperlinks */
+a.vtx:link, a.vtx:visited, a.vtx:hover, a.vtx:active{
+ text-decoration:none;
+ color:#00FF00;
+}
+
+.footer {
+	background:		buttonface;
+	padding:		0px;
+	border-top:		1px solid ButtonShadow;
+	border-bottom:	1px solid ButtonHighlight;
+	overflow:		hidden;
+	margin:			0;
+	margin-top:		2px;
+	margin-bottom:	0px;
+    text-align: center;
+    font-size:      0.8em;
+    position:       fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
+.borderless {
+	border      :1px solid #FFFFFF;
+    background  : #FFF;
+}
+
+.recordwindow {
+	overflow:		auto;
+    height: 250px;
+    font-size:      0.6em;
+    margin: 3px;
+    position: relative;
+    float:left;
+}
+
+.folderwindow {
+	background:		buttonface;
+	overflow:		auto;
+    height: 250px;
+    font-size:      0.6em;
+    margin: 3px;
+    position: relative;
+    float:left;
+}
+
+
+/*
+    Tabledesign
+*/
+
+table,td
+{
+	border               : 1px solid #CCC;
+	border-collapse      : collapse;
+  vertical-align       : top;
+  font                 : small/1.5 "Tahoma", "Bitstream Vera Sans", Verdana, Helvetica, sans-serif;
+}
+table
+{
+	border                :none;
+	border                :1px solid #CCC;
+}
+thead th,
+tbody th
+{
+    background          : #FFF url(th_bck.gif) repeat-x;
+    color               : #666;
+	padding             : 5px;
+    border-left         : 1px solid #CCC;
+}
+tbody th
+{
+  background            : #fafafb;
+  border-top            : 1px solid #CCC;
+  text-align            : left;
+  font-weight           : bold;
+}
+tbody tr td
+{
+  padding-right         : 5px;
+  padding-left         : 5px;
+  color                 : #666;
+}
+tbody tr:hover
+{
+  background            : #FFF url(tr_bck.gif) repeat;
+}
+
+tbody tr:hover td
+{
+  color                 : #454545;
+}
+tfoot td,
+tfoot th
+{
+  border-top            : 1px solid #CCC;
+	padding               : 4px;
+  background            : #FFF url(foot_bck.gif) repeat;
+  color                 : #666;
+}
+caption
+{
+	text-align            : left;
+	font-size             : 120%;
+	padding               : 10px 0;
+	color                 : #666;
+}
+
+/* Navlist */
+#navcontainer
+{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-top: 1px solid #999;
+    z-index: 1;
+}
+
+#navcontainer ul
+{
+    list-style-type: none;
+    text-align: center;
+    margin-top: -8px;
+    padding: 0;
+    position: relative;
+    z-index: 2;
+}
+
+#navcontainer li
+{
+    display: inline;
+    text-align: center;
+    margin: 0 5px;
+}
+
+#navcontainer li a
+{
+    padding: 1px 7px;
+    color: #666;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    text-decoration: none;
+}
+
+#navcontainer li a:hover
+{
+    color: #000;
+    border: 1px solid #666;
+    border-top: 2px solid #666;
+    border-bottom: 2px solid #666;
+}
+
+#navcontainer li a#current
+{
+    color: #000;
+    border: 1px solid #666;
+    border-top: 2px solid #666;
+    border-bottom: 2px solid #666;
+}
+
+/* Icons */
+
+#icons img {
+    margin: 2px;
+    border: 1px solid #eee;
+}
+
+#icons a:hover img {
+    border: 1px outset #666;
+}
+
+#stars img {
+    padding: 2px;
+    border: 0px solid #eee;
+}
+
+
+
+#TOOLTIP {
+  position:absolute; 
+  width: 400px; 
+  top: 0px; 
+  left: 0px; 
+  z-index:5; 
+  visibility:hidden;
+}
+
+#ttwindow {
+	width: 400px;
+  font-size: 12px;
+  border:1px solid #666666;
+}
+
+#ttwindow p.topic {
+	text-align: left;
+	font-weight: bold;
+	padding: 3px;
+	color:              #000064;
+	background-color:   #DDDDDD;
+  margin: 0px;
+}
+
+#ttwindow p.description {
+	padding: 5px;
+  margin: 0px;
+	background-color:   #ffffff;
+}

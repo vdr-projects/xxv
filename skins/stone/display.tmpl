@@ -1,0 +1,130 @@
+<!-- display -->
+<?% IF ! global.bodyinc.defined; global.bodyinc = 1 %?>
+<body class="hilfsframed">
+<div>
+<?% END %?>
+<?% IF debug  %?>
+<!-- First: <?% FOREACH x = data.first %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
+<!-- Last: <?% FOREACH x = data.last %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
+<?% END %?>
+<?%
+  USE date;
+  id = data.last.0;
+  title = data.last.1;
+  subtitle = data.last.2;
+  start = data.last.3;
+  stopp = data.last.4;
+  channel = data.last.5;
+  description = data.last.6;
+  bild = data.last.7;
+  d = data.last.8;
+  video = data.last.9;
+  audio = data.last.10;
+  vps = data.last.11;
+%?>
+<?% ######################################################################## %?>
+<?% BLOCK dur %?>
+    <?% height=12;IF d >= 0 and d < 100;d = d div 1 %?>
+        	<?% IF d >= 1 %?>
+				<img class="progressleft" src="images/blank.gif" width="<?% 100 - d %?>" height="<?% height %?>" alt="<?% 100 - d %?>%" /><img class="progressright" src="images/blank.gif" width="<?% d %?>" height="<?% height %?>" alt="" />
+            <?% ELSE %?>
+				<img class="progress" src="images/blank.gif" width="100" height="<?% height %?>" alt="" />
+            <?% END %?>
+    <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK printduration;
+      duration = stopp - start;
+      IF duration > 1;
+        hours = duration div 3600;
+        minutes = duration div 60 mod 60;
+        seconds =  duration mod 60;
+        gettext("Duration") ; " : "; hours div 1 ;":"; minutes | format('%02d');
+      END;
+END %?>
+<?% ######################################################################## %?>
+<?% BLOCK RowButtons %?>
+<div align="right">
+    <a target="_blank" href="http://www.tvmovie.de/MegaFinder_Suchergebnisse.210.0.html?no_cache=1&search=<?% title %?>">
+        <img src="images/tvm.<?% global.imagetyp %?>" title="<?% gettext("Search with TVMovie") %?>" alt="TVMovie" />
+    </a>
+    <a target="_blank" href="http://german.imdb.com/find?s=tt&amp;site=aka&amp;q=<?% title %?>">
+        <img src="images/imdb.<?% global.imagetyp %?>" title="<?% gettext("Search with IMDb") %?>" alt="IMDb" />
+    </a>
+    <a target="_blank" href="http://www.ofdb.de/view.php?page=suchergebnis&Kat=Titel&SText=<?% title %?>">
+        <img src="images/ofdb.<?% global.imagetyp %?>" title="<?% gettext("Search with OFDb") %?>" alt="OFDb" />
+    </a>
+    <a target="_blank" href="?cmd=search&amp;data=<?% url( title ) %?>">
+        <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
+    </a>
+    <?% IF param.timers.${id} && allow('tedit') %?>
+    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
+        <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
+    </a>
+    <?% ELSIF allow('tnew') %?>
+    <a href="?cmd=tnew&amp;data=<?% id %?>">
+        <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
+    </a>
+    <?% END %?>
+</div>
+<?% END %?>
+<?% ######################################################################## %?>
+	<table class="editortable" summary="">
+    	<tr>
+			<td class="editorhead">
+        <div class="editorhead" style="float:left;">
+          <?% title %?>
+          <?% IF subtitle.length > 0 %?><font class="subtitle">&nbsp;~&nbsp;<?% subtitle %?></font><?% END %?>
+        </div>
+        <?% INCLUDE shutter.inc %?>
+			</td>
+		</tr>
+    	<tr>
+    	<td class="editortext">
+			<table width="100%" summary="">
+				<tr>
+			    <td>
+             <div class="description" style="white-space: nowrap">    
+                <?% IF allow('switch') %?>
+                <a href="javascript:post('switch','<?% channel %?>')">
+                    <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />&nbsp;
+        	      <?% END %?>
+        			        <?% channel %?>
+                <?% IF allow('switch') %?>
+                </a>
+         	      <?% END %?>
+            </div>
+			    </td>
+			    <td>
+             <div class="description" style="white-space: nowrap">    
+                
+			          <?% date.format(start,"%A, %x",locale) %?>
+                <br />
+                <?% date.format(start,"%H:%M",locale) %?>&nbsp;-&nbsp;<?% date.format(stopp,"%H:%M",locale) %?>
+                <?% IF vps && vps != start %?>&nbsp;&nbsp;&nbsp;(<?% gettext("VPS") %?>&nbsp;<?% date.format(vps,"%H:%M",locale) %?>) <?% END %?>
+                &nbsp;&nbsp;&nbsp;<?% PROCESS printduration %?>
+
+            </div>
+			    </td>
+			    <td align="right">
+			        <?% PROCESS dur %?>
+			    </td>
+                <td class="push">
+                    <?% PROCESS RowButtons %?>
+                </td>
+			     </tr>
+		      </table>
+		<?% IF description != "" || bild != "" %?>
+                    <p class="description">
+        		<?% IF bild != "" %?>
+                    <img class="epgimages" src="epgimages/<?% bild %?>" alt="" />
+                <?% END %?>
+<?% description %?>
+                    </p>
+		<?% END %?>
+    </td>
+    </tr>
+    <tr>
+    	<td class="editorbottom"></td>
+    </tr>
+</table>

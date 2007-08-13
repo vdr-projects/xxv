@@ -1,0 +1,21 @@
+<!-- string -->
+<tr>
+    <td class="<?% (param.count mod 2) == 0 ? 'light' : 'dark' %?>" >
+        <?% data.msg %?>
+    </td>
+    <td class="<?% (param.count mod 2) == 0 ? 'light' : 'dark' %?>" >
+        <?% val = cgi.param(data.NAME) || data.def %?>
+        <?% IF data.readonly %?>
+        <span<?% FOREACH p = param.tags; "$p ";END %?>>
+        <?% val %?>
+        </span>
+        <?% ELSE %?>
+            <?% IF (val && val.length > 30) || param.type == 'text' %?>
+            <textarea cols='50' rows='5' name="<?% data.NAME %?>" <?% FOREACH p = param.tags; "$p ";END %?>><?% val | replace("<br />","
+")%?></textarea>
+            <?% ELSE %?>
+            <input type="text" name="<?% data.NAME %?>" value="<?% val %?>" <?% FOREACH p = param.tags; "$p ";END %?>>
+            <?% END %?>
+        <?% END %?>
+    </td>
+</tr>

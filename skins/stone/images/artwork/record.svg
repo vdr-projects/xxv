@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Sodipodi ("http://www.sodipodi.com/") -->
+<svg
+   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="0.41"
+   sodipodi:docbase="/mnt/vdrsrc/xxv/devlop/XXV-Skins/stone/images/artwork"
+   sodipodi:docname="record.svg"
+   sodipodi:version="0.32"
+   id="svg602"
+   xml:space="preserve"
+   viewBox="0 0 24 24"
+   height="24pt"
+   width="24pt">
+  <defs
+     id="defs624">
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       fy="7.8398"
+       fx="8.7124"
+       r="14.3823"
+       cy="7.8398"
+       cx="8.7124"
+       id="aigrd1">
+      <stop
+         id="stop607"
+         style="stop-color:#F6A783"
+         offset="0" />
+      <stop
+         id="stop608"
+         style="stop-color:#F96415"
+         offset="0.2809" />
+      <stop
+         id="stop609"
+         style="stop-color:#99310C"
+         offset="1" />
+    </radialGradient>
+  </defs>
+  <sodipodi:namedview
+     inkscape:current-layer="svg602"
+     inkscape:window-y="21"
+     inkscape:window-x="5"
+     inkscape:window-height="668"
+     inkscape:window-width="759"
+     inkscape:cy="13.893072"
+     inkscape:cx="12.000000"
+     inkscape:zoom="14.958333"
+     id="base" />
+  <path
+     inkscape:export-ydpi="48.000000"
+     inkscape:export-xdpi="48.000000"
+     inkscape:export-filename="/mnt/vdrsrc/xxv/XXV-0.11/gray/images/record.png"
+     id="path605"
+     d="M4.4,4.4c-2,2-3.1,4.7-3.1,7.6c0,2.9,1.1,5.6,3.1,7.6c2,2,4.7,3.1,7.6,3.1c2.9,0,5.6-1.1,7.6-3.1c2-2,3.1-4.7,3.1-7.6c0-2.9-1.1-5.6-3.1-7.6S14.9,1.3,12,1.3c-2.9,0-5.6,1.1-7.6,3.1z"
+     style="font-size:12;fill-rule:nonzero;stroke:#000000;stroke-width:0.8636;" />
+  <path
+     inkscape:export-ydpi="48.000000"
+     inkscape:export-xdpi="48.000000"
+     inkscape:export-filename="/mnt/vdrsrc/xxv/XXV-0.11/gray/images/record.png"
+     id="path610"
+     d="M21.9,12c0,5.4-4.4,9.9-9.9,9.9c-5.4,0-9.9-4.4-9.9-9.9c0-5.4,4.4-9.9,9.9-9.9c5.4,0,9.9,4.4,9.9,9.9z"
+     style="font-size:12;fill:url(#aigrd1);fill-rule:nonzero;" />
+  <g
+     inkscape:export-ydpi="48.000000"
+     inkscape:export-xdpi="48.000000"
+     inkscape:export-filename="/mnt/vdrsrc/xxv/XXV-0.11/gray/images/record.png"
+     style="fill-rule:nonzero;clip-rule:nonzero;stroke:#000000;stroke-miterlimit:4;"
+     id="Layer_x0020_2">
+    <path
+       id="path622"
+       d="M24,24H0V0h24v24z"
+       style="fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:none;" />
+  </g>
+  <metadata
+     id="metadata15">
+    <rdf:RDF
+       id="RDF16">
+      <cc:Work
+         id="Work17"
+         rdf:about="">
+        <dc:format
+           id="format18">image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+           id="type20" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

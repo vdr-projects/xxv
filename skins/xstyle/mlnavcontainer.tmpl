@@ -1,0 +1,112 @@
+<link href="style/coolmenus4.css" type="text/css" rel="stylesheet">
+<script language="JavaScript1.2" src="javascript/coolmenus4.js"></script>
+<script type="text/javascript">
+
+/*** 
+This is the menu creation code - place it right after you body tag
+Feel free to add this to a stand-alone js file and link it to your page.
+**/
+
+//Menu object creation
+oCMenu=new makeCM("oCMenu") //Making the menu object. Argument: menuname
+
+oCMenu.frames = 0
+
+//Menu properties   
+oCMenu.pxBetween=5
+oCMenu.fromLeft=20 
+oCMenu.fromTop=52
+oCMenu.rows=1 
+oCMenu.menuPlacement="left"
+                                                             
+oCMenu.offlineRoot="" 
+oCMenu.onlineRoot="" 
+oCMenu.resizeCheck=1 
+oCMenu.wait=1000 
+oCMenu.fillImg=""
+oCMenu.zIndex=0
+
+//Background bar properties
+oCMenu.useBar=1
+oCMenu.barWidth="100%"
+oCMenu.barHeight=22
+oCMenu.barClass="clBar"
+oCMenu.barX=0 
+oCMenu.barY=50
+oCMenu.barBorderX=1
+oCMenu.barBorderY=1
+oCMenu.barBorderClass="clBarborder"
+
+//Level properties - ALL properties have to be spesified in level 0
+oCMenu.level[0]=new cm_makeLevel() //Add this for each new level
+oCMenu.level[0].width=80
+oCMenu.level[0].height=18
+oCMenu.level[0].regClass="clLevel0"
+oCMenu.level[0].overClass="clLevel0over"
+oCMenu.level[0].borderX=0
+oCMenu.level[0].borderY=0
+oCMenu.level[0].borderClass="clLevel0border"
+oCMenu.level[0].offsetX=0
+oCMenu.level[0].offsetY=0
+oCMenu.level[0].rows=0
+oCMenu.level[0].arrow='images/arrow.down.png'
+oCMenu.level[0].arrowWidth=6
+oCMenu.level[0].arrowHeight=4
+oCMenu.level[0].align="bottom"
+
+//EXAMPLE SUB LEVEL[1] PROPERTIES - You have to specify the properties you want different from LEVEL[0] - If you want all items to look the same just remove this
+oCMenu.level[1]=new cm_makeLevel() //Add this for each new level (adding one to the number)
+oCMenu.level[1].width=oCMenu.level[0].width-2
+oCMenu.level[1].height=16
+oCMenu.level[1].regClass="clLevel1"
+oCMenu.level[1].overClass="clLevel1over"
+oCMenu.level[1].borderX=1
+oCMenu.level[1].borderY=1
+oCMenu.level[1].align="right" 
+oCMenu.level[1].offsetX=-(oCMenu.level[0].width-2)/2+20
+oCMenu.level[1].offsetY=0
+oCMenu.level[1].borderClass="clLevel1border"
+
+/******************************************
+Menu item creation:
+myCoolMenu.makeMenu(name, parent_name, text, link, target, width, height, regImage, overImage, regClass, overClass , align, rows, nolink, onclick, onmouseover, onmouseout) 
+*************************************/
+<?% IF nav_new && allow('mledit') %?>
+oCMenu.makeMenu('top0','','&nbsp;<?% gettext("New") %?>','?cmd=mledit&__range=<?% param.range %?>','',30)
+<?% END %?>
+<?% IF nav_edit && allow('mledit') %?>
+oCMenu.makeMenu('top1','','&nbsp;<?% gettext("Edit") %?>','?cmd=mledit&data=<?% fields.0 %?>&__range=<?% param.range %?>','',45)
+<?% END %?>
+<?% IF nav_copy && allow('mlcopy') %?>
+oCMenu.makeMenu('top2','','&nbsp;<?% gettext("Copy") %?>','?cmd=mlcopy&data=<?% fields.0 %?>&__range=<?% param.range %?>','',50)
+<?% END %?>
+<?% IF nav_delete && allow('mldelete') %?>
+oCMenu.makeMenu('top3','','&nbsp;<?% gettext("Delete") %?>','?cmd=mldelete&data=<?% fields.0 %?>&__range=<?% param.range %?>','',45)
+<?% END %?>
+<?% IF nav_back %?>
+oCMenu.makeMenu('top4','','&nbsp;<?% gettext("Back") %?>','<?% info.Referer %?>','',45)
+<?% END %?>
+<?% IF nav_ranges %?>
+oCMenu.makeMenu('top5','','&nbsp;<?% gettext("Ranges") %?>','',60)
+    <?% c = 50 %?>
+    <?% FOREACH r = param.ranges %?>
+        oCMenu.makeMenu('sub<?% c %?>','top5','<?% r.1 %?>','?cmd=mllist&__range=<?% url( r.0 ) %?>')
+        <?% c = c + 1 %?>
+    <?% END %?>
+<?% END %?>
+<?% IF nav_search && allow('mlsearch') %?>
+oCMenu.makeMenu('top6','','&nbsp;<?% gettext("Search") %?>','?cmd=mlsearch&__range=<?% param.range %?>','',45)
+<?% END %?>
+
+
+
+
+
+//Leave this line - it constructs the menu
+oCMenu.construct()		
+</script>
+<br/>
+<br/>
+<form name='media'>
+<?% INCLUDE 'widgets/referer.tmpl' %?>
+</form>

@@ -1,0 +1,54 @@
+<!-- VTXTemplate -->
+<?% IF !global.include_vtx_wigdet.defined %?>
+<h1><?% gettext("Teletext") %?></h1>
+<!-- ###### Seite ###### -->
+<?% url = "?cmd=vt&amp;data=" %?>
+<div id="sidebar">
+    <p class="section"><?% gettext("Teletext",20) %?></p>
+    <form action="">
+    <p>
+    <select size="5" name='chan' onchange="di('?cmd=vc&amp;data=',this.form.chan.options[this.form.chan.options.selectedIndex].value)">
+    	<?% FOREACH ch = param.channels %?>
+    	    <option value="<?% ch.1 %?>" <?% 'selected="selected"' IF param.channel == ch.1 %?>><?% ch.0 %?></option>
+    	<?% END %?>
+    </select>
+    </p>
+    </form>
+    <p class="section"><?% gettext("Page",20) %?></p>
+    <form method="post" action="?cmd=vt">
+    <p>
+        <input type="text" name="data" size="18" value="<?% param.page %?>" />
+    </p>
+    </form>
+    <p style="color:#aaaaaa;">
+    <?% IF param.toppage != 0 %?><a href="<?% url %?><?% param.toppage %?>"><img src="images/home.<?% global.imagetyp %?>" alt="" title="<?% gettext("First page") %?>" /></a><?% ELSE %?><img src="images/home.<?% global.imagetyp %?>" alt="" title="<?% gettext("First page") %?>" /><?% END %?>&nbsp;
+    <?% IF param.toppage != 0 %?><a href="<?% url %?><?% param.toppage %?>"><?% gettext("First page",20) %?></a><?% ELSE %?><?% gettext("First page",20) %?><?% END %?><br />
+    <?% IF param.page_prev != 0 %?><a href="<?% url %?><?% param.page_prev %?>"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior page") %?>" /></a><?% ELSE %?><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior page") %?>" /><?% END %?>&nbsp;
+    <?% IF param.page_prev != 0 %?><a href="<?% url %?><?% param.page_prev %?>"><?% gettext("Prior page",20) %?></a><?% ELSE %?><?% gettext("Prior page",20) %?><?% END %?><br />
+    <?% IF param.page_next != 0 %?><a href="<?% url %?><?% param.page_next %?>"><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next page") %?>" /></a><?% ELSE %?><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next page") %?>" /><?% END %?>&nbsp;
+    <?% IF param.page_next != 0 %?><a href="<?% url %?><?% param.page_next %?>"><?% gettext("Next page",20) %?></a><?% ELSE %?><?% gettext("Next page",20) %?><?% END %?><br />
+    </p>
+    <p style="color:#aaaaaa;">
+    <?% IF param.subpage_prev != 0 %?><a href="<?% url %?><?% param.subpage_prev %?>"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior subpage") %?>" /></a><?% ELSE %?><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior subpage") %?>" /><?% END %?>&nbsp;
+    <?% IF param.subpage_prev != 0 %?><a href="<?% url %?><?% param.subpage_prev %?>"><?% gettext("Prior subpage",20) %?></a><?% ELSE %?><?% gettext("Prior subpage",20) %?><?% END %?><br />
+    <?% IF param.subpage_next != 0 %?><a href="<?% url %?><?% param.subpage_next %?>"><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next subpage") %?>" /></a><?% ELSE %?><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next subpage") %?>" /><?% END %?>&nbsp;
+    <?% IF param.subpage_next != 0 %?><a href="<?% url %?><?% param.subpage_next %?>"><?% gettext("Next subpage",20) %?></a><?% ELSE %?><?% gettext("Next subpage",20) %?><?% END %?><br />
+    </p>
+    <p class="section"><?% gettext("Search",20) %?></p>
+    <form method="post" action="?cmd=vs">
+    <p>
+    	<input type="text" name="data" size="18" value="" />
+    </p>
+    </form>
+</div>
+<?% global.sidebar = 1 %?>
+<?% SET global.include_vtx_wigdet = 1 %?>
+<?% END %?>
+<div style="float:left; margin:5px;">
+<h2>
+<?% gettext("Page") %?>&nbsp;<?% param.page; pages = cgi.param('data').split('_'); IF pages.size > 1 && pages.last > 0 %?>/<?% pages.last; END %?>
+</h2>
+<?% FOREACH l = data %?>
+    <?% l %?>
+<?% END %?>
+</div>

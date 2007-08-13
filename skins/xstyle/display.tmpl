@@ -1,0 +1,86 @@
+<script language="javascript" type="text/javascript">
+<!--
+
+    <?% INCLUDE javascript/records.js %?>
+
+-->
+</script>
+<?% USE date %?>
+
+<div id="navcontainer">
+<ul id="navlist">
+    <li>
+    <a target="_blank" href="http://german.imdb.com/find?s=tt&amp;site=aka&amp;q=<?% data.last.1 %?>">
+        <?% gettext("Search with IMDb") %?>
+    </a>
+    </li>
+    <li>
+    <a target="_blank" href="http://www.ofdb.de/view.php?page=suchergebnis&Kat=Titel&SText=<?% data.last.1 %?>">
+        <?% gettext("Search with OFDb") %?>
+    </a>
+    </li>
+</ul>
+</div>
+
+<h1><?% gettext("Detailed program information") %?></h1>
+<!-- TableTemplate -->
+<table border="0" width="95%">
+<?% fields = data.shift %?>
+    <?% c = -1 %?>
+    <?% IF data.first.7 %?>
+       <?% Image = data.first.7 %?>
+    <?% END %?>
+    <?% FOREACH field = fields %?>
+        <?% c = c + 1 %?>
+        <?%# NEXT UNLESS data.first.$c %?>
+        <?% NEXT IF field == gettext('Percent') && data.first.$c > 100 %?>
+        <?% NEXT IF field.match('^__') %?>
+        <?% IF field == gettext('Percent') %?>
+                <tr height="45">
+        <?% ELSE %?>
+                <tr>
+        <?% END %?>
+            <td><?% field %?></td>
+        <?% IF field == gettext('Channel') %?>
+            <td><a href="?cmd=program&amp;data=<?% data.first.$c %?>"><?% data.first.$c %?></a></td>
+        <?% ELSIF field == gettext('Service') %?>
+            <td>
+                <?% INCLUDE 'bloecke/event_links.tmpl' data=data.first %?>
+            </td>
+        <?% ELSIF field == gettext('Percent') %?>
+            <?% NEXT IF data.first.$c > 100 %?>
+            <td valign='bottom'><nobr>
+                    <?% INCLUDE 'bloecke/percentbar.tmpl' barwidth=300 percent=(100-data.first.$c) color_switch=1 %?>
+            </td>
+
+        <?% ELSIF field == gettext('Description') %?>
+            <td>
+            <?% IF Image %?>
+                <table align="right" border=0><td>
+                <?% FOREACH img = Image.split("\n") %?>
+                <img src='epgimages/<?% img %?>' border=1 vspace=2><br/>
+                <?% END %?>
+                </td><table>
+            <?% END %?>
+            <?% data.first.$c %?>
+            </td>
+
+        <?% ELSIF field == gettext('Title') %?>
+            <td><?% data.first.$c %?></td>
+        <?% ELSIF field == gettext('Start') %?>
+            <td>
+			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(data.first.$c,"%H:%M",locale) %?>
+                <?% IF data.first.11 && data.first.11 != data.first.$c %?>&nbsp;(<?% gettext("VPS") %?>&nbsp;<?% date.format(data.first.11,"%H:%M",locale) %?>) <?% END %?>
+            </td>
+        <?% ELSIF field == gettext('Stop') %?>
+            <td>
+			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(data.first.$c,"%H:%M",locale) %?>
+            </td>
+        <?% ELSE %?>
+            <td><?% data.first.$c %?></td>
+        <?% END %?>
+        </tr>
+    <?% END %?>
+</table>

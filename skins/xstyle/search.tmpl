@@ -1,0 +1,130 @@
+<script language="javascript" type="text/javascript">
+<!--
+
+    <?% INCLUDE javascript/records.js %?>
+
+-->
+</SCRIPT>
+<?% USE date %?>
+<h1><?% gettext("Advanced Search") %?>&nbsp;
+<?% IF data.size %?>
+    <?% found = data.size - 1 %?>
+   :&nbsp;<?% gettext("Found %s items") | replace("%s", found ) %?>
+<?% END %?>
+</h1>
+
+<table border="0" width="95%">
+<form method="post" action="?cmd=search">
+    <input type='hidden' name='__action' value='save'>
+<tr>
+    <td><?% gettext('Search text') %?>:</td>
+    <td><input type="text" name="data" value="<?% cgi.param('data') || cgi.param('data') %?>"></td>
+</tr>
+<tr>
+    <td><?% gettext('Search in fields') %?>:</td>
+    <td>
+        <input type="radio" name="__Where" value="all" <?% IF ! cgi.param('__Where') || cgi.param('__Where') == 'all' %?>checked<?% END %?>><?% gettext('All') %?>&nbsp;
+        <input type="radio" name="__Where" value="title" <?% IF cgi.param('__Where') == 'title' %?>checked<?% END %?>><?% gettext('Only in title') %?>&nbsp;
+        <input type="radio" name="__Where" value="titlesubtitle" <?% IF cgi.param('__Where') == 'titlesubtitle' %?>checked<?% END %?>><?% gettext('Only in title and subtitle') %?>&nbsp;
+    </td>
+</tr>
+<tr>
+    <td><?% gettext('Video format') %?>:</td>
+    <td>
+        <input type="radio" name="__VideoFormat" value="all" <?% IF ! cgi.param('__VideoFormat') || cgi.param('__VideoFormat') == 'all' %?>checked<?% END %?>><?% gettext('All') %?>&nbsp;
+        <input type="radio" name="__VideoFormat" value="widescreen" <?% IF cgi.param('__VideoFormat') == 'widescreen' %?>checked<?% END %?>><?% gettext('16:9 Wide-screen') %?>&nbsp;
+    </td>
+</tr>
+<tr>
+    <td><?% gettext('Audio format') %?>:</td>
+    <td>
+        <input type="radio" name="__AudioFormat" value="all" <?% IF ! cgi.param('__AudioFormat') || cgi.param('__AudioFormat') == 'all' %?>checked<?% END %?>><?% gettext('All') %?>&nbsp;
+        <input type="radio" name="__AudioFormat" value="dts" <?% IF cgi.param('__AudioFormat') == 'dts' %?>checked<?% END %?>><?% gettext('Dolby Digital') %?>&nbsp;
+        <input type="radio" name="__AudioFormat" value="stereo" <?% IF cgi.param('__AudioFormat') == 'stereo' %?>checked<?% END %?>><?% gettext('Stereo') %?>&nbsp;
+    </td>
+</tr>
+<tr>
+    <td><?% gettext('Minimum length (in minutes)') %?>:</td>
+    <td>
+        <input type="text" name="__MinLength" value="<?% cgi.param('__MinLength') %?>">
+    </td>
+</tr>
+<tr>
+    <td><?% gettext('Channel') %?>:</td>
+    <td>
+    <select name='__channel'>
+        <option value="0"><?% gettext('All channels') %?>
+    <?% FOREACH chan = getModule('CHANNELS').ChannelArray('Name') %?>
+        <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected<?% END %?>><?% chan.first %?>
+    <?% END %?>
+    </select>
+    </td>
+</tr>
+<tr>
+    <td colspan=2>
+        <input type='submit' value='<?% gettext('Search') %?>'>&nbsp;
+        <input type='reset' value='<?% gettext('Reset') %?>'>&nbsp;
+    </td>
+</tr>
+</form>
+</table>
+
+
+<?% IF data.size > 1 %?>
+<table border="0" width="95%">
+<?% IF data.size %?>
+    <?% fields = data.shift %?>
+        <tr>
+        <?% FOREACH field = fields %?>
+            <?% NEXT IF field.match('^__') || loop.count == 8 || loop.count == 9 %?>
+            <th><?% field %?></th>
+        <?% END %?>
+        </tr>
+        <?% FOREACH zeile = data %?>
+            <?% c = -1 %?>
+            <?% day = date.format(zeile.7, "%A, %x", locale) %?>
+            <?% IF !oldday.defined || day != oldday %?>
+                <tr><td colspan="<?% zeile.size %?>" bgcolor='#DDDDDD'>
+                <b><?% day %?></b>
+                </td></tr>
+            <?% END %?>
+            <tr class="<?% myclass %?>"<?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
+            <?% FOREACH field = zeile %?>
+                <?% c = c + 1 %?>
+                <?% NEXT IF fields.$c.match('^__') %?>
+                <?% IF c == 0; # Id Field %?>
+                <td>
+                <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile %?>
+                </td>
+                <?% ELSIF c == 1; # Text Field %?>
+                <td>
+                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.8 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
+                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.Status %?>
+                    <b><?% field %?></b>
+                    <?% ELSE %?>
+                    <?% field %?>
+                    <?% END %?>
+                    <?% IF zeile.2 != "" %?>
+                    <br><small><?% zeile.2 %?></small>
+                    <?% END %?>
+                    <?% IF zeile.8.length > 0 %?>
+                    <br><small><em><?% chop(zeile.8,80) | replace('<br />',' ') %?></em></small>
+                    <?% END %?>
+                    </a>
+                </td>
+                <?% ELSIF c == 3; # Channel Field %?>
+                <td>
+                    <a href="?cmd=program&amp;data=<?% zeile.4 %?>"><?% field %?></a>
+                </td>
+                <?% ELSIF c == 7; # Day Field %?>
+                <?% ELSIF c == 8; # Desc Field %?>
+                <?% ELSE %?>
+                <td><?% field %?></td>
+                <?% END %?>
+            <?% END %?>
+        </tr>
+        <?% oldday = day %?>
+        <?% END %?>
+<?% END %?>
+</table>
+<?% END %?>

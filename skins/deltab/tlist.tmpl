@@ -1,0 +1,209 @@
+<!-- tlist -->
+<?% USE date %?>
+<div id="body">
+<?% ######################################################################## %?>
+<?% aus = gettext('Off') %?>
+<?% an = gettext('On') %?>
+<?% enableform = ( allow('ttoggle') || allow('tdelete') ) %?>
+<?% ######################################################################## %?>
+<?% BLOCK summe %?>
+			<?% IF aktiv == 1; # Errechnen der Differenzen
+					minuten = minuten + (duration div 60);
+			END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK SetState %?>
+    <?% state = '' %?>
+    <?% UNLESS aktiv %?>
+        <?% state = "deactive" %?>
+    <?% ELSIF conflict %?>
+        <?% state = "problem" %?>
+    <?% ELSIF param.runningTimer.exists(id) %?>
+        <?% state = "active" %?>
+    <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK StateImage %?>
+            <?% IF aktiv %?>
+              <?% IF param.capacity && param.capacity div 60 <= minuten %?>
+              <img src="images/warning.<?% global.imagetyp %?>" alt="" title="<?% gettext("Not enough space to record this timer!") %?>" />
+              <?% ELSE %?>
+              <img src="images/on.<?% global.imagetyp %?>" alt="" title="<?% an %?>" />
+              <?% END %?>
+            <?% ELSE %?>
+              <img src="images/off.<?% global.imagetyp %?>" alt="" title="<?% aus %?>" />
+            <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK item %?>
+    <?% PROCESS SetState %?>
+    <td>
+    <?% IF enableform %?>
+        <input class="push" type="checkbox" value="<?% id %?>" name="<?% title %?>" />&nbsp;
+    <?% END %?>
+    <?% IF allow('ttoggle') %?>
+        <a href="javascript:fire('ttoggle','<?% id %?>')">
+    <?% END %?>
+        <?% PROCESS StateImage %?>
+        <?% "</a>" IF allow('ttoggle') %?>
+        <a class="fieldinline" href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program guide:") %?><?% sender %?>" style="<?% IF state != "" %?><?% state %?><?% END %?>vertical-align:bottom;">
+            <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;</font>
+            <font class="title<?% IF state != "";" ";state;END %?>"><?% sender %?></font>
+        </a>
+    </td>
+    <td>
+    <?% IF allow('tedit') %?>
+        <a title="<?% gettext("Edit this timer") %?>" href="?cmd=tedit&amp;data=<?% id %?>">
+    <?% END %?>
+            <font class="title<?% IF state != "";" ";state;END %?>"><?% title %?></font>
+        <?% IF subtitle.length > 0 %?>
+            &nbsp;-&nbsp;<font class="subtitle<?% IF state != "";" ";state;END %?>"><?% subtitle %?></font>
+        <?% END %?>
+        <?% "</a>" IF allow('tedit') %?>
+    </td>
+    <td<?% IF state != "" %?> class="<?% state %?>"<?% END %?>>
+        <?% start %?>-<?% stop %?>
+        <?% vps ? '&nbsp;(VPS)' : '' %?>
+    </td>
+    <td class="push<?% IF state != "";" ";state;END %?>">
+        <?% INCLUDE widgets/tooltip.inc cmd="display" linkid=eventid ttp_offset=-400 %?>
+        <a href="?cmd=search&amp;data=<?% url( title.split('&#x7e;').first ) %?>">
+            <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
+        </a>
+	<?% IF allow('tedit') %?>
+        <a href="?cmd=tedit&amp;data=<?% id %?>">
+            <img src="images/edit.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
+        </a>
+    <?% END %?>
+	<?% IF allow('tdelete') %?>
+        <a href="javascript:sure('<?% gettext("You would delete follow timers?") %?>\n<?% escape( title.split('&#x7e;').first) %?>','?cmd=tdelete&amp;data=<?% id %?>')">
+            <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete timer") %?>" />
+        </a>
+    <?% END %?>
+    </td>
+<?% IF global.hideDescription != 1 && description.length > 0 %?>
+  </tr>
+  <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
+    <td>&nbsp;</td>
+    <td colspan="3">
+      <a href="?cmd=display&amp;data=<?% eventid %?>">
+        <font class="description<?% IF state != "";" ";state;END %?>"><?% chop(description,100,1) %?></font>
+      </a>
+    </td>
+<?% END %?>
+
+<?% END %?>
+
+<?% IF data.size <= 1 %?>
+<h1><?% gettext("Planned recordings") %?></h1>
+<?% ELSE %?>
+<?% fields = data.shift %?>
+<h1><?% gettext("Planned recordings") %?> - <?% date.format(data.first.9, "%A, %x", locale) %?></h1>
+<form name="tlist" action="">
+	<table summary=""  width="100%">
+    <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th width="64" align="right"></th>
+    </tr>
+    <?% minuten = 0 %?>
+	<?% FOREACH zeile = data %?>
+     <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+			<?%- id=zeile.0;
+          aktiv= ( zeile.1 ? zeile.1 mod 2 : 0 );
+          sender=zeile.2;
+          channel=zeile.3;
+          datum=zeile.4;
+          start=zeile.5;
+          stop=zeile.6;
+          title=zeile.7;
+          priority=zeile.8;
+          conflict=zeile.10;
+          eventid=zeile.11;
+          autotimerid=zeile.12;
+          duration=zeile.13;
+          description=zeile.14;
+          t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
+          vps= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
+	    	  day = date.format(zeile.9, "%A, %x", locale) %?>
+		<?% IF old.defined && day != old %?>
+  		<tr>
+		<?% IF minuten > 0 %?>
+			<td colspan="12" align="right">
+				<small><?% minuten div 60%?>:<?% minuten mod 60 FILTER format('%02d')%?></small><br />
+			</td>
+        </tr>
+        <tr>
+		<?% END %?>
+            <td colspan="12" align="left">
+                <h2><?% day %?></h2>
+            </td>
+        </tr>
+		<?% END %?>
+        <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
+		<?% PROCESS summe %?>
+		<?% PROCESS item %?>
+		<?% old = day %?>
+        </tr>
+	<?% END %?>
+	<?% IF minuten > 0 %?>
+        <tr>
+			<td colspan="12" align="right">
+				<small><?% minuten div 60%?>:<?% minuten mod 60 FILTER format('%02d')%?></small>
+				<br />
+			</td>
+        </tr>
+    <?% END %?>
+	</table>
+</form>
+<?% END %?>
+</div>
+<!-- ###### Seite ###### -->
+<div id="sidebar">
+<?% IF enableform || allow('tnew') || allow('tupdate') %?>
+    <p class="section"><?% gettext("Timers",20) %?></p>
+    <p>
+<?% IF allow('topten') %?>
+      <a href="?cmd=topten"><img src="images/topten.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a href="?cmd=topten"><?% gettext("TopTen Entrys",20) %?></a><br />
+<?% END %?>
+<?% IF allow('tnew') %?>
+      <a href="?cmd=tnew"><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("Create a new timer") %?>" /></a>&nbsp;
+      <a href="?cmd=tnew"><?% gettext("Create a new timer",20) %?></a><br />
+<?% END %?>
+<?% IF allow('tupdate') %?>
+      <a href="javascript:fire('tupdate','0')"><img src="images/refresh.<?% global.imagetyp %?>" alt="" title="<?% gettext("Update timers") %?>" /></a>&nbsp;
+      <a href="javascript:fire('tupdate','0')"><?% gettext("Update timers",20) %?></a>
+<?% END %?>
+    </p>
+<?% END %?>
+<?% IF enableform %?>
+    <p class="section"><?% gettext("Select") %?></p>
+    <p>
+      <a href="javascript:selAll(document.tlist,1)"><img src="images/select.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a href="javascript:selAll(document.tlist,1)"><?% gettext("Select all",20) %?></a><br />
+      <a href="javascript:selAll(document.tlist,0)"><img src="images/deselect.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a href="javascript:selAll(document.tlist,0)"><?% gettext("Unselect all",20) %?></a><br />
+      <a href="javascript:reverse(document.tlist)"><img src="images/invers.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a href="javascript:reverse(document.tlist)"><?% gettext("Reverse select",20) %?></a><br />
+<?% IF allow('ttoggle') %?>
+        <a href="javascript:ToggleTimer('<?% gettext("You have nothing selected!") %?>',document.tlist)"><img src="images/onoff.png" alt="" /></a>&nbsp;
+        <a href="javascript:ToggleTimer('<?% gettext("You have nothing selected!") %?>',document.tlist)"><?% gettext("Toggle timer",20) %?></a><br />
+<?% END %?>
+<?% IF allow('tdelete') %?>
+        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow timers?") %?>','<?% gettext("You have nothing selected!") %?>','tdelete',document.tlist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow timers?") %?>','<?% gettext("You have nothing selected!") %?>','tdelete',document.tlist)"><?% gettext("Delete timer",20) %?></a><br />
+<?% END %?>
+    </p>
+<?% END %?>
+    <p class="section"><?% gettext("Search for timers",20) %?></p>
+    <form action=""> 
+    <p>
+            <input type="hidden" name="cmd" value="tsearch" />
+            <input type="text" name="data" size="18" <?% IF cgi.param('cmd')=='ts' || cgi.param('cmd')=='tsearch' %?>value="<?% cgi.param('data')%?>"<?% END %?> />
+    </p>
+    </form>
+</div>
+<?% global.sidebar = 1 %?>
+

@@ -1,0 +1,111 @@
+<?%
+    USE date;
+    statusfiles = {};
+
+    FILTER null;
+        name = 'network_stat';
+        timestamps = [];
+        FOREACH entry = param.stack.first.network;
+            iname = entry.first.split(':').first;
+
+            rxbytes.${iname} = [];
+            txbytes.${iname} = [];
+            rxerror.${iname} = [];
+            txerror.${iname} = [];
+
+            oldentry.${iname} = [];
+        END;
+
+        FOREACH item = param.stack;
+            t = date.format(item.timestamp, '%H:%M:%S');
+            timestamps.push(t);
+
+            FOREACH entry = item.network;
+                iname = entry.first.split(':').first;
+
+                UNLESS oldentry.${iname}.size;
+                    oldentry.${iname} = entry;
+                END;
+
+                bytes = entry.1 - oldentry.${iname}.1;
+                rxbytes.${iname}.push(bytes);
+
+                bytes = entry.5 - oldentry.${iname}.5;
+                txbytes.${iname}.push(bytes);
+
+                rxerror.${iname}.push(entry.3);
+                txerror.${iname}.push(entry.7);
+                oldentry.${iname} = entry;
+            END;
+        END;
+
+        FOREACH iname = rxbytes.keys.sort;
+
+            # Data ...
+            d = [
+                 timestamps,
+                 rxbytes.${iname},
+                 rxerror.${iname},
+                 txbytes.${iname},
+                 txerror.${iname},
+            ];
+
+            USE my_graph = GD.Graph.lines(600,300);
+
+            # Xsteps
+            steps = param.stack.size / 5 | format('%d');
+            label = gettext('Traffic on Interface');
+            label = "${label} ${iname}";
+            my_graph.set(
+                    title => label,
+                    x_label_skip => steps,
+                    x_long_ticks => 1,
+
+                    y_label => gettext('Transfer in bytes'),
+                    y_long_ticks => 1,
+
+                    line_width   => 2,
+                    box_axis     => 1,
+                    boxclr       => '#FFFFCC',
+                    fgclr        => '#BBBBBB'
+                    legend_placement => 'RD',
+                    legend_spacing => 5,
+            );
+            my_graph.set_title_font(param.font,10);
+            my_graph.set_y_label_font(param.font,10);
+            my_graph.set_x_label_font(param.font,10);
+            my_graph.set_x_axis_font(param.font,6);
+            my_graph.set_y_axis_font(param.font,6);
+            my_graph.set_legend( 'RxBytes', 'RxErrors', 'TxBytes', 'TxErrors');
+            statusfiles.$iname = writefile("status_network_${iname}.png", my_graph.plot(d).gif );
+        END;
+    END;
+ %?>
+
+<!-- Vitals Template -->
+<?% IF param.headingText %?>
+<h3><?% param.headingText %?></h3>
+<?% END %?>
+<table border="0" width="95%">
+        <?% fields = data.shift %?>
+        <tr>
+        <?% FOREACH field = fields %?>
+            <th><?% field %?></th>
+        <?% END %?>
+        </tr>
+        <?% FOREACH zeile = data %?>
+        <tr>
+            <?% FOREACH field = zeile %?>
+            <td><?% field %?></td>
+            <?% END %?>
+        </tr>
+        <?% END %?>
+
+        <?% FOREACH file = statusfiles.keys %?>
+        <tr>
+            <td colspan="<?% fields.size %?>" align=center>
+                <img src="<?% statusfiles.$file %?>">
+            </td>
+        </tr>
+        <?% END %?>
+</table>

@@ -1,0 +1,39 @@
+<?% FOREACH field = fielddata %?>
+    <?% c = c + 1 %?>
+    <?% IF c == 1; # Id Field %?>
+    <td>
+    <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile umbruch='' %?>
+    </td>
+    <?% ELSIF c == 2; # Text Field %?>
+    <td>
+        <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=fielddata.2 desc=fielddata.4 eventid=fielddata.0 linkid=fielddata.0 ttp_offset=0 %?>
+        <?% IF param.timers.${fielddata.0} %?>
+        <b><?% field %?></b>
+        <?% ELSE %?>
+        <?% field %?>
+        <?% END %?>
+        <?% IF fielddata.2.length > 0  %?>
+        <br><small><?% fielddata.2 %?></small>
+        <?% END %?>
+        <?% IF fielddata.3.length > 0 %?>
+        <br><small><em><?% chop(fielddata.4,300) | replace('<br />',' ') %?></em></small>
+        <?% END %?>
+        </a>
+    </td>
+    <?% ELSIF c == 3; # Channel Field %?>
+		<?% cf = reentities(field) %?>
+    <td>
+    <a href='?cmd=program&data=<?% param.channels.$cf.POS %?>'><?% param.channels.$cf.Name %?></a>
+    </td>
+    <?% ELSIF c == 5; # Rank Field %?>
+    <td>
+    <?% field | format('%d') %?>
+    </td>
+    <?% ELSE %?>
+        <?% IF param.timers.${fielddata.11} && param.timers.${fielddata.11}.Status  %?>
+                <td><b><?% field %?></b></td>
+        <?% ELSE %?>
+                <td><?% field %?></td>
+        <?% END %?>
+    <?% END %?>
+<?% END %?>

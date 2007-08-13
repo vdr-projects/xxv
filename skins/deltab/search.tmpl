@@ -1,0 +1,134 @@
+<!-- search -->
+<?% USE date %?>
+<div id="body">
+<?% BLOCK dur %?>
+    <?% height=6;d = d div 1 ; IF d >= 0 and d <= 100 %?>
+        	<?% IF d >= 1 %?>
+                <?% d = d / 2 %?>
+				<img class="progressleft" src="images/blank.gif" width="<?% 50 - d %?>" height="<?% height %?>" alt="<?% 50 - d %?>%" /><img class="progressright" src="images/blank.gif" width="<?% d %?>" height="<?% height %?>" alt="" />
+            <?% ELSE %?>
+				<img class="progress" src="images/blank.gif" width="50" height="<?% height %?>" alt="" />
+            <?% END %?>
+    <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK SetState %?>
+    <?% state = '' %?>
+    <?% IF param.runningTimer.exists(id) %?>
+        <?% state = "running" %?>
+    <?% ELSIF param.timers.exists(id) %?>
+      <?% UNLESS param.timers.${id}.Status %?>
+        <?% state = "deactive" %?>
+      <?% ELSE %?>
+        <?% state = "active" %?>
+      <?% END %?>
+    <?% END %?>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK item %?>
+    <?% PROCESS SetState %?>
+    <td >
+        <a style="vertical-align:bottom;" href="?cmd=program&amp;data=<?% channel %?><?% IF id > 0 %?>#E<?% id %?><?% END %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% sender %?>">
+            <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;<?% sender %?></font>
+        </a>
+    </td>
+    <td>
+        <a href="?cmd=display&amp;data=<?% id %?>" title="<?% title %?>">
+            <font class="title<?% IF state != "";" ";state;END %?>"><?% title %?></font>
+            <?% IF subtitle.length > 0 %?>
+                &nbsp;<font class="subtitle<?% IF state != "";" ";state;END %?>"><?% subtitle %?></font>
+            <?% END %?>
+            <?% IF global.hideDescription != 1 && description.length > 0 %?><br /><font class="description<?% IF state != "";" ";state;END %?>"><?% chop(description,100,1) %?></font><?% END %?>
+       </a>
+    </td>
+    <td>
+        <?% start %?>&nbsp;-&nbsp;<?% stop %?>
+        <?% IF vps && vps != start %?> (<?% gettext("VPS") %?>:<?% vps %?>) <?% END %?>
+    </td>
+    <td class="push">
+        <?% INCLUDE widgets/tooltip.inc cmd="display" eventid=id linkid=id ttp_offset=-400 %?>
+        <a href="?cmd=search&amp;data=<?% url( title ) %?>">
+            <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
+        </a>
+        <?% IF param.timers.${id} && allow('tedit') %?>
+        <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
+            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this Timer") %?>" />
+        </a>
+        <?% ELSIF allow('tnew') %?>
+        <a href="?cmd=tnew&amp;data=<?% id %?>">
+             <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
+        </a>
+        <?% END %?>
+    </td>
+<?% END %?>
+
+<?% IF data.size <= 1 %?>
+<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?></h1>
+<?% ELSE %?>
+<?% fields = data.shift %?>
+<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% date.format(data.first.7, "%A, %x", locale) %?></h1>
+<table summary="" width="100%">
+    <tr>
+        <th width="180"></th>
+        <th></th>
+        <th width="60"></th>
+        <th width="40" align="right"></th>
+    </tr>
+	<?% FOREACH zeile = data %?>
+     <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;vps=zeile.9 %?>
+        <?% day = date.format(zeile.7, "%A, %x", locale) %?>
+		<?% IF old.defined && day != old %?>
+   		  <tr>
+            <td colspan="12" align="left">
+                <h2><?% day %?></h2>
+            </td>
+        </tr>
+		<?% END %?>
+    <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
+        <?% PROCESS item %?>
+        <?% old = day %?>
+    </tr>
+    <?% END %?>
+</table>
+<?% END %?>
+</div>
+<!-- ###### Seite ###### -->
+<div id="sidebar">
+    <p class="section"><?% gettext("Search text",20) %?></p>
+        <form method='get' action="">
+    <p>
+            <input type='hidden' name='cmd' value='search' />
+            <input type='hidden' name='__action' value='save' />
+            <input type="text" name="data" value="<?% cgi.param('data') %?>" />
+            <br /><br />
+            <?% gettext('Search in fields',30) %?><br />
+            <input style="width:auto;" type="radio" name="__Where" value="all" <?% IF ! cgi.param('__Where') || cgi.param('__Where') == 'all' %?>checked="checked"<?% END %?> /><?% gettext('All') %?>&nbsp;
+            <input style="width:auto;" type="radio" name="__Where" value="title" <?% IF cgi.param('__Where') == 'title' %?>checked="checked"<?% END %?> /><?% gettext('Only in title') %?>&nbsp;
+            <input style="width:auto;" type="radio" name="__Where" value="titlesubtitle" <?% IF cgi.param('__Where') == 'titlesubtitle' %?>checked="checked"<?% END %?> /><?% gettext('Only in title and subtitle') %?>&nbsp;
+            <br /><br />
+            <?% gettext('Video format',30) %?><br />
+            <input style="width:auto;" type="radio" name="__VideoFormat" value="all" <?% IF ! cgi.param('__VideoFormat') || cgi.param('__VideoFormat') == 'all' %?>checked="checked"<?% END %?> /><?% gettext('All') %?>&nbsp;
+            <input style="width:auto;" type="radio" name="__VideoFormat" value="widescreen" <?% IF cgi.param('__VideoFormat') == 'widescreen' %?>checked="checked"<?% END %?> /><?% gettext('16:9 Wide-screen') %?>&nbsp;
+            <br /><br />
+            <?% gettext('Audio format',30) %?><br />
+            <input style="width:auto;" type="radio" name="__AudioFormat" value="all" <?% IF ! cgi.param('__AudioFormat') || cgi.param('__AudioFormat') == 'all' %?>checked="checked"<?% END %?> /><?% gettext('All') %?>&nbsp;
+            <input style="width:auto;" type="radio" name="__AudioFormat" value="dts" <?% IF cgi.param('__AudioFormat') == 'dts' %?>checked="checked"<?% END %?> /><?% gettext('Dolby Digital') %?>&nbsp;
+            <input style="width:auto;" type="radio" name="__AudioFormat" value="stereo" <?% IF cgi.param('__AudioFormat') == 'stereo' %?>checked="checked"<?% END %?> /><?% gettext('Stereo') %?>&nbsp;
+            <br /><br />
+            <?% gettext('Minimum length (in minutes)',30) %?><br />
+            <input type="text" name="__MinLength" value="<?% cgi.param('__MinLength') %?>"/>
+            <br /><br />
+            <?% gettext('Channel',30) %?><br />
+            <select name='__channel'>
+                <option value="0"><?% gettext('All channels') %?></option>
+            <?% FOREACH chan = getModule('CHANNELS').ChannelArray('Name') %?>
+                <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected="selected"<?% END %?>><?% chan.first %?></option>
+            <?% END %?>
+            </select>
+            <br /><br />
+            <input type='submit' value='<?% gettext('Search') %?>' />
+    </p>
+        </form>
+</div>
+<?% global.sidebar = 1 %?>
