@@ -1,0 +1,41 @@
+<!-- TableTemplate -->
+<h1><?% gettext("Administration of User") %?></h1>
+
+<a href="?cmd=unew">[<?% gettext("Create a new account for user") %?>]</a>
+<p>
+
+<table border="0" width="95%">
+<form name='UserList'>
+<?% INCLUDE 'widgets/referer.tmpl' %?>
+<?% IF data.size %?>
+    <?% fields = data.shift %?>
+        <tr>
+        <?% FOREACH field = fields %?>
+            <th><?% field %?></th>
+        <?% END %?>
+        </tr>
+        <?% x = -1 %?>
+        <?% FOREACH zeile = data %?>
+        <?% x = x + 1 %?>
+        <tr class="<?% myclass %?>" <?% IF (x mod 2) != 0 %?>bgcolor='#F5F5F5'<?% END %?>>
+            <?% c = 0 %?>
+            <?% FOREACH field = zeile %?>
+                <?% c = c + 1 %?>
+                <?% IF c == 1; # Id Field %?>
+                <td>
+                    <a title="<?% gettext("Edit account of user") %?>" href="?cmd=uedit&amp;data=<?% zeile.0 %?>">
+                    [<?% gettext("Edit") %?>]</a>&nbsp;
+                    <a title="<?% gettext("Delete account of user") %?>"
+                       href="javascript:sure(document.UserList, '<?% gettext("You will delete this account of user") %?>: <?% escape(zeile.1) %?>','?cmd=udelete&amp;data=<?% zeile.0 %?>')">
+                    [<?% gettext("Del") %?>]
+                    </a>
+                </td>
+                <?% ELSE %?>
+                <td><?% field %?></td>
+                <?% END %?>
+            <?% END %?>
+        </tr>
+        <?% END %?>
+<?% END %?>
+</form>
+</table>

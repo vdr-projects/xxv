@@ -1,0 +1,127 @@
+<base target="Daten">
+<script type="text/javascript" src="javascript/xtree.js"></script>
+<link type="text/css" rel="stylesheet" href="style/xtree.css" />
+
+<script type="text/javascript">
+/// XP Look
+webFXTreeConfig.rootIcon		= "images/xp/folder.png";
+webFXTreeConfig.openRootIcon	= "images/xp/openfolder.png";
+webFXTreeConfig.folderIcon		= "images/xp/folder.png";
+webFXTreeConfig.openFolderIcon	= "images/xp/openfolder.png";
+webFXTreeConfig.fileIcon		= "images/xp/file.png";
+webFXTreeConfig.lMinusIcon		= "images/xp/Lminus.png";
+webFXTreeConfig.lPlusIcon		= "images/xp/Lplus.png";
+webFXTreeConfig.tMinusIcon		= "images/xp/Tminus.png";
+webFXTreeConfig.tPlusIcon		= "images/xp/Tplus.png";
+webFXTreeConfig.iIcon			= "images/xp/I.png";
+webFXTreeConfig.lIcon			= "images/xp/L.png";
+webFXTreeConfig.tIcon			= "images/xp/T.png";
+
+var tree = new WebFXTree("XXV", "?cmd=<?% start %?>");
+
+<?% IF allow('now') %?>
+    var runnow = new WebFXTreeItem("<?% gettext("Running now") %?>","?cmd=now",tree);
+        runnow.add(new WebFXTreeItem("<?% gettext("Next",12) %?>",  "?cmd=next"));
+
+    <?% USE date %?>
+    <?% FOREACH zeit = param.periods.split(','); %?>
+        <?% runningnext = 0 %?>
+        <?% tom = 0 %?>
+        <?% PERL %?>
+            use Date::Manip;
+            my $z;
+            $z   = UnixDate(ParseDate($stash->{zeit}),"%s") || 0;
+            if($z and $z < time) {
+                $z += 86400;
+                $stash->set('tom', 1);
+            }
+            $stash->set('z', $z);
+        <?% END %?>
+        <?% NEXT UNLESS z %?>
+
+        <?% IF tom %?>
+        runnow.add(new WebFXTreeItem("<?% date.format(z, "%H:%M (%a)", locale) %?>",  "?cmd=now&amp;data=<?% z %?>"));
+        <?% ELSE %?>
+        runnow.add(new WebFXTreeItem("<?% date.format(z, "%H:%M", locale) %?>",  "?cmd=now&amp;data=<?% z %?>"));
+        <?% END %?>
+    <?% END %?>
+<?% END %?>
+
+<?% IF allow('schema') %?>
+    var program = new WebFXTreeItem("<?% gettext("Program guide") %?>","?cmd=schema",tree);
+    <?% FOREACH ch = param.CHANNELS %?>
+    program.add(new WebFXTreeItem("<?% escape(chop(ch.0,10)) %?>",  "?cmd=program&amp;data=<?% ch.1 %?>"));
+    <?% END %?>
+<?% END %?>
+
+
+<?% IF allow('topten') %?>tree.add(new WebFXTreeItem("<?% gettext("TopTen") %?>",    "?cmd=t10"));<?% END %?>
+
+<?% IF allow('cmdlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Commands") %?>",    "?cmd=cmdlist"));<?% END %?>
+
+<?% IF allow('alist') %?>tree.add(new WebFXTreeItem("<?% gettext("AutoTimer") %?>",     "?cmd=alist"));<?% END %?>
+
+<?% IF allow('tlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Timers") %?>",        "?cmd=tlist"));<?% END %?>
+
+<?% IF allow('rlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Recordings") %?>",    "?cmd=rlist"));<?% END %?>
+
+<?% IF allow('mlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Music") %?>",         "?cmd=mlist"));<?% END %?>
+
+<?% IF allow('remote') %?>tree.add(new WebFXTreeItem("<?% gettext("Remote") %?>",        "?cmd=remote"));<?% END %?>
+
+<?% IF allow('vtxpage') %?>tree.add(new WebFXTreeItem("<?% gettext("Teletext") %?>",      "?cmd=vtxpage"));<?% END %?>
+
+<?% IF allow('mllist') %?>tree.add(new WebFXTreeItem("<?% gettext("Media Library") %?>",      "?cmd=mllist"));<?% END %?>
+
+
+<?% IF allow('configedit') %?>
+    var prefs = new WebFXTreeItem("<?% gettext("Preferences") %?>","?cmd=configedit",tree);
+    <?% FOREACH co = param.CONFIGS %?>
+      <?% IF co != "CONFIG" %?>
+        prefs.add(new WebFXTreeItem("<?% chop(co,10) %?>",  "?cmd=configedit&amp;data=<?% co %?>"));
+      <?% END %?>
+    <?% END %?>
+    prefs.add(new WebFXTreeItem("<?% gettext("Edit channels",10) %?>",  "?cmd=cl"));
+<?% END %?>
+
+<?% IF allow('sa') %?>
+var status = new WebFXTreeItem("<?% gettext("Status") %?>","?cmd=sa",tree);
+status.add(new WebFXTreeItem("<?% gettext("Vitals") %?>",      "?cmd=sv"));
+status.add(new WebFXTreeItem("<?% gettext("Memory") %?>",      "?cmd=sm"));
+status.add(new WebFXTreeItem("<?% gettext("Filesystem") %?>",  "?cmd=sf"));
+status.add(new WebFXTreeItem("<?% gettext("Network") %?>",     "?cmd=sn"));
+status.add(new WebFXTreeItem("<?% gettext("Hardware") %?>",    "?cmd=sh"));
+<?% END %?>
+
+<?% IF allow('more') %?>
+var info = new WebFXTreeItem("<?% gettext("Documentation") %?>",0,tree);
+info.add(new WebFXTreeItem("<?% gettext("News") %?>",   "?cmd=more&data=NEWS"));
+info.add(new WebFXTreeItem("<?% gettext("History") %?>",   "?cmd=more&data=CHANGELOG"));
+info.add(new WebFXTreeItem("<?% gettext("License") %?>",   "?cmd=more&data=COPYING"));
+info.add(new WebFXTreeItem("<?% gettext("Readme") %?>",   "?cmd=more&data=<?% gettext('Readme') FILTER upper %?>"));
+info.add(new WebFXTreeItem("<?% gettext("Tutorial") %?>",   "?cmd=more&data=TUTORIAL"));
+<?% END %?>
+
+<?% IF allow('logger') %?>
+var logger = new WebFXTreeItem("<?% gettext("Log files") %?>",0,tree);
+logger.add(new WebFXTreeItem("<?% gettext("Standard") %?>",  "?cmd=logger&data=main"));
+logger.add(new WebFXTreeItem("<?% gettext("Syslog") %?>",    "?cmd=logger&data=syslog"));
+<?% END %?>
+
+<?% IF allow('report') %?>var report = new WebFXTreeItem("<?% gettext("Report") %?>","?cmd=report",tree);<?% END %?>
+<?% IF allow('ul') %?>var user = new WebFXTreeItem("<?% gettext("User") %?>","?cmd=ul",tree);
+<?% ELSIF allow('uprefs') %?>var pass = new WebFXTreeItem("<?% gettext("Personality") %?>","?cmd=uprefs",tree);<?% END %?>
+<?% IF allow('rel') %?>var re   = new WebFXTreeItem("<?% gettext("Reload") %?>","?cmd=rel",tree);<?% END %?>
+<?% IF allow('logout') %?>var lout = new WebFXTreeItem("<?% gettext("Logout") %?>","?cmd=logout",tree);<?% END %?>
+<?% IF allow('restart') %?>var lout = new WebFXTreeItem("<?% gettext("Restart") %?>","?cmd=restart",tree);<?% END %?>
+
+document.write(tree);
+
+</script>
+
+<p>
+<form>
+    <input type="hidden" name="cmd" value='search'>
+    <?% gettext("search") %?>:<input style='width:100px' type="text" name="data" size='10'>
+</form>
+</div>

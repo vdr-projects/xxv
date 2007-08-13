@@ -1,0 +1,19 @@
+/* CoolMenus 4 - default styles - do not edit */
+.clCMAbs{position:absolute; visibility:hidden; left:0; top:0}
+/* CoolMenus 4 - default styles - end */
+  
+/*Style for the background-bar*/
+.clBar{position:absolute; width:10; height:10; background-color:buttonface; layer-background-color:buttonface; visibility:hidden}
+.clBarborder{position:absolute; visibility:hidden; background-color: #A0A0A0; layer-background-color:#A0A0A0}
+
+/*Styles for level 0*/
+.clLevel0,.clLevel0over{position:absolute; padding:2px; font-family:Tahoma, Verdan, Helvetica, Sans-Serfif; font-size:11px; text-decoration: none;}
+.clLevel0{background-color:buttonface; layer-background-color:buttonface; color:black;}
+.clLevel0over{background-color:buttonface; layer-background-color:buttonface; color:black; cursor:pointer; cursor:hand; border: 1px solid white }
+.clLevel0border{position:absolute; visibility:hidden; background-color:white; layer-background-color:white}
+
+/*Styles for level 1*/
+.clLevel1, .clLevel1over{position:absolute; padding:2px; font-family:Tahoma, Verdan, Helvetica, Sans-Serfif; font-size:11px;  text-decoration: none;}
+.clLevel1{background-color:white; layer-background-color:white; color:black; }
+.clLevel1over{background-color:Highlight; layer-background-color:Highlight; color:white; cursor:pointer; cursor:hand; border: 1px solid rgb(120,172,255);}
+.clLevel1border{position:absolute; visibility:hidden; background-color:buttonface; layer-background-color:buttonface}

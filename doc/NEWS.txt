@@ -1,0 +1,871 @@
+27.06.2006 06:00
+
+[ANNOUNCE] XXV Stable version 0.80
+
+Nun denn, endlich ist  es soweit. Leider hatte  ich mein VDR System  mit der c't
+5.0 Installation zerschossen und musste erstmal nach einer besseren  Alternative
+suchen. VDR4YOU war letztendlich eine  sehr gute Wahl, falls jemand  den Autoren
+kennt ... eine kurze Mail wäre nett ;) 
+
+Es gibt einen neuen Skin der alle Funktionen beinhaltet und auch eine  Übersicht
+darstellt die  an den  Spaltenübersichten der  Tv-Zeitschriften angehlehnt  ist.
+Dieser wird in Zukunft  auch der Standardskin werden,  falls ich es noch  einmal
+hinbekomme das er in allen Browsern gut dargestellt wird.
+
+http://www.xpix.de/downloads/xxv/xxv-xstyle-0.4.tgz
+
+Wie immer könnt Ihr diese Version unter folgender URL runterladen:
+
+http://www.xpix.de/downloads/xxv/?M=D
+
+Natürlich  werden  wir  weiterhin   die  brandneuen  Versionen  als   subversion
+repository Euch zur Verfügung stellen. Mit einem installiertem subversion ist es
+ziemlich leicht an diese Versionen ranzukommen:
+
+# Checkout:
+svn co http://sonne.bandt.net/repos/XXV
+
+# Update
+cd $SOURCEDIR
+svn up
+
+# Changelog
+svn log
+
+Wir werden auch wieder unsere  allseits  beliebte Wunschthread bauen und  hoffen
+das Ihr Euch da  rege dran beteiligt, dieser wird in den nächsten Tagen auf  vdr
+-portal.de gestartet.
+
+XXV 0.80 lief  bei mir jetzt  seit 4 Wochen  sehr stabil. Hier  noch einmal eine
+Liste mit den erwähnenswerten Neuerungen:
+
+* AUTOTIMER :
+    Suche erweitert um Sonderzeichen '&', hiermit kann man nach txt UND  txt
+    suchen. Da es  kein explizites   UND in  dem Suchmechanismus  gab,  kann
+    man jetzt         dies mit einem '&'  Zeichen kennzeichnen. Z.b.  Planet
+    Wissen,  &Computer          würde nach  'Planet  Wissen' UND  'Computer'
+    suchen.
+
+* SHARE: Globale Bewertungsdatenbank
+    Wenn ein Timer programmiert wird, so werden dessen Eckdaten (EPGid sowie
+    Stopzeit) an eine  globale Datenbank per  SOAP weitergeleitet. Diese  DB
+    kann von jedem XXV User abgefragt werden, somit kann man sich die TopTen
+    der am meisten programmierten Timer  anzeigen lassen und nach shauen  ob
+    man nicht  vielleicht eine  wichtige Sendung  verpassen würde. Natürlich
+    unterscheiden sich die Events je nachdem ob man Kabel, Terrestrisch oder
+    Satellit benutzt, je  nachdem zu welcher  Gruppe man gehört  bekommt man
+    auch nur diese  Daten angezeigt. Also  ein Satellit benutzer  kann nicht
+    die TopTen der Kabelnutzer sehen.
+
+    Natürlich kann man diese Funktion jederzeit ausschalten.
+
+    Der Server läuft (noch) im Betastatus,  es kann also sein das die  Daten
+    mal nicht  angezeigt werden.  Sollte nicht  so oft  vorkommen, aber  wir
+    ändern ab und zu da noch was.
+
+* CHANNELS: Channel liste und Edit Funktion.
+    Man  kann  sich   jetzt  in  XXV   die  Channels  anzeigen   lassen  und
+    entsprechende Einträge editieren.
+
+* EPG : Advanced Search mode!
+    Hier kann man auch nach dem Typ der Sendung suchen (DolbyDigital, 16:9).
+    Leider funktioniert das nur wenn man erweiterte EPG Infos benutzt,  z.B.
+    Tvinfo usw.
+
+* EPG,AUTOTIMER: VPSPatch von Malte.
+    VPS-Zeiten werden übernommen falls VPS genuzt wird (DANKE Malte Schroeder!!)
+
+* EPG:  Ausgabe mit CHANNELSGROUPS - FEATUREREQUEST[145]
+
+* EVENTS: Neues Modul um eine Eventdatenbank zu erstellen FEATUREREQUEST[126]
+    Events werden  in den  einzelnen Modulen  eingetragen. Hiermit  kann der
+    Modulprogrmmierer festlegen wann ein Event per Jabber, RSS, Mail an  den
+    Nutzer geschickt werden soll.
+
+* INTERFACE : Ist jetzt ein SOAP Server.
+    Das Interface für ThirdParty Programme wurde auf SOAP umgestellt.
+
+* Installationsscript "install.sh" hinzugefügt
+    Alpha,  mit   diesem Skript   kann  man  schnell (falls  kein Debian zur
+    Hand) das XXV auf  einem Linuxsystem installieren.
+
+* MUSIC :
+    Coverdaten werden jetzt per Amazon Webdienst geholt. Natürlich werden hier 
+    meist nur die Mainstream-Sachen gefunden ;)
+
+    XXV  versucht  die  GiantDisc  DB  zu  kontaktieren  falls  diese  unter
+    Einstellungen->Music->Muggle eingetragen wurde. Falls das nicht der Fall
+    ist, wird eine eigene Musikdatenbank erstellt.
+
+* NEWS::RSS :
+    zusätzlicher Parameter (...?cmd=request&data=rss&__version=2) für RSS 2.0
+
+* RECORDS:
+    Anzeige der Gesamt(abspiel)zeit
+    Radioaufnahmen werden bei videoPreview übersprungen (Danke Torsten/WarEagle)
+    Reduzierung der Festplattenaktivitäten beim Aktualisierung im Hintergrund.
+    Serverpush auch nach rdelete und redit FEATUREREQUEST[153]
+
+* STATUS :
+    Featurerequest[152] Die gemounteten Filesysteme werden jetzt mit angezeigt.
+    Featurerequest[152] Option damit statt der Tortengrafiken eine normale 
+    Texttabelle angezeigt wird.
+
+* TIMERS:
+    An 1.3.44 angepasst, im AUX-Feld wird nur noch das Autotimer ID gespeichert,
+    Event wenn neue Timer auftauchen die keine Autotimer sind
+    Neuer Event 'toogleTimer' jetzt auch mit 'on|off' auswertung -> und gefixt
+
+------------------------------------------------------------------------------
+
+
+10.05.2006 06:00
+
+[ANNOUNCE] XXV Beta version 0.71
+
+Dies ist die  offizielle Betaversion von  XXV in Vorbereitung  der Stable (0.8x)
+die  dann  hoffentlich zeitgleich  mit  der offiziellen  Stable  vom VDR  (1.40)
+erscheinen wird.
+
+Wir haben sehr viele Bugfixes und Anpassungen eingebaut und ausführlich getestet.
+
+Es gibt einen neuen Skin der alle Funktionen beinhaltet und auch eine  Übersicht
+darstellt die  an den  Spaltenübersichten der  Tv-Zeitschriften angehlehnt  ist.
+Dieser wird in Zukunft  auch der Standardskin werden,  falls ich es noch  einmal
+hinbekomme das er in allen Browsern gut dargestellt wird.
+
+http://www.xpix.de/downloads/xxv/xxv-xstyle-0.2.tgz
+
+Wie immer könnt Ihr diese Version unter folgender URL runterladen:
+
+http://www.xpix.de/downloads/xxv/?M=D
+
+Natürlich  werden  wir  weiterhin   die  brandneuen  Versionen  als   subversion
+repository Euch zur Verfügung stellen. Mit einem installiertem subversion ist es
+ziemlich leicht an diese Versionen ranzukommen:
+
+# Checkout:
+svn co http://sonne.bandt.net/repos/XXV
+
+# Update
+cd $SOURCEDIR
+svn up
+
+# Changelog
+svn log
+
+Wir werden auch wieder unsere  allseits  beliebte Wunschthread bauen und  hoffen
+das Ihr Euch da  rege dran beteiligt, dieser  wird am Ende der  Betaphase (ca. 2
+Wochen) erscheinen.
+
+
+Hier die Neuerungen:
+
+    * AUTOTIMER :
+        Suche erweitert um Sonderzeichen '&', hiermit kann man nach txt UND  txt
+        suchen. Da es  kein explizites   UND in  dem Suchmechanismus  gab,  kann
+        man jetzt         dies mit einem '&'  Zeichen kennzeichnen. Z.b.  Planet
+        Wissen,  &Computer          würde nach  'Planet  Wissen' UND  'Computer'
+        suchen.
+
+    * SHARE: Globale Bewertungsdatenbank
+        Wenn ein Timer programmiert wird, so werden dessen Eckdaten (EPGid sowie
+        Stopzeit) an eine  globale Datenbank per  SOAP weitergeleitet. Diese  DB
+        kann von jedem XXV User abgefragt werden, somit kann man sich die TopTen
+        der am meisten programmierten Timer  anzeigen lassen und nach shauen  ob
+        man nicht  vielleicht eine  wichtige Sendung  verpassen würde. Natürlich
+        unterscheiden sich die Events je nachdem ob man Kabel, Terrestrisch oder
+        Satellit benutzt, je  nachdem zu welcher  Gruppe man gehört  bekommt man
+        auch nur diese  Daten angezeigt. Also  ein Satellit benutzer  kann nicht
+        die TopTen der Kabelnutzer sehen.
+
+        Natürlich kann man diese Funktion jederzeit ausschalten.
+
+        Der Server läuft (noch) im Betastatus,  es kann also sein das die  Daten
+        mal nicht  angezeigt werden.  Sollte nicht  so oft  vorkommen, aber  wir
+        ändern ab und zu da noch was.
+
+    * CHANNELS: Channel liste und Edit Funktion.
+        Man  kann  sich   jetzt  in  XXV   die  Channels  anzeigen   lassen  und
+        entsprechende Einträge editieren.
+
+    * EPG : Advanced Search mode!
+        Hier kann man auch nach dem Typ der Sendung suchen (DolbyDigital, 16:9).
+        Leider funktioniert das nur wenn man erweiterte EPG Infos benutzt,  z.B.
+        Tvinfo usw.
+
+    * EPG,AUTOTIMER: VPSPatch von Malte.
+        VPS-Zeiten werden übernommen falls VPS genuzt wird (DANKE Malte Schroeder!!)
+
+    * EPG:  Ausgabe mit CHANNELSGROUPS - FEATUREREQUEST[145]
+
+    * EVENTS: Neues Modul um eine Eventdatenbank zu erstellen FEATUREREQUEST[126]
+        Events werden  in den  einzelnen Modulen  eingetragen. Hiermit  kann der
+        Modulprogrmmierer festlegen wann ein Event per Jabber, RSS, Mail an  den
+        Nutzer geschickt werden soll.
+
+    * INTERFACE : Ist jetzt ein SOAP Server.
+        Das Interface für ThirdParty Programme wurde auf SOAP umgestellt.
+
+    * Installationsscript "install.sh" hinzugefügt
+        Alpha,  mit   diesem Skript   kann  man  schnell (falls  kein Debian zur
+        Hand) das XXV auf  einem Linuxsystem installieren.
+
+    * MUSIC :
+        Coverdaten werden jetzt per Amazon Webdienst geholt. Natürlich werden hier meist
+        nur die Mainstream-Sachen gefunden ;)
+
+        XXV  versucht  die  GiantDisc  DB  zu  kontaktieren  falls  diese  unter
+        Einstellungen->Music->Muggle eingetragen wurde. Falls das nicht der Fall
+        ist, wird eine eigene Musikdatenbank erstellt.
+
+    * NEWS::RSS :
+        zusätzlicher Parameter (...?cmd=request&data=rss&__version=2) für RSS 2.0
+
+    * RECORDS:
+        Anzeige der Gesamt(abspiel)zeit
+        Radioaufnahmen werden bei videoPreview übersprungen (Danke Torsten/WarEagle)
+        Reduzierung der Festplattenaktivitäten beim Aktualisierung im Hintergrund.
+        Serverpush auch nach rdelete und redit FEATUREREQUEST[153]
+
+    * STATUS :
+        Featurerequest[152] Die gemounteten Filesysteme werden jetzt mit angezeigt.
+        Featurerequest[152] Option damit statt der Tortengrafiken eine normale Texttabelle angezeigt wird.
+
+    * TIMERS:
+        An 1.3.44 angepasst, im AUX-Feld wird nur noch das Autotimer ID gespeichert,
+        Event wenn neue Timer auftauchen die keine Autotimer sind
+        Neuer Event 'toogleTimer' jetzt auch mit 'on|off' auswertung -> und gefixt
+
+
+
+------------------------------------------------------------------------------
+
+31.12.2005 06:00
+
+[ANNOUNCE] XXV Stable version 0.60
+
+Gerade noch  rechtzeitig zum  Ende des  Jahres können  wir endlich  die neue XXV
+Stable Version  freigeben. Es  gab noch  einige Fixes  und ein  paar kosmetische
+Änderungen im Code. Ansonsten läuft XXV  sehr stabil, hier auf meinem System  im
+24/7 Betrieb über einen Monat ohne Probleme.
+
+Wie immer könnt Ihr diese Version unter folgender URL runterladen:
+
+http://www.xpix.de/downloads/xxv/?M=D
+
+[ANNOUNCE] XXV Skin xstyle
+
+Sozusagen als nachträgliches Weihnachtsgeschenk  habe ich mich endlich  an einen
+neuen Skin  gesetzt, der  das Ziel  hat nur  durch CSS  Anweisungen XXV in einem
+neuen Design  erscheinen zu  lassen. Zukünftige  SkinDesigner brauchen  dann nur
+noch die  *.css sowie  die Bilder  austauschen. Natürlich  arbeite ich  noch ein
+wenig an dem Skin, aber eine erste Version ist schon mal fertig.
+
+http://www.xpix.de/downloads/xxv/xxv-xstyle-0.1.tgz
+
+Zur Zeit sieht es in dem xstyle dir noch ein wenig wie Kraut und Rüben aus, also
+nicht schimpfen! ;)
+
+Das Archiv einfach laden, entpacken und unter Einstellungen -> HTTPD -> HtmlRoot
+auf 'xstyle' einstellen.  Evtl. danach einmal  F5 im Browser  aktivieren und das
+wars.
+
+Ich wünsche Euch  viel Spass damit  und hoffe das  wir im nächsten  Jahr genauso
+erfolgreich wie in den letzten unseren VDR tunen.
+
+xpix
+
+------------------------------------------------------------------------------
+
+07.10.2005 22:35
+
+[ANNOUNCE] XXV Betaversion 0.50
+
+lange hatte es gedauert. Nachdem wir den schönen Sommer genossen haben, wurde es
+auch langsam Zeit  eine neue Version  von XXV als  Beta zu veröffentlichen.  Die
+Versionsnummer ist  ab jetzt  die 0.50,  diese bereitet  die stable Version 0.60
+vor, die dann auch hoffentlich zeitgleich mit der 1.4 vom vdr zusammentrifft.
+
+Wie immer könnt Ihr diese Version unter folgender URL runterladen:
+
+http://www.xpix.de/downloads/xxv/?M=D
+
+Natürlich  werden  wir  weiterhin   die  brandneuen  Versionen  als   subversion
+repository Euch zur Verfügung stellen. Mit einem installiertem subversion ist es
+ziemlich leicht an diese Versionen ranzukommen:
+
+# Checkout:
+svn co http://sonne.bandt.net/repos/XXV
+
+# Update
+cd $SOURCEDIR
+svn up
+
+# Changelog
+svn log
+
+Wir werden aber  wieder unsere allseits  beliebte Wunschthread bauen  und hoffen
+das Ihr Euch da rege dran beteiligt, dieser wird am Ende der Betaphase (ca. 2 Wochen)
+erscheinen.
+
+Es gibt auch einige  Änderungen in dem Bughandling,  da sich die Threads  in vdr
+-portal.de immer Grössen  erreichen die uns  als Entwickler dann  schon manchmal
+peinlich  sind,  haben  wir  ein  Bugzilla  System  eingerichtet.
+
+http://sonne.bandt.net/bugzilla/
+
+IHR  SEID ALLE AUFGERUFEN EUCH IN DIESEM SYSTEM REGISTRIEREN ZU LASSEN.
+
+Die Vorteile liegen auf der Hand, kein Bug wird jemals verloren gehen! Ihr könnt
+selber entscheiden wann ein Bug wirklich  als  gefixt gilt (und uns  damit  auch
+ziemlich  ärgern   ;).
+
+ALSO   WER   SICH    SICH REGISTRIEREN   LASSEN    MÖCHTE,   DER SCHREIBT  MIR
+EINFACH  EINE   EMAIL  AN XPIX(AT)XPIX(DOT)DE  UND  ER   BEKOMMT  EINEN  ZUGANG.
+
+Ausserdem  werden   wir Eure  Wünsche  ebenfalls  als   ToDo's  in diesem System
+eintragen, so das ihr  da auch ein Auge drauf haben könnt.
+
+Hier nochmal einen kurzen Auszug was xxv eigentlich überhaupt ist:
+
+*xxv ist ein  zentraler Dienst zur  Administrierung des VDR  und dessen Umgebung,
+bei dem verschiedene Ports offen  sind und diese verschiedene Services  bedienen
+können.*
+
+*Einen  zusätzlichen Port  über ein  Plugin einzurichten  sollte genauso  einfach
+sein, wie  auch einen  bestimmten Service  bereitzustellen. Das  Schreiben eines
+Plugins geht sehr schnell, da der Input (Vdr, DB usw) sowie der Output  (Telnet,
+HTTP, ...  ) generisch  realisiert wurde.  Es soll  also z.B.  möglich sein, mit
+einer TelnetConsole, HttpBrowser, WapTelefon, etc. einen Autotimer  einzutragen.
+Dieser  sollte  wesentlich  schneller die  EPG-Daten  durchsuchen  können (MySQL
+-Datenbank) und über ein Interface dem VDR den neuen Timer mitteilen. Dabei wird
+natürlich auch dem  singleModus des SVdrP  Rechnung getragen und  nur ein Befehl
+abgesendet.  Danach  wird  der  Port  sofort  wieder  geschlossen,  damit andere
+Programme wieder auf den svdrp zugreifen können.*
+
+WIR MOECHTEN EUCH ALLE BITTEN AN  DEM BETATEST TEILZUNEHMEN UND UNS DIE  BUGS
+UM DIE OHREN ZU HAUEN. NUR SO KANN XXV RICHTIG GUT WERDEN!
+
+Hier noch ein paar sehr wichtige Links:
+
+* Was gibts für neue Features?
+Hier werden  alle Features  ausführlich beschrieben  und wurden  mit Screenshots
+untermalt ;)
+http://xpix.dieserver.de/content/vdr/xxv/b_284_artikel.shtml
+
+* Wie installiere ich xxv?
+Diese Seite ist  z.Zt. die offizielle  Manualpage, alle Fragen  zur Installation
+und wie man xxv  zum laufen bekommt sind  hier Schritt für Schritt  beschrieben.
+Wenn ihr also xxv das erste Mal installiert dann solltet ihr hier auf jeden Fall
+anfangen:
+http://www.vdr-wiki.de/wiki/index.php/Xxv
+
+* Wo bekomm ich die (absolut) aktuelle Version per subversion her?
+http://www.vdr-wiki.de/wiki/index.php/Xxv#Subversion_checkout
+
+* Wo bekomm ich die (fast) aktuelle Version per Download her?
+http://www.xpix.de/downloads/xxv
+
+So jetzt wünschen wir Euch viel Spass mit der BetaVersion von xxv
+
+xpix und hulk
+
+
+------------------------------------------------------------------------------
+
+20.05.2005 21:10
+
+Hallo Freunde,
+
+Nun ist es endlich geschafft! Xxv  ist soweit um in die nächste Betatestphase
+zu gehen. Wir bereiten jetzt die Version 0.40 vor ... das heisst das wir ab sofort
+keine Features mehr annehmen. Zur Zeit ist die aktuelle Versionsnummer 0.35.
+
+http://www.xpix.de/downloads/xxv/?M=D
+
+Wir werden aber  wieder unsere allseits  beliebte Wunschthread bauen  und hoffen
+das Ihr Euch da rege dran beteiligt, dieser wird am Ende der Betaphase (ca. 2 Wochen)
+erscheinen.
+
+Es gibt auch einige  Änderungen in dem Bughandling,  da sich die Threads  in vdr
+-portal.de immer Grössen  erreichen die uns  als Entwickler dann  schon manchmal
+peinlich  sind,  haben  wir  ein  Bugzilla  System  eingerichtet.
+
+IHR  SEID ALLE AUFGERUFEN EUCH IN DIESEM SYSTEM REGISTRIEREN ZU LASSEN.
+
+Die Vorteile liegen auf der Hand, kein Bug wird jemals verloren gehen! Ihr könnt
+selber entscheiden wann ein Bug wirklich  als  gefixt gilt (und uns  damit  auch
+ziemlich  ärgern   ;).
+
+ALSO   WER   SICH    SICH REGISTRIEREN   LASSEN    MÖCHTE,   DER SCHREIBT  MIR
+EINFACH  EINE   EMAIL  AN XPIX(AT)XPIX(DOT)DE  UND  ER   BEKOMMT  EINEN  ZUGANG,
+SOWIE  DIE  URL  VON  UNSEREM  BUGZILLA  SYSTEM.
+
+Ausserdem  werden   wir Eure  Wünsche  ebenfalls  als   ToDo's  in diesem System
+eintragen, so das ihr  da auch ein Auge drauf haben könnt.
+
+Hier nochmal einen kurzen Auszug was xxv eigentlich überhaupt ist:
+
+*xxv ist ein  zentraler Dienst zur  Administrierung des VDR  und dessen Umgebung,
+bei dem verschiedene Ports offen  sind und diese verschiedene Services  bedienen
+können.*
+
+*Einen  zusätzlichen Port  über ein  Plugin einzurichten  sollte genauso  einfach
+sein, wie  auch einen  bestimmten Service  bereitzustellen. Das  Schreiben eines
+Plugins geht sehr schnell, da der Input (Vdr, DB usw) sowie der Output  (Telnet,
+HTTP, ...  ) generisch  realisiert wurde.  Es soll  also z.B.  möglich sein, mit
+einer TelnetConsole, HttpBrowser, WapTelefon, etc. einen Autotimer  einzutragen.
+Dieser  sollte  wesentlich  schneller die  EPG-Daten  durchsuchen  können (MySQL
+-Datenbank) und über ein Interface dem VDR den neuen Timer mitteilen. Dabei wird
+natürlich auch dem  singleModus des SVdrP  Rechnung getragen und  nur ein Befehl
+abgesendet.  Danach  wird  der  Port  sofort  wieder  geschlossen,  damit andere
+Programme wieder auf den svdrp zugreifen können.*
+
+
+WIR MOECHTEN EUCH ALLE BITTEN AN  DEM BETATEST TEILZUNEHMEN UND UNS DIE  BUGS
+UM DIE OHREN ZU HAUEN. NUR SO KANN XXV RICHTIG GUT WERDEN!
+
+Hier noch ein paar sehr wichtige Links:
+
+* Was gibts für neue Features?
+Hier werden  alle Features  ausführlich beschrieben  und wurden  mit Screenshots
+untermalt ;)
+http://xpix.dieserver.de/content/vdr/xxv/b_280_artikel.shtml
+
+* Wie installiere ich xxv?
+Diese Seite ist  z.Zt. die offizielle  Manualpage, alle Fragen  zur Installation
+und wie man xxv  zum laufen bekommt sind  hier Schritt für Schritt  beschrieben.
+Wenn ihr also xxv das erste Mal installiert dann solltet ihr hier auf jeden Fall
+anfangen:
+http://www.vdr-wiki.de/wiki/index.php/Xxv
+
+* Wo bekomm ich die (absolut) aktuelle Version per subversion her?
+http://www.vdr-wiki.de/wiki/index.php/Xxv#Subversion_checkout
+
+* Wo bekomm ich die (fast) aktuelle Version per Download her?
+http://www.xpix.de/downloads/xxv
+
+* Wo wurde die Alphaversion diskutiert
+http://www.vdr-portal.de/board/thread.php?threadid=32684
+
+Dieser Thread  hier ist  hauptsächlich für  Bugfixes gedacht  und sollte auch so
+verstanden werden.
+
+So jetzt wünschen wir Euch viel Spass mit der BetaVersion von xxv
+
+xpix und hulk
+
+=================================================================================
+01.05.2005 20:15
+Hallo Freunde,
+
+nun ist es mal wieder soweit!!! Wir haben die nächste Dev Version - 0.30 endlich fertig.
+Einige neue Funktionen sind dazu gekommen, einige Bugs haben wir (hoffentlich)
+endgültig getilgt. Viele Eurer Vorschläge haben wir versucht zu verwirklichen
+und andere mussten wir leider entweder canceln oder in die nächste Version schieben.
+Entsprechende Informationen könnt Ihr der CHANGELOG.txt entnehmen.
+
+
+================================================================================
+Die übliche Warnung: DIES IST EINE ALPHAVERSION, BENUTZUNG AUF EIGENE GEFAHR!
+================================================================================
+
+Das diese Version etwas länger hat auf sich warten lassen hat verschiedene Gründe.
+
+
+NEW FEATURES
+================================================================================
+
+Neben den hunderten kleinen und grossen Bugfixes, gibt es natürlich auch neue Funktionen:
+
+
+RECORDS:
+
+* Eine übersichtliche Tabellendarstellung, wenn die Einstellung Previewcommand
+  auf 'Keines' eingestellt ist. Logischerweise versucht xxv in dem Fall
+  auch nicht Previewimages darzustellen.
+
+
+STREAM (neu):
+
+* Endlich!! Mein Traum war es schon immer, das ich eine Aufnahme mir direkt im
+  Browser anschauen kann! Dafür habe ich das neue Modul STREAM geschrieben.
+  Dieses ist aber vorerst nur eine Studie!! XXV benutzt den ffserver
+  sowie ffmpeg Version 0.4.8 um die entsprechende Aufnahme zu repacken und
+  diese dann über das Netz an den Browser zu schicken.
+  Ein embedded Windows Media Player stellt dann diesen Stream dar.
+  So meine Idealvorstellung :)
+
+Die Probleme dabei:
+
+  1. xxv muss auf einer Maschine > 1.5 Ghz laufen, da der onthefly streamer eine Menge Power braucht
+  2. FFMpeg MUSS in der Version 0.4.8 installiert sein! 0.4.9 funktioniert leider nicht,
+     da der ffserver nicht an die neue Version von ffmpeg angepasst wurde!
+  3. Der Stream läuft sehr ruckelnd auf meiner 1.8 GHz Maschine!
+
+    Wie könnt ihr uns helfen damit wir die Probleme in den Griff bekommen?!:
+
+    Experimentiert bitte mal mit den Einstellungen unter $SOURCEDIR/XXV/streamcfg rum.
+    Ihr könnt hier neue Testdateien erstellen und diese dann live ausprobieren. So wirds gemacht:
+
+    1. Erstellt eine eigene Testdatei in dem Verzeichniss $SOURCEDIR/XXV/streamcfg mit dem Namen <myStream>.<format>.cfg:
+        vdr:~# nano $SOURCEDIR/XXV/streamcfg/myStream.asf.cfg
+
+    2. Schreibt z.B. folgenden Inhalt:
+        #-----------8<-----------------
+        <Stream myStream.asf> # Muss unbedingt den gleichen Namen wie die Datei haben (<myStream>.<format>)
+        Feed xxvd.ffm         # Dieses nicht verändern!
+        Format mp4            # Ab hier könnt ihr Eurer Kreativität freien Lauf lassen
+        AudioBitRate 64
+        VideoFrameRate 15
+        VideoSize cif
+        VideoBitRate 256
+        VideoGopSize 30
+        VideoCodec mpeg4
+        AudioCodec pcm_s16le
+        StartSendOnKey
+        </Stream>
+        #-----------8<-----------------
+
+        Mehr Informationen über den genauen Syntax der Konfigurationsdatei erfahrt ihr hier:
+        http://ffmpeg.sourceforge.net/ffserver-doc.html
+
+        Wenn ihr wissen wollt welche Codecs Euch auf Eurem System zur Verfügung stehen dann ruft folgendes auf:
+        ffmpeg -formats
+        Output audio/video file formats: mpeg vcd vob mpegts crc image imagepipe ac3 h263 m4v h264 mpeg1video mjpeg s16le s16be
+            u16le u16be s8 u8 mulaw alaw rawvideo null mp2 mp3 rm asf asf_stream avi wav swf au gif mov 3gp mp4 mpjpeg singlejpeg dv
+            flv yuv4mpegpipe ogg ffm audio_device nut rtp
+            Input audio/video file formats: mpeg mpegts image imagepipe ac3 h263 m4v h264 mpegvideo mjpeg s16le s16be u16le u16be
+            s8 u8 mulaw alaw rawvideo mp3 rm asf avi wav swf au gif mov dv 4xm flv psxstr RoQ ipmovie wc3movie yuv4mpegpipe ogg
+            ffm video4linux audio_device dv1394 nut rtsp redir sdp rtp
+        Output image formats:
+            pbm pgm ppm pam pgmyuv yuv png jpeg gif
+        Input image formats:
+            pnm pam pgmyuv yuv png jpeg gif
+        Codecs:
+          Encoders: ac3 mp2 mp3 vorbis mpeg1video mpeg2video h263 h263p flv rv10 mpeg4 msmpeg4v1 msmpeg4v2 msmpeg4 wmv1
+              wmv2 mjpeg ljpeg huffyuv asv1 asv2 ffv1 rawvideo pcm_s16le pcm_s16be pcm_u16le pcm_u16be pcm_s8 pcm_u8
+              pcm_alaw pcm_mulaw adpcm_ima_qt adpcm_ima_wav adpcm_ima_dk3 adpcm_ima_dk4 adpcm_ms adpcm_4xm
+          Decoders: vorbis rawvideo h263 mpeg4 msmpeg4v1 msmpeg4v2 msmpeg4 wmv1 wmv2 h263i flv rv10 svq1
+          svq3 wmav1 wmav2 indeo3 aac mpeg4aac mpeg1video mpeg2video dvvideo dvaudio mjpeg mjpegb mp2 mp3 mace3 mace6
+          huffyuv ffv1 cyuv h264 vp3 asv1 asv2 vcr1 cljr 4xm mdec roqvideo interplayvideo xan_wc3 real_144 real_288
+          roq_dpcm interplay_dpcm xan_dpcm pcm_s16le pcm_s16be pcm_u16le pcm_u16be pcm_s8 pcm_u8 pcm_alaw pcm_mulaw
+          adpcm_ima_qt adpcm_ima_wav adpcm_ima_dk3 adpcm_ima_dk4 adpcm_ms adpcm_4xm
+        Supported file protocols: file: pipe: udp: rtp: tcp: http:
+        Frame size, frame rate abbreviations: ntsc pal qntsc qpal sntsc spal film ntsc-film sqcif qcif cif 4cif
+        Motion estimation methods: zero(fastest) full(slowest) log phods epzs(default) x1
+
+    3. Wenn ihr Eure änderungen gespeichert habt, wechselt in das Webinterface und stellt Euren neuen Stream unter
+        Einstellungen -> Stream -> Serverconf
+       ein.
+
+    4. Anschliessend wechselt Ihr zur Aufnahmenliste und wählt eine Aufnahme aus. Dort klickt ihr dann auf den Link
+        "Watch Record" oder "Aufnahme anzeigen"
+
+    5. Falls irgend etwas nicht funktioniert solltet Ihr Euch das entsprechende Logfile anschauen
+        vdr:~# tail -f /var/log/xxvd*.log
+
+    Eure Erfahrungen, Rechnerdaten (CPU) und Configfiles könnt ihr mir gerne
+    unter www.vdr-portal.de als pn an xpix zukommen lassen.
+    Wir sind an Euren Ergebnissen SEHR INTERESSIERT und wollen die besten Vorschläge
+    als Default in den nächsten Versionen von xxv aufnehmen.
+
+
+
+MUSIC:
+
+* WebInterface: Viele User hatten ja mehr als 1000 MP3 Titel auf ihrem vdr rumlungern,
+  so das damit das Javascript Konzept absolut nicht damit klar kam. Das neue Interface
+  ist nun reines html und zum Glück auch wesentlich schneller im Seitenaufbau.
+
+* GTag die Covers als ImageFiles aus dem Internet zu saugen.
+  Wir nutzen dafür ein Perl Modul WWW::Mechanize, das auch natürlich zusätzlich
+  installiert werden muss. Dieses Modul emuliert einen Webuser, der ganz normal
+  seinen Suchbegriff(Albumnamen, Erscheinungsjahr) auf der Suchseite des allseits
+  berühmen Musikportals www.allofmp3.com eingibt und dann das Ergebniss nach den
+  entsprechenden Albumcover durchsucht und dieses letztendlich auf den vdr lädt.
+  Diese Cover werden dann im Musicinterface mit angezeigt.
+
+HTTP:
+
+* Eine Processbar wird angezeigt wenn Prozesse gestartet werden die etwas länger
+  dauern (Musik neu einlesen, getCovers)
+* Es kann jetzt eine Startseite unter Preferences -> HTTPD -> StartPage individuell
+  festgelegt werden, (Jetzt läuft, Programm, Autotimer, ...)
+
+EPG:
+
+* Events werden gesondert gekennzeichnet, wenn diese als Timer aufgezeichnet werden.
+
+TIMER:
+
+* Timer referenzieren jetzt auf Ihren EPG Eintrag, falls dieser vorhanden ist.
+* Inactive Timer werden jetzt gelöscht falls diese mehr als einen Monat in der
+  Zukunft liegen. Es kam öfters vor, das ein Timer per Autotimer programmiert
+  wurde, dieser wurde wegen Desinteresse deaktiviert.
+  Wenn der Timer abgelaufen war, tauchte er automatisch genau einen Monat später
+  wieder in der Liste auf. Diese "Timerleichen" mussten dann immer mühsam von Hand
+  gelöscht werden.
+  Das passiert jetzt automatisch wenn TIMERS -> Einstellungen -> Deactive auf 'yes' gesetzt ist.
+
+AUTOTIMER:
+
+* Autotimer können bestimmen ob Timer mit VPS und eigenem Vor- und Nachlauf angelegt werden.
+* Bei einem Update werden jetzt zusätzlich auch die Channelnamen der gefundenen Events angezeigt.
+* Autotimer - Einstellung - exclude: Exclude-Kanalliste um für bestimme Kanäle
+  die Suche nach Events generell auszuschliessen.
+
+ROBOT (neu):
+
+* Neues Modul zum automatsichem Surfen sowie Downloaden der xxv relevanten Daten.
+  Siehe auch MUSIC:GetCovers in diesem Dokument.
+
+USER:
+
+* Bestimmte Parameter können jetzt bei dem User eingestellt werden.
+  Dabei nutzen wir ein generisches System, wenn zum Beispiel der User xpix
+  nur den Skin Snow sehen möchte kann man das in den Usereinstellungen unter
+  'Prefs' mit 'HTTPD::HtmlRoot=snow' sehr schön einstellen.
+  Natürlich kann man auch alle anderen Parameter der Module dem User zuteilen,
+  z.B. möchten wir zusätzlich, das der User xpix nur Timer definieren darf,
+  deren Priorität lediglich bei 30 liegt. Das würde dann so aussehen:
+
+    HTTPD::HtmlRoot=snow, TIMERS::Priority=30
+
+  Der Syntax lautet also 'Modulename::Parameter=Wert, Modulename::Parameter=Wert, ...' ...
+  wenn der User xpix auch nur als Level=User eingestellt ist, kann man somit
+  verhindern das dieser seine Einstellungen ändert.
+
+* Der User kann jetzt auch einen Logout vornehmen.
+
+RECORDS:
+
+* Es werden jetzt die Schnittmarken grafisch in der Recordübersicht dargestellt.
+* Viele Eigenschaften des Records sind jetzt editierbar.
+  (Marks, Lifetime, Priorität,...)
+* Hulk (Andreas) hat sich dem leidigen und wesentlich unperformanten Weg der
+  Previewbilderstellung angenommen und ein sehr schlankes C Programm
+  nahmens 'vdr2jpeg' geschrieben. Dieses Programm tut im Grunde nichts
+  anderes als Previewbilder bei bestimmten Marken zu erstellen.
+  Dieses wir natürlich auch von xxv unterstützt und kann
+  per "svn co http://bandt.dyndns.org/repos/vdr2jpeg" geholt werden.
+  Nähere Angaben zur Installation könnt ihr in der README Datei des Programmpaketes nachlesen.
+* Serien, oder Aufnahmen die in einen Gruppenordner zusammengefasst sind,
+  werden in rlist als Ordner angezeigt.
+
+STATUS:
+
+* Ein besonders nettes Feature, es werden jetzt Graphen erstellt
+  welche die Speicherauslastung sowie die Last eines bestimmten Zeitraumes
+  (Einstellungen -> Status -> History) darstellen.
+  Das Besondere daran, die Grafiken werden aus den Templates heraus erstellt,
+  so das jeder geneigte Skinprogrammierer seine eigenen Grafiken bei Bedarf
+  erstellen kann. In dem HTML Skin kann man das sehr schön unter Status sehen.
+
+EPG:
+
+* Es kann jetzt auch innerhalb eines Senders nach Events gesucht werden.
+
+REMOTE:
+
+* Der Intervall kann jetzt onthefly eingestellt werden
+* In dem grabbed Screen werden jetzt zusätzliche Informationen mit
+  eingezeichnet. (z.Zt.Sendernamen) Die Anzeige kann man unter
+  Einstellungen -> GRAB-> Imgtext einstellen. Ausserdem hat man unter 'Font'
+  die Möglichkeit den Zeichensatz sowie dessen Grösse unter 'Imgfontsize' einzustellen.
+
+Global:
+
+* Fast alle Module können in Ihrer Funktion deaktiviert werden
+  (Einstellungen -> ModName -> Active = 'no').
+* Die Templates sind jetzt ebenfalls lokaliert und übersetzbar, das heisst
+  der Skinprogrammierer kann über die gettext Routine auf die Übersetzungsdatenbank
+  zugreifen.
+
+Skin:html
+
+* Die Tabellen von timerlist sowie now,program werden jetzt nach Wochentagen gruppiert.
+* Fast überall wurden automatische redirects eingebaut, z.B. Timer editiert -> Timerlist
+* Timer die einen Konflikt mit einem anderen Timer haben, werden jetzt besonders hervorgehoben.
+  Timer die eine höhere Priorität haben werden braun gekennzeichnet.
+  Timer die eine kleinere Priorität als der andere haben werden rot dargestellt.
+
+
+
+INSTALLATION
+================================================================================
+
+Wir unterstützen ab sofort Subversion, das heisst also für Euch das auf Eurem
+System subversion installiert sein sollte. Wie Subversion-Clients auf
+Eurem System installiert werden könnt Ihr hier nachlesen:
+
+  http://subversion.tigris.org/project_packages.html
+
+
+* Download
+
+  cd $SOURCEDIR
+  svn co http://bandt.dyndns.org/repos/XXV
+
+
+
+* Detailierte Anleitung für Download, Checkout, UPDATE 0.20 -> 0.30
+================================================================================
+
+* xxvd stoppen
+  vdr:~# /etc/init.d/xxvd stop
+
+* Download des Reposity
+
+  vdr:~# cd $SOURCEDIR
+  vdr:~# svn co http://bandt.dyndns.org/repos/XXV
+
+* Eventuell /etc/init.d/xxvd an das neue Installationsverzeichnis anpassen
+  und anschliessend neustarten
+
+  vdr:~# /etc/init.d/xxvd start
+
+* Logfile anschauen:
+
+  vdr:~# cat /var/log/xxvd.log
+
+  bzw.
+
+  vdr:~# tail -f /var/log/xxvd.log
+
+
+Sollten im Logfile irgendwelche Fehlermeldungen wg. fehlender Module auftauchen,
+so solltet ihr diese Nachinstallieren. Wer nicht mehr weiss wie das geht,
+das wiki wird Dir helfen:
+
+http://www.vdr-wiki.de/wiki/index.php/Xxv#Perl_Module
+
+
+
+Da einige Tabellen auf Eurem System nicht mehr dem aktuellen Stand entsprechen,
+solltet ihr alle Tabellen löschen und xxv diese dann bei einem Restart neu einrichten lassen.
+Dazu sichern wir zuerst die Autotimer/Accounts und löscht anschliessend alle Tabellen:
+
++ Dies kann mit dem beigefügtem Upgrade Script erfolgen
+--------------------------------------------------------------------------------
+* In diesem Script muss eventuell der Datenbankname angepasst werden,
+  falls die Datenbank nicht xxv heisst.
+
+* Altes xxv beenden:
+  vdr:~# /etc/init.d/xxvd stop
+
+* Datenbank aktualiseren:
+
+  vdr:~# cd $SOURCEDIR/XXV/contrib
+  vdr:~# ./upgrade-xxv.sh
+    Enter password:
+
+* xxv aktualiseren und anschliessen neustarten:
+  vdr:~# /etc/init.d/xxvd start
+
+---------------
+
+
++ oder manuell nach folgender Anleitung
+--------------------------------------------------------------------------------
+
+* Altes xxv beenden:
+  vdr:~# /etc/init.d/xxvd stop
+
+* Autotimer und Accounts sichern:
+  vdr:~/XXV# mysql -h localhost -u USERNAME -p xxv
+    Enter password:
+    Reading table information for completion of table and column names
+    ...
+  mysql> select * INTO OUTFILE '/tmp/autotimer.sav' from AUTOTIMER;
+         Query OK, 10 rows affected (0.11 sec)
+  mysql> select * INTO OUTFILE '/tmp/user.sav' from USER;
+         Query OK, 2 rows affected (0.07 sec)
+
+* Alle Tabellen von xxv löschen (wir löschen einfach die gesamte Datenbank und erstellen Sie wieder):
+   mysql> drop database xxv;
+          Query OK, 24 rows affected (0.07 sec)
+
+   mysql> create database xxv;
+          Query OK, 1 row affected (0.06 sec)
+
+   mysql> quit
+        Bye
+
+* Neues xxv starten, damit werden alle Datenbanken angelegt werden
+    vdr:~# /etc/init.d/xxvd start
+
+* Logfile anschauen ob xxvd auch ohne Störung läuft
+    tail -f /var/log/xxvd.log
+
+* Autotimer und Accounts importieren:
+  vdr:~/XXV# mysql -h localhost -u USERNAME -p xxv
+    Enter password:
+    Reading table information for completion of table and column names
+    ...
+
+
+   mysql> load data infile '/tmp/autotimer.sav' into table AUTOTIMER;
+          Query OK, 10 rows affected (0.11 sec)
+
+   mysql> load data infile '/tmp/user.sav' into table USER;
+          Query OK, 2 rows affected (0.07 sec)
+
+   mysql> quit
+        Bye
+
+---------------
+
++ das Sichern der Autotimer ist auch im vdradmin Format per Im-& Export
+  per Telnet oder Webinterface möglich, allerdings unterstützt dieses Datenformat
+  nicht alle XXV-Feature
+--------------------------------------------------------------------------------
+
+* Autotimer exportieren:
+    per Telnet:
+    ae /tmp/autotimer.sav
+
+    oder per Webinterface:
+    http://vdr:8080/?cmd=ae&data=/tmp/autotimer.sav
+
+* Autotimer importieren:
+    per Telnet:
+    ai /tmp/autotimer.sav
+
+    oder per Webinterface:
+    http://vdr:8080/?cmd=ai&data=/tmp/autotimer.sav
+
+---------------
+
+
+* Späteres Update des Reposity
+================================================================================
+  Die Entwicklung weiter und wenn Ihr später eine aktualisierte Version
+  vom Server ziehen wollt, dann macht ein Update der geänderten Dateien
+
+  vdr:~# cd $SOURCEDIR/XXV
+  vdr:~# svn up
+  vdr:~# /etc/init.d/xxvd restart
+
+
+* Zusätzliche Skins
+================================================================================
+
+  Der aktuelle Entwicklerstand der Skins stone, snow, blue, deltab ist
+  ebenfalls als Reposity verfügbar
+
+  vdr:~# cd $SOURCEDIR
+  vdr:~# svn co http://bandt.dyndns.org/repos/XXV-Skins
+
+  bzw. zum späteren aktualisierten
+
+  vdr:~# cd $SOURCEDIR/XXV-Skins
+  vdr:~# svn up
+
+  um diese Skins nutzen können, müssen sie entweder parallel zum XXV-html Skin
+  kopiert werden. Oder einfach mit /etc/init.d/xxvd dieses Verzeichnis als
+  per Parameter --htmldir=$SOURCEDIR/XXV-Skins definiert werden, dieser Parameter
+  ist ebenfalls in der man-Page beschrieben. (man $SOURCEDIR/doc/xxvd.man)
+
+

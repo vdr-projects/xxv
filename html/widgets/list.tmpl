@@ -1,0 +1,38 @@
+<!-- list -->
+<tr>
+    <td class="<?% (param.count mod 2) == 0 ? 'light' : 'dark' %?>" >
+        <?% data.msg %?>
+    </td>
+    <td class="<?% (param.count mod 2) == 0 ? 'light' : 'dark' %?>" >
+        <?% val = cgi.param(data.NAME) || data.def %?>
+        <?% UNLESS val.max %?>
+            <?% values = val.join(',').split(',') %?>
+        <?% ELSE %?>
+            <?% values = val %?>
+        <?% END %?>
+        <?% IF data.options == 'multi' %?>
+            <select name="<?% data.NAME %?>" multiple size="10" <?% FOREACH p = param.tags; "$p ";END %?>>
+        <?% ELSE %?>
+            <select name="<?% data.NAME %?>" <?% FOREACH p = param.tags; "$p ";END %?>>
+        <?% END %?>
+            <?% FOREACH l = data.choices %?>
+                <?% sel = '' %?>
+                <?% dis = '' %?>
+                <?% FOREACH valch = values %?>
+					<?% IF (valch == l.1 || valch == l.0) %?>
+                    <?% sel = ' selected="selected"';values.shift;LAST %?>
+                    <?% END %?>
+                <?% END %?>
+                <?% FOREACH valch = data.disabled %?>
+					<?% IF (valch == l.1 || valch == l.0) %?>
+                    <?% dis = ' disabled="disabled"';data.disabled.shift;LAST %?>
+                    <?% END %?>
+                <?% END %?>
+            <option value='<?% l.1 %?>'<?% sel %?><?% dis %?>><?% l.0 %?></option>
+            <?% END %?>
+            </select>
+    </td>
+</tr>
+
+<pre>
+</pre>

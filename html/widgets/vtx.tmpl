@@ -1,0 +1,45 @@
+<!-- vtx -->
+<?% IF !global.include_vtx_wigdet.defined %?>
+<h1><?% gettext("Teletext") %?>&nbsp;
+<?% gettext("Page") %?>&nbsp;<?% param.page; pages = cgi.param('data').split('_'); IF pages.size > 1 && pages.last > 0 %?>/<?% pages.last; END %?>
+</h1>
+<?% ELSE %?>
+<h2>
+<?% gettext("Page") %?>&nbsp;<?% param.page; pages = cgi.param('data').split('_'); IF pages.size > 1 && pages.last > 0 %?>/<?% pages.last; END %?>
+</h2>
+<?% END %?>
+
+<?% IF !global.include_vtx_wigdet.defined %?>
+<?% url = "?cmd=vt&amp;data=" %?>
+<table border="0">
+<tr><td><form>
+    <select name='chan' onChange="di(this.form.chan.options[this.form.chan.options.selectedIndex].value, '?cmd=vtxchannel&amp;data=')">
+	<?% FOREACH ch = param.channels %?>
+	    <option value="<?% ch.1 %?>" <?% "selected" IF param.channel == ch.1 %?>><?% ch.0 %?></option>
+	<?% END %?>
+    </select>
+    <input style='width:50px' type="hidden" name="cmd" value="vt">
+	<?% gettext("Page") %?>:<input style='width:50px' type="text" name="data" size="5" value="<?% param.page %?>">
+    </form>
+</td>
+<td>
+<form>
+    <input type="hidden" name="cmd" value="vs">
+	<?% gettext("Search") %?>:<input style='width:50px' type="text" name="data" size="10" value="">
+</form>
+</td>
+</tr>
+</table>
+    <?% IF param.toppage != 0 %?><a title="<?% gettext("First page") %?>" href="<?% url %?><?% param.toppage %?>">[^]</a><?% ELSE %?><span class="shadow">[^]</span><?% END %?>&nbsp;
+    <?% IF param.page_prev != 0 %?><a title="<?% gettext("Prior page") %?>"href="<?% url %?><?% param.page_prev %?>">[<<]</a><?% ELSE %?><span class="shadow">[<<]</span><?% END %?>&nbsp;
+    <?% IF param.subpage_prev != 0 %?><a title="<?% gettext("Prior subpage") %?>"href="<?% url %?><?% param.subpage_prev %?>">[<]</a><?% ELSE %?><span class="shadow">[<]</span><?% END %?>&nbsp;
+    <?% IF param.subpage_next != 0 %?><a title="<?% gettext("Next subpage") %?>"href="<?% url %?><?% param.subpage_next %?>">[>]</a><?% ELSE %?><span class="shadow">[>]</span><?% END %?>&nbsp;
+    <?% IF param.page_next != 0 %?><a title="<?% gettext("Next page") %?>"href="<?% url %?><?% param.page_next %?>">[>>]</a><?% ELSE %?><span class="shadow">[>>]</span><?% END %?>
+<?% END %?>
+
+<br />
+<?% FOREACH l = data %?>
+    <?% l %?>
+<?% END %?>
+
+<?% SET global.include_vtx_wigdet = 1 %?>

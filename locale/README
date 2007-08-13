@@ -1,0 +1,24 @@
+XXV/locale/README
+
+This used translation system use the same functionality as GNU gettext does, 
+it's use module Locale::gettext. on debian liblocale-gettext-perl
+
+Howto add new translation
+-------------------------
+*) Edit Makefile and add on target your my_language.po and my_language.pot filename
+*) Call "#> make clean", to force rebuild dependencies
+*) Call "#> make prepare", it's merge all gettext-entry on Modules 
+   for all *.po files (and your language.po file) 
+*) Edit now my_language.po with your favored texteditor, 
+   leave field msgid "..." unedited,
+   replace all fields msgstr "..." with your own translated text
+*) Call "#> make all" to convert language.po to GNU message catalog language.mo
+
+
+Select used language
+--------------------
+Your language will be select with your defined shell environment,
+as all messages from system are in your selected language
+export LANG="de_DE@euro"; ./xxvd ...
+
+

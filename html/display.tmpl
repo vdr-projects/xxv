@@ -1,0 +1,85 @@
+<script language="javascript" type="text/javascript">
+<!--
+
+    <?% INCLUDE javascript/records.js %?>
+
+-->
+</SCRIPT>
+<?% USE date %?>
+
+<h1><?% gettext("Detailed program information") %?></h1>
+<!-- TableTemplate -->
+<table border="0" width="95%">
+<?% fields = data.shift %?>
+    <?% c = -1 %?>
+    <?% IF data.first.7 %?>
+       <?% Image = data.first.7 %?>
+    <?% END %?>
+    <?% FOREACH field = fields %?>
+        <?% c = c + 1 %?>
+        <?% NEXT UNLESS data.first.$c %?>
+        <?% NEXT IF field == gettext('Percent') && data.first.$c > 100 %?>
+        <?% NEXT IF field.match('^__') %?>
+        <tr>
+            <td><?% field %?></td>
+        <?% IF field == gettext('Channel') %?>
+            <td><a href="?cmd=program&amp;data=<?% data.first.$c %?>"><?% data.first.$c %?></a></td>
+        <?% ELSIF field == gettext('Service') %?>
+            <td>
+            <a href="?cmd=search&amp;data=<?% url( data.first.1 ) %?>">[<?% gettext("Search for repeats") %?>]</a>
+            <?% IF param.timers.${data.first.$c} && allow('tedit') %?>
+                <a href="?cmd=tedit&amp;data=<?% param.timers.${data.first.$c}.Id %?>"><span name='recordlink' class='normal'><b>[<?% gettext("Edit this timer") %?>]</b></span></a>
+            <?% ELSIF allow('tnew')%?>
+                <a href="?cmd=tnew&amp;data=<?% data.first.$c %?>"><span name='recordlink' id='<?% data.first.$c %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
+            <?% END %?>
+            <?% level = getModule('SHARE').getEventLevel(data.first.0) %?>
+            <?% IF level %?><br/><?% "*" FILTER repeat(level) %?><?% END %?>
+            <a target="_blank" href="http://german.imdb.com/find?s=tt&amp;site=aka&amp;q=<?% data.last.1 %?>">
+                [<?% gettext("Search with IMDb") %?>]
+            </a>
+            <a target="_blank" href="http://www.ofdb.de/view.php?page=suchergebnis&Kat=Titel&SText=<?% data.last.1 %?>">
+                [<?% gettext("Search with OFDb") %?>]
+            </a>
+            </td>
+        <?% ELSIF field == gettext('Percent') %?>
+            <?% NEXT IF data.first.$c > 100 %?>
+            <td valign='bottom'><nobr>
+                <?% fac = 3 %?>
+                <?% val = data.first.$c * fac %?>
+                <?% per = (100 * fac) - val  + 0.999 | format('%d') %?>
+                <?% per2 = (100 * fac) - per %?>
+                <?% text = (per / fac) | format("<br><font size='1'>%d%%</font>") %?>
+                <table width="100" cellspacing='0' cellpadding='0'>
+                    <tr>
+                    <td bgcolor="#dedede"><img src='images/blank.png' width="<?% per %?>" height='1' hspace=0 vspace=0><?% (per >= 19 ? text : "&nbsp;") %?></td>
+                    <td bgcolor="#ffffff"><img src='images/blank.png' width="<?% per2 %?>" height='1' hspace=0 vspace=0><?% (per <= 20 ? text : "") %?></td>
+                    <tr>
+                </table>
+            </td>
+
+        <?% ELSIF field == gettext('Description') %?>
+            <td>
+            <?% IF Image %?>
+                <?% FOREACH img = Image.split("\n") %?>
+                <img src='epgimages/<?% img %?>' border=1 align='right'>
+                <?% END %?>
+            <?% END %?>
+            <?% data.first.$c %?>
+            </td>
+        <?% ELSIF field == gettext('Start') %?>
+            <td>
+			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(data.first.$c,"%H:%M",locale) %?>
+                <?% IF data.first.11 && data.first.11 != data.first.$c %?>&nbsp;(<?% gettext("VPS") %?>&nbsp;<?% date.format(data.first.11,"%H:%M",locale) %?>) <?% END %?>
+            </td>
+        <?% ELSIF field == gettext('Stop') %?>
+            <td>
+			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(data.first.$c,"%H:%M",locale) %?>
+            </td>
+        <?% ELSE %?>
+            <td><?% data.first.$c %?></td>
+        <?% END %?>
+        </tr>
+    <?% END %?>
+</table>

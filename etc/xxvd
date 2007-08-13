@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# xxvd          Start/Stop the xxvd daemon.
+#
+# chkconfig: 2345 90 11
+# description: xxvd is a telnet/http config       \
+# server, for ther DVB Settop box vdr program.       \
+#                                                    \
+#                                                    \
+#                                                    .
+# processname: xxvd
+# config: xxvd.cfg
+#
+# to Setup, where is xxvd located
+# In welchem Ordner befindet sich bin/xxvd
+FOLDER="/root/XXV"
+
+
+# Run as noprivileged user, else set empty
+RUNAS="root"
+
+# Which translation is used
+LANGUAGE="de_DE@euro";
+
+# See how we were called.
+PROG="bin/xxvd"
+
+MODPATH="$FOLDER/lib/XXV/MODULES"
+CONFIG="$FOLDER/etc/xxvd.cfg"
+PIDFILE="/var/run/xxvd.pid"
+HTMLDIR="$FOLDER/"
+DOCUDIR="$FOLDER/doc/"
+PODDIR="$FOLDER/doc/"
+LOGFILE="/var/log/xxvd.log"
+CONTRIB="$FOLDER/contrib"
+NEWSMODS="$FOLDER/lib/XXV/OUTPUT/NEWS"
+NEWSTMPL="$FOLDER/share/news"
+VERBOSE="3"
+
+OPTIONS="--configfile $CONFIG \
+         --logfile $LOGFILE \
+         --pidfile $PIDFILE \
+         --docudir $DOCUDIR \
+         --poddir $PODDIR \
+         --htmldir $HTMLDIR \
+         --contrib $CONTRIB \
+         --newsmods $NEWSMODS \
+         --newstmpl $NEWSTMPL \
+         --moduledir $MODPATH \
+         --verbose $VERBOSE"
+
+start() {
+	echo -n "Start $PROG: "
+	su - $RUNAS -c "export LANG="$LANGUAGE";cd $FOLDER;nice -n 10 ./$PROG $OPTIONS"
+}
+
+stop() {
+	echo -n "Stop $PROG: "
+	su - $RUNAS -c "export LANG="$LANGUAGE";cd $FOLDER;./$PROG --kill $OPTIONS"
+}
+
+restart() {
+  	stop
+	start
+}
+
+case "$1" in
+  start)
+  	start
+	exit 0;
+	;;
+  stop)
+  	stop
+	exit 0;
+	;;
+  restart)
+  	restart
+	exit 0;
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart}"
+	exit 1
+esac
+
+exit $?

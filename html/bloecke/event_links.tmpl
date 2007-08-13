@@ -1,0 +1,28 @@
+<div id='icons'>
+    <?% IF with_display_button %?>
+<a href="?cmd=display&data=<?% epgId %?>" title='<?% gettext("Detailed program information") %?>'><img src="images/view_event.png" /></a><?% umbruch %?>
+    <?% END %?>
+<a href="?cmd=search&amp;data=<?% url( data.1 ) %?>"><img src="images/repeat.png" title="[<?% gettext("Rep") %?>]" /></a><?% umbruch %?>
+    <?% IF param.timers.${data.0}.Id && allow('tedit') %?>
+<a href="?cmd=tedit&amp;data=<?% param.timers.${data.0}.Id %?>"><img src="images/record_blue.png" title="[<?% gettext("Edit this timer") %?>]" /></a><?% umbruch %?>
+    <?% ELSIF allow('tnew') %?>
+<a href="?cmd=tnew&amp;data=<?% data.0 %?>"><img src="images/record.png" title="[<?% gettext("To record") %?>]" name='recordlink' id='<?% data.0 %?>' /></a><?% umbruch %?>
+    <?% END %?>
+<?% IF allow('switch') && switch %?>
+    <a href="?cmd=switch&amp;data=<?% url(data.4) %?>"><img src="images/switch.png" title="[<?% gettext("Swt") %?>]" /></a><?% umbruch %?>
+<?% END %?>
+<?% INCLUDE 'bloecke/stars.tmpl' eventid=data.0 %?>
+<?% IF data.-2;
+        vid = data.-2.split(' ');
+        video = (vid.3 == '16:9' ? '16_9Screen.png' : '4_3Screen.png');
+        videotext = (vid.3 == '16:9' ? '16:9' : '4:3') %?>
+    <img src="images/<?% video %?>" title="[<?% gettext("Videoformat: ") %?><?% videotext %?>]" /><?% umbruch %?>
+<?% END %?>
+<?% IF data.-1;
+    aud = data.-1.split("\n");
+    audio = (aud.size > 2 ? 'Dolby' : 'Stereo') %?>
+    <?% IF audio == 'Dolby' %?>
+    <img src="images/dolby.png" title="[<?% gettext("Audioformat: ") %?><?% audio %?>]" /><?% umbruch %?>
+    <?% END %?>
+<?% END %?>
+</div>
