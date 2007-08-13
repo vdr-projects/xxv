@@ -786,7 +786,7 @@ sub deleteTimer {
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
 
-    my $sql = sprintf('SELECT Id,File,ChannelID,NextStartTime,IF(NOW() between NextStartTime and NextStopTime,1,0) as Running FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
+    my $sql = sprintf('SELECT Id,File,ChannelID,NextStartTime,IF(Status & 1 and NOW() between NextStartTime and NextStopTime,1,0) as Running FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@timers)
         or return error sprintf("Can't execute query: %s.",$sth->errstr);

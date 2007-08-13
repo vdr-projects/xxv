@@ -856,7 +856,7 @@ sub autotimerEdit {
 
         $console->message(gettext('Autotimer saved!'));
         debug sprintf('%s autotimer with search "%s" is saved%s',
-            ($timerid ? 'New' : 'Changed'),
+            ($timerid ? 'Changed' : 'New'),
             $data->{Search},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
