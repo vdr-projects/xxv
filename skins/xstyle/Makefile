@@ -4,7 +4,7 @@
 # $Id$
 
 SKIN = xstyle
-VERSION = 0.4
+VERSION = 0.95
 
 ### The name of the distribution archive:
 
@@ -36,9 +36,7 @@ full: clean preparepkg copylinks removedevel postpkg
 devel: clean preparepkg copylinks postpkg 
 
 removedevel:
-	@-cp -L $(TMPDIR)/$(ARCHIVE)/skin.cfg.default $(TMPDIR)/$(ARCHIVE)/skin.cfg
 	@-rm -f $(TMPDIR)/$(ARCHIVE)/Makefile
-	@-rm -rf $(TMPDIR)/$(ARCHIVE)/images/artwork
 
 postpkg:
 	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;
