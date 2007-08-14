@@ -17,8 +17,8 @@ sub module {
 #            'WWW::Mechanize' => 'Handy web browsing in a Perl object ',
         },
         Description => gettext('This module register and run robots to fetch data from internet.'),
-        Version => '0.01',
-        Date => '06.09.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

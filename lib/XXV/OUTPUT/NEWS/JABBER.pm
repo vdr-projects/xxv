@@ -58,8 +58,8 @@ or Telnet Interface:
 Then you must receive a message in your running jabber client.
 
 |),
-        Version => '0.01',
-        Date => '31.09.2005',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

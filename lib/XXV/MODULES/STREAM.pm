@@ -20,8 +20,8 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module generate streams from recordings.'),
-        Version => '0.92',
-        Date => '2007-01-20',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             host => {

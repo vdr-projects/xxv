@@ -4,7 +4,7 @@
 # $Id$
 
 XXV = xxv
-VERSION = 0.93
+VERSION = 0.95
 
 ### The name of the distribution archive:
 

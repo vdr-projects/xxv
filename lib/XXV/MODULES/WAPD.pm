@@ -31,8 +31,8 @@ sub module {
                                 => 'Simple Common Gateway Interface Class',
         },
         Description => gettext('This module is a multisession WAPD server.'),
-        Version => '0.45',
-        Date => '16.09.2005',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

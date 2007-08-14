@@ -18,8 +18,8 @@ sub module {
             'Time::Local' => 'efficiently compute time from local and GMT time ',
         },
         Description => gettext('This module reads new EPG Data and stores them in the database.'),
-        Version => '0.92',
-        Date => '2007-06-03',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Status => sub{ $obj->status(@_) },
         Preferences => {

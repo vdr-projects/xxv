@@ -28,8 +28,8 @@ sub module {
                               'Class for submitting Artist requests',
         },
         Description => gettext('This module managed music files.'),
-        Version => '0.92',
-        Date => '2007-02-04',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Status => sub{ $obj->status(@_) },
         Preferences => {

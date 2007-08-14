@@ -40,8 +40,8 @@ sub module {
             'SOAP::Lite' => 'Client and server side SOAP implementation.',
         },
         Description => gettext('This module send and read shared data from SOAP Server.'),
-        Version => '0.03',
-        Date => '30.06.2006',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

@@ -23,8 +23,8 @@ gettext("This module managed a Useradministration Interface.
 for use you can set a Level to the hole Modul with
 a parameter 'Level' in the main root or you can set
 the same parameter in a function."),
-        Version => '0.94',
-        Date => '2007-06-24',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

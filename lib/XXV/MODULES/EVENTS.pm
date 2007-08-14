@@ -23,8 +23,8 @@ a defined Event exists and match the keywords defined in
 Module->RegEvent->SearchForEvent then call the Loghandler 'callEvent'.
 This sub look in Module->RegEvent->Actions, and call this Routines.
 "),
-        Version => '0.92',
-        Date => '2007-01-28',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

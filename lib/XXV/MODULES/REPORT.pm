@@ -17,8 +17,8 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module read in every module the status information and display this. Also this module send this informations e.g. as mail report.'),
-        Version => '0.01',
-        Date => '19.04.2005',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Level => 'user',
         Preferences => {

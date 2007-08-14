@@ -19,8 +19,8 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module analyze your system and print the result.'),
-        Version => '0.45',
-        Date => '06.09.2005',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Level => 'user',
         Preferences => {

@@ -21,8 +21,8 @@ sub module {
             "SOAP::Transport::HTTP::Event" => 'Server/Client side HTTP support for SOAP::Lite',
         },
         Description => gettext('This module is a multichannel soap server for second party software.'),
-        Version => '0.01',
-        Date => '06.09.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

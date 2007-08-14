@@ -16,8 +16,8 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module edit, write and reconfigure the configuration.'),
-        Version => '0.01',
-        Date => '27.10.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Level       => 'admin',
         Commands => {

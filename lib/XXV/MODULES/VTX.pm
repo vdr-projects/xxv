@@ -16,9 +16,9 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module display cached teletext pages from osdteletext-plugin.'),
-        Version => '0.93',
-        Date => '2007-03-04',
-        Author => 'Andreas Brachold <vdr04 at deltab.de>',
+        Version => '0.95',
+        Date => '2007-08-14',
+        Author => 'Andreas Brachold <vdr07 at deltab.de>',
         Preferences => {
             active => {
                 description => gettext('Activate this service'),

@@ -22,8 +22,8 @@ sub module {
             'Mail::SendEasy' => 'Simple platform independent mailer',
         },
         Description => gettext('This NEWS module generate mails for news.'),
-        Version => '0.01',
-        Date => '31.09.2005',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

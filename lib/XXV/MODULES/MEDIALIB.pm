@@ -21,8 +21,8 @@ sub module {
             'LWP::UserAgent' => 'simple procedural interface to LWP',
         },
         Description => gettext('This module manages media like DVDs, VCD, etc.'),
-        Version => '0.04',
-        Date => '2007-03-11',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'poetter',
         Status => sub{ $obj->status(@_) },
         Preferences => {

@@ -16,8 +16,8 @@ sub module {
         Prereq => {
         },
         Description => gettext('This module reads new channels and stores them in the database.'),
-        Version => '0.91',
-        Date => '2007-01-11',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Status => sub{ $obj->status(@_) },
         Preferences => {

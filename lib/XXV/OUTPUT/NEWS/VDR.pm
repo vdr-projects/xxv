@@ -18,8 +18,8 @@ sub module {
     my $args = {
         Name => 'NEWS::VDR',
         Description => gettext('This NEWS module generate a messages for vdr interface.'),
-        Version => '0.01',
-        Date => '31.09.2005',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

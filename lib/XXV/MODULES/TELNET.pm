@@ -18,8 +18,8 @@ sub module {
             'Module::Reload'    => 'Reload %INC files when updated on disk ',
         },
         Description => gettext('This module is a multisession telnet server.'),
-        Version => '0.01',
-        Date => '18.08.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

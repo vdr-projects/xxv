@@ -26,8 +26,8 @@ sub module {
             'Term::ReadLine::Perl' => 'a quick implementation of the minimal interface to Readline',
         },
         Description => gettext('This receive and send ASCII messages'),
-        Version => '0.01',
-        Date => '27.10.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
     };
     return $args;

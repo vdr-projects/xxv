@@ -21,8 +21,8 @@ sub module {
             'XML::RSS' => 'SMTP Protocol module to connect and send emails',
         },
         Description => gettext('This NEWS module generate an RSS Newsfeed for your rss reader.'),
-        Version => '0.01',
-        Date => '31.09.2005',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             active => {

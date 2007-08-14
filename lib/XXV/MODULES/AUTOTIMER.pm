@@ -19,8 +19,8 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module search for epg entries with an user defined text and create new timer.'),
-        Version => '0.91',
-        Date => '2007-01-11',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Status => sub{ $obj->status(@_) },
         Preferences => {

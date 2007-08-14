@@ -18,8 +18,8 @@ sub module {
             'Net::Telnet'  => 'Net::Telnet allows you to make client connections to a TCP port and do network I/O',
         },
         Description => gettext('This module a telnet client for sdvrp.'),
-        Version => '0.93',
-        Date => '2007-02-21',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             VdrHost => {

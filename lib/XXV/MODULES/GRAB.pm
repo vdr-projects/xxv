@@ -18,8 +18,8 @@ sub module {
             'Template'  => 'Front-end module to the Template Toolkit ',
         },
         Description => gettext('This module grab a picture from livestream.'),
-        Version => '0.01',
-        Date => '06.09.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Preferences => {
             xsize => {

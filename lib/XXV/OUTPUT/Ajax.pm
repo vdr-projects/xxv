@@ -21,8 +21,8 @@ sub module {
             'JSON' => 'Parse and convert to JSON (JavaScript Object Notation)',
         },
         Description => gettext('This receive and send Ajax messages.'),
-        Version => '0.01',
-        Date => '27.10.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
     };
     return $args;

@@ -15,8 +15,8 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module emulate a remote control.'),
-        Version => '0.01',
-        Date => '10.10.2004',
+        Version => '0.95',
+        Date => '2007-08-14',
         Author => 'xpix',
         Level => 'user',
         Preferences => {
