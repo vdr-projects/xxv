@@ -3,7 +3,7 @@
 #
 # $Id$
 
-VERSION = 0.92
+VERSION = 0.95
 
 ARCHIVE = db-skins
 PACKAGE = xxv-$(ARCHIVE)-$(VERSION)
@@ -12,7 +12,7 @@ TMPDIR = /tmp/$(ARCHIVE)
 
 ### The name of the distribution archive:
 
-SKINS = stone snow blue deltab lcars stone_flat snow_flat blue_flat lcars_flat
+SKINS = stone snow blue deltab lcars stone_flat snow_flat blue_flat lcars_flat xstyle
 FILES = README COPYRIGHT HISTORY
 
 all: devel full dist
