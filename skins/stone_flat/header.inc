@@ -3,7 +3,7 @@
 <div id="header">
   <div id="logo">
      <?% IF allow( 'help' ) %?>
-        <a href="?cmd=help" title="<?% gettext("Help") %?>">
+        <a href="http://xxv.berlios.de">
             <img src="images/logo.<?% global.imagetyp %?>" alt="" />
         </a>
      <?% ELSE %?>
