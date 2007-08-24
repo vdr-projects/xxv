@@ -866,7 +866,7 @@ sub videoInfo {
                         $status->{summary} =~ s/^\s+//;               # no leading white space
                         $status->{summary} =~ s/\s+$//;               # no trailing white space
                     }
-                    elsif($zeile =~ /^C\s+(.+)$/s) {
+                    elsif($zeile =~ /^C\s+(\S+)/s) {
                         $status->{channel} = $1;
                         $status->{type} = $cmod->getChannelType($status->{channel});
                     }
@@ -1549,7 +1549,7 @@ WHERE
                 $desc =~ s/^\s+//;               # no leading white space
                 $desc =~ s/\s+$//;               # no trailing white space
             }
-            elsif($zeile =~ /^C\s+(.+)$/s) {
+            elsif($zeile =~ /^C\s+(\S+)/s) {
                 $channel = $1;
             }
             elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
@@ -1678,7 +1678,7 @@ WHERE
                         undef $data->{summary};
                       }
                     } 
-                    elsif($zeile =~ /^C\s+(.+)$/s) {
+                    elsif($zeile =~ /^C\s+(\S+)/s) {
                       if(defined $data->{channel} && $data->{channel}) {
                         $data->{channel} =~ s/^\s+//;
                         $data->{channel} =~ s/\s+$//;
@@ -1939,7 +1939,8 @@ sub IdToPath {
     my $sth = $obj->{dbh}->prepare('select Path from RECORDS where RecordMD5 = ?');
     $sth->execute($id)
         or return error sprintf("Can't execute query: %s.",$sth->errstr);
-    return $sth->fetchrow_hashref()->{Path};
+    my $erg = $sth->fetchrow_hashref();
+    return $erg ? $erg->{Path} : undef;
 }
 
 # ------------------
