@@ -88,7 +88,7 @@ endif
 # Target configuration
 
 PRGNAME = vdr2jpeg
-VERSION = 0.0.11
+VERSION = $(shell grep 'static const char \*VERSION *=' vdr2jpeg.cpp | awk '{ print $$6 }' | sed -e 's/[";]//g')
 ARCHIVE = $(PRGNAME)-$(VERSION)
 DEFINES += -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS
 FILES = README LIESMICH HISTORY COPYING Makefile vdr2jpeg.cpp ffm.cpp ffm.h

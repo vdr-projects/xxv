@@ -37,7 +37,7 @@
 #include "ffm.h"
 
 
-
+static const char *VERSION        = "0.0.12";
 
 struct tFrame
 {
@@ -605,7 +605,7 @@ bool decodegop(const std::string & szFile,
 
 void help(int argc, char *argv[])
 {
-    std::cerr << "Usage: " << argv[0] << std::endl;
+    std::cerr << "Usage: " << argv[0] << " (" << VERSION << ")" << std::endl;
     std::cerr << "            -r recordings    : VDR recording folder" <<    std::endl;
     std::cerr << "            -f frame         : wanted frame (resolution at PAL - 1/25s)" <<    std::endl;
     std::cerr << "            -o outdirectory  : output folder" << std::endl;

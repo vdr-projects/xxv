@@ -1105,7 +1105,7 @@ static bool new_video_stream(AVFormatContext *oc)
         fprintf(stderr, "Could not alloc stream\n");
         return false;
     }
-    //avcodec_get_context_defaults2(st->codec, CODEC_TYPE_VIDEO);
+    avcodec_get_context_defaults2(st->codec, CODEC_TYPE_VIDEO);
 
     video_enc = st->codec;
 
