@@ -146,12 +146,13 @@ sub command {
     # read first line 
     do {
       $line = $telnet->getline;
-      last unless $line;
-      chomp($line);
-      push(@$data, $line);
-    } while($line =~ /^\d\d\d\-/);
+      chomp($line) if($line);
+      if($line) {
+        push(@$data, $line);
+      }
+    } while($line && $line =~ /^\d\d\d\-/);
 
-    unless(scalar @$data){
+    unless($data && scalar @$data){
       error sprintf("Couldn't read data from svdrp-socket %s:%s! %s",$host,$port,$telnet ? $telnet->errmsg : $!);
       return undef;
     }
@@ -170,17 +171,18 @@ sub command {
         # read response
         do {
           $line = $telnet->getline;
-          last unless $line;
-          chomp($line);
+          chomp($line) if($line);
+          if($line) {
 
-          if($line =~ /^(\d{3})\s+(.+)/ && (int($1) >= 500)) {
-            my $msg = sprintf("Error at command '%s' to %s:%s! %s", $command,$host,$port, $2);
-            error($msg);
-            $obj->{ERROR} .= $msg . "\n";
+            if($line =~ /^(\d{3})\s+(.+)/ && (int($1) >= 500)) {
+              my $msg = sprintf("Error at command '%s' to %s:%s! %s", $command,$host,$port, $2);
+              error($msg);
+              $obj->{ERROR} .= $msg . "\n";
+            }
+
+            push(@$data, $line);
           }
-
-          push(@$data, $line);
-        } while($line =~ /^\d\d\d\-/);
+        } while($line && $line =~ /^\d\d\d\-/);
     }
 
     # close socket
