@@ -150,7 +150,7 @@ sub init {
 
         main::addModule($moduleName, $obj->{NEWSMODS}->{$moduleName});
 
-        debug sprintf("Load NEWS Module %s = %s\n",
+        debug sprintf("Load NEWS Module %s(%s)\n",
             $moduleName,
             (ref $obj->{NEWSMODS}->{$moduleName})
                 ? $obj->{NEWSMODS}->{$moduleName}->{MOD}->{Version}
