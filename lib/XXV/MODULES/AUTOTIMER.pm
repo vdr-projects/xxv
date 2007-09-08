@@ -19,8 +19,8 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module search for epg entries with an user defined text and create new timer.'),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         Status => sub{ $obj->status(@_) },
         Preferences => {
@@ -1326,7 +1326,7 @@ sub _placeholder {
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {# ------------------
     my $obj = shift  || return error ('No Object!' );
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');

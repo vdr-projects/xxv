@@ -357,7 +357,7 @@ sub parseData {
 }
 
 # ------------------
-sub scandirectory {# ------------------
+sub scandirectory {# ------------------
     my $obj = shift || return error ('No Object!');
 
     find(
@@ -702,7 +702,7 @@ sub _updateEvent {
 }
 
 # ------------------
-sub _updateState {# ------------------
+sub _updateState {# ------------------
     my $obj = shift || return error ('No Object!');
     my $oldattr = shift || return error ('Missing data');
     my $attr = shift || return error ('No data to replace!');
@@ -2090,7 +2090,7 @@ sub converttitle {
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {# ------------------
     my $obj = shift  || return error ('No Object!' );
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');

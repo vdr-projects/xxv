@@ -1685,7 +1685,7 @@ sub my_strftime {
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {# ------------------
     my $obj = shift  || return error ('No Object!' );
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');

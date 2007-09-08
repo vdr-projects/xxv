@@ -1137,7 +1137,7 @@ WHERE
 }
 
 # ------------------
-sub getDescription {# ------------------
+sub getDescription {# ------------------
     my $obj = shift  || return error ('No Object!' );
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
@@ -1185,7 +1185,7 @@ sub getId {
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {# ------------------
     my $obj = shift  || return error ('No Object!' );
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
