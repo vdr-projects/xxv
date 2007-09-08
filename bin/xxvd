@@ -43,7 +43,7 @@ use Locale::gettext;
 
 $|++;
 
-my $REV = &getRev() || (split(/ /, '$Id$'))[2];
+my $REV = &getRev() || (split(/ /, '$Revision$'))[1];
 my $MODULES;
 my $VERSION = '0.95';
 my $VDRVERSION = 0;
@@ -70,7 +70,7 @@ sub module {
         },
         Description => gettext('This is the main program xxvd.'),
         Version => $VERSION,
-        Date => '24.11.2004',
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'Frank Herrmann <xpix at xpix.de>',
         Preferences => {
             Language => {

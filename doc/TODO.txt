@@ -1,13 +1,6 @@
-Featurerequest (ToDo DevVersion >= 0.50):
+Featurerequest (ToDo DevVersion >= 1.0):
 
 * Zeitintensive Aufgaben sollten vorher den sysload prüfen (blafasel)
-* Coverbilder im mp3 Verzeichnis für Albumvorschau nutzen. (wilderigel)
-* Autotimer sollte auch die Aufnahmen beim suchen berücksichtigen (Karsten)
-* EPG-Bilder von tvmovie2vdr nutzen (sledgehammer)
-* Advances Search Dialog (sledgehammer)
-* commands.conf mit zur Verfügung stellen (xpix)
-* Echtes Telnetinterface mitr history usw. (xpix)
-* Eigenschaften MaxLifetime und MaxPrio bei Usern (wilderigel)
-* Server-Push für weitere langsame Vorgänge (Hulk)
+* Echtes Telnetinterface mit history usw. (xpix)
 
 
