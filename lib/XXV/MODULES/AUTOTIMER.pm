@@ -22,6 +22,7 @@ sub module {
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $obj->status(@_) },
         Preferences => {
             active => {

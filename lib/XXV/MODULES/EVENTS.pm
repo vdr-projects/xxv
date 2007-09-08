@@ -23,9 +23,10 @@ a defined Event exists and match the keywords defined in
 Module->RegEvent->SearchForEvent then call the Loghandler 'callEvent'.
 This sub look in Module->RegEvent->Actions, and call this Routines.
 "),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Activate this service'),

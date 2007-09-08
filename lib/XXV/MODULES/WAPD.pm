@@ -31,9 +31,10 @@ sub module {
                                 => 'Simple Common Gateway Interface Class',
         },
         Description => gettext('This module is a multisession WAPD server.'),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Activate this service'),

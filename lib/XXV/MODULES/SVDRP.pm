@@ -18,9 +18,10 @@ sub module {
             'Net::Telnet'  => 'Net::Telnet allows you to make client connections to a TCP port and do network I/O',
         },
         Description => gettext('This module a telnet client for sdvrp.'),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             VdrHost => {
                 description => gettext('Name of the host that runs vdr'),

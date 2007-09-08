@@ -19,9 +19,10 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module read the xxv log file and show it on console.'),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Level => 'admin',
         Preferences => {
             active => {

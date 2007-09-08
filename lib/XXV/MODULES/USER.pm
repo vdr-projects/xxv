@@ -23,9 +23,10 @@ gettext("This module managed a Useradministration Interface.
 for use you can set a Level to the hole Modul with
 a parameter 'Level' in the main root or you can set
 the same parameter in a function."),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Switch the Userauthentification on or off'),

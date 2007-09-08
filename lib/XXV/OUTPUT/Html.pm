@@ -26,9 +26,10 @@ sub module {
             'HTML::TextToHTML' => 'convert plain text file to HTML. ',
         },
         Description => gettext('This receive and send HTML messages.'),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
     };
     return $args;
 }

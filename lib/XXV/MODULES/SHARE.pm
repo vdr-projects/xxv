@@ -40,9 +40,10 @@ sub module {
             'SOAP::Lite' => 'Client and server side SOAP implementation.',
         },
         Description => gettext('This module send and read shared data from SOAP Server.'),
-        Version => '0.95',
-        Date => '2007-08-14',
+        Version => (split(/ /, '$Revision$'))[1],
+        Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Activate this service'),
