@@ -71,6 +71,7 @@ sub module {
         Description => gettext('This is the main program xxvd.'),
         Version => $VERSION,
         Date => (split(/ /, '$Date$'))[1],
+        LastAuthor => (split(/ /, '$Author$'))[1],
         Author => 'Frank Herrmann <xpix at xpix.de>',
         Preferences => {
             Language => {
@@ -283,7 +284,7 @@ sub init {
             -dbh    => $DBH,
             -paths  => $PATHS,
         );
-        debug sprintf("Load Module %s = %s\n",
+        debug sprintf("Load Module %s(%s)\n",
             $moduleName,
             (ref $MODULES->{$moduleName})
                 ? $MODULES->{$moduleName}->{MOD}->{Version}
