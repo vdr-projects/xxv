@@ -75,7 +75,7 @@ sub module {
         Author => 'Frank Herrmann <xpix at xpix.de>',
         Preferences => {
             Language => {
-                description => gettext('Language for interface'),
+                description => gettext('Interface language'),
                 type        => 'list',
                 choices     => [
                     [gettext('English'), 'C'], # C Stand for nativ gettext language, and means en_US
@@ -84,19 +84,19 @@ sub module {
                 default     => 'C',
             },
             DSN => {
-                description => gettext('Data source name for the connection to the data base'),
+                description => gettext('Data source for the connection to the database'),
                 default     => 'DBI:mysql:database=xxv;host=localhost;port=3306',
                 type        => 'string',
                 required    => gettext("This is required!"),
             },
             USR => {
-                description => gettext('Username for data base access'),
+                description => gettext('Password for database access'),
                 default     => 'xxv',
                 type        => 'string',
                 required    => gettext("This is required!"),
             },
             PWD => {
-                description => gettext('Password for data base access'),
+                description => gettext('Password for database access'),
                 default     => 'xxv',
                 type        => 'password',
                 required    => gettext("This is required!"),
@@ -104,7 +104,7 @@ sub module {
                     my $value = shift || return;
                     # If no password given the take the old password as default
                     if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("Field with 1st and 2nd password must be equal to confirm!");
+                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
                     } else {
                         return $value->[0];
                     }
@@ -119,13 +119,13 @@ sub module {
         },
         Commands => {
             doc => {
-                description => gettext('Generate the documentation in doc directory.'),
+                description => gettext('Generate the documentation into the doc directory.'),
                 short       => 'dc',
                 callback    => sub{ docu(@_) },
                 Level       => 'admin',
             },
             more => {
-                description => gettext('Shows text files.'),
+                description => gettext('Display program information.'),
                 short       => 'mo',
                 callback    => sub{ more(@_) },
                 Level       => 'user',
@@ -136,7 +136,7 @@ sub module {
     if(0 == $<)
     {
       $args->{'Commands'}->{'restart'} = {
-                description => gettext('Call initialization script to restart xxv system.'),
+                description => gettext('Call initialization script to restart the xxv system.'),
                 short       => 'restart',
                 callback    => sub{ restart(@_) },
                 Level       => 'admin',
@@ -389,10 +389,10 @@ sub getDbh {
             });
 
     if($dbh) {
-      debug('Successfully connect to database: %s', $dsn);
+      debug('Connect to database: %s successful.', $dsn);
       $dbh->{'mysql_auto_reconnect'} = 1;
     } else {
-        panic("Can't connect to database: %s :", $dsn, $DBI::errstr);
+        panic("Could not connect to database: %s :", $dsn, $DBI::errstr);
         unlink $PATHS->{PIDFILE};
         &toCleanUp();
         exit(1);
@@ -473,7 +473,7 @@ sub getVdrVersion {
 # ------------------
 sub getDBVersion {
 # ------------------
-    my $dbh = shift || return error('No DB Handle');
+    my $dbh = shift || return error('No database handle defined!');
 
     # Keine Versionstabelle?
     unless(tableExists($dbh, 'VERSION')) {
@@ -550,9 +550,9 @@ sub docu {
     if(ref $console and $name) {
         return $console->pod($name);
     } elsif(ref $console) {
-        return $console->message(sprintf(gettext("Documentation is generated in '%s'."), $target));
+        return $console->message(sprintf(gettext("Documentation has been generated in '%s'."), $target));
     } else {
-        return debug(sprintf(gettext("Documentation is generated in '%s'."), $target) . "\n");
+        return debug(sprintf("Documentation has been generated in '%s'.", $target) . "\n");
     }
 }
 
@@ -561,7 +561,7 @@ sub more {
 # ------------------
     my $watcher = shift;
     my $console = shift;
-    my $name  = shift || return error('No TxtFile given!');
+    my $name  = shift || return error('No text file defined!');
     my $param = shift || {};
 
     if(ref $console) {
@@ -576,7 +576,7 @@ sub restart {
     my $console = shift;
 
     if(-x $Config->{General}->{initscript}) {
-        my $msg = sprintf(gettext("The xxv system will restart now. Please try a relogin in %d seconds."), $starttime);
+        my $msg = sprintf(gettext("The xxv system will restart now. Please try to re-login in %d seconds."), $starttime);
         $console->message($msg);
         debug $msg;
         $console->redirect({url => '/', wait => $starttime, parent => 'top'})
@@ -586,7 +586,7 @@ sub restart {
 
         my $erg = `$run`;
     } else {
-        $console->err(gettext("Can't restart xxv system ! Script for initialization is'nt executable."));
+        $console->err(gettext("Cannot restart the xxv system! Script for initialization cannot be executed."));
     }
 }
 
@@ -601,7 +601,7 @@ sub getActualDbVersion {
 # ------------------
 sub checkDB {
 # ------------------
-    my $dbh = shift || return error('No DB Handle');
+    my $dbh = shift || return error('No database handle');
     my $dbversion = &getDBVersion($dbh);
     my $aver = &getActualDbVersion();
 
@@ -676,7 +676,7 @@ sub init_template {
     # Test on Template Modul ....
     if($TEMPLMOD) {
         $Template::Config::STASH = 'Template::Stash::XS';
-        debug gettext('Fast template support is on!');
+        debug 'Fast template support is enabled!';
     } else {
         use Template;
         warn gettext(qq|
@@ -712,7 +712,7 @@ sub init_signal_handler {
         $Config = Config::Tiny->read( $pat->{CFGFILE} )
             or return error('Problem to read the %s: %s', $pat->{CFGFILE}, $CFGOBJ->errstr);
         my $configModule = getModule('CONFIG')
-            or return error('Can not load the Config module');
+            or return error('Can not load the config module');
         $configModule->reconfigure;
     };
 
@@ -728,7 +728,7 @@ sub init_db_connect {
         $cfg->{General}->{DSN},
         $cfg->{General}->{USR},
         $cfg->{General}->{PWD},
-        ) or return error 'Can not connect to Database';
+        ) or return error 'Can not connect to database';
 
     # Test on compare Version from DB and Sourcepaket
     my ($dbok, $dberr) = &checkDB($dbh);
@@ -739,4 +739,3 @@ sub init_db_connect {
 
     return $dbh;
 }
-

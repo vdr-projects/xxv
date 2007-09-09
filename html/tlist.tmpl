@@ -11,7 +11,7 @@
 <?% END %?>
 
 <?% IF allow('tnew') %?>
-<a href="?cmd=tnew">[<?% gettext("Create a new timer") %?>]</a>
+<a href="?cmd=tnew">[<?% gettext("Create new timer") %?>]</a>
 <?% END %?>
 <?% IF allow('tupdate') %?>
 <a href="javascript:tostatus('?cmd=tupdate')">[<?% gettext("Update timers") %?>]</a>
@@ -20,13 +20,13 @@
 <?% INCLUDE 'widgets/referer.tmpl' %?>
 
 <?% IF allow('ttoggle') %?>
-<a href="#" onClick="Toggle('<?% gettext("You have nothing selected!") %?>',document.TimerList)">
+<a href="#" onClick="Toggle('<?% gettext("Nothing selected!") %?>',document.TimerList)">
     [<?% gettext("Toggle timer") %?>]
 </a>
 <?% END %?>
 <?% IF allow('tdelete') %?>
-<a href="#" onClick="Delete('<?% gettext("You would delete follow timers?") %?>',
-'<?% gettext("You have nothing selected!") %?>','tdelete',document.TimerList)">
+<a href="#" onClick="Delete('<?% gettext("Would You like to delete the following timer(s)?") %?>',
+'<?% gettext("Nothing selected!") %?>','tdelete',document.TimerList)">
     [<?% gettext("Delete timer") %?>]
 </a>
 &nbsp;
@@ -47,7 +47,7 @@
             <th><?% field %?></th>
         <?% END %?>
 <?% IF enableform %?>
-            <th><?% gettext("Select") %?></th>
+            <th><?% gettext("Selection") %?></th>
 <?% END %?>
         </tr>
         <?% FOREACH zeile = data %?>
@@ -79,7 +79,7 @@
                         <a href="?cmd=tedit&amp;data=<?% zeile.0 %?>" title="<?% gettext("Edit this timer") %?>"><div class="<?% myclass %?>">[E]</div></a>
     <?% END %?>
     <?% IF allow('tdelete') %?>
-                        <a href="javascript:sure(document.TimerList, '<?% gettext("You will delete this timer") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Delete this timer") %?>"><div class="<?% myclass %?>">[D]</div></a>
+                        <a href="javascript:sure(document.TimerList, '<?% gettext("Would You like to delete the following timer(s)?") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Would You like to delete the following timer(s)?") %?>"><div class="<?% myclass %?>">[D]</div></a>
     <?% END %?>
                     </td>
                     <?% ELSIF c == 1; # Id Status %?>
@@ -102,7 +102,7 @@
     		</td>
                     <?% ELSIF c == 2; # Channel Field %?>
                     <td nowrap>
-                        <a href="?cmd=program&amp;data=<?% field %?>" title="<?% gettext("Jump to program guide:") %?> <?% zeile.2 %?>"><div class="<?% myclass %?>"><?% zeile.2 %?></div></a>
+                        <a href="?cmd=program&amp;data=<?% field %?>" title="<?% gettext("Jump to program:") %?> <?% zeile.2 %?>"><div class="<?% myclass %?>"><?% zeile.2 %?></div></a>
                     </td>
                     <?% ELSIF c == 7; # Title %?>
                     <td>

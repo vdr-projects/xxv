@@ -75,7 +75,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     $obj->{STEP} = 0;
     $obj->{pusher}->start();
@@ -85,7 +85,7 @@ sub init {
 # ------------------
 sub next {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $cur = shift  || $obj->{MAX};
     my $end = shift  || 0;
     my $msg = shift  || 0;
@@ -130,7 +130,7 @@ sub next {
 # ------------------
 sub end {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $msg = shift  || 0;
 
     return $obj->next(undef, $obj->{MAX}, 1, $msg);
@@ -140,28 +140,28 @@ sub end {
 # ------------------
 sub endcallback {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     $obj->{endcallback} = shift || return $obj->{endcallback};
 }
 
 # ------------------
 sub max {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     $obj->{MAX} = shift || return $obj->{MAX};
 }
 
 # ------------------
 sub min {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     $obj->{MIN} = shift || return $obj->{MIN};
 }
 
 # ------------------
 sub screen {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     $obj->{SCREEN} = shift || return $obj->{SCREEN};
 }
 

@@ -15,7 +15,7 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'NEWS::MAIL',
         Prereq => {
@@ -41,7 +41,7 @@ sub module {
                 },
             },
             level => {
-                description => gettext('Minimum level of the messages which can be displayed (1 ... 100)'),
+                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
                 default     => 1,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -68,24 +68,24 @@ sub module {
                 },
             },
             address => {
-                description => gettext('One or more mail addresses for sending the news'),
+                description => gettext('One or more mail addresses for sending the messages'),
                 default     => 'unknown@example.com, everybody@example.com',
                 type        => 'string',
                 required    => gettext('This is required!'),
             },
             from_address => {
-                description => gettext('Mail address to senders describe.'),
+                description => gettext('Mail address to describe the sender.'),
                 default     => 'xxv@vdr.de',
                 type        => 'string',
             },
             smtp => {
-                description => gettext('Hostname from SMTP mail server'),
+                description => gettext('SMTP mail server host name'),
                 default     => main::getModule('STATUS')->name,
                 type        => 'host',
                 required    => gettext('This is required!'),
             },
             susr => {
-                description => gettext('Username for mail server access'),
+                description => gettext('User name for mail server access'),
                 default     => 'xxv',
                 type        => 'string',
             },
@@ -100,7 +100,7 @@ sub module {
 
                     # If no password given the take the old password as default
                     if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("Field with 1st and 2nd password must be equal to confirm!");
+                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
                     } else {
                         return $value->[0];
                     }
@@ -172,7 +172,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     $obj->{INITE} = 1;
 
     $obj->{LastReportTime} = time;
@@ -194,7 +194,7 @@ sub init {
 # ------------------
 sub send {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     return error('This function is deactivated!')
         if($obj->{active} ne 'y');
@@ -230,7 +230,7 @@ sub send {
 # ------------------
 sub parseHeader {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $output = '';
 
     my $vars = {
@@ -249,7 +249,7 @@ sub parseHeader {
 # ------------------
 sub parseFooter {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $output = '';
 
 
@@ -270,7 +270,7 @@ sub parseFooter {
 # ------------------
 sub read {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error ('No News!' );
 
     my $output = '';
@@ -290,16 +290,16 @@ sub read {
 # ------------------
 sub req {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $test = shift  || 0;
 
-    return gettext('The Module NEWS::Mail is not active!')
+    return gettext('The module NEWS::Mail is not active!')
         if($obj->{active} ne 'y');
 
     my $content = '';
     if($test) {
         $obj->send;
-        $content .= gettext('A mail with the following content is send to your Mailaccount!');
+        $content .= gettext('A mail with the following content has been sent to your mail account!');
         $content .= "\n\n";
     }
 

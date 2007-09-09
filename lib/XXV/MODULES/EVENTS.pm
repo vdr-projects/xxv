@@ -10,7 +10,7 @@ use File::Find;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'EVENTS',
         Prereq => {
@@ -98,7 +98,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     main::after(sub{
         $obj->{EVENTS} = $obj->searchForEvents();
@@ -115,7 +115,7 @@ sub _init {
 # ------------------
 sub searchForEvents {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $mods = main::getModules();
     my $events = {};

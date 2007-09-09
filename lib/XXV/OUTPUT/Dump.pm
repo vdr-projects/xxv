@@ -9,12 +9,12 @@ use Tools;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'Dump',
         Prereq => {
         },
-        Description => gettext('This receive and send Dump messages.'),
+        Description => gettext('This receives and sends dump messages.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -25,7 +25,7 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return if($AUTOLOAD =~ /DESTROY$/);
 dumper(\@_);
@@ -56,7 +56,7 @@ sub new {
 # ------------------
 sub typ {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->{TYP};
 }
 

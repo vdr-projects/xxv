@@ -11,7 +11,7 @@ use File::Path;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $args = {
         Name => 'MEDIALIB',
@@ -191,7 +191,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return 0, panic("Session to database is'nt connected")
       unless($obj->{dbh});
@@ -282,7 +282,7 @@ sub _init {
 # Usage: my $report = $obj->status([$watcher, $console]);
 # ------------------
 sub status {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     
@@ -303,7 +303,7 @@ FROM
 # ------------------
 sub researchMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || 0;
@@ -334,7 +334,7 @@ sub researchMedia {
 # ------------------
 sub createMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || 0;
@@ -346,7 +346,7 @@ sub createMedia {
 # ------------------
 sub copyMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || 0;
@@ -373,7 +373,7 @@ WHERE
 # ------------------
 sub importMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || 0;
@@ -456,7 +456,7 @@ sub importMedia {
 # ------------------
 sub searchMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || 0;
@@ -543,7 +543,7 @@ ORDER BY title
 # ------------------
 sub editMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || 0;
@@ -591,7 +591,7 @@ WHERE
 # ------------------
 sub listMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || "";
@@ -651,7 +651,7 @@ ORDER BY title
 # ------------------
 sub displayMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || "";
@@ -697,7 +697,7 @@ WHERE id = ?
 # ------------------
 sub saveMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || "";
@@ -741,7 +741,7 @@ sub saveMedia {
 # ------------------
 sub deleteMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || "";
@@ -781,7 +781,7 @@ sub deleteMedia {
 # ------------------
 sub _saveActors {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $input = shift || '';
@@ -847,7 +847,7 @@ sub _saveActors {
 # ------------------
 sub _saveGenres {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $videoid = shift || 0;
     my $genres = shift || [];
     #print Dumper( $videoid,$genres);
@@ -875,7 +875,7 @@ sub _saveGenres {
 # ------------------
 sub _saveMedia {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to Save!' );
 
     if(ref $data eq 'HASH') {
@@ -902,7 +902,7 @@ sub _saveMedia {
 # ------------------
 sub _get_actors {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $input = shift || return '';
     
     $input =~ s/\r\n/\n/g;
@@ -946,7 +946,7 @@ WHERE
 # ------------------
 sub _get_actors_as_hash_by_name {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $input = shift || return '';
     
     $input =~ s/\r\n/\n/g;
@@ -968,7 +968,7 @@ WHERE
 }
 
 sub _nocover {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $HTTPD  = main::getModule('HTTPD');
     my $nocover = sprintf('%s/%s/images/nocover', $HTTPD->{paths}->{HTMLDIR}, $HTTPD->{HtmlRoot});
 
@@ -992,7 +992,7 @@ sub _nocover {
 # ------------------
 sub mediacache {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id   = shift || 0;
@@ -1032,7 +1032,7 @@ sub mediacache {
 # ------------------
 sub _get_mediatype_as_array {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return [
         [1,'DVD'],
@@ -1056,7 +1056,7 @@ sub _get_mediatype_as_array {
 # ------------------
 sub _get_mediatype_as_hash {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $types = $obj->_get_mediatype_as_array;
 
@@ -1073,7 +1073,7 @@ sub _get_mediatype_as_hash {
 # ------------------
 sub _get_mediatype_namebyid {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || return error ('No Mediatype ID given');
 
     my $types = $obj->_get_mediatype_as_array;
@@ -1087,7 +1087,7 @@ sub _get_mediatype_namebyid {
 # ------------------
 sub _get_mediatype_idbyname {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $name = shift || return error ('No Mediatype Name given');
 
     my $types = $obj->_get_mediatype_as_array;
@@ -1101,7 +1101,7 @@ sub _get_mediatype_idbyname {
 # ------------------
 sub _get_videogenres_byvideoid {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || 0;
     
     return [] unless $id;
@@ -1128,7 +1128,7 @@ WHERE
 # ------------------
 sub _get_videogenres_as_hash_by_id {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     
     my $genres = $obj->_get_videogenres_as_array;
   
@@ -1145,7 +1145,7 @@ sub _get_videogenres_as_hash_by_id {
 # ------------------
 sub _get_videogenres_as_hash_by_name {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     
     my $genres = $obj->_get_videogenres_as_array;
   
@@ -1162,7 +1162,7 @@ sub _get_videogenres_as_hash_by_name {
 # ------------------
 sub _get_videogenres_as_hash {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return {
         gettext('Action') => {
@@ -1253,7 +1253,7 @@ sub _get_videogenres_as_hash {
             'id' => 22,
             'name' => 'Biography',
                     },
-        gettext('MLHistory') => {
+        gettext('History') => {
             'id' => 23,
             'name' => 'History',
                     },
@@ -1272,7 +1272,7 @@ sub _get_videogenres_as_hash {
 # ------------------
 sub _get_videogenres_as_array {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $hashref = $obj->_get_videogenres_as_hash;
     
@@ -1286,7 +1286,7 @@ sub _get_videogenres_as_array {
 # ------------------
 sub _getsearchsfields_as_array {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return [
         [ 'title', gettext('Title') ],
@@ -1306,7 +1306,7 @@ sub _getsearchsfields_as_array {
 # ------------------
 sub _get_ranges_as_array {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return [
             [ 'NUM', gettext('#') ],

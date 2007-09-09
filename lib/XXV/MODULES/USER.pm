@@ -11,7 +11,7 @@ use File::Path;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'USER',
         Prereq => {
@@ -19,17 +19,17 @@ sub module {
                 => 'Efficiently match IPv4 addresses against IPv4 ranges via regexp ',
         },
         Description =>
-gettext("This module managed a Useradministration Interface.
-for use you can set a Level to the hole Modul with
-a parameter 'Level' in the main root or you can set
-the same parameter in a function."),
+gettext("This module manages the User administration.
+You may set a level for the whole module with 
+the 'Level' parameter in the main module
+or the same parameter is set for each function."),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
-                description => gettext('Switch the Userauthentification on or off'),
+                description => gettext('Enable user authentication'),
                 default     => 'y',
                 type        => 'confirm',
             },
@@ -41,7 +41,7 @@ the same parameter in a function."),
                     my $value = shift || return;
                     my @ips = split(/\s*,\s*/, $value);
                     for (@ips) {
-                        return undef, sprintf(gettext('Your IP number (%s) is wrong! You need a IP with range (xxx.xxx.xxx.xxx/xx)'), $_)
+                        return undef, sprintf(gettext('Your IP number (%s) is wrong! You need an IP in range (xxx.xxx.xxx.xxx/xx)'), $_)
                             unless ($_ =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d+/);
                     }
                     return $value;
@@ -55,7 +55,7 @@ the same parameter in a function."),
                     my $value = shift || return;
                     my @ips = split(/\s*,\s*/, $value);
                     for (@ips) {
-                        return undef, sprintf(gettext('Your IP number (%s) is wrong! You need a IP with range (xxx.xxx.xxx.xxx/xx)'), $_)
+                        return undef, sprintf(gettext('Your IP number (%s) is wrong! You need an IP in range (xxx.xxx.xxx.xxx/xx)'), $_)
                             unless ($_ =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d+/);
                     }
                     return $value;
@@ -70,25 +70,25 @@ the same parameter in a function."),
         },
         Commands => {
             unew => {
-                description => gettext('Create a new account for user'),
+                description => gettext('Create new user account'),
                 short       => 'un',
                 callback    => sub{ $obj->create(@_) },
                 Level       => 'admin',
             },
             udelete => {
-                description => gettext("Delete a account of user 'uid'"),
+                description => gettext("Delete user account 'uid'"),
                 short       => 'ud',
                 callback    => sub{ $obj->delete(@_) },
                 Level       => 'admin',
             },
             uedit => {
-                description => gettext("Edit a account of user 'uid'"),
+                description => gettext("Edit user account 'uid'"),
                 short       => 'ue',
                 callback    => sub{ $obj->edit(@_) },
                 Level       => 'admin',
             },
             uprefs => {
-                description => gettext("Change the own preferences"),
+                description => gettext("Change preferences"),
                 short       => 'up',
                 callback    => sub{ $obj->userprefs(@_) },
                 Level       => 'user',
@@ -100,7 +100,7 @@ the same parameter in a function."),
                 Level       => 'admin',
             },
             logout => {
-                description => gettext("Logout from the current Session"),
+                description => gettext("Log out from current session."),
                 short       => 'exit',
                 callback    => sub{
                     my $watcher = shift || return error ('No Watcher!');
@@ -184,7 +184,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return 0, panic("Session to database is'nt connected")
       unless($obj->{dbh});
@@ -226,7 +226,7 @@ sub _init {
 # Usage: my $ok = $obj->create($watcher, $console, 0, {name => 'user', ...});
 # ------------------
 sub create {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id      = shift || 0;
@@ -239,7 +239,7 @@ sub create {
 # ------------------
 sub userprefs {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id      = shift || $obj->{USER}->{Id};
@@ -249,7 +249,7 @@ sub userprefs {
     if($id and not ref $data) {
         my $sth = $obj->{dbh}->prepare('select * from USER where Id = ?');
         $sth->execute($id)
-            or return $console->err(sprintf(gettext("Account for user with ID '%s' does not exist in the database!"),$id));
+            or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
         $user = $sth->fetchrow_hashref();
     }
 
@@ -269,7 +269,7 @@ sub userprefs {
                 # take the old password as default
                 if($console->typ eq 'HTML') {
                     if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("Field with 1st and 2nd password must be equal to confirm!");
+                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
                     } else {
                         return $value->[0];
                     }
@@ -281,7 +281,7 @@ sub userprefs {
         },
         'UserPrefs' => {
             def     => $user->{UserPrefs} || '',
-            msg     => gettext("Personality preferences for this User: ModName::Param=value, "),
+            msg     => gettext("Personal preferences for this user: ModName::Param=value, "),
             typ     => 'string',
             check   => sub{
                 my $value = shift || return;
@@ -289,7 +289,7 @@ sub userprefs {
                     my ($modname, $parameter, $value) = $pref =~ /(\S+)::(\S+)\=(.+)/sg;
                     if(my $mod = main::getModule($modname)) {
                         unless(exists $mod->{$parameter}) {
-                            return undef, sprintf(gettext("The Parameter '%s' in Module '%s' doesn't exist!"),$parameter, $mod);
+                            return undef, sprintf(gettext("The parameter '%s' in module '%s' does not exist!"),$parameter, $mod);
                         }
                     }
                 }
@@ -299,17 +299,17 @@ sub userprefs {
     ];
 
     # Ask Questions
-    $data = $console->question(sprintf(gettext('Edit preferences of user: %s'), $obj->{USER}->{Name}), $questions, $data);
+    $data = $console->question(sprintf(gettext('Edit preferences: %s'), $obj->{USER}->{Name}), $questions, $data);
 
     if(ref $data eq 'HASH') {
         $obj->_insert($data);
 
         $obj->refreshUserSettings($data->{UserPrefs}, $user->{UserPrefs});
 
-        $console->message(gettext('Account for user saved!'));
+        $console->message(gettext('User account saved!'));
         if($console->typ eq 'HTML') {
             $console->redirect({url => '?', parent => 'top', wait => 2});
-            $console->message(gettext('Please wait ... refresh the interface!'));
+            $console->message(gettext('Please wait ... refreshing interface!'));
         }
     }
     return 1;
@@ -322,7 +322,7 @@ sub userprefs {
 # Usage: my $ok = $obj->edit($watcher, $console, $id, [$data]);
 # ------------------
 sub edit {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id      = shift || 0;
@@ -332,7 +332,7 @@ sub edit {
     if($id and not ref $data) {
         my $sth = $obj->{dbh}->prepare('select * from USER where Id = ?');
         $sth->execute($id)
-            or return $console->err(sprintf(gettext("Account for user with ID '%s' does not exist in the database!"),$id));
+            or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
         $user = $sth->fetchrow_hashref();
 
         # question erwartet ein Array
@@ -352,7 +352,7 @@ sub edit {
             def     => $user->{Id} || 0,
         },
         'Name' => {
-            msg   => gettext("Name from this account"),
+            msg   => gettext("Name of user account"),
             req   => gettext('This is required!'),
             def   => $user->{Name} || '',
         },
@@ -367,7 +367,7 @@ sub edit {
                 # take the old password as default
                 if($console->typ eq 'HTML') {
                     if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("Field with 1st and 2nd password must be equal to confirm!");
+                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
                     } else {
                         return $value->[0];
                     }
@@ -430,7 +430,7 @@ sub edit {
                     my ($modname, $parameter, $value) = $pref =~ /(\S+)::(\S+)\=(.+)/sg;
                     if(my $mod = main::getModule($modname)) {
                         unless(exists $mod->{$parameter}) {
-                            return undef, sprintf(gettext("The Parameter '%s' in Module '%s' doesn't exist!"),$parameter, $mod);
+                            return undef, sprintf(gettext("The parameter '%s' in module '%s' does not exist!"),$parameter, $mod);
                         }
                     }
                 }
@@ -438,25 +438,25 @@ sub edit {
             },
         },
         'MaxLifeTime' => {
-            msg   => gettext("Maximally permitted value for lifetime on timers"),
+            msg   => gettext("Maximum permitted value for lifetime with timers"),
             def   => $user->{MaxLifeTime} || '0',
             type  => 'integer',
             check   => sub{
                 my $value = shift || return 0;
                 unless(int($value) and int($value) > 0 and int($value) < 100) {
-                    return undef, gettext("This value is not a integer or not between 0 and 100");
+                    return undef, gettext("This value is not an integer or not between 0 and 100");
                 }
                 return $value;
             },
         },
         'MaxPriority' => {
-            msg   => gettext("Maximally permitted value for priority on timers"),
+            msg   => gettext("Maximum permitted value for priority with timers"),
             def   => $user->{MaxPriority} || '0',
             type  => 'integer',
             check   => sub{
                 my $value = shift || return 0;
                 unless(int($value) and int($value) > 0 and int($value) < 100) {
-                    return undef, gettext("This value is not a integer or not between 0 and 100");
+                    return undef, gettext("This value is not an integer or not between 0 and 100");
                 }
                 return $value;
             },
@@ -464,8 +464,8 @@ sub edit {
     ];
 
     # Ask Questions
-    $data = $console->question(($id ? gettext('Edit account of user')
-				    : gettext('Create a new account for user')), $questions, $data);
+    $data = $console->question(($id ? gettext('Edit user account')
+				    : gettext('Create new user account')), $questions, $data);
 
     if(ref $data eq 'HASH') {
         $obj->_insert($data);
@@ -476,7 +476,7 @@ sub edit {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $console->message(gettext('Account for user saved!'));
+        $console->message(gettext('User account saved!'));
         $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
             if($console->typ eq 'HTML');
     }
@@ -489,15 +489,15 @@ sub edit {
 # Usage: my $ok = $obj->delete($watcher, $console, $id);
 # ------------------
 sub delete {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $id = shift || return $console->err(gettext("No ID for Account of user to delete! Please use udelete 'uid'"));
+    my $id = shift || return $console->err(gettext("No user account defined to delete! Please use udelete 'uid'."));
 
     my $sth = $obj->{dbh}->prepare('delete from USER where Id = ?');
     $sth->execute($id)
-        or return $console->err(sprintf(gettext("Account for user with ID '%s' does not exist in the database!"),$id));
-    $console->message(sprintf gettext("Account of user %s is deleted."), $id);
+        or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
+    $console->message(sprintf gettext("User account %s deleted."), $id);
 
     debug sprintf('Delete user account "%s"%s',
         $id,
@@ -513,7 +513,7 @@ sub delete {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
 
@@ -550,7 +550,7 @@ from
 # Usage: my $ok = $obj->logout();
 # ------------------
 sub logout {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     lg sprintf('Logout called%s',
         $obj->{USER}->{Name} ? sprintf(" by user %s", $obj->{USER}->{Name}) : "" 
@@ -572,7 +572,7 @@ sub logout {
 # ------------------
 sub _checkIp {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $handle = shift || return;
 
     my $ip = getip($handle);
@@ -601,7 +601,7 @@ sub _checkIp {
 # Usage: my $userHash = $obj->check($handle);
 # ------------------
 sub check {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $handle = shift || return;
 
     if($obj->_checkIp($handle)) {
@@ -646,7 +646,7 @@ sub check {
 # ------------------
 sub refreshUserSettings {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $newprefs = shift || '';
     my $oldprefs = shift || '';
 
@@ -667,7 +667,7 @@ sub refreshUserSettings {
 # ------------------
 sub setUserSettings {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $prefs = shift || return error ('No Settings??');
     my $mode = shift || 'set';
 
@@ -690,7 +690,7 @@ sub setUserSettings {
 # ------------------
 sub allowCommand {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $modCfg = shift || return error('No Moduleinformation');
     my $cmdName = shift || return error('No Command name');
     my $user = shift || return error('No User');
@@ -733,7 +733,7 @@ sub t_checkCommand {
 }
 # ------------------
 sub checkCommand {
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $console = shift || return error ('No Console' );
     my $ucmd = shift || return error ('No Command' );
     my $DontdumpViolation = shift || '';
@@ -759,7 +759,7 @@ sub checkCommand {
                 $cmdname = $cmdName;
                 # Check on active Modul
                 if(exists $mods->{$modName}->{active} and $cfg->{$modCfg->{Name}}->{active} eq 'n') {
-                    $err = sprintf(gettext("Sorry but the module %s is inactive! Switch this active in %s:Preferences:active = y"),
+                    $err = sprintf(gettext("Sorry, but the module %s is inactive! Enable it with %s:Preferences:active = y"),
                         $modCfg->{Name}, $modCfg->{Name});
                     $shorterr = 'noactive';
                 }
@@ -767,7 +767,7 @@ sub checkCommand {
                 if($obj->{active} eq 'y') {
                     # Check Userlevel and Permissions
                     unless($obj->allowCommand($modCfg, $cmdName, $console->{USER},$DontdumpViolation)) {
-                        $err = gettext('You have no permissions on this command!');
+                        $err = gettext('You are not authorized for this function!');
                         $shorterr = 'noperm';
                     }
                 }
@@ -775,7 +775,7 @@ sub checkCommand {
         }
     }
     unless($ok) {
-        $err = sprintf(gettext("I don't understand the command '%s' \n"), $ucmd);
+        $err = sprintf(gettext("I do not understand the command '%s' \n"), $ucmd);
         $shorterr = 'noexists';
     }
 
@@ -796,7 +796,7 @@ sub t_checkCmdSyntax {
 }
 # ------------------
 sub checkCmdSyntax {
-    my $obj     = shift || return error ('No Object!' );
+    my $obj     = shift || return error('No object defined!');
     my $mods    = main::getModules();
 
     my $shorts = {};
@@ -826,7 +826,7 @@ sub t_getLevel {
 }
 # ------------------
 sub getLevel {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $name = shift || return;
 
     # Level Table
@@ -847,7 +847,7 @@ sub getLevel {
 # ------------------
 sub _insert {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return;
 
     if(ref $data eq 'HASH') {
@@ -900,7 +900,7 @@ sub _insert {
 # Usage: my $tmpdir = $obj->userTmp([username]);
 # ------------------
 sub userTmp {
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $user = ($obj->{active} eq 'y' ?  ( shift  || ($obj->{USER}->{Name}?$obj->{USER}->{Name}:"nobody") ) : "nobody" );
 
     # /var/cache/xxv/temp/xpix/$PID

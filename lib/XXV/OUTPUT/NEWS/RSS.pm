@@ -14,13 +14,13 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'NEWS::RSS',
         Prereq => {
             'XML::RSS' => 'SMTP Protocol module to connect and send emails',
         },
-        Description => gettext('This NEWS module generate an RSS Newsfeed for your rss reader.'),
+        Description => gettext('This NEWS module generates an RSS news feed for your RSS reader.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -40,7 +40,7 @@ sub module {
                 },
             },
             level => {
-                description => gettext('Minimum level of the messages which can be displayed (1 ... 100)'),
+                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
                 default     => 1,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -102,7 +102,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     $obj->{INITE} = 1;
 
     1;
@@ -111,7 +111,7 @@ sub init {
 # ------------------
 sub createRSS {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $ver  = shift || 1;
     my $account = sprintf("%s@%s", $ENV{USER}, main::getModule('STATUS')->name);
     my $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
@@ -126,10 +126,10 @@ sub createRSS {
         $rss->channel(
             title        => gettext("XXV RSS 1.0"),
             'link'         => $url,
-            description  => gettext("Important messages from your vdr/xxv"),
+            description  => gettext("Important messages from your VDR/XXV"),
             dc => {
                 date       => datum(time,'int'),
-                subject    => gettext("XXV Messages"),
+                subject    => gettext("XXV messages"),
                 creator    => $account,
                 language   => setlocale(POSIX::LC_MESSAGES),
             },
@@ -150,7 +150,7 @@ sub createRSS {
         $rss->channel(
             title          => gettext("XXV RSS 2.0"),
             'link'         => $url,
-            description    => gettext("Important messages from your vdr/xxv"),
+            description    => gettext("Important messages from your VDR/XXV"),
             language       => setlocale(POSIX::LC_MESSAGES),
             pubDate        => datum(time, 'rss'),
             lastBuildDate  => datum($lastbuild, 'rss'),
@@ -166,7 +166,7 @@ sub createRSS {
 # ------------------
 sub send {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error ('No Vars!' );
 
     ++$obj->{COUNT};
@@ -186,7 +186,7 @@ sub send {
 # ------------------
 sub read {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error ('No News!' );
 
     return undef, lg('This function is deactivated!')
@@ -205,10 +205,10 @@ sub read {
 # ------------------
 sub req {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $params = shift || {};
 
-    return gettext('The Module NEWS::RSS is not active!')
+    return gettext('The module NEWS::RSS is not active!')
         if($obj->{active} ne 'y');
 
     my $rss = $obj->createRSS($params->{version})

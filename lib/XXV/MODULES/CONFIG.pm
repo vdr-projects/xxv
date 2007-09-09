@@ -9,13 +9,13 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'CONFIG',
         Prereq => {
             # 'Perl::Module' => 'Description',
         },
-        Description => gettext('This module edit, write and reconfigure the configuration.'),
+        Description => gettext('This module edits, writes and saves the configuration.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -23,12 +23,12 @@ sub module {
         Level       => 'admin',
         Commands => {
             configedit => {
-                description => gettext("Edit configuration 'sector'"),
+                description => gettext("Edit configuration 'section'"),
                 short       => 'ce',
                 callback    => sub{ $obj->edit(@_) },
             },
             configwrite => {
-                description => gettext('Write configuration'),
+                description => gettext('Saves the configuration.'),
                 short       => 'cw',
                 callback    => sub{ $obj->write(@_) },
             },
@@ -38,7 +38,7 @@ sub module {
                 callback    => sub{ $obj->get(@_) },
             },
             reconfigure => {
-                description => gettext('Reconfigure all Processes'),
+                description => gettext('Edit all processes'),
                 short       => 'cr',
                 callback    => sub{ $obj->reconfigure(@_) },
             },
@@ -75,13 +75,13 @@ sub new {
 # ------------------
 sub menu {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $sector  = shift || 0;
 
     my $ret = {};
-    $ret->{title} = gettext("Preferences for XXV");
+    $ret->{title} = gettext("Settings for XXV");
     $ret->{highlight} = $sector;
 
     my $mods = main::getModules;
@@ -95,11 +95,11 @@ sub menu {
         };
     }
     $ret->{links}->{'reconfigure'} = {
-            text => gettext("Reconfigure"),
+            text => gettext("Save configuration"),
             link => "?cmd=reconfigure",
     };
     $ret->{links}->{'write'} = {
-            text => gettext("Write configuration"),
+            text => gettext("Saves the configuration."),
             link => "?cmd=configwrite",
     };
 
@@ -109,7 +109,7 @@ sub menu {
 # ------------------
 sub edit {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $sector  = shift || 0;
@@ -122,12 +122,12 @@ sub edit {
     $sector = uc($sector) unless($sector eq 'General');
 
     my $cfg = $obj->{config}->{$sector}
-        or return $console->err(sprintf(gettext("Sorry, but the section %s does not exist in configuration!"),$sector));
+        or return $console->err(sprintf(gettext("Sorry, but section %s does not exist in the configuration!"),$sector));
 
     my $mod = main::getModule($sector);
 
     my $prefs = $mod->{MOD}->{Preferences}
-        or return $console->err(sprintf(gettext("Sorry, but the 'Preferences' in Module: %s do not exist"),$sector));
+        or return $console->err(sprintf(gettext("Sorry, but the settings in module: %s do not exist!"),$sector));
 
     my $questions = [];
     foreach my $name (sort { lc($a) cmp lc($b) } keys(%{$prefs})) {
@@ -138,7 +138,7 @@ sub edit {
             {
                 typ => $prefs->{$name}->{type} || 'string',
                 options => $prefs->{$name}->{options},
-                msg => sprintf("%s:\n%s", ucfirst($name), ($prefs->{$name}->{description} || gettext('No Description'))),
+                msg => sprintf("%s:\n%s", ucfirst($name), ($prefs->{$name}->{description} || gettext('No description'))),
                 def => $def,
                 req => $prefs->{$name}->{required},
                 choices  => $prefs->{$name}->{choices},
@@ -151,7 +151,7 @@ sub edit {
     $console->link({text => sprintf(gettext('%s manual'), $sector), url => "?cmd=doc&data=$sector"})
         if($console->typ eq 'HTML');
 
-    $cfg = $console->question(sprintf(gettext('Change %s configuration'), $sector), $questions, $data);
+    $cfg = $console->question(sprintf(gettext('Edit configuration %s'), $sector), $questions, $data);
 
     if(ref $cfg eq 'HASH') {
         $obj->{config}->{$sector} = $cfg;
@@ -163,7 +163,7 @@ sub edit {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $console->message(sprintf(gettext("Sector: '%s' save .. please wait."), $sector));
+        $console->message(sprintf(gettext("Section: '%s' saving ... please wait."), $sector));
         $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
             if($console->typ eq 'HTML');
     }
@@ -172,7 +172,7 @@ sub edit {
 # ------------------
 sub write {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
 
@@ -181,7 +181,7 @@ sub write {
 
     $obj->{config}->write( $configfile )
         or return error( sprintf ("Can't written '%s': %s", $configfile , $! ));
-    $console->message(sprintf gettext("Configuration written in '%s'."), $configfile)
+    $console->message(sprintf gettext("Configuration written to '%s'."), $configfile)
         if(ref $console);
 
     $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
@@ -191,19 +191,19 @@ sub write {
 # ------------------
 sub get {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $modname = shift || 0;
 
-    return $console->err(gettext('I need a name of the module, in order to indicate the configuration!'))
+    return $console->err(gettext('Need a name of the module to display the configuration!'))
         unless($modname and ref $console);
 
     $modname = uc($modname) unless($modname eq 'General');
 
     my $cfg = $obj->{config}->{$modname};
 
-    $console->err(sprintf(gettext("Sorry, but the section %s does not exist in configuration!"),$modname))
+    $console->err(sprintf(gettext("Sorry, but section %s does not exist in the configuration!"),$modname))
         if(! $cfg and ref $console);
 
     if(ref $console) {
@@ -216,7 +216,7 @@ sub get {
 # ------------------
 sub reconfigure {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
 
@@ -249,7 +249,7 @@ sub reconfigure {
                     }
 
                 } else {
-                    $console->err(sprintf(gettext("Strange, i can not find %s in %s"), $parameter, $moduleName))
+                    $console->err(sprintf(gettext("Cannot find %s in %s!"), $parameter, $moduleName))
                         if(ref $console);
                 }
             }
@@ -258,14 +258,14 @@ sub reconfigure {
 
     $obj->menu( $watcher, $console )
         if(ref $console and $console->{TYP} eq 'HTML');
-    $console->message(gettext('Reconfigure successfully'))
+    $console->message(gettext('Edit successful!'))
         if(ref $console);
 }
 
 # ------------------
 sub realModNames {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     my $mods = main::getModules();
     my @realModName;

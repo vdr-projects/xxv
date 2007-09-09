@@ -9,7 +9,7 @@ use Locale::gettext;
 ################################################################################
 # This module method must exist for XXV
 sub module {
-    my $self = shift || return error ('No Object!' );
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'VTX',
         Prereq => {

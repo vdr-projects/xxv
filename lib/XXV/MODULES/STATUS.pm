@@ -12,13 +12,13 @@ use File::Find;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'STATUS',
         Prereq => {
             # 'Perl::Module' => 'Description',
         },
-        Description => gettext('This module analyze your system and print the result.'),
+        Description => gettext('This module analyzes your system and displays the result.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -50,17 +50,17 @@ sub module {
                 type        => "file",
             },
             interval => {
-                description => gettext('Interval in seconds to remember data'),
+                description => gettext('Interval in seconds to save data'),
                 default     => 60,
                 type        => "integer",
             },
             history => {
-                description => gettext('How long to remember the historical data in hours'),
+                description => gettext('Save historical data, in hours'),
                 default     => 3,
                 type        => "integer",
             },
             font => {
-                description => gettext('True type font to draw image text.'),
+                description => gettext('TrueType font to draw overlay text'),
                 default     => 'Vera.ttf',
                 type        => 'list',
                 choices     => $obj->findttf,
@@ -99,17 +99,17 @@ sub module {
                 callback    => sub{ $obj->vitals(@_) },
             },
             network => {
-                description => gettext('Display the network informations'),
+                description => gettext('Displays network information'),
                 short       => 'sn',
                 callback    => sub{ $obj->network(@_) },
             },
             hardware => {
-                description => gettext('Display the hardware informations'),
+                description => gettext('Displays hardware information'),
                 short       => 'sh',
                 callback    => sub{ $obj->hardware(@_) },
             },
             memory => {
-                description => gettext('Display the memory informations'),
+                description => gettext('Displays memory information'),
                 short       => 'sm',
                 callback    => sub{ $obj->memory(@_) },
             },
@@ -165,7 +165,7 @@ sub new {
 # ------------------
 sub remember {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     my $longsteps = int(($obj->{history} * 60 * 60) / $obj->{interval});
 
@@ -192,7 +192,7 @@ sub remember {
 # ------------------
 sub vitals {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
 
@@ -219,7 +219,7 @@ sub vitals {
 # ------------------
 sub network {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
 
@@ -237,7 +237,7 @@ sub network {
 # ------------------
 sub hardware {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
 
@@ -265,7 +265,7 @@ sub hardware {
 # ------------------
 sub memory {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
 
@@ -283,7 +283,7 @@ sub memory {
 # ------------------
 sub filesys {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
 
@@ -306,7 +306,7 @@ sub filesys {
 # Takes Celcius temperatures and converts to Farenheit
 
 sub tempConvert {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $celcius = $_[0];
 
     my $result = (( $celcius * 9) / 5 ) + 32;
@@ -322,7 +322,7 @@ sub tempConvert {
 # Get the system's name
 
 sub name {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $result = hostname();
     return $result;
@@ -332,7 +332,7 @@ sub name {
 # Get the system's IP address
 
 sub IP {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $result = inet_ntoa(scalar(gethostbyname($obj->name())) || scalar(gethostbyname('localhost')));
     return $result;
@@ -342,7 +342,7 @@ sub IP {
 # Get the system's kernel version
 
 sub kernel {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $result = load_file("/proc/sys/kernel/osrelease");
     $result =~ s/\n//sig;
@@ -353,7 +353,7 @@ sub kernel {
 # Get the system's uptime
 
 sub uptime {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $buffer = load_file('/proc/uptime');
 
@@ -414,7 +414,7 @@ sub uptime {
 
 # Get information on network devices in the system
 sub netDevs {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $clr = shift || 0;
     my $buffer = load_file('/proc/net/dev');
 
@@ -436,7 +436,7 @@ sub netDevs {
 
 # Get the current memory info
 sub meminfo {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $clr = shift || 0;
 
     my $ret = {};
@@ -457,7 +457,7 @@ sub meminfo {
 # Get current cpu info
 
 sub CPU {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $buffer = load_file('/proc/cpuinfo');
 
@@ -492,7 +492,7 @@ sub CPU {
 # Get CPU usage info and return a percentage
 
 sub util {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     open(STAT, "/proc/stat") or return error "Can't open /proc/stat\n";
     my $buffer = <STAT>;
@@ -532,7 +532,7 @@ sub util {
 # Get the number of current users logged in
 
 sub users {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $result = `$obj->{whoBinary} | $obj->{wcBinary} -l`
         or return error "Can't execute $obj->{whoBinary} or $obj->{wcBinary}\n";
@@ -544,7 +544,7 @@ sub users {
 # Get the list of PCI devices
 
 sub pci {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return 0
       if(! -r "/proc/pci");
@@ -562,7 +562,7 @@ sub pci {
 # Get the list of IDE devices
 
 sub ide {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my @ideModelList;
     my @ideCapacityList;
@@ -598,7 +598,7 @@ sub ide {
 # Get the list of SCSI devices
 
 sub scsi {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $ret = [[qw/Device Vendor Model Type/]];
     my $file = "/proc/scsi/scsi";
@@ -658,7 +658,7 @@ sub scsi {
 # Get the current load averages
 
 sub load {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $clr = shift || 0;
 
     my $buffer = load_file("/proc/loadavg");
@@ -679,7 +679,7 @@ sub load {
 
 # Get the status of currently mounted filesystems
 sub mounts{
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $clr = shift || 0;
 
     my $df = `$obj->{dfBinary} -TP -x cdfs -x iso9660 -x udf`
@@ -705,7 +705,7 @@ sub mounts{
 # ------------------
 sub videoMounts {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $videodir = shift || return error ('No Video dir!');
     my $mounts = $obj->mounts;
 
@@ -725,7 +725,7 @@ sub videoMounts {
 sub findttf
 # ------------------
 {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $found;
     find({ wanted => sub{
                 if($File::Find::name =~ /\.ttf$/sig) {
@@ -746,7 +746,7 @@ sub findttf
 # ------------------
 sub watchDog {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $mou = shift  || return error ('No Data!' );
 
     # Not all 15 seconds a panic message ;)

@@ -14,7 +14,7 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'NEWS::JABBER',
         Prereq => {
@@ -77,7 +77,7 @@ Then you must receive a message in your running jabber client.
                 },
             },
             level => {
-                description => gettext('Minimum level of the messages which can be displayed (1 ... 100)'),
+                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
                 default     => 1,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -90,19 +90,19 @@ Then you must receive a message in your running jabber client.
                 },
             },
             receiveUser => {
-                description => gettext('User to advise (as Jabberaccount to@jabber.server.org)'),
+                description => gettext('User to be notified (as Jabber account to@jabber.server.org)'),
                 default     => '',
                 type        => 'string',
                 required    => gettext('This is required!'),
             },
             user => {
-                description => gettext('Jabberaccount to send message (from@jabber.server.org)'),
+                description => gettext('Jabber account to send message (from@jabber.server.org)'),
                 default     => '',
                 type        => 'string',
                 required    => gettext('This is required!'),
             },
             passwd => {
-                description => gettext('Password from Jabberaccount'),
+                description => gettext('Password for Jabber account'),
                 default     => '',
                 type        => 'password',
                 required    => gettext('This is required!'),
@@ -113,7 +113,7 @@ Then you must receive a message in your running jabber client.
 
                     # If no password given the take the old password as default
                     if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("Field with 1st and 2nd password must be equal to confirm!");
+                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
                     } else {
                         return $value->[0];
                     }
@@ -167,7 +167,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
 
     1;
@@ -176,7 +176,7 @@ sub init {
 # ------------------
 sub jconnect {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     my $jcon = Net::XMPP::Client->new(
         debuglevel  =>  0,
@@ -208,7 +208,7 @@ sub jconnect {
 # ------------------
 sub jdisconnect {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $cnx = shift  || 0;
 
     $cnx->Disconnect()
@@ -221,7 +221,7 @@ sub jdisconnect {
 # ------------------
 sub send {
 # ------------------
-    my $obj     = shift || return error ('No Object!' );
+    my $obj     = shift || return error('No object defined!');
     my $vars    = shift || return error ('No Vars!' );
 
     return undef, lg('This function is deactivated!')
@@ -244,7 +244,7 @@ sub send {
 # ------------------
 sub read {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error ('No News!' );
 
     return $obj->send($vars);
@@ -255,9 +255,9 @@ sub read {
 # ------------------
 sub req {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
-    return gettext('The Module NEWS::JABBER is not active!')
+    return gettext('The module NEWS::JABBER is not active!')
         if($obj->{active} ne 'y');
 
     my $vars = {
@@ -277,7 +277,7 @@ sub req {
 # ------------------
 sub xmpp_check_result {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my ($txt,$res,$cnx)=@_;
 
     return error("Error '$txt': result undefined")

@@ -276,7 +276,7 @@ sub load_file {
 #--------------------------------------------------------
 	my $file = shift || die "Kein File bei Loader $!";
 
-    lg sprintf('Load file "%s" from system',
+    lg sprintf('Load file "%s"',
             $file,
         );
 
@@ -298,7 +298,7 @@ sub save_file {
 
     $data =~ s/\r\n/\n/sig;
 
-    lg sprintf('Save %s in file "%s"',
+    lg sprintf('Save file %s(%s)',
             $file,
             convert(length($data))
         );

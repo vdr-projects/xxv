@@ -11,7 +11,7 @@ use strict;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'INTERFACE',
         Prereq => {
@@ -86,7 +86,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     if($obj->{active} eq 'y') {
 
@@ -132,7 +132,7 @@ BEGIN {
     # Usage: my $data = $obj->getCommand($cmd, [$data, $params]);
     # ------------------
     sub getCommand {
-        my $obj = shift || return error ('No Object!' );
+        my $obj = shift || return error('No object defined!');
         my $cmd = shift || return error ('No Command!' );
         my $data = shift;
 
@@ -143,7 +143,7 @@ BEGIN {
     # ------------------
     sub handleInput {
     # ------------------
-        my $obj     = shift || return error ('No Object!' );
+        my $obj     = shift || return error('No object defined!');
         my $ucmd    = shift || return error ('No Command');
         my $udata   = shift;
 
@@ -171,7 +171,7 @@ BEGIN {
     # ------------------
     sub usage {
     # ------------------
-        my $obj = shift || return error ('No Object!' );
+        my $obj = shift || return error('No object defined!');
         return main::getModule('TELNET')->usage(@_);
     }
 

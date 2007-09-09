@@ -12,13 +12,13 @@ use Locale::gettext;
 # Usage: my $modhash = $obj->module();
 # ------------------
 sub module {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'AUTOTIMER',
         Prereq => {
             # 'Perl::Module' => 'Description',
         },
-        Description => gettext('This module search for epg entries with an user defined text and create new timer.'),
+        Description => gettext('This module searches for EPG entries with user-defined text and creates new timers.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -32,7 +32,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             exclude => {
-                description => gettext('Exclude channel list for autotimer.'),
+                description => gettext('Exclude channels from autotimer'),
                 type        => 'string',
                 default     => 'POS > 50',
                 check   => sub{
@@ -47,13 +47,13 @@ sub module {
         },
         Commands => {
             astatus => {
-                description => gettext('Status from autotimers'),
+                description => gettext('Display status of autotimers.'),
                 short       => 'as',
                 callback    => sub{ $obj->status(@_) },
                 DenyClass   => 'alist',
             },
             anew => {
-                description => gettext("Create a new autotimer"),
+                description => gettext("Create new autotimer"),
                 short       => 'an',
                 callback    => sub{ $obj->autotimerCreate(@_) },
                 Level       => 'user',
@@ -67,7 +67,7 @@ sub module {
                 DenyClass   => 'aedit',
             },
             aedit => {
-                description => gettext("Edit a autotimer 'aid'"),
+                description => gettext("Edit an autotimer 'aid'"),
                 short       => 'ae',
                 callback    => sub{ $obj->autotimerEdit(@_) },
                 Level       => 'user',
@@ -80,13 +80,13 @@ sub module {
                 DenyClass   => 'alist',
             },
             alist => {
-                description => gettext("List the autotimer 'aid'"),
+                description => gettext("Show autotimer 'aid'"),
                 short       => 'al',
                 callback    => sub{ $obj->list(@_) },
                 DenyClass   => 'alist',
             },
             aupdate => {
-                description => gettext("Start the autotimer process"),
+                description => gettext("Start autotimer search."),
                 short       => 'au',
                 callback    => sub{ $obj->autotimer(@_) },
                 Level       => 'user',
@@ -107,7 +107,7 @@ sub module {
         },
         RegEvent    => {
             'newTimerfromAutotimer' => {
-                Descr => gettext('Create event entries, if a new timer from autotimer created.'),
+                Descr => gettext('Create event entries if an autotimer has created a new timer.'),
 
                 # You have this choices (harmless is default):
                 # 'harmless', 'interesting', 'veryinteresting', 'important', 'veryimportant'
@@ -136,7 +136,7 @@ sub module {
                             my $autotimer = getDataById($timer->{AutotimerId}, 'AUTOTIMER', 'Id');
                             my $title = sprintf(gettext("Autotimer('%s') found: %s"),
                                                     $autotimer->{Search}, $timer->{File});
-                            my $description = sprintf(gettext("At: %s to %s\nDescription: %s"),
+                            my $description = sprintf(gettext("On: %s to %s\nDescription: %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}),
                                 $desc && $desc->{description} ? $desc->{description} : ''
@@ -159,7 +159,7 @@ sub module {
 # Usage: my $report = $obj->status([$watcher, $console]);
 # ------------------
 sub status {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
@@ -201,7 +201,7 @@ ORDER BY
 
     unshift(@$erg, $fields);
     return {
-        message => sprintf(gettext('Autotimer has %d new timer programmed, since last report at %s'),
+        message => sprintf(gettext('Autotimer has programmed %d new timer(s) since last report to %s'),
             (scalar @$erg - 1), scalar localtime($lastReportTime)),
         table   => $erg,
     };
@@ -248,7 +248,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return 0, panic("Session to database is'nt connected")
       unless($obj->{dbh});
@@ -306,7 +306,7 @@ sub _init {
 # Usage: $obj->autotimer([$autotimerid]);
 # ------------------
 sub autotimer {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $autotimerid = shift;
@@ -327,7 +327,7 @@ sub autotimer {
     my $waiter;
     if(ref $console && !$autotimerid && $console->typ eq 'HTML') {
         my $zaehler = scalar keys %$att;
-        $waiter = $console->wait(gettext("Look for autotimer ..."), 0, ++$zaehler, 'no');
+        $waiter = $console->wait(gettext("Searching for autotimer ..."), 0, ++$zaehler, 'no');
     }
 
     my $l = 0; # Lines for Waiter
@@ -342,12 +342,12 @@ sub autotimer {
     foreach my $id (sort keys %$att) {
         my $a = $att->{$id};
 
-        $waiter->next(++$l, undef, sprintf(gettext("Look for autotimer with ID(%d) with search '%s'"), $id, $a->{Search}))
+        $waiter->next(++$l, undef, sprintf(gettext("Search for autotimer with ID(%d) with search pattern '%s'"), $id, $a->{Search}))
           if(ref $waiter);
 
         if(ref $console && $autotimerid) {
             $console->message(' ') if($console->{TYP} eq 'HTML');
-            $console->message(sprintf(gettext("Look for autotimer with ID(%d) with search '%s'"), $id, $a->{Search}));
+            $console->message(sprintf(gettext("Search for autotimer with ID(%d) with search pattern '%s'"), $id, $a->{Search}));
         }
 
         # Build SQL Command and run it ....
@@ -436,16 +436,16 @@ sub autotimer {
                 }
             }
             if($error) {
-                $console->err(sprintf(gettext("Can't save timer for '%s' : %s"), $events->{$Id}->{File}, $error))
+                $console->err(sprintf(gettext("Could not save timer for '%s' : %s"), $events->{$Id}->{File}, $error))
                     if(ref $console && $autotimerid);
             } else {
                 if($timerID) {
                     ++$m;
-                        $console->message(sprintf(gettext("Modify timer for '%s'."), $events->{$Id}->{File}))
+                        $console->message(sprintf(gettext("Modified timer for '%s'."), $events->{$Id}->{File}))
                             if(ref $console && $autotimerid);
                 } else {
                     ++$c;
-                        $console->message(sprintf(gettext("Create timer for '%s'."), $events->{$Id}->{File}))
+                        $console->message(sprintf(gettext("Timer for '%s' has been created."), $events->{$Id}->{File}))
                             if(ref $console && $autotimerid);
                 }
             }
@@ -453,7 +453,7 @@ sub autotimer {
         $C += $c;
         $M += $m;
         if($c) {
-            my $msg = sprintf(gettext("Create %d timer for '%s'."), $c, $a->{Search});
+            my $msg = sprintf(gettext("Created %d timer for '%s'."), $c, $a->{Search});
             if(ref $console && $autotimerid) {
                 $console->message($msg);
             }
@@ -462,7 +462,7 @@ sub autotimer {
             }
         }
         if($m) {
-            my $msg = sprintf(gettext("Modify %d timer for '%s'."), $m, $a->{Search});
+            my $msg = sprintf(gettext("Modified %d timer for '%s'."), $m, $a->{Search});
             if(ref $console && $autotimerid) {
                 $console->message($msg);
             }
@@ -472,7 +472,7 @@ sub autotimer {
         }
     }
 
-    $waiter->next(undef,undef,gettext('Read new timer in data base.'))
+    $waiter->next(undef,undef,gettext('Read new timers into database.'))
       if(ref $waiter);
 
     sleep 1;
@@ -484,11 +484,11 @@ sub autotimer {
 
     if(ref $console) {
         $console->start() if(ref $waiter);
-        unshift(@{$log},sprintf(gettext("Autotimer process has %d timers created and %d timers modified."), $C, $M));
+        unshift(@{$log},sprintf(gettext("Autotimer process created %d timers and modified %d timers."), $C, $M));
         lg join("\n", @$log);
         $console->message($log);
         $console->link({
-            text => gettext("Back to autotimer list"),
+            text => gettext("Back to autotimer listing."),
             url => "?cmd=alist",
         }) if($console->typ eq 'HTML');
     }
@@ -502,7 +502,7 @@ sub autotimer {
 # Usage: $obj->autotimerCreate($watcher, $console, [$userdata]);
 # ------------------
 sub autotimerCreate {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $timerid = shift || 0;
@@ -517,7 +517,7 @@ sub autotimerCreate {
 # Usage: $obj->autotimerEdit($watcher, $console, [$atid], [$userdata]);
 # ------------------
 sub autotimerEdit {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $timerid = shift || 0;
@@ -530,7 +530,7 @@ sub autotimerEdit {
     if($timerid and not ref $data) {
         my $sth = $obj->{dbh}->prepare("select * from AUTOTIMER where Id = ?");
         $sth->execute($timerid)
-            or return $console->err(sprintf(gettext("Autotimer with ID '%s' does not exist in the database!"),$timerid));
+            or return $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."),$timerid));
         $epg = $sth->fetchrow_hashref();
 
             # Channels Ids in Namen umwandeln
@@ -567,7 +567,7 @@ sub autotimerEdit {
 
     my %do = (
         'timer' => gettext('Timer'),
-        'recording' => gettext('Exist recording'),
+        'recording' => gettext('Existing recording'),
         'chronicle' => gettext('Recording chronicle')
     );
     my $DoneChoices = [$do{'timer'}, $do{'recording'}];
@@ -585,13 +585,16 @@ sub autotimerEdit {
         'Activ' => {
             typ     => 'confirm',
             def     => $epg->{Activ} || 'y',
-            msg     => gettext('Switch this autotimer on?'),
+            msg     => gettext('Activate this autotimer'),
         },
         'Search' => {
             req   => gettext('This is required!'),
-            msg   => gettext(
-"Search terms to look for EPG entries.\nYou can also improve your searches :\n* by adding 'operators' to your search terms like 'AND', 'OR', 'AND NOT' e.g. 'today AND NOT tomorrow'\n* by comma seperated multiply search terms e.g. 'today,tomorrow'\n* by minus sign to exclude search terms e.g. 'today,-tomorrow'"
-),
+            msg   => 
+gettext("Search terms to search for EPG entries.
+You can also fine tune your search :
+* by adding 'operators' to your search terms such as 'AND', 'OR', 'AND NOT' e.g. 'today AND NOT tomorrow'
+* by comma-separated search terms e.g. 'today,tomorrow'
+* by a hyphen to exclude search terms e.g. 'today,-tomorrow'"),
             def   => $epg->{Search} || '',
         },
         'InFields' => {
@@ -631,7 +634,7 @@ sub autotimerEdit {
             def     => $epg->{Channels},
             choices => $mod->ChannelArray('Name', sprintf(' NOT (%s)', $obj->{exclude})),
             options => 'multi',
-            msg     => gettext('Restrict search to this channels'),
+            msg     => gettext('Limit search to these channels'),
             check   => sub{
                 my $value = shift || return;
                 my @vals;
@@ -682,20 +685,20 @@ sub autotimerEdit {
 		             my $value = $epg->{Start} || return "";
                      return fmttime($value);
                  },
-             msg     => gettext("Starttime in format 'HH:MM'"),
+             msg     => gettext("Start time in format 'HH:MM'"),
              check   => sub{
                  my $value = shift || 0;
-                 return undef, gettext('You set a start-time without a stop-time!')
+                 return undef, gettext('You set a start time without an end time!')
                     if(not $data->{Stop} and $value);
         		 return "" if(not $value);
         		 $value = fmttime($value) if($value =~ /^\d+$/sig);
-                 return undef, gettext('No right time!') if($value !~ /^\d+:\d+$/sig);
+                 return undef, gettext('The time is incorrect!') if($value !~ /^\d+:\d+$/sig);
                  my @v = split(':', $value);
                  $value = sprintf('%02d%02d',$v[0],$v[1]);
                  if(int($value) < 2400 and int($value) >= 0) {
                      return sprintf('%04d',$value);
                  } else {
-                     return undef, gettext('No right time!');
+                     return undef, gettext('The time is incorrect!');
                  }
              },
          },
@@ -705,25 +708,25 @@ sub autotimerEdit {
     		         my $value = $epg->{Stop} || return "";
                      return fmttime($value);
                  },
-             msg     => gettext("Endtime in format 'HH:MM'"),
+             msg     => gettext("End time in format 'HH:MM'"),
              check   => sub{
                  my $value = shift || 0;
-                 return undef, gettext('You set a stop-time without a start-time!')
+                 return undef, gettext('You set an end time without a start time!')
                     if(not $data->{Start} and $value);
         		 return "" if(not $value);
         		 $value = fmttime($value) if($value =~ /^\d+$/sig);
-                 return undef, gettext('No right time!') if($value !~ /^\d+:\d+$/sig);
+                 return undef, gettext('The time is incorrect!') if($value !~ /^\d+:\d+$/sig);
                  my @v = split(':', $value);
                  $value = sprintf('%02d%02d',$v[0],$v[1]);
                  if(int($value) < 2400 and int($value) >= 0) {
                      return sprintf('%04d',$value);
                  } else {
-                     return undef, gettext('No right time!');
+                     return undef, gettext('The time is incorrect!');
                  }
              },
         },
         'Weekdays' => {
-            msg   => gettext('Search only on this weekdays'),
+            msg   => gettext('Only search these weekdays'),
             typ   => 'checkbox',
             choices   =>  [$wd{'Mon'}, $wd{'Tue'}, $wd{'Wed'}, $wd{'Thu'}, $wd{'Fri'}, $wd{'Sat'}, $wd{'Sun'}],
             def   => sub {
@@ -756,11 +759,11 @@ sub autotimerEdit {
         'VPS' => {
             typ     => 'confirm',
             def     => $epg->{VPS} || 'n',
-            msg     => gettext('Activate VPS for new timer?'),
+            msg     => gettext('Activate VPS for new timers'),
         },
         'prevminutes' => {
             typ     => 'integer',
-            msg     => gettext('Buffer time in minutes before the scheduled end of the recorded program.'),
+            msg     => gettext('Buffer time in minutes before the scheduled start of a recording'),
             def     => $epg->{prevminutes},
             check   => sub{
                 my $value = shift;
@@ -768,13 +771,13 @@ sub autotimerEdit {
                 if($value =~ /^\d+$/sig and $value >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
         'afterminutes' => {
             typ     => 'integer',
-            msg     => gettext('Buffer time in minutes after the scheduled end of the recorded program.'),
+            msg     => gettext('Buffer time in minutes past the scheduled end of a recording'),
             def     => $epg->{afterminutes},
             check   => sub{
                 my $value = shift;
@@ -782,58 +785,58 @@ sub autotimerEdit {
                 if($value =~ /^\d+$/sig and $value >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
         'MinLength' => {
             typ     => 'integer',
-            msg     => gettext('Minimum length in minutes'),
+            msg     => gettext('Minimum play time in minutes'),
             def     => $epg->{MinLength} || 0,
             check   => sub{
                 my $value = shift || return;
                 if($value =~ /^\d+$/sig and $value > 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
         'Priority' => {
             typ     => 'integer',
-            msg     => sprintf(gettext('Priority (0 .. %d)'),$console->{USER}->{MaxPriority} ? $console->{USER}->{MaxPriority} : 99 ),
+            msg     => sprintf(gettext('Priority (%d ... %d)'),0,$console->{USER}->{MaxPriority} ? $console->{USER}->{MaxPriority} : 99 ),
             def     => (defined $epg->{Priority} ? $epg->{Priority} : $modT->{Priority}),
             check   => sub{
                 my $value = shift || 0;
                 if($value =~ /^\d+$/sig and $value >= 0 and $value < 100) {
                     if($console->{USER}->{MaxPriority} and $value > $console->{USER}->{MaxPriority}) {
-                        return undef, sprintf(gettext('Sorry, but maximum priority is limited on %d!'), $console->{USER}->{MaxPriority});
+                        return undef, sprintf(gettext('Sorry, but the maximum priority is limited to %d!'), $console->{USER}->{MaxPriority});
                     }
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
         'Lifetime' => {
             typ     => 'integer',
-            msg     => sprintf(gettext('Lifetime (0 .. %d)'),$console->{USER}->{MaxLifeTime} ? $console->{USER}->{MaxLifeTime} : 99 ),
+            msg     => sprintf(gettext('Lifetime (%d ... %d)'),0,$console->{USER}->{MaxLifeTime} ? $console->{USER}->{MaxLifeTime} : 99 ),
             def     => (defined $epg->{Lifetime} ? $epg->{Lifetime} : $modT->{Lifetime}),
             check   => sub{
                 my $value = shift || 0;
                 if($value =~ /^\d+$/sig and $value >= 0 and $value < 100) {
                     if($console->{USER}->{MaxLifeTime} and $value > $console->{USER}->{MaxLifeTime}) {
-                        return undef, sprintf(gettext('Sorry, but maximum lifetime is limited on %d!'), $console->{USER}->{MaxLifeTime});
+                        return undef, sprintf(gettext('Sorry, but the maximum life time is limited to %d!'), $console->{USER}->{MaxLifeTime});
                     }
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
         'Dir' => {
 						typ 		=> 'string',
-            msg     => gettext('Group all recordings on a directory'),
+            msg     => gettext('Group all recordings into one directory'),
             def     => $epg->{Dir},
             # choices   =>  main::getModule('TIMERS')->getRootDirs,
         },
@@ -841,13 +844,13 @@ sub autotimerEdit {
 
     # Ask Questions
     $data = $console->question(($timerid ? gettext('Edit autotimer')
-					 : gettext('Create a new autotimer')), $questions, $data);
+					 : gettext('Create new autotimer')), $questions, $data);
 
     if(ref $data eq 'HASH') {
         delete $data->{Channel};
 
         # Last chance ;)
-        return $console->err(gettext('Nothing to search defined!'))
+        return $console->err(gettext('Nothing defined for this search!'))
             unless($data->{Search});
 
     	$obj->_insert($data);
@@ -864,7 +867,7 @@ sub autotimerEdit {
         $obj->autotimer($watcher, $console, $data->{Id});
 
         $console->link({
-            text => gettext("Back to referred side"),
+            text => gettext("Back to previous page."),
             url => $console->{browser}->{Referer},
         }) if($console->typ eq 'HTML');
 
@@ -878,10 +881,10 @@ sub autotimerEdit {
 # Usage: $obj->autotimerDelete($watcher, $console, $atid);
 # ------------------
 sub autotimerDelete {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $timerid = shift || return $console->err(gettext("No ID for autotimer to delete! Please use adelete 'aid'"));   # If timerid the edittimer
+    my $timerid = shift || return $console->err(gettext("No autotimer defined to delete! Please use adelete 'aid'!"));   # If timerid the edittimer
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
 
@@ -889,11 +892,11 @@ sub autotimerDelete {
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute(@timers)) {
         error sprintf("Can't execute query: %s.",$sth->errstr);
-        $console->err(sprintf gettext("Autotimer with ID '%s' does not exist in the database!"), join(',', @timers));
+        $console->err(sprintf gettext("The autotimer '%s' does not exist in the database."), join(',', @timers));
         return 0;
     }
 
-    $console->message(sprintf gettext("Autotimer %s is deleted."), join(',', @timers));
+    $console->message(sprintf gettext("Autotimer %s deleted."), join(',', @timers));
     debug sprintf('autotimer with id "%s" is deleted%s',
         join(',', @timers),
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
@@ -908,10 +911,10 @@ sub autotimerDelete {
 # Usage: $obj->autotimerToogle($watcher, $console, $atid);
 # ------------------
 sub autotimerToggle {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $timerid = shift || return $console->err(gettext("No ID for autotimer to toggle! Please use atoggle 'aid'"));
+    my $timerid = shift || return $console->err(gettext("No autotimer defined to toggle! Please use atoggle 'aid'!"));
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
 
@@ -919,7 +922,7 @@ sub autotimerToggle {
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute(@timers)) {
         error sprintf("Can't execute query: %s.",$sth->errstr);
-        $console->err(sprintf(gettext("Autotimer with ID '%s' does not exist in the database!"),$timerid));
+        $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."),$timerid));
         return 0;
     }
     my $data = $sth->fetchall_hashref('Id');
@@ -928,7 +931,7 @@ sub autotimerToggle {
     for my $timer (@timers) {
 
         unless(exists $data->{$timer}) {
-            $console->err(sprintf(gettext("Autotimer with ID '%s' does not exist in the database!"), $timer));
+            $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."), $timer));
             next;
         }
 
@@ -975,7 +978,7 @@ sub autotimerToggle {
 # Usage: $obj->list($watcher, $console, [$atid], [$params]);
 # ------------------
 sub list {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $text      = shift || '';
@@ -1046,7 +1049,7 @@ sub list {
 # ------------------
 sub _eventsearch {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $a   = shift  || return error ('No Data from Autotimer!' );
     my $timermod = shift  || main::getModule('TIMERS') || return error ("Can't access modul TIMERS!");
 
@@ -1136,7 +1139,7 @@ WHERE
 # ------------------
 sub _timerexists {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error ('No Data from Autotimer!' );
     my ($nexttime, $aidcomment) = @_;
 
@@ -1168,7 +1171,7 @@ sub _timerexists {
 # ------------------
 sub _timerexistsfuzzy {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error ('No Data from Autotimer!' );
     my ($nexttime, $aidcomment) = @_;
 
@@ -1194,7 +1197,7 @@ sub _timerexistsfuzzy {
 # ------------------
 sub _recordexists {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error ('No Data from Autotimer!' );
     my ($nexttime, $aidcomment) = @_;
 
@@ -1216,7 +1219,7 @@ sub _recordexists {
 # ------------------
 sub _chronicleexists {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error ('No Data from Autotimer!' );
     my ($nexttime, $aidcomment) = @_;
 
@@ -1237,7 +1240,7 @@ sub _chronicleexists {
 # ------------------
 sub _timerexiststitle {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error ('No Data from Autotimer!' );
     my ($nexttime, $aidcomment) = @_;
 
@@ -1256,7 +1259,7 @@ sub _timerexiststitle {
 # ------------------
 sub _insert {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return;
 
     if(ref $data eq 'HASH') {
@@ -1285,7 +1288,7 @@ sub _insert {
 # Usage: my $text = $obj->_placeholder($epgdata, $autotimerdata);
 # ------------------
 sub _placeholder {
-    my $obj  = shift  || return error ('No Object!' );
+    my $obj  = shift  || return error('No object defined!');
     my $data = shift  || return error ('No Data!' );
     my $at   = shift  || return error ('No AtData!' );
 
@@ -1328,7 +1331,7 @@ sub _placeholder {
 
 # ------------------
 sub suggest {# ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $search = shift;

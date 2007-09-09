@@ -34,7 +34,7 @@ my $mime = {
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'HTTPD',
         Prereq => {
@@ -58,7 +58,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             Clients => {
-                description => gettext('Maximum number from simultaneous connections to the same time'),
+                description => gettext('Maximum number of simultaneous connections'),
                 default     => 5,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -76,14 +76,14 @@ sub module {
                 required    => gettext('This is required!'),
             },
             HtmlRoot => {
-                description => gettext('Used Skin'),
+                description => gettext('Skin used'),
                 default     => 'default',
                 type        => 'list',
                 required    => gettext('This is required!'),
                 choices     => sub{ return $obj->findskins },
             },
             StartPage => {
-                description => gettext('First page, which is to be seen when logon'),
+                description => gettext('Startup screen'),
                 default     => 'now',
                 type        => 'list',
                 required    => gettext('This is required!'),
@@ -101,7 +101,7 @@ sub module {
                 ],
             },
             Debug => {
-                description => gettext('Dump additional debugging information, needed only for software development.'),
+                description => gettext('Dump additional debugging information, required only for software development.'),
                 default     => 'n',
                 type        => 'confirm',
             },
@@ -153,7 +153,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     # globals
     my $channels;
@@ -201,7 +201,7 @@ sub init {
 
 sub communicator 
 {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!' );
 
     # read new line and report it
@@ -259,7 +259,7 @@ sub communicator
     my $userMod = main::getModule('USER');
     if(ref $userMod and $userMod->{active} eq 'y') {
         $console->{USER} = $userMod->check($handle, $data->{username}, $data->{password});
-        $console->login(gettext('You have no permissions to this system!'))
+        $console->login(gettext('You are not authorized to use this system!'))
             unless(exists $console->{USER}->{Level});
     }
 
@@ -358,7 +358,7 @@ sub _readline {
 # ------------------
 sub parseRequest {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $socket = shift || return error ('No Handle!' );
     my $logout = shift || 0;
 
@@ -419,7 +419,7 @@ sub parseRequest {
 # ------------------
 sub handleInput {
 # ------------------
-    my $obj     = shift || return error ('No Object!' );
+    my $obj     = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $cgi     = shift || return error ('No CGI Object');
@@ -464,20 +464,20 @@ sub handleInput {
 # ------------------
 sub usage {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return main::getModule('TELNET')->usage(@_);
 }
 
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift || return;
     my $lastReportTime = shift || 0;
 
     return {
-        message => sprintf(gettext('Traffic on HTTPD Socket since %s: send: %d kbytes - received: %d kbytes - connects: %d'),
+        message => sprintf(gettext('Traffic on HTTPD Socket since %s: sent: %d kbytes - received: %d kbytes - connections: %d'),
             $obj->{STATUS}->{'starttime'}, convert($obj->{STATUS}->{'sendbytes'}), convert($obj->{STATUS}->{'readbytes'}), $obj->{STATUS}->{'connects'} ),
     };
 
@@ -487,7 +487,7 @@ sub status {
 sub findskins
 # ------------------
 {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $found;
     find({ wanted => sub{
               if(-d $File::Find::name
@@ -520,7 +520,7 @@ sub unzip {
     my $file = shift || return error ('No File');
 
     my $gz = gzopen($file, "rb")
-         or return $obj->msg(undef, sprintf(gettext("can't open file '%s' : %s"), $file, &gzerror ));
+         or return $obj->msg(undef, sprintf(gettext("Could not open file '%s'! : %s"), $file, &gzerror ));
 
     my $text;
     while($gz->gzread(my $buffer) > 0) {
@@ -543,7 +543,7 @@ sub unzip {
 # getip:localhost
 sub checkvalue {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data = shift || return error ('No Data!' );

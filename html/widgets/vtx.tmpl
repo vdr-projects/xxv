@@ -31,9 +31,9 @@
 </tr>
 </table>
     <?% IF param.toppage != 0 %?><a title="<?% gettext("First page") %?>" href="<?% url %?><?% param.toppage %?>">[^]</a><?% ELSE %?><span class="shadow">[^]</span><?% END %?>&nbsp;
-    <?% IF param.page_prev != 0 %?><a title="<?% gettext("Prior page") %?>"href="<?% url %?><?% param.page_prev %?>">[<<]</a><?% ELSE %?><span class="shadow">[<<]</span><?% END %?>&nbsp;
-    <?% IF param.subpage_prev != 0 %?><a title="<?% gettext("Prior subpage") %?>"href="<?% url %?><?% param.subpage_prev %?>">[<]</a><?% ELSE %?><span class="shadow">[<]</span><?% END %?>&nbsp;
-    <?% IF param.subpage_next != 0 %?><a title="<?% gettext("Next subpage") %?>"href="<?% url %?><?% param.subpage_next %?>">[>]</a><?% ELSE %?><span class="shadow">[>]</span><?% END %?>&nbsp;
+    <?% IF param.page_prev != 0 %?><a title="<?% gettext("Previous page") %?>"href="<?% url %?><?% param.page_prev %?>">[<<]</a><?% ELSE %?><span class="shadow">[<<]</span><?% END %?>&nbsp;
+    <?% IF param.subpage_prev != 0 %?><a title="<?% gettext("Prior sub page") %?>"href="<?% url %?><?% param.subpage_prev %?>">[<]</a><?% ELSE %?><span class="shadow">[<]</span><?% END %?>&nbsp;
+    <?% IF param.subpage_next != 0 %?><a title="<?% gettext("Next sub page") %?>"href="<?% url %?><?% param.subpage_next %?>">[>]</a><?% ELSE %?><span class="shadow">[>]</span><?% END %?>&nbsp;
     <?% IF param.page_next != 0 %?><a title="<?% gettext("Next page") %?>"href="<?% url %?><?% param.page_next %?>">[>>]</a><?% ELSE %?><span class="shadow">[>>]</span><?% END %?>
 <?% END %?>
 

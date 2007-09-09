@@ -10,7 +10,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'ROBOT',
         Prereq => {
@@ -74,7 +74,7 @@ sub new {
 # ------------------
 sub saveRobot {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $rname = shift || return error ('No robot Name!' );
     my $rsub = shift || return error ('No Robot sub!' );
 
@@ -89,7 +89,7 @@ sub saveRobot {
 # ------------------
 sub register {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $rname = shift || return error ('No robot Name!' );
     my @args = @_;
 
@@ -102,7 +102,7 @@ sub register {
 # ------------------
 sub start {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $rname = shift || return error ('No Robot Name to start!');
     my $watcher = shift;
     my $console = shift;
@@ -143,7 +143,7 @@ sub start {
 # ------------------
 sub clean {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $rname = shift || return error ('No Robot Name to clean!');
     delete $obj->{jobs}->{$rname};
 }
@@ -152,7 +152,7 @@ sub clean {
 # ------------------
 sub result {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $rname = shift || return error ('No robot Name!' );
 
     return $obj->{result}->{$rname};
@@ -162,7 +162,7 @@ sub result {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $rname = shift;

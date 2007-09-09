@@ -49,7 +49,7 @@ sub new {
 # ------------------
 sub start {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $out = shift ||  0;
     $obj->{handle}->print($obj->{cgi}->multipart_init(-boundary=>'----here we go!'));
     $obj->print($out) if($out);
@@ -58,7 +58,7 @@ sub start {
 # ------------------
 sub print {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $msg = shift  || return;
     my $type = shift || 'text/html';
 
@@ -70,7 +70,7 @@ sub print {
 # ------------------
 sub follow_print {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $msg = shift  || return;
     my $type = shift || 'text/html';
 
@@ -84,7 +84,7 @@ sub follow_print {
 # ------------------
 sub stop {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     $obj->{handle}->print($obj->{cgi}->multipart_end);
     $obj->{handle}->print($obj->{cgi}->header(
         -type   =>  'text/html',

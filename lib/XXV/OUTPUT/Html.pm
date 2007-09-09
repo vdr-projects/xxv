@@ -19,13 +19,13 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'Html',
         Prereq => {
             'HTML::TextToHTML' => 'convert plain text file to HTML. ',
         },
-        Description => gettext('This receive and send HTML messages.'),
+        Description => gettext('This receives and sends HTML messages.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -37,7 +37,7 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || {};
     my $params = shift || 0;
 
@@ -131,9 +131,9 @@ sub new {
 # ------------------
 sub parseTemplate {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $name = shift || return error ('No Name!' );
-    my $data = shift || return error ('No Data!' );
+    my $obj = shift || return error('No object defined!');
+    my $name = shift || return error('No name defined!');
+    my $data = shift || return error('No data defined!');
     my $params = shift || {};
 
     my $output;
@@ -147,7 +147,7 @@ sub parseTemplate {
 # ------------------
 sub index {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     $obj->{nopack} = 1;
     $obj->{call} = 'index';
     my $params = {};
@@ -159,10 +159,10 @@ sub index {
 # ------------------
 sub parseTemplateFile {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $name = shift || return error ('No Name!' );
-    my $data = shift || return error ('No Data!' );
-    my $params = shift || return error ('No params!' );
+    my $obj = shift || return error('No object defined!');
+    my $name = shift || return error ('No name defined!' );
+    my $data = shift || return error ('No data defined!' );
+    my $params = shift || return error ('No paramters defined!' );
     my $call = shift || 'nothing';
 
     $obj->parseData($data)
@@ -273,8 +273,8 @@ sub parseTemplateFile {
         version => sub{ return main::getVersion },
         loadfile    => sub{ return load_file(@_) },
         writefile   => sub{
-            my $filename = shift || return error('No Filename to write');
-            my $data = shift || return error('Nothing data to write');
+            my $filename = shift || return error('No filename defined!');
+            my $data = shift || return error('No data defined!');
 
             my $dir = $u->userTmp;
 
@@ -308,7 +308,7 @@ sub parseTemplateFile {
 # ------------------
 sub out {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $text = shift || 'no Text for Output';
     my $type = shift || 'text/html';
     my %args = @_;
@@ -325,7 +325,7 @@ sub out {
 # ------------------
 sub printout {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $nopack = shift || $obj->{nopack} || 0;
 
     if($obj->{output} && $obj->{handle}) {
@@ -347,24 +347,10 @@ sub printout {
 }
 
 # ------------------
-sub getType {
-# ------------------
-    my $obj = shift  || return error ('No Object!' );
-    my $typ = shift  || 'text/html';
-
-    my $typefile = sprintf('%s/%s', $obj->{htmdir}, 'GENERICTYP');
-    if(-e $typefile and -r $typefile) {
-        $typ = load_file($typefile);
-        $typ =~ s/[\r|\n]//sig;
-    }
-    return $typ;
-}
-
-# ------------------
 sub header {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $typ = $obj->getType(shift) || return error ('No Type!' );
+    my $obj = shift || return error('No object defined!');
+    my $typ = shift  || 'text/html';
     my $arg = shift || {};
 
     $arg->{'Content-encoding'} = 'gzip'
@@ -387,10 +373,11 @@ sub header {
 # ------------------
 sub statusmsg {
 # ------------------
-    my $obj = shift  || return error ('No Object!');
-    my $state = shift || return error ('No Status!');
+    my $obj = shift  || return error('No object defined!');
+    my $state = shift || return error('No state defined!');
     my $msg = shift;
     my $title = shift;
+    my $typ = shift || 'text/html';
 
     unless(defined $obj->{header}) {
         $obj->{nopack} = 1;
@@ -421,12 +408,11 @@ sub statusmsg {
         $arg->{'WWW-Authenticate'} = "Basic realm=\"xxvd\""
             if($state == 401);
 
-        $arg->{'expires'} = "now"
-            if($state != 304);
+        $arg->{'expires'} = (($state != 304) || (defined $obj->{nocache} && $obj->{nocache})) ? "now" : "+7d";
 
         $obj->{header} = $state;
         $obj->{output_header} = $obj->{cgi}->header(
-            -type   =>  'text/html',
+            -type   =>  $typ,
             -status  => $status,
             %{$arg},
         );
@@ -445,7 +431,7 @@ sub statusmsg {
 # Send HTTP Status 401 (Authorization Required)
 sub login {
 # ------------------
-    my $obj = shift || return error ('No Object!');
+    my $obj = shift || return error('No object defined!');
     my $msg = shift || '';
 
     $obj->statusmsg(401,$msg,gettext("Authorization required"));
@@ -455,7 +441,7 @@ sub login {
 # Send HTTP Status 403 (Access Forbidden)
 sub status403 {
 # ------------------
-    my $obj = shift  || return error ('No Object!');
+    my $obj = shift  || return error('No object defined!');
     my $msg = shift  || '';
 
     $obj->statusmsg(403,$msg,gettext("Forbidden"));
@@ -466,22 +452,22 @@ sub status403 {
 # Send HTTP Status 404 (File not found)
 sub status404 {
 # ------------------
-    my $obj = shift  || return error ('No Object!');
-    my $file = shift || return error ('No File!');
+    my $obj = shift  || return error('No object defined!');
+    my $file = shift || return error('No file defined!');
     my $why = shift || "";
 
     $file =~ s/$obj->{htmdir}\///g; # Don't post html root, avoid spy out
 
-    $obj->statusmsg(404,sprintf(gettext("Can't open file '%s' : %s"),$file,$why),
+    $obj->statusmsg(404,sprintf(gettext("Cannot open file '%s' : %s!"),$file,$why),
                     gettext("Not found"));
 }
 
 # ------------------
 sub question {
 # ------------------
-    my $obj         = shift || return error ('No Object!' );
+    my $obj         = shift || return error('No object defined!');
     my $titel       = shift || 'undef';
-    my $questions   = shift || return error ('No Data!' );
+    my $questions   = shift || return error ('No data defined!');
     my $erg         = shift || 0;
 
     my $q = $obj->{cgi};
@@ -507,12 +493,12 @@ sub question {
 
             # Check on directory
             if($data->{typ} eq 'dir' and $data->{required} and not -d $erg->{$name}) {
-                ($erg->{$name}, $error) = (undef, sprintf(gettext("Directory '%s' is doesn't exist!"), $erg->{$name}));
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("Directory '%s' does not exist!"), $erg->{$name}));
             }
 
             # Check on file
             if($data->{typ} eq 'file' and $data->{required} and not -e $erg->{$name}) {
-                ($erg->{$name}, $error) = (undef, sprintf(gettext("File '%s' is doesn't exist!"), $erg->{$name}));
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("File '%s' does not exist!"), $erg->{$name}));
             }
 
             # Check on password (is not set the take the old password)
@@ -521,7 +507,7 @@ sub question {
             }
 
             if($error) {
-                $obj->err(sprintf(gettext("Error at field '%s' (%s) : %s"), $data->{msg}, $name, $error));
+                $obj->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
                 last;
             }
         }
@@ -558,7 +544,7 @@ sub question {
 # ------------------
 sub wait {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $msg = shift  || gettext("Please wait ...");
     my $min = shift  || 0;
     my $max = shift  || 0;
@@ -610,8 +596,8 @@ sub wait {
 # ------------------
 sub datei {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
-    my $file = shift || return error ('No File!');
+    my $obj = shift  || return error('No object defined!');
+    my $file = shift || return error('No file defined!');
     my $typ = shift;
 
     my %args = ();
@@ -624,12 +610,6 @@ sub datei {
     return $obj->status404($file,$!)
       if(!$blocks);
 
-    # header only if caching
-    $args{'ETag'} = sprintf('%x-%x-%x',$ino, $size, $mtime);
-    return $obj->statusmsg(304)
-        if($obj->{browser}->{'Match'}
-            && $args{'ETag'} eq $obj->{browser}->{'Match'});
-        
     $typ = $obj->{mime}->{lc((split('\.', $file))[-1])}
       if(!$typ);
     $typ = "application/octet-stream"
@@ -637,6 +617,12 @@ sub datei {
 
     $obj->{nopack} = 1
         if($typ =~ /image\// || $typ =~ /video\//);
+
+    # header only if caching
+    $args{'ETag'} = sprintf('%x-%x-%x',$ino, $size, $mtime);
+    return $obj->statusmsg(304,undef,undef,$typ)
+        if($obj->{browser}->{'Match'}
+            && $args{'ETag'} eq $obj->{browser}->{'Match'});
 
     my(@MON)=qw/Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec/;
     my(@WDAY) = qw/Sun Mon Tue Wed Thu Fri Sat/;
@@ -684,7 +670,7 @@ sub datei {
             } while $r && $bytes > 0;
             close(FH);
           } else {
-            error sprintf("I can't open file '%s' : %s", $file,$!);
+            error sprintf("Could not open file '%s'! : %s", $file,$!);
           }
           $handle->close();
         };
@@ -706,8 +692,8 @@ sub datei {
 # ------------------
 sub image {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
-    my $file = shift || return error ('No File!');
+    my $obj = shift  || return error('No object defined!');
+    my $file = shift || return error('No file defined!');
     my $typ = shift;
     return $obj->datei($file,$typ);
 }
@@ -715,8 +701,8 @@ sub image {
 # ------------------
 sub pod {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $modname = uc(shift) || return error ('No Modname!' );
+    my $obj = shift || return error('No object defined!');
+    my $modname = uc(shift) || return error ('No modul defined!');
     $modname = ucfirst($modname) if($modname eq 'GENERAL');
 
     my $podfile = sprintf('%s/%s.pod', $obj->{paths}->{PODPATH}, $modname);
@@ -738,7 +724,7 @@ sub pod {
     my $html = load_file($outfile);
     $html = $1 if($html =~ /\<body.*?\>(.+?)\<\/body\>/si);
     $obj->link({
-        text => gettext("Back to configuration screen"),
+        text => gettext("Back to configuration page."),
         url => $obj->{browser}->{Referer},
     });
 
@@ -748,8 +734,8 @@ sub pod {
 # ------------------
 sub txtfile {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $filename = shift || return error ('No TxtFile to display!' );
+    my $obj = shift || return error('No object defined!');
+    my $filename = shift || return error ('No file defined!');
     my $param = shift || {};
 
     my $txtfile = sprintf('%s/%s.txt', $obj->{paths}->{DOCPATH}, $filename);
@@ -782,15 +768,15 @@ sub txtfile {
 # ------------------
 sub typ {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->{TYP};
 }
 
 # ------------------
 sub setCall {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $name = shift || return error ('No Name!' );
+    my $obj = shift || return error('No object defined!');
+    my $name = shift || return error ('No name defined!');
 
     $obj->{call} = $name;
     return $obj->{call};
@@ -799,7 +785,7 @@ sub setCall {
 # ------------------
 sub browser {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->{browser};
 }
 
@@ -807,7 +793,7 @@ sub browser {
 # ------------------
 sub msg {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $data = shift || 0;
     my $err = shift  || 0;
 
@@ -822,7 +808,7 @@ sub msg {
 # ------------------
 sub parseData {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $dta = shift  || return '';
 
     if(ref $dta eq 'HASH') {

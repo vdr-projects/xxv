@@ -13,7 +13,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'STREAM',
         Prereq => {
@@ -37,14 +37,14 @@ sub module {
                 type        => 'string',
             },
             mimetyp => {
-                description => gettext('Used mime-typ to deliver video streams.'),
+                description => gettext('Used mime type to deliver video streams'),
                 default     => 'video/x-mpegurl',
                 type        => 'string',
             },
         },
         Commands => {
             playrecord => {
-                description => gettext("Play the record over samba or nfs."),
+                description => gettext("Play recordings via samba or NFS."),
                 short       => 'pre',
                 callback    => sub{ $obj->play_record(@_) },
                 DenyClass   => 'stream',
@@ -94,7 +94,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     1;
 }
@@ -103,7 +103,7 @@ sub init {
 # ------------------
 sub live_stream {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $channel = shift || return $console->err(gettext("No ChannelID to Stream! Please use livestream 'cid'"));
@@ -129,14 +129,14 @@ sub live_stream {
 
         $console->out($data, $obj->{mimetyp}, %{$arg} );
     } else {
-      $console->err(gettext("Sorry, stream is'nt supported"));
+      $console->err(gettext("Sorry, this stream is not supported!"));
     }
 }
 
 # ------------------
 sub play_record {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $recid   = shift || return $console->err(gettext("No RecordID to Play! Please use rplay 'rid'"));
@@ -174,7 +174,7 @@ sub play_record {
 
         $console->out($data, $obj->{mimetyp}, %{$arg} );
     } else {
-      $console->err(gettext("Sorry, stream is'nt supported"));
+      $console->err(gettext("Sorry, this stream is not supported!"));
     }
 }
 1;

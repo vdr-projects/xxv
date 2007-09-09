@@ -12,13 +12,13 @@ use Pod::Html;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'Wml',
         Prereq => {
             'Template'  => 'Front-end module to the Template Toolkit ',
         },
-        Description => gettext('This receive and send Wap messages.'),
+        Description => gettext('This receives and sends WAP messages.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -30,7 +30,7 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || {};
     my $params = shift || 0;
 
@@ -106,7 +106,7 @@ sub new {
 # ------------------
 sub parseTemplate {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $name = shift || return error ('No Name!' );
     my $data = shift || return error ('No Data!' );
     my $params = shift || {};
@@ -175,7 +175,7 @@ sub parseTemplate {
 # ------------------
 sub out {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $text = shift || 'no Text for Output';
     my $type = shift || 'text/vnd.wap.wml';
     my %args = @_;
@@ -194,7 +194,7 @@ sub out {
 # ------------------
 sub header {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $typ = shift || return error ('No Type!' );
     my $arg = shift || {};
 
@@ -264,13 +264,13 @@ sub status404 {
 
     $file =~ s/$obj->{wmldir}\///g; # Don't post wml root, avoid spy out
 
-    $obj->statusmsg(sprintf(gettext("Can't open file '%s' : %s"),$file,$why),"404 File not found");
+    $obj->statusmsg(sprintf(gettext("Cannot open file '%s' : %s!"),$file,$why),"404 File not found");
 }
 
 # ------------------
 sub question {
 # ------------------
-    my $obj         = shift || return error ('No Object!' );
+    my $obj         = shift || return error('No object defined!');
     my $titel       = shift || 'undef';
     my $questions   = shift || return error ('No Data!' );
     my $erg         = shift || 0;
@@ -294,16 +294,16 @@ sub question {
 
             # Check on directory
             if($data->{typ} eq 'dir' and $data->{required} and not -d $erg->{$name}) {
-                ($erg->{$name}, $error) = (undef, sprintf(gettext("Directory '%s' is doesn't exist!"), $erg->{$name}));
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("Directory '%s' does not exist!"), $erg->{$name}));
             }
 
             # Check on file
             if($data->{typ} eq 'file' and $data->{required} and not -e $erg->{$name}) {
-                ($erg->{$name}, $error) = (undef, sprintf(gettext("File '%s' is doesn't exist!"), $erg->{$name}));
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("File '%s' does not exist!"), $erg->{$name}));
             }
 
             if($error) {
-                $obj->err(sprintf(gettext("Error at field '%s' (%s) : %s"), $data->{msg}, $name, $error));
+                $obj->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
                 last;
             }
         }
@@ -337,7 +337,7 @@ sub question {
 # ------------------
 sub image {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $file = shift || return error ('No File!' );
     my $typ = shift  || $obj->{mime}->{lc((split('\.', $file))[-1])}
         or return error("No Type in Mimehash or File: $file");
@@ -351,7 +351,7 @@ sub image {
 # ------------------
 sub datei {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $file = shift || return error ('No File!' );
 
     my $data = load_file($file)
@@ -363,7 +363,7 @@ sub datei {
 # ------------------
 sub pod {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $modname = shift || return error ('No Modname!' );
     $modname = ucfirst($modname) if($modname eq 'GENERAL');
 
@@ -382,7 +382,7 @@ sub pod {
     my $html = load_file($outfile);
     $html = $1 if($html =~ /\<body.*?\>(.+?)\<\/body\>/si);
     $obj->link({
-        text => gettext("Back to configuration screen"),
+        text => gettext("Back to configuration page."),
         url => $obj->{browser}->{Referer},
     });
     $obj->message($html);
@@ -391,14 +391,14 @@ sub pod {
 # ------------------
 sub typ {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->{TYP};
 }
 
 # ------------------
 sub setCall {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $name = shift || return error ('No Name!' );
 
     $obj->{call} = $name;
@@ -408,7 +408,7 @@ sub setCall {
 # ------------------
 sub browser {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->{browser};
 }
 
@@ -416,7 +416,7 @@ sub browser {
 # ------------------
 sub msg {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || {};
     my $err = shift;
 

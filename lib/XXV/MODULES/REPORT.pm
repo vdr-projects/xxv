@@ -10,7 +10,7 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'REPORT',
         Prereq => {
@@ -114,7 +114,7 @@ sub new {
             'important',
         );
         return 1;
-    }, "Send restart Message to News channel ...");
+    }, "Send restart message to news modules ...");
 
 	return $self;
 }
@@ -122,7 +122,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     # Load the NEWS Plugins ...
     my @mods = glob($obj->{paths}->{NEWSMODS}.'/*.pm');
@@ -164,7 +164,7 @@ sub init {
 # ------------------
 sub report {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $modulename = shift || '';
@@ -192,8 +192,8 @@ sub report {
 # ------------------
 sub news {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
-    my $title = shift || return error ('No Title!' );
+    my $obj = shift  || return error('No object defined!');
+    my $title = shift || return error ('No title!' );
     my $text  = shift || '';
     my $cmd   = shift || '';
     my $id    = shift || '';
@@ -237,7 +237,7 @@ sub news {
 # ------------------
 sub request {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!' );
     my $console = shift || return error ('No Console!' );
     # To this time you can set on
@@ -267,7 +267,7 @@ sub request {
 # ------------------
 sub scala {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $typ = shift  || return 10;
 
     $obj->{SCALA} = {

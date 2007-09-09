@@ -13,7 +13,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'Ajax',
         Prereq => {
@@ -32,7 +32,7 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || {};
     my $params = shift || 0;
 
@@ -99,7 +99,7 @@ sub new {
 # ------------------
 sub out {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || 0;
     my $para = shift || 0;
     my $name = shift || 'noName';
@@ -127,7 +127,7 @@ sub out {
 # ------------------
 sub printout {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $nopack = shift || $obj->{nopack} || 0;
 
 
@@ -153,7 +153,7 @@ sub printout {
 # ------------------
 sub header {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $typ = shift || return error ('No Type!' );
     my $arg = shift || {};
 
@@ -175,7 +175,7 @@ sub header {
 # ------------------
 sub headerNoAuth {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $typ = shift || 'text/html';
 
     $obj->{header} = 401;
@@ -188,7 +188,7 @@ sub headerNoAuth {
 # ------------------
 sub msg {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || 0;
     my $err  = shift || 0;
 
@@ -208,14 +208,14 @@ sub msg {
 # ------------------
 sub typ {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->{TYP};
 }
 
 # ------------------
 sub setCall {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $name = shift || return error ('No Name!' );
 
     $obj->{call} = $name;
@@ -225,7 +225,7 @@ sub setCall {
 # ------------------
 sub browser {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->{browser};
 }
 

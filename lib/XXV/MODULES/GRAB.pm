@@ -10,7 +10,7 @@ use File::Find;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'GRAB',
         Prereq => {
@@ -51,7 +51,7 @@ sub module {
                 type        => 'integer',
             },
             font => {
-                description => gettext('True type font to draw image text.'),
+                description => gettext('TrueType font to draw overlay text'),
                 default     => 'VeraIt.ttf',
                 type        => 'list',
                 choices     => $obj->findttf,
@@ -129,7 +129,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     main::after(sub{
           $obj->{svdrp} = main::getModule('SVDRP');
@@ -145,7 +145,7 @@ sub _init {
 # ------------------
 sub grab {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $file    = $obj->{file};
@@ -203,7 +203,7 @@ sub grab {
 # ------------------
 sub display {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
 
@@ -220,7 +220,7 @@ sub display {
 # ------------------
 sub makeImgText {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $file = shift || $obj->{file} || return error ('No File to display');
@@ -270,7 +270,7 @@ sub makeImgText {
 sub findttf
 # ------------------
 {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $found;
     find({ wanted => sub{
                 if($File::Find::name =~ /\.ttf$/sig) {

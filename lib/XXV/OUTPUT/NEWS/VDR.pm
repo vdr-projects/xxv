@@ -14,10 +14,10 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'NEWS::VDR',
-        Description => gettext('This NEWS module generate a messages for vdr interface.'),
+        Description => gettext('This NEWS module generates messages for the VDR interface.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -37,7 +37,7 @@ sub module {
                 },
             },
             level => {
-                description => gettext('Minimum level of the messages which can be displayed (1 ... 100)'),
+                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
                 default     => 1,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -97,7 +97,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
     $obj->{INITE} = 1;
 
@@ -109,7 +109,7 @@ sub init {
 # ------------------
 sub send {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error ('No Vars!' );
 
     return undef, lg('This function is deactivated!')
@@ -130,7 +130,7 @@ sub send {
 # ------------------
 sub read {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error ('No News!' );
 
     return $obj->send($vars);
@@ -141,10 +141,10 @@ sub read {
 # ------------------
 sub req {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $test = shift  || 0;
 
-    return gettext('The Module NEWS::VDR is not active!')
+    return gettext('The module NEWS::VDR is not active!')
         if($obj->{active} ne 'y');
 
     my $vars = {
@@ -158,7 +158,7 @@ sub req {
     };
     $obj->read($vars);
 
-    return gettext('A message is send to your SVDRPServer!');
+    return gettext('A message has been sent to your VDR!');
 
 }
 

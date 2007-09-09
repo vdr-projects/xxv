@@ -12,13 +12,13 @@ $|++;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'LOGREAD',
         Prereq => {
             # 'Perl::Module' => 'Description',
         },
-        Description => gettext('This module read the xxv log file and show it on console.'),
+        Description => gettext('This module reads the xxv log file and displays it on the console.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -38,13 +38,13 @@ sub module {
                 required    => gettext('This is required!'),
             },
             rows => {
-                description => gettext('How much lines to display?'),
+                description => gettext('Lines to display'),
                 default     => '100',
                 type        => 'integer',
                 required    => gettext('This is required!'),
             },
             syslog => {
-                description => gettext('Path of syslog file?'),
+                description => sprintf(gettext("Path of file '%s'"),'syslog'),
                 default     => '/var/log/syslog',
                 type        => 'file',
                 required    => gettext('This is required!'),
@@ -92,7 +92,7 @@ sub new {
 # ------------------
 sub logger {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $logname = shift || 'standard';
@@ -142,7 +142,7 @@ sub logger {
     my $logfile = $obj->{logfiles}->{$logname}->{logfile};
     my @out = $obj->tail($logfile);
 
-    return $console->msg(undef, sprintf(gettext("Can't read log file %s!"), $logfile))
+    return $console->msg(undef, sprintf(gettext("Could not read log file %s!"), $logfile))
         unless(scalar @out);
 
     my $output = $obj->parseLogOutput($obj->{logfiles}->{$logname}, \@out);
@@ -166,7 +166,7 @@ sub logger {
 # ------------------
 sub tail {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $logfile = shift  || return error ('No Logfile!' );
     my $rows = shift  || $obj->{rows};
 
@@ -179,7 +179,7 @@ sub tail {
 # ------------------
 sub parseLogOutput {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $log = shift  || return error ('No Prefs for logfile!' );
     my $out = shift  || return;
 
@@ -203,7 +203,7 @@ sub parseLogOutput {
 # ------------------
 sub parseData {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $ret     = shift || return error('No Referenced Array');
     my $data    = shift || 0;
 

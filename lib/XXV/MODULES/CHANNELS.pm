@@ -10,7 +10,7 @@ use File::stat;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'CHANNELS',
         Prereq => {
@@ -23,7 +23,7 @@ sub module {
         Status => sub{ $obj->status(@_) },
         Preferences => {
             file => {
-                description => gettext('Location of channels.conf on your system.'),
+                description => sprintf(gettext("Path of file '%s'"),'channels.conf'),
                 default     => '/var/lib/vdr/channels.conf',
                 type        => 'file',
                 required    => gettext('This is required!'),
@@ -35,12 +35,12 @@ sub module {
                 required    => gettext('This is required!'),
             },
             empty => {
-                description => gettext('Include channels with empty PID'),
+                description => gettext('Insert channels with blank PID'),
                 default     => 'n',
                 type        => 'confirm',
             },
             filterCA => {
-                description => gettext('Filter channels, set all wanted CA(Common Access)'),
+                description => gettext('Filter channel list, set all wanted CA (Common Access)'),
                 # 0 for FTA, 1-4 for DVB Device, 32001 for AnalogPlugin
                 type        => 'list',
                 options     => 'multi',
@@ -49,7 +49,7 @@ sub module {
                     my @knownCA;
                     foreach my $CA (@{$obj->{knownCA}}) {
                         my $desc;
-                        if($CA eq '0')    { $desc = gettext("Free to air"); }
+                        if($CA eq '0')    { $desc = gettext("Free-to-air"); }
                         elsif($CA eq '1' 
                            or $CA eq '2' 
                            or $CA eq '3'  
@@ -69,7 +69,7 @@ sub module {
                 },
             },
             stripCH => {
-                description => gettext("Clean channel names, only the 'long' part is visible."),
+                description => gettext("Cleans out channel names, only the 'long' part is visible."),
     			# Format in vdr 1.2.6 (Format "" or "long"). it show also all parts
     			# Format in vdr 1.3.10 (Format "short,long")
     			# Format in vdr 1.3.12 (Format "short,long;provider")
@@ -81,34 +81,34 @@ sub module {
         },
         Commands => {
             cupdate => {
-                description => gettext('Read channels and write them into database'),
+                description => gettext('Read channels and write them to the database'),
                 short       => 'cu',
                 callback    => sub{ $obj->readData(@_) },
                 DenyClass   => 'cedit',
                 Level       => 'user',
             },
             clist => {
-                description => gettext("List Channels from database 'cname'"),
+                description => gettext("List channels from database 'cname'"),
                 short       => 'cl',
                 callback    => sub{ $obj->list(@_) },
                 Level       => 'user',
             },
             cnew => {
-                description => gettext("Create a new channel"),
+                description => gettext("Create new channel"),
                 short       => 'cne',
                 callback    => sub{ $obj->newChannel(@_) },
                 Level       => 'user',
                 DenyClass   => 'cedit',
             },
             cedit => {
-                description => gettext("Edit a channel 'cid'"),
+                description => gettext("Edits a channel 'cid'"),
                 short       => 'ced',
                 callback    => sub{ $obj->editChannel(@_) },
                 Level       => 'user',
                 DenyClass   => 'cedit',
             },
             cdelete => {
-                description => gettext("Delete one or more channels 'pos'"),
+                description => gettext("Deletes one or more channels 'pos'"),
                 short       => 'cdl',
                 callback    => sub{ $obj->deleteChannel(@_) },
                 Level       => 'user',
@@ -122,7 +122,7 @@ sub module {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
@@ -134,7 +134,7 @@ sub status {
     my $groups = $obj->{dbh}->selectrow_arrayref($sql)->[0];
 
     return {
-        message => sprintf(gettext('The system has %d saved Channels in %d Groups'), $gesamt, $groups),
+        message => sprintf(gettext('The system has saved %d channels from %d groups'), $gesamt, $groups),
     };
 
 }
@@ -188,7 +188,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return 0, panic("Session to database is'nt connected")
       unless($obj->{dbh});
@@ -246,7 +246,7 @@ sub _init {
 # ------------------
 sub insert {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return;
     my $pos = shift || return;
     my $grp = shift || 0;
@@ -323,7 +323,7 @@ sub insert {
 # ------------------
 sub insertGrp {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $pos = shift || return;
     my $name = shift || 0;
 
@@ -337,7 +337,7 @@ sub insertGrp {
 # ------------------
 sub readData {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $file = $obj->{file} || return 1, error ('No Channels File');
@@ -423,7 +423,7 @@ sub is_numeric { defined getnum($_[0]) }
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $id      = shift || '';
@@ -464,7 +464,7 @@ where
 # ------------------
 sub NameToChannel {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $name = shift || return undef;
 
     my $sth = $obj->{dbh}->prepare('select Id from CHANNELS where UPPER(Name) = UPPER( ? )');
@@ -477,7 +477,7 @@ sub NameToChannel {
 # ------------------
 sub PosToName {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $pos = shift || return undef;
 
     my $sth = $obj->{dbh}->prepare('select Name from CHANNELS where POS = ?');
@@ -490,7 +490,7 @@ sub PosToName {
 # ------------------
 sub PosToChannel {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $pos = shift || return undef;
 
     my $sth = $obj->{dbh}->prepare('select Id from CHANNELS where POS = ?');
@@ -503,7 +503,7 @@ sub PosToChannel {
 # ------------------
 sub ChannelGroupsArray {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
@@ -516,7 +516,7 @@ sub ChannelGroupsArray {
 # ------------------
 sub ChannelArray {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
@@ -529,7 +529,7 @@ sub ChannelArray {
 # ------------------
 sub ChannelIDArray {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
@@ -542,7 +542,7 @@ sub ChannelIDArray {
 # ------------------
 sub ChannelHash {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
@@ -555,7 +555,7 @@ sub ChannelHash {
 # ------------------
 sub ChannelToName {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
 
     my $sth = $obj->{dbh}->prepare('select Name from CHANNELS where Id = ?');
@@ -568,7 +568,7 @@ sub ChannelToName {
 # ------------------
 sub ChannelToPos {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
 
     my $sth = $obj->{dbh}->prepare('select POS from CHANNELS where Id = ?');
@@ -582,7 +582,7 @@ sub ChannelToPos {
 # ------------------
 sub getChannelType {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
     my $pos = $obj->ChannelToPos($id);
     if($pos and $pos >= 1)
@@ -604,7 +604,7 @@ sub getChannelType {
 # ------------------
 sub _LastChannel {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $sql = sprintf('select * from CHANNELS order by POS desc limit 1');
     my $erg = $obj->{dbh}->selectrow_hashref($sql);
     return $erg;
@@ -613,7 +613,7 @@ sub _LastChannel {
 # ------------------
 sub newChannel {
 # ------------------
-    my $self         = shift || return error ('No Object!' );
+    my $self         = shift || return error('No object defined!');
     my $watcher      = shift || return error ('No Watcher!');
     my $console      = shift || return error ('No Console');
     my $id           = shift || 0;
@@ -625,7 +625,7 @@ sub newChannel {
 # ------------------
 sub editChannel {
 # ------------------
-    my $self    = shift || return error ('No Object!' );
+    my $self    = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $cid     = shift || 0;  # If channelid then edit channel
@@ -661,7 +661,7 @@ sub editChannel {
                 if(int($value) > 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         } ];
@@ -692,7 +692,7 @@ sub editChannel {
                 if(int($value) > 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -712,7 +712,7 @@ sub editChannel {
         'Parameters' => {
             typ     => 'string',
             def     => $defaultData->{Parameters} || "",
-            msg     => gettext("Various parameters, depends on signal source"),
+            msg     => gettext("Various parameters, depending on signal source"),
             check   => sub{
                 my $value = shift || return;
                 if($value ne '') {
@@ -731,7 +731,7 @@ sub editChannel {
                 if(int($value) > 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -744,7 +744,7 @@ sub editChannel {
                 if(int($value) >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -770,7 +770,7 @@ sub editChannel {
                 if(int($value) >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -796,7 +796,7 @@ sub editChannel {
                 if(int($value) >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -809,7 +809,7 @@ sub editChannel {
                 if(int($value) >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -822,7 +822,7 @@ sub editChannel {
                 if(int($value) >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -835,7 +835,7 @@ sub editChannel {
                 if(int($value) >= 0) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
         },
@@ -881,7 +881,7 @@ sub editChannel {
 # ------------------
 sub saveChannel {
 # ------------------
-    my $self = shift || return error ('No Object!' );
+    my $self = shift || return error('No object defined!');
     my $data = shift || return error('No Data to Save!');
     my $pos = shift || 0;
 
@@ -923,10 +923,10 @@ sub saveChannel {
 # ------------------
 sub deleteChannel {
 # ------------------
-    my $self = shift || return error ('No Object!' );
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
-    my $channelid = shift || return $console->err(gettext("No channel to delete! Please use cdelete 'pos'"));
+    my $channelid = shift || return $console->err(gettext("No channel defined for deletion! Please use cdelete 'pos'!"));
     my $answer  = shift || 0;
 
     my @channels  = reverse sort{ $a <=> $b } split(/[^0-9]/, $channelid);
@@ -939,7 +939,7 @@ sub deleteChannel {
 
     foreach my $pos (@channels) {
         unless(exists $data->{$pos}) {
-            $console->err(sprintf(gettext("Channel with number '%s' does not exist in database!"), $pos));
+            $console->err(sprintf(gettext("Channel '%s' does not exist in the database!"), $pos));
             next;
         }
 
@@ -948,7 +948,7 @@ sub deleteChannel {
             my $confirm = $console->confirm({
                 typ   => 'confirm',
                 def   => 'y',
-                msg   => gettext('Are you sure to delete this channel?'),
+                msg   => gettext('Do you want to delete this channel?'),
             }, $answer);
             next if(! $answer eq 'y');
         }
@@ -973,7 +973,7 @@ sub deleteChannel {
         $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     } else {
-        $console->err(gettext("No channel to delete!"));
+        $console->err(gettext("No channel defined for deletion!"));
     }
 
     return 1;
@@ -982,7 +982,7 @@ sub deleteChannel {
 # ------------------
 sub _brandNewChannels {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $oldmaximumpos = shift || return;
 
     my $sql = 'select * from CHANNELS where POS > ?'; 
@@ -1006,7 +1006,7 @@ sub _brandNewChannels {
 
     my $rm = main::getModule('REPORT');
     $rm->news(
-        sprintf(gettext('Discover %d new channels!'), scalar keys %$erg),
+        sprintf(gettext('Found %d new channels!'), scalar keys %$erg),
         $text,
         'clist',
         undef,

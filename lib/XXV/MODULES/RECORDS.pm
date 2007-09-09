@@ -16,14 +16,14 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $args = {
         Name => 'RECORDS',
         Prereq => {
             'Time::Local' => 'efficiently compute time from local and GMT time ',
         },
-        Description => gettext('This module managed recordings.'),
+        Description => gettext('This module manages recordings.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -31,7 +31,7 @@ sub module {
         Status => sub{ $obj->status(@_) },
         Preferences => {
             commandfile => {
-                description => gettext('Location of reccmds.conf on your system.'),
+                description => sprintf(gettext("Path of file '%s'"),'reccmds.conf'),
                 default     => '/var/lib/vdr/reccmds.conf',
                 type        => 'file',
                 required    => gettext("This is required!"),
@@ -49,22 +49,22 @@ sub module {
                 required    => gettext("This is required!"),
             },
             videodir => {
-                description => gettext('Directory, where vdr recordings are stored.'),
+                description => gettext('Directory where recordings are stored'),
                 default     => '/var/lib/video',
                 type        => 'dir',
                 required    => gettext("This is required!"),
             },
             previewbinary => {
-                description => gettext('Location of used program to produce preview images on your system.'),
+                description => gettext('Location of used program to produce thumbnails on your system.'),
                 default     => '/usr/bin/mplayer',
                 type        => 'file',
                 required    => gettext("This is required!"),
             },
             previewcommand => {
-                description => gettext('Please choose the used program to produce preview images.'),
+                description => gettext('The program used to create thumbnails'),
                 type        => 'list',
                 choices     => [
-                    [gettext('Nothing'), 'Nothing'],
+                    [gettext('None'), 'Nothing'],
                     ['MPlayer1.0pre5', 'MPlayer1.0pre5'],
                     ['MPlayer1.0pre6', 'MPlayer1.0pre6'],
                     ['vdr2jpeg',       'vdr2jpeg'],
@@ -73,12 +73,12 @@ sub module {
                 required    => gettext("This is required!"),
             },
             previewcount => {
-                description => gettext('How many preview images produce?'),
+                description => gettext('Produce how many thumbnails'),
                 default     => 3,
                 type        => 'integer',
             },
             previewlistthumbs => {
-                description => gettext('Display list records with thumbnails?'),
+                description => gettext('Display recording list with thumbnails?'),
                 default     => 'n',
                 type        => 'confirm',
             },
@@ -89,7 +89,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             vfat => {
-                description => gettext('Set this if your filename encoded for vfat filesystems'),
+                description => gettext('VDR compiled for VFAT system (VFAT=1)'),
                 default     => 'y',
                 type        => 'confirm',
             },
@@ -102,7 +102,7 @@ sub module {
                 DenyClass   => 'rlist',
             },
             rlist => {
-                description => gettext('List recordings'),
+                description => gettext('List of recordings'),
                 short       => 'rl',
                 callback    => sub{ $obj->list(@_) },
                 DenyClass   => 'rlist',
@@ -142,7 +142,7 @@ sub module {
                 DenyClass   => 'redit',
             },
             rplay => {
-                description => gettext("Play recording 'rid' in vdr"),
+                description => gettext("Play recording 'rid' in the VDR."),
                 short       => 'rpv',
                 callback    => sub{ $obj->play(@_) },
                 Level       => 'user',
@@ -163,7 +163,7 @@ sub module {
         },
         RegEvent    => {
             'deleteRecord' => {
-                Descr => gettext('Create event entries, if a record deleted.'),
+                Descr => gettext('Create event entries if a recording has been deleted.'),
 
                 # You have this choices (harmless is default):
                 # 'harmless', 'interesting', 'veryinteresting', 'important', 'veryimportant'
@@ -249,7 +249,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     unless($obj->{dbh}) {
       panic("Session to database is'nt connected");
@@ -301,7 +301,7 @@ sub _init {
         $obj->readData();
         $obj->{countReading} += 1;
         return 1;
-    }, "RECORDS: Store records in database ...", 20);
+    }, "RECORDS: Store recordings in database ...", 20);
 
     1;
 }
@@ -317,8 +317,8 @@ sub dot1000 {
 # ------------------
 sub parseData {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $vdata = shift || return error('Problem to read Data!');
+    my $obj = shift || return error('No object defined!');
+    my $vdata = shift || return error('Problem to read data!');
     my ($event, $hash, $id, $date, $hour, $minute, $state, $duration, $title, $day, $month, $year);
     my $dataHash = {};
 
@@ -381,7 +381,7 @@ sub scandirectory {# ------------------
 # ------------------
 sub readData {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
@@ -605,9 +605,9 @@ sub readData {
     if(ref $console) {
         $console->start() if(ref $waiter);
         if(scalar @{$err} == 0) {
-            $console->message(sprintf(gettext("Write %d recordings in database."), scalar @merkIds));
+            $console->message(sprintf(gettext("Write %d recordings to the database."), scalar @merkIds));
         } else {
-            unshift(@{$err}, sprintf(gettext("Write only %d recordings in database. Can\'t assign %d recordings."), scalar @merkIds , scalar @{$err}));
+            unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Cannot assign %d recordings."), scalar @merkIds , scalar @{$err}));
             lg join("\n", @$err);
             $console->err($err);
         }
@@ -623,7 +623,7 @@ sub readData {
 # ------------------
 sub updated {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $cb = shift || 0;
     my $log = shift || 0;
 
@@ -643,16 +643,16 @@ sub updated {
 # ------------------
 sub refresh {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
 
     my $waiter;
     if(ref $console) {
       if($console->typ eq 'HTML') {
-        $waiter = $console->wait(gettext("Get informations from recordings ..."),0,1000,'no');
+        $waiter = $console->wait(gettext("Get information on recordings ..."),0,1000,'no');
       } else {
-        $console->msg(gettext("Get informations from recordings ..."));
+        $console->msg(gettext("Get information on recordings ..."));
       }
     }
 
@@ -662,7 +662,7 @@ sub refresh {
 # ------------------
 sub insert {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $attr = shift || return 0;
 
     my $sth = $obj->{dbh}->prepare(
@@ -691,7 +691,7 @@ sub insert {
 # ------------------
 sub _updateEvent {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $event = shift || return undef;
     
     my $sth = $obj->{dbh}->prepare('UPDATE OLDEPG SET duration=?, starttime=FROM_UNIXTIME(?), addtime=FROM_UNIXTIME(?) where eventid=?');
@@ -715,10 +715,10 @@ sub _updateState {# ------------------
 # ------------------
 sub analyze {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $recattr = shift || return error ('No data to analyze!');
 
-    lg sprintf('Analyze record "%s" from system',
+    lg sprintf('Analyze recording "%s"',
             $recattr->{title},
         );
 
@@ -785,11 +785,11 @@ sub analyze {
 # ------------------
 sub videoInfo {
 # ------------------
-    my $obj     = shift || return error ('No object!' );
+    my $obj     = shift || return error('No object defined!');
     my $title   = shift || return error ('No title!' );
     my $starttime   = shift || return error ('No title!' );
 
-    lg sprintf('Get videoInfo from record "%s"', $title );
+    lg sprintf('Get information from recording "%s"', $title );
 
     my $month=sprintf("%02d",(localtime($starttime))[4]+1);
     my $day=sprintf("%02d",(localtime($starttime))[3]);
@@ -899,7 +899,7 @@ sub videoInfo {
 # ------------------
 sub videoPreview {
 # ------------------
-    my $obj     = shift || return error ('No Object!' );
+    my $obj     = shift || return error('No object defined!');
     my $eventid   = shift || return error ('No eventid!');
     my $info    = shift || return error ('No InfoHash!');
     my $rebuild    = shift || 0;
@@ -1026,10 +1026,10 @@ sub _mark2frames{
 # ------------------
 sub SearchEpgId {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $start = shift || return error ('No Start!' );
     my $dur = shift || return;
-    my $title = shift || return error ('No Title!' );
+    my $title = shift || return error ('No title!' );
     my $subtitle = shift;
     my $channel = shift;    
 
@@ -1078,11 +1078,11 @@ qq|SELECT * FROM OLDEPG WHERE
 # ------------------
 sub createOldEventId {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || return error ('No Id!' );
     my $start = shift || return error ('No Starttime!' );
     my $duration = shift || 0;
-    my $title = shift || return error ('No Title!' );
+    my $title = shift || return error ('No title!' );
     my $subtitle = shift;
     my $info = shift;
 
@@ -1130,10 +1130,10 @@ sub createOldEventId {
 # ------------------
 sub display {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $recordid = shift || return $console->err(gettext("No RecordID to display the recording! Please use rdisplay 'rid'"));
+    my $recordid = shift || return $console->err(gettext("No recording defined for display! Please use rdisplay 'rid'"));
 
     my $start = "e.starttime";
     my $stopp = "FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration)";
@@ -1188,17 +1188,17 @@ where
 # ------------------
 sub play {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $recordid = shift || return $console->err(gettext("No RecordID to play the recording! Please use rplay 'rid'"));
+    my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT RecordID FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
       || !($rec = $sth->fetchrow_hashref())) {
-        return $console->err(sprintf(gettext("RecordID '%s' does not exist in the database!"),$recordid));
+        return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
     }
 
     my $cmd = sprintf('PLAY %d begin', $rec->{RecordID});
@@ -1208,17 +1208,17 @@ sub play {
 # ------------------
 sub cut {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $recordid = shift || return $console->err(gettext("No RecordID to play the recording! Please use rplay 'rid'"));
+    my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT RecordID FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
       || !($rec = $sth->fetchrow_hashref())) {
-        return $console->err(sprintf(gettext("RecordID '%s' does not exist in the database!"),$recordid));
+        return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
     }
 
     my $cmd = sprintf('EDIT %d', $rec->{RecordID});
@@ -1228,7 +1228,7 @@ sub cut {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $text    = shift || "";
@@ -1320,7 +1320,7 @@ GROUP BY
 # ------------------
 sub search {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $text    = shift || return $obj->list($watcher,$console);
@@ -1389,10 +1389,10 @@ WHERE
 # ------------------
 sub delete {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $record  = shift || return $console->err(gettext("No Recording ID to delete! Please use rdelete 'id'"));
+    my $record  = shift || return $console->err(gettext("No recording defined for deletion! Please use rdelete 'id'."));
     my $answer  = shift || 0;
 
     my @rcs  = split(/_/, $record);
@@ -1444,7 +1444,7 @@ sub delete {
         $obj->{svdrp}->queue_cmds(sprintf("delr %s",$r->{Id}));
         push(@todelete,$r->{Title}); # Remember title
 
-        # Remove recordings from request, if found in database
+        # Delete recordings from request, if found in database
         my $i = 0;
         for my $x (@recordings) {
           if ( $x eq $recording->[2] ) { # Remove known MD5 from user request
@@ -1455,7 +1455,7 @@ sub delete {
         }
     }
     
-    $console->err(sprintf(gettext("Recording with number '%s' does not exist in the database!"), 
+    $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"), 
       join('\',\'',@recordings))) if(ref $console and scalar @recordings);
 
     if($obj->{svdrp}->queue_cmds('COUNT')) {
@@ -1504,10 +1504,10 @@ sub is_empty_dir {
 # ------------------
 sub redit {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $recordid  = shift || return $console->err(gettext("No RecordID to edit!"));
+    my $recordid  = shift || return $console->err(gettext("No recording defined for editing!"));
     my $data    = shift || 0;
 
     my $rec;
@@ -1528,7 +1528,7 @@ WHERE
 |;
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute($recordid)
-            or return $console->err(sprintf(gettext("RecordID '%s' does not exist in the database!"),$recordid));
+            or return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
         $rec = $sth->fetchrow_hashref();
     }
 
@@ -1541,7 +1541,7 @@ WHERE
 
     if(-r $file) {
         my $text = load_file($file) 
-        or $console->err(sprintf(gettext("Can't open file '%s' : %s"),$file,$!));
+        or $console->err(sprintf(gettext("Cannot open file '%s' : %s!"),$file,$!));
 
         foreach my $zeile (split(/[\r\n]/, $text)) {
             if($zeile =~ /^D\s+(.+)/s) {
@@ -1580,28 +1580,28 @@ WHERE
         },
         'lifetime' => {
             typ     => 'integer',
-            msg     => gettext('Lifetime (0 .. 99)'),
+            msg     => sprintf(gettext('Lifetime (%d ... %d)'),0,99),
             def     => int($rec->{Lifetime}),
             check   => sub{
                 my $value = shift || 0;
                 if($value >= 0 and $value < 100) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
             req     => gettext("This is required!"),
          },
         'priority' => {
             typ     => 'integer',
-            msg     => gettext('Priority (0 .. 99)'),
+            msg     => sprintf(gettext('Priority (%d ... %d)'),0,99),
             def     => int($rec->{Prio}),
             check   => sub{
                 my $value = shift || 0;
                 if($value >= 0 and $value < 100) {
                     return int($value);
                 } else {
-                    return undef, gettext('No right Value!');
+                    return undef, gettext('Value incorrect!');
                 }
             },
             req     => gettext("This is required!"),
@@ -1641,7 +1641,7 @@ WHERE
         },
         'marks' => {
             param => {type => 'text'},
-            msg   => gettext("Marks"),
+            msg   => gettext("Cut marks"),
             def   => $marks || '',
         },
     ];
@@ -1653,7 +1653,7 @@ WHERE
         my $dropEPGEntry = 0;
         my $ChangeRecordingData = 0;
 
-        debug sprintf('Record "%s" is changed%s',
+        debug sprintf('Recording "%s" has changed%s',
             $rec->{title},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
@@ -1669,7 +1669,7 @@ WHERE
             $data->{summary} =~ s/\s+$//;               # no trailing white space
             if(-r $file) {
               my $text = load_file($file) 
-                or $console->err(sprintf(gettext("Can't open file '%s' : %s"),$file,$!));
+                or $console->err(sprintf(gettext("Cannot open file '%s' : %s!"),$file,$!));
               foreach my $zeile (split(/[\r\n]/, $text)) {
                     $zeile =~ s/^\s+//;
                     $zeile =~ s/\s+$//;
@@ -1814,9 +1814,9 @@ WHERE
         my $waiter;
         if(ref $console) {
             if($console->typ eq 'HTML') {
-              $waiter = $console->wait(gettext('Recording is edited!'),0,1000,'no');
+              $waiter = $console->wait(gettext('Recording edited!'),0,1000,'no');
             }else {
-              $console->msg(gettext('Recording is edited!'));
+              $console->msg(gettext('Recording edited!'));
             }
         }
         $obj->readData($watcher,$console,$waiter);
@@ -1832,7 +1832,7 @@ WHERE
 # Load Reccmds's
 sub _loadreccmds {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     unless($obj->{reccmds}) {
         $obj->{reccmds} = [];
@@ -1849,7 +1849,7 @@ sub _loadreccmds {
 # ------------------
 sub conv {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data = shift || 0;
@@ -1857,7 +1857,7 @@ sub conv {
     $obj->_loadreccmds;
 
     unless(scalar @{$obj->{reccmds}}) {
-        $console->err(gettext('No reccmds.conf on your System!'));
+        $console->err(gettext('No reccmds.conf on your system!'));
         return 1;
     }
 
@@ -1869,10 +1869,10 @@ sub conv {
     }
 
     my ($cmdid, $recid) = split(/[\s_]/, $data);
-    my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return $console->err(gettext("I can't find this CommandID"));
-    my $path = $obj->IdToPath($recid) || return $console->err(gettext("I can't find this RecordID"));
+    my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return $console->err(gettext("Cannot find this command ID!"));
+    my $path = $obj->IdToPath($recid) || return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
 
-    debug sprintf('Call command "%s" on record "%s"%s',
+    debug sprintf('Call command "%s" on recording "%s"%s',
         $cmd,
         $path,
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
@@ -1881,12 +1881,12 @@ sub conv {
     my $call = "$cmd \"$path\"";
     my $output = `$call`;
     if( $? >> 8 > 0) {
-        $console->message(sprintf(gettext("Sorry! Call %s %s Error output: %s"), $cmd, $path, $output));
+        $console->message(sprintf(gettext("Sorry! Call %s %s with error output: %s"), $cmd, $path, $output));
     } else {
-        $console->message(sprintf(gettext("Call %s %s With output: %s"), $cmd, $path, $output));
+        $console->message(sprintf(gettext("Call %s %s with output: %s"), $cmd, $path, $output));
     }
     $console->link({
-        text => gettext("Back to recordings list"),
+        text => gettext("Back to recording list"),
         url => "?cmd=rlist",
     }) if($console->typ eq 'HTML');
     return 1;
@@ -1895,7 +1895,7 @@ sub conv {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift;
@@ -1934,7 +1934,7 @@ ORDER BY
 # ------------------
 sub IdToPath {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
 
     my $sth = $obj->{dbh}->prepare('select Path from RECORDS where RecordMD5 = ?');
@@ -1947,7 +1947,7 @@ sub IdToPath {
 # ------------------
 sub getPreviewFiles {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $id = shift || return error ('No EventID!' );
 
     # look for pictures
@@ -1967,12 +1967,12 @@ sub getPreviewFiles {
 # ------------------
 sub getGroupIds {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $recid = shift || return error ('No Record ID!' );
+    my $obj = shift || return error('No object defined!');
+    my $recid = shift || return error ('No recording defined!' );
     
     my $epgid = getDataById($recid, 'RECORDS', 'RecordMD5');
     if(!$epgid) {
-      error sprintf("Can't find Record for id %s!", $recid);
+      error sprintf("Can't find recording '%s'!", $recid);
       return;
     }
     my $epgdata = main::getModule('EPG')->getId($epgid->{eventid});
@@ -2025,8 +2025,8 @@ GROUP BY
 # ------------------
 sub translate {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $title = shift || return error ('No Title in translate!');
+    my $obj = shift || return error('No object defined!');
+    my $title = shift || return error ('No title in translate!');
     my $vfat = shift || $obj->{vfat};
 
     if($vfat eq 'y')
@@ -2051,7 +2051,7 @@ sub translate {
 # return value as integer 
 sub _recordinglength {
 # ------------------
-    my $obj = shift || return 0, error ('No Object!' );
+    my $obj = shift || return 0, error('No object defined!');
     my $path = shift || return 0, error ('Missing path from recording!' );
 
     my $f = sprintf("%s/index.vdr", $path);
@@ -2072,8 +2072,8 @@ sub _recordinglength {
 # ------------------
 sub converttitle {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
-    my $title = shift || return error ('No Title in translate!');
+    my $obj = shift || return error('No object defined!');
+    my $title = shift || return error ('No title in translate!');
     my $vfat = shift || $obj->{vfat};
 
     if($vfat eq 'y') {
@@ -2092,7 +2092,7 @@ sub converttitle {
 
 # ------------------
 sub suggest {# ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $search = shift;

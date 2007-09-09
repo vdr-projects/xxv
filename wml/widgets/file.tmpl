@@ -5,6 +5,6 @@
 <input type="text" name="<?% data.NAME | replace('__','var') %?>" value="<?% entities(val) %?>" /><br/>
         <?% CATCH File %?>
 <input type="text" name="<?% data.NAME | replace('__','var') %?>" value="<?% entities(val) %?>" /><br/>
-<i><?% gettext("File '%s' is doesn't exist!") | replace('%s',val)%?></i><br/>
+<i><?% gettext("File '%s' does not exist!") | replace('%s',val)%?></i><br/>
         <?% END %?>
 <?% global.fomularfield.push(data.NAME) %?>

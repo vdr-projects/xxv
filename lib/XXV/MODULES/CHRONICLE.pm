@@ -8,14 +8,14 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $self = shift || return error ('No Object!' );
+    my $self = shift || return error('No object defined!');
 
     my $args = {
         Name => 'CHRONICLE',
         Prereq => {
             # 'Perl::Module' => 'Description',
         },
-        Description => gettext('This module store recordings at chronicle.'),
+        Description => gettext('This module saves recordings in a chronicle.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'Andreas Brachold',
@@ -36,13 +36,13 @@ sub module {
                 DenyClass   => 'rlist',
             },
             chrsearch => {
-                description => gettext("Search at chronicle for 'text'"),
+                description => gettext("Search chronicle for 'text'."),
                 short       => 'chrs',
                 callback    => sub{ $self->search(@_) },
                 DenyClass   => 'rlist',
             },
             chrdelete => {
-                description => gettext("Delete at chronicle with 'id'"),
+                description => gettext("Delete within chronicle with 'ID'"),
                 short       => 'chrd',
                 callback    => sub{ $self->delete(@_) },
                 DenyClass   => 'redit',
@@ -89,7 +89,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $self = shift || return error ('No Object!' );
+    my $self = shift || return error('No object defined!');
 
     if($self->{active} eq 'y') {
       return 0, panic("Session to database is'nt connected")
@@ -131,7 +131,7 @@ sub _init {
 # ------------------
 sub _insertData {
 # ------------------
-    my $self = shift || return error ('No Object!' );
+    my $self = shift || return error('No object defined!');
 
     my $sql = qq|
 INSERT IGNORE INTO CHRONICLE 
@@ -191,7 +191,7 @@ sub search {
     my $self = shift;
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $quest  = shift || return $console->err(gettext("No 'text' to search! Please use chrsearch 'text'"));
+    my $quest  = shift || return $console->err(gettext("No 'string' to search for! Please use chrsearch 'text'."));
 
     $quest =~ s/\'/\./sg;
     $quest =~ s/\+/\\\\\+/sg;
@@ -232,7 +232,7 @@ ORDER BY CHRONICLE.starttime
 # ------------------
 sub delete {
 # ------------------
-    my $self = shift || return error ('No Object!' );
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $items  = shift || return $console->err(gettext("No ID to delete! Please use chrdelete 'id'"));

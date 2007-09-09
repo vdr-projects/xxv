@@ -11,7 +11,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $cmd = (split('::', $AUTOLOAD))[-1];
     return  if($cmd eq 'DESTROY');
@@ -33,7 +33,7 @@ sub AUTOLOAD {
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'SHARE',
         Prereq => {
@@ -118,7 +118,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     $obj->{SessionId} = $obj->generateUniqueId
         unless($obj->{SessionId});
@@ -147,7 +147,7 @@ sub _init {
 # ------------------
 sub getSoapData {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     return unless($obj->{SOAP} and $obj->{active} eq 'y');
     lg 'Start interval share to get for Levels!';
     $obj->{EventLevels} = $obj->getEventLevels();
@@ -159,7 +159,7 @@ sub getSoapData {
 # ------------------
 sub generateUniqueId {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     my $sessionId;
 	for(my $i=0 ; $i< 16 ;)
@@ -178,7 +178,7 @@ sub generateUniqueId {
 # ------------------
 sub ConnectToSOAP {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $sid = shift  || $obj->{SessionId} || return error ('No SesionID!' );
     my $uri = shift  || $obj->{uri};
     my $prx = shift  || $obj->{proxy};
@@ -206,7 +206,7 @@ sub ConnectToSOAP {
 # ------------------
 sub getEventLevel {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $eid = shift  || return;
 
     return unless($obj->{EventLevels});
@@ -218,7 +218,7 @@ sub getEventLevel {
 # ------------------
 sub TopTen {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $anzahl = shift || 10;
@@ -259,7 +259,7 @@ sub TopTen {
 # ------------------
 sub CmdToSoap {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $soap = shift  || return error ('No SOAP!' );
     my $cmd = shift  || return error ('No Command!' );
     my @arg = @_;

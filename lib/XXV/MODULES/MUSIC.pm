@@ -13,7 +13,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'MUSIC',
         Prereq => {
@@ -86,7 +86,7 @@ sub module {
                 },
             },
             mugglei => {
-                description => gettext('Path to the binary from mugglei.'),
+                description => sprintf(gettext("Path of command '%s'"),'mugglei'),
                 default     => 'mugglei',
                 type        => 'file',
             },
@@ -189,7 +189,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return 1
       if($obj->{active} eq 'n');
@@ -318,7 +318,7 @@ sub _init {
 # ------------------
 sub refresh {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
 
@@ -437,7 +437,7 @@ sub refresh {
 # ------------------
 sub play {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data = shift || return error ('No data');
@@ -452,7 +452,7 @@ sub play {
 # ------------------
 sub playlist {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data = shift || return error ('No data');
@@ -508,7 +508,7 @@ sub playlist {
 # ------------------
 sub search {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $text   = shift || return $console->err(gettext("No Text to search! Please use msearch 'text'"));
@@ -519,7 +519,7 @@ sub search {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $search  = shift;
@@ -685,7 +685,7 @@ sub list {
 # ------------------
 sub handleInput {
 # ------------------
-    my $obj     = shift || return error ('No Object!' );
+    my $obj     = shift || return error('No object defined!');
     my $data    = shift || return error ('No Request!' );
     my $cgi = CGI->new( $data->{Query} );
 
@@ -705,7 +705,7 @@ sub handleInput {
 # ------------------
 sub field2path {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $field = shift || return error ('No Field!' );
     my $data = shift || return error ('No ids!' );
     my $pathfield;
@@ -736,7 +736,7 @@ sub field2path {
 # ------------------
 sub insert {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return 0;
 
     my @setdata;
@@ -755,7 +755,7 @@ sub insert {
 # ------------------
 sub stream {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $files = shift || return error ('No Files!' );
     my $client = shift || return error ('No Client!' );
 
@@ -784,7 +784,7 @@ sub stream {
 # ------------------
 sub parseRequest {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $hdl = shift || return error ('No Request!' );
 
     my ($Req, $size) = getFromSocket($hdl);
@@ -833,7 +833,7 @@ Unknown Request :
 # ------------------
 sub GroupArray {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $table = shift;
     my $idfield = shift;
@@ -863,7 +863,7 @@ sub GroupArray {
 # ------------------
 sub GenreArray {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
 
@@ -882,7 +882,7 @@ sub GenreArray {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
@@ -915,7 +915,7 @@ sub status {
 # ------------------
 sub getcovers {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $force = shift;
@@ -1047,7 +1047,7 @@ sub getcovers {
 # ------------------
 sub _findcoverfromcache {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $album = shift || return error ('No Album!' );
     my $artist = shift || 0;
     my $typ = shift || 'absolute';
@@ -1074,7 +1074,7 @@ sub _findcoverfromcache {
 # ------------------
 sub unique {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $text = shift || return '';
 
     $text =~ s/[^0-9a-z]//sig;
@@ -1084,7 +1084,7 @@ sub unique {
 # ------------------
 sub ConnectToMuggleDB {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $dsn = shift  || return 0;
 
     $dsn =~ s/^\s+//;
@@ -1103,10 +1103,10 @@ sub ConnectToMuggleDB {
         if($mdbh) {
             $mdbh->{InactiveDestroy} = 1;
             $mdbh->{mysql_auto_reconnect} = 1;
-            debug('Successfully connect to: %s', $dsn);
+            debug('Connect to database: %s successful.', $dsn);
             return $mdbh;
         } else {
-            debug('No GiantDisc data base. Use standard music data base!');
+            debug('GiantDisc database not found! Use standard music database!');
             return 0;
         }
     } else {
@@ -1117,7 +1117,7 @@ sub ConnectToMuggleDB {
 # ------------------
 sub _findcover {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $file = shift || return error ('No file!' );
     my $artist = shift;
     my $album = shift;
@@ -1217,7 +1217,7 @@ sub _findcover {
 # ------------------
 sub coverimage {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data = shift || return error ('No data');
@@ -1288,7 +1288,7 @@ sub coverimage {
 # ------------------
 sub getfile {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data = shift || return error ('No data');
@@ -1326,7 +1326,7 @@ sub getfile {
 
 # ------------------
 sub suggest {# ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $search = shift;

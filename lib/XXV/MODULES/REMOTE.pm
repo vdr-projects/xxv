@@ -8,7 +8,7 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'REMOTE',
         Prereq => {
@@ -34,7 +34,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             commands => {
-                description => gettext('The path to the commands.conf'),
+                description => sprintf(gettext("Path of file '%s'"),'commands.conf'),
                 default     => '/var/lib/vdr/commands.conf',
                 type        => 'file',
                 required    => gettext('This is required!'),
@@ -103,7 +103,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     main::after(sub{
           $obj->{svdrp} = main::getModule('SVDRP');
@@ -122,13 +122,13 @@ sub init {
 # ------------------
 sub parse {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     return 0
         unless (exists $obj->{commands});
 
     if(! -r $obj->{commands}) {
-        error (sprintf("can't open file '%s' : %s",$obj->{commands},$!));
+        error (sprintf("Could not open file '%s'! : %s",$obj->{commands},$!));
         return 0;
     }
 
@@ -151,7 +151,7 @@ sub parse {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $cmds = $obj->parse();
@@ -167,7 +167,7 @@ sub list {
 # ------------------
 sub command {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $command = shift || return error ('No Command!');
@@ -199,7 +199,7 @@ sub command {
 # ------------------
 sub remote {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $command = shift;
@@ -249,7 +249,7 @@ sub remote {
 # ------------------
 sub switch {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $channel = shift || '';

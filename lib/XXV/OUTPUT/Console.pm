@@ -17,7 +17,7 @@ use vars qw($AUTOLOAD);
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'Telnet',
         Prereq => {
@@ -25,7 +25,7 @@ sub module {
             'Text::ASCIITable' => 'Create a nice formatted table using ASCII characters.',
             'Term::ReadLine::Perl' => 'a quick implementation of the minimal interface to Readline',
         },
-        Description => gettext('This receive and send ASCII messages'),
+        Description => gettext('This receives and sends ASCII messages'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -37,14 +37,14 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || {};
     my $params = shift || 0;
 
     my $name = (split('::', $AUTOLOAD))[-1];
     return  if($name eq 'DESTROY');
 
-    $obj->message(gettext("Sorry, but this command is not available in this Interface!"));
+    $obj->message(gettext("Sorry, but this command is not available in this interface!"));
 }
 
 # ------------------
@@ -93,7 +93,7 @@ sub new {
 # ------------------
 sub printout {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
     $data =~ s/[^\r]\n/\r\n/sig;
@@ -105,7 +105,7 @@ sub printout {
 # ------------------
 sub message {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
     my $t = Text::ASCIITable->new();
@@ -123,7 +123,7 @@ sub message {
 # ------------------
 sub push {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
     $obj->printout($data);
@@ -131,7 +131,7 @@ sub push {
 # ------------------
 sub msg {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
     my $err = shift || return $obj->message($data);
 
@@ -141,7 +141,7 @@ sub msg {
 # ------------------
 sub err {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
     my $t = Text::ASCIITable->new;
@@ -159,13 +159,13 @@ sub err {
 # ------------------
 sub menu {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
     my $t = Text::ASCIITable->new;
     $t->setOptions( $obj->{TableDefaults} );
     $t->setCols(gettext('Module'),
-                gettext('Short cut'),
+                gettext("Abbreviation"),
                 gettext('Name'),
                 gettext('Description'));
 
@@ -183,11 +183,11 @@ sub menu {
 # ------------------
 sub littlemenu {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
     my $text = $data->{title}."\n";
-    $text .= gettext("Please use command and one of the following sectors:\n");
+    $text .= gettext("Please use the command and one of the following sectors:\n");
     $text .= join(', ', sort keys %{$data->{links}});
 
     $obj->message($text);
@@ -196,7 +196,7 @@ sub littlemenu {
 # ------------------
 sub login {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
     my $questions = [
@@ -218,7 +218,7 @@ sub login {
 # ------------------
 sub table {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
     my $param = shift || {};
     my $noPrint = shift || 0;
@@ -279,7 +279,7 @@ sub table {
 # ------------------
 sub question {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $title = shift || 0;
     my $questions = shift || return error ('No Data!' );
     my $erg = shift || {};
@@ -302,16 +302,16 @@ sub question {
 
             # Check on directory
             if($data->{typ} eq 'dir' and $data->{required} and not -d $erg->{$name}) {
-                ($erg->{$name}, $error) = (undef, sprintf(gettext("Directory '%s' is doesn't exist!"), $erg->{$name}));
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("Directory '%s' does not exist!"), $erg->{$name}));
             }
 
             # Check on file
             if($data->{typ} eq 'file' and $data->{required} and not -e $erg->{$name}) {
-                ($erg->{$name}, $error) = (undef, sprintf(gettext("File '%s' is doesn't exist!"), $erg->{$name}));
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("File '%s' does not exist!"), $erg->{$name}));
             }
 
             if($error) {
-                $obj->err(sprintf(gettext("Error at field '%s' (%s) : %s"), $data->{msg}, $name, $error));
+                $obj->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
                 last;
             }
         }
@@ -339,7 +339,7 @@ sub question {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data!' );
     my $t = $obj->{term};
     my $error;
@@ -389,7 +389,7 @@ sub list {
 # ------------------
 sub string {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data!' );
     my $t = $obj->{term};
     my $error;
@@ -430,35 +430,35 @@ sub string {
 # ------------------
 sub file {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->string(@_);
 }
 
 # ------------------
 sub dir {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->string(@_);
 }
 
 # ------------------
 sub password {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->string(@_);
 }
 
 # ------------------
 sub date {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return $obj->string(@_);
 }
 
 # ------------------
 sub integer {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data!' );
     my $t = $obj->{term};
     my $error;
@@ -495,7 +495,7 @@ sub integer {
 # ------------------
 sub confirm {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data!' );
     my $t = $obj->{term};
     my $error;
@@ -509,7 +509,7 @@ sub confirm {
             if($data->{def} and ! $answer);
 
         # Only yes or no ...
-        $error = gettext("Please answer with 'y'es or 'n'o: ")
+        $error = gettext("Please answer 'y'es or 'n'o: ")
             if($answer !~ /^[y|n]$/);
 
         # Required value ...
@@ -533,7 +533,7 @@ sub confirm {
 # ------------------
 sub hidden {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data!' );
 
     return error('No <def> in hidden Variable!')
@@ -544,16 +544,16 @@ sub hidden {
 # ------------------
 sub image {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data to display');
 
-    return $obj->message(gettext("Sorry, but i cannot display an image on this Interface."));
+    return $obj->message(gettext("Sorry, cannot display images in this interface."));
 }
 
 # ------------------
 sub checkbox {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data!' );
     my $t = $obj->{term};
     my $error;
@@ -586,7 +586,7 @@ sub checkbox {
 # ------------------
 sub radio {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $data = shift || return error ('No Data!' );
     my $t = $obj->{term};
     my $error;
@@ -603,7 +603,7 @@ sub radio {
             if($data->{req} and not $answer);
 
         # only one of all ...
-        $error = sprintf(gettext("You can only use one of this items: %s"), join(',', @{$data->{choices}}))
+        $error = sprintf(gettext("You can only use one of these elements: %s"), join(',', @{$data->{choices}}))
             unless(grep( $answer eq $_, @{$data->{choices}}));
 
 
@@ -624,7 +624,7 @@ sub radio {
 # ------------------
 sub pod {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $modname = uc(shift) || return error ('No Modname!' );
     $modname = ucfirst($modname) if($modname eq 'GENERAL');
 
@@ -651,7 +651,7 @@ sub pod {
 # ------------------
 sub txtfile {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $filename = shift || return error ('No TxtFile to diplay!' );
     my $param = shift || {};
 
@@ -668,7 +668,7 @@ sub txtfile {
 # ------------------
 sub remote {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     my $text = qq!
 .-----------------------.
@@ -699,7 +699,7 @@ sub remote {
 # ------------------
 sub _myallowansi_cb {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     $_      = shift;
     s/\33\[(\d+(;\d+)?)?[musfwhojBCDHRJK]//g;
     return length($_);
@@ -708,7 +708,7 @@ sub _myallowansi_cb {
 # ------------------
 sub _parseData {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $fields  = shift || return error ('No Fields!' );
     my $data    = shift || return error ('No Data!' );
 

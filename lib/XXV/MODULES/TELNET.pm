@@ -10,7 +10,7 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'TELNET',
         Prereq => {
@@ -30,7 +30,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             Clients => {
-                description => gettext('Maximum number from simultaneous connections to the same time'),
+                description => gettext('Maximum number of simultaneous connections'),
                 default     => 5,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -50,7 +50,7 @@ sub module {
         },
         Commands => {
             help => {
-                description => gettext("This will display all commands or the helptext from the 'module name'"),
+                description => gettext("This will display all commands or description of module 'name'."),
                 short       => 'h',
                 callback    => sub{
                     return $obj->usage(@_);
@@ -89,13 +89,13 @@ sub module {
         		Level   => 'admin'
             },
             reload => {
-                description => gettext("This will reload all Modules."),
+                description => gettext("Restart all modules."),
                 short       => 'rel',
                 callback    => sub{
                     my ($w, $c, $l) = @_;
                     $Module::Reload::Debug = 2;
                     Module::Reload->check;
-                    $c->message(gettext("Modules reloaded."));
+                    $c->message(gettext("Modules loaded."));
                 },
 		        Level   => 'admin'
             },
@@ -142,7 +142,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     # globals
     my $channels;
@@ -249,7 +249,7 @@ sub init {
 # ------------------
 sub usage {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $modulename = shift || 0;
@@ -303,7 +303,7 @@ sub usage {
 # ------------------
 sub handleInput {
 # ------------------
-    my $obj     = shift || return error ('No Object!' );
+    my $obj     = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $line    = shift || return;

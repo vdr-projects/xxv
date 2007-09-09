@@ -59,7 +59,7 @@ var tree = new WebFXTree("XXV", "?cmd=<?% start %?>");
 
 <?% IF allow('cmdlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Commands") %?>",    "?cmd=cmdlist"));<?% END %?>
 
-<?% IF allow('alist') %?>tree.add(new WebFXTreeItem("<?% gettext("AutoTimer") %?>",     "?cmd=alist"));<?% END %?>
+<?% IF allow('alist') %?>tree.add(new WebFXTreeItem("<?% gettext("Autotimer") %?>",     "?cmd=alist"));<?% END %?>
 
 <?% IF allow('tlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Timers") %?>",        "?cmd=tlist"));<?% END %?>
 

@@ -11,26 +11,26 @@ $|++;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'SVDRP',
         Prereq => {
             'Net::Telnet'  => 'Net::Telnet allows you to make client connections to a TCP port and do network I/O',
         },
-        Description => gettext('This module a telnet client for sdvrp.'),
+        Description => gettext('This module serves as telnet client for sdvrp.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             VdrHost => {
-                description => gettext('Name of the host that runs vdr'),
+                description => gettext('Name of host that runs the VDR.'),
                 default     => 'localhost',
                 type        => 'host',
                 required    => gettext('This is required!'),
             },
             VdrPort => {
-                description => gettext('SVDRP-port of the running vdr client'),
+                description => gettext('SVDRP port on the running VDR'),
                 default     => 2001,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -98,7 +98,7 @@ sub new {
 # ------------------
 sub queue_cmds {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $cmd = shift  || 'CALL';
 
     if($cmd eq 'CALL') {
@@ -115,7 +115,7 @@ sub queue_cmds {
 # ------------------
 sub command {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $cmd = shift;
 
     my $host = $obj->{VdrHost};
@@ -199,7 +199,7 @@ sub command {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return;
 
@@ -211,10 +211,10 @@ sub status {
 # ------------------
 sub scommand {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $text = shift || return $console->err(gettext("No Command! Please use scommand 'cmd'"));
+    my $text = shift || return $console->err(gettext("No command defined! Please use scommand 'cmd'."));
 
     my $erg = $obj->command($text);
     $console->msg($erg, $obj->err);
@@ -224,7 +224,7 @@ sub scommand {
 # ------------------
 sub err {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     return $obj->{ERROR};
 }
 

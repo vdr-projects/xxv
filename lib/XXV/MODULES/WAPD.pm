@@ -21,7 +21,7 @@ my $mime = {
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'WAPD',
         Prereq => {
@@ -43,7 +43,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             Clients => {
-                description => gettext('Maximum number from simultaneous connections to the same time'),
+                description => gettext('Maximum number of simultaneous connections'),
                 default     => 5,
                 type        => 'integer',
                 required    => gettext('This is required!'),
@@ -61,14 +61,14 @@ sub module {
                 required    => gettext('This is required!'),
             },
             WMLRoot => {
-                description => gettext('Used Skin'),
+                description => gettext('Skin used'),
                 default     => 'wml',
                 type        => 'list',
                 required    => gettext('This is required!'),
                 choices     => $obj->findskins,
             },
 #            StartPage => {
-#                description => gettext('First page, which is to be seen when logon'),
+#                description => gettext('Startup screen'),
 #                default     => 'now',
 #                type        => 'list',
 #                required    => gettext('This is required!'),
@@ -127,7 +127,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     # globals
     my $channels;
@@ -193,7 +193,7 @@ sub init {
                     my $userMod = main::getModule('USER');
                     if(ref $userMod and $userMod->{active} eq 'y') {
                         $console->{USER} = $userMod->check($handle, $data->{username}, $data->{password});
-                        $console->login(gettext('You have no permissions to this system!'))
+                        $console->login(gettext('You are not authorized to use this system!'))
                             unless(exists $console->{USER}->{Level});
                     }
 
@@ -244,7 +244,7 @@ sub init {
 # ------------------
 sub parseRequest {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $hdl = shift || return error ('No Handle!' );
     my $logout = shift || 0;
 
@@ -282,7 +282,7 @@ sub parseRequest {
 # ------------------
 sub handleInput {
 # ------------------
-    my $obj     = shift || return error ('No Object!' );
+    my $obj     = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $cgi     = shift || return error ('No CGI Object');
@@ -326,7 +326,7 @@ sub handleInput {
 # ------------------
 sub usage {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     return main::getModule('TELNET')->usage(@_);
 }
 
@@ -334,7 +334,7 @@ sub usage {
 sub findskins
 # ------------------
 {
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $found;
     find({ wanted => sub{
                 if(-d $File::Find::name and -e $File::Find::name.'/wapd.tmpl' ) {

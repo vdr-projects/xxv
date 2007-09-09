@@ -2,10 +2,10 @@
 <card id="first" title="XXV <?% gettext("Timers") %?>">
 <p>
 <?% IF allow('tl') %?>
-<a href="?cmd=tl#t1"><img src="images/forward.wbm" alt="<?% gettext("List timers") %?>" /><?% gettext("List timers",12) %?></a><br />
+<a href="?cmd=tl#t1"><img src="images/forward.wbm" alt="<?% gettext("List timers") %?>" /><?% gettext("Show timers",12) %?></a><br />
 <?% END %?>
 <?% IF allow('tn') %?>
-<a href="?cmd=tn"><img src="images/new.wbm" alt="<?% gettext("Create a new timer") %?>" /><?% gettext("Create a new timer",12) %?></a><br />
+<a href="?cmd=tn"><img src="images/new.wbm" alt="<?% gettext("Create new timer") %?>" /><?% gettext("Create new timer",12) %?></a><br />
 <?% END %?>
 <?% IF allow('tu') %?>
 <a href="?cmd=tu"><img src="images/refresh.wbm" alt="<?% gettext("Update timers") %?>" /><?% gettext("Update timers",12) %?></a><br />
@@ -46,7 +46,7 @@
         <a href="?cmd=te&amp;data=<?% id %?>"><img src="images/edit.wbm" alt="<?% gettext("Edit") %?>" /></a>
 	<?% END %?>
 	<?% IF allow('tdelete') %?>
-        <a href="?cmd=td&amp;data=<?% id %?>"><img src="images/delete.wbm" alt="<?% gettext("Del") %?>" /></a>
+        <a href="?cmd=td&amp;data=<?% id %?>"><img src="images/delete.wbm" alt="<?% gettext("Delete") %?>" /></a>
     <?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>

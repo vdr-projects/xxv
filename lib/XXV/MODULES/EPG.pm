@@ -10,14 +10,14 @@ use Locale::gettext;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         Name => 'EPG',
         Prereq => {
             'Date::Manip' => 'date manipulation routines',
             'Time::Local' => 'efficiently compute time from local and GMT time ',
         },
-        Description => gettext('This module reads new EPG Data and stores them in the database.'),
+        Description => gettext('This module reads new EPG data and saves it to the database.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -36,7 +36,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             periods => {
-                description => gettext("Pre-defined list for the 'Running Now' view (comma separated list)"),
+                description => gettext("Preferred program times. (eg. 12:00, 18:00)"),
                 default     => '12:00,18:00,20:15,22:00',
                 type        => 'string',
                 required    => gettext('This is required!'),
@@ -50,7 +50,7 @@ sub module {
         },
         Commands => {
             search => {
-                description => gettext('Search in EPG Data'),
+                description => gettext('Search within EPG data'),
                 short       => 's',
                 callback    => sub{ $obj->search(@_) },
             },
@@ -60,17 +60,17 @@ sub module {
                 callback    => sub{ $obj->program(@_) },
             },
             display => {
-                description => gettext("Show program event 'eventid'"),
+                description => gettext("Show program 'eventid'"),
                 short       => 'd',
                 callback    => sub{ $obj->display(@_) },
             },
             now => {
-                description => gettext('Display events is running now'),
+                description => gettext('Display events currently showing.'),
                 short       => 'n',
                 callback    => sub{ $obj->runningNow(@_) },
             },
             next => {
-                description => gettext('Display events is running next'),
+                description => gettext('Display events showing next.'),
                 short       => 'nx',
                 callback    => sub{ $obj->runningNext(@_) },
             },
@@ -80,7 +80,7 @@ sub module {
                 callback    => sub{ $obj->schema(@_) },
             },
             erestart => {
-                description => gettext('Reload EPG data'),
+                description => gettext('Update EPG data.'),
                 short       => 'er',
                 callback    => sub{
                     my $watcher = shift || return error ('No Watcher!');
@@ -95,7 +95,7 @@ sub module {
                 Level       => 'admin',
             },
             erun => {
-                description => gettext('Display the epg event running in vdr'),
+                description => gettext('Display the current program running in the VDR'),
                 short       => 'en',
                 callback    => sub{ $obj->NowOnChannel(@_) },
                 Level       => 'user',
@@ -122,7 +122,7 @@ sub module {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
@@ -153,7 +153,7 @@ sub status {
     }
 
     return {
-        message => sprintf(gettext('EPG table contains %d entries and since the last login at %s %d new entries'),
+        message => sprintf(gettext('EPG table contains %d entries and since the last login on %s %d new entries.'),
             $total, scalar localtime($lastReportTime), $newEntrys),
     };
 }
@@ -195,7 +195,7 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     return 0, panic("Session to database is'nt connected")
       unless($obj->{dbh});
@@ -260,7 +260,7 @@ sub _init {
 # ------------------
 sub startReadEpgData {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
 
@@ -308,7 +308,7 @@ sub startReadEpgData {
 # ------------------
 sub updated {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $cb = shift || 0;
     my $log = shift || 0;
 
@@ -329,7 +329,7 @@ sub updated {
 # ------------------
 sub compareEpgData {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $vdata = shift || return error('No data');
     my $watcher = shift;
     my $console = shift;
@@ -407,7 +407,7 @@ sub compareEpgData {
 # ------------------
 sub moveOldEPGEntrys {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     # Copy and delete old EPG Entrys
     $obj->{dbh}->do('REPLACE INTO OLDEPG SELECT * FROM EPG WHERE (UNIX_TIMESTAMP(EPG.starttime) + EPG.duration) < UNIX_TIMESTAMP()');
@@ -417,7 +417,7 @@ sub moveOldEPGEntrys {
 # ------------------
 sub deleteDoubleEPGEntrys {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
 
     # Delete double EPG Entrys
     my $erg = $obj->{dbh}->selectall_arrayref('SELECT eventid FROM EPG GROUP BY starttime, channel_id having count(*) > 1');
@@ -459,7 +459,7 @@ sub replace {
 # ------------------
 sub encodeEpgId {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $epgid = shift || return error('No EPG Id!');
     my $channel = shift || return error('No Channel!');
 
@@ -475,7 +475,7 @@ sub encodeEpgId {
 # ------------------
 sub readEpgData {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $vdata = shift || return error('Problem to read Data!');
     my $count = shift || 0;
     my $dataHash = {};
@@ -504,7 +504,7 @@ sub readEpgData {
         $channel = $event->{channel};
         my $eventid = $obj->encodeEpgId($event->{eventid}, $channel);
 
-        $event->{title} = gettext("No Title")
+        $event->{title} = gettext("No title")
           unless($event->{title});
         $event->{description} = ""
           unless($event->{description});
@@ -574,7 +574,7 @@ sub readEpgData {
 # ------------------
 sub search {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data = shift;
@@ -664,7 +664,7 @@ sub search {
 # ------------------
 sub program {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $channel = shift || $obj->{dbh}->selectrow_arrayref("select POS from CHANNELS limit 1")->[0];
@@ -720,10 +720,10 @@ order by
 # ------------------
 sub display {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
-    my $eventid = shift || return $console->err(gettext("No EventID to display the Event Programm! Please use display 'eventid'"));
+    my $eventid = shift || return $console->err(gettext("No ID defined to display this program! Please use display 'eid'!"));
 
     my %f = (
         'Id' => umlaute(gettext('Service')),
@@ -778,7 +778,7 @@ where
       if(scalar @{$erg} != 0 );
     }
 
-    return $console->err(sprintf(gettext("No data for event '%d' present to display!"),$eventid))
+    return $console->err(sprintf(gettext("No data to display for event '%d'!"),$eventid))
       if(scalar @{$erg} == 0 );
 
     unshift(@$erg, $fields);
@@ -790,7 +790,7 @@ where
 # ------------------
 sub runningNext {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $data   = shift;
@@ -878,7 +878,7 @@ ORDER BY
 # ------------------
 sub runningNow {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $zeit = shift || time;
@@ -954,7 +954,7 @@ ORDER BY
 # ------------------
 sub NowOnChannel {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $channel = shift || $obj->_actualChannel || return error('No Channel!');
@@ -1002,7 +1002,7 @@ LIMIT 1
 # ------------------
 sub _actualChannel {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
 
     my $erg = $obj->{svdrp}->command('chan');
     my ($chanpos, $channame) = $erg->[1] =~ /^250\s+(\d+)\s+(\S+)/sig;
@@ -1012,7 +1012,7 @@ sub _actualChannel {
 # ------------------
 sub schema {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $zeit = shift || time;
@@ -1100,7 +1100,7 @@ ORDER BY
 # ------------------
 sub checkOnTimer {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $eid = shift  || return error('No Id');
@@ -1139,7 +1139,7 @@ WHERE
 
 # ------------------
 sub getDescription {# ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $eid = shift || 0;
@@ -1153,7 +1153,7 @@ sub getDescription {# ------------------
 # ------------------
 sub toFullHour {
 # ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $zeit = shift || return error ('No Time to convert!' );
 
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
@@ -1166,7 +1166,7 @@ sub toFullHour {
 # ------------------
 sub getId {
 # ------------------
-    my $obj = shift || return error ('No Object!' );
+    my $obj = shift || return error('No object defined!');
     my $id = shift || return error ('No Id!' );
     my $fields = shift || '*';
 
@@ -1187,7 +1187,7 @@ sub getId {
 
 # ------------------
 sub suggest {# ------------------
-    my $obj = shift  || return error ('No Object!' );
+    my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error ('No Watcher!');
     my $console = shift || return error ('No Console');
     my $search = shift;

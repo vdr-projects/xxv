@@ -1,7 +1,7 @@
 <!-- TableTemplate -->
-<h1><?% gettext("Administration of User") %?></h1>
+<h1><?% gettext("User administration") %?></h1>
 
-<a href="?cmd=unew">[<?% gettext("Create a new account for user") %?>]</a>
+<a href="?cmd=unew">[<?% gettext("Create new account for user") %?>]</a>
 <p>
 
 <table border="0" width="95%">
@@ -25,8 +25,8 @@
                 <td>
                     <a title="<?% gettext("Edit account of user") %?>" href="?cmd=uedit&amp;data=<?% zeile.0 %?>">
                     [<?% gettext("Edit") %?>]</a>&nbsp;
-                    <a title="<?% gettext("Delete account of user") %?>"
-                       href="javascript:sure(document.UserList, '<?% gettext("You will delete this account of user") %?>: <?% escape(zeile.1) %?>','?cmd=udelete&amp;data=<?% zeile.0 %?>')">
+                    <a title="<?% gettext("Delete user account") %?>"
+                       href="javascript:sure(document.UserList, '<?% gettext("Do you really want to delete this user account?") %?>: <?% escape(zeile.1) %?>','?cmd=udelete&amp;data=<?% zeile.0 %?>')">
                     [<?% gettext("Del") %?>]
                     </a>
                 </td>

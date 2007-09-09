@@ -120,8 +120,8 @@
 <form>
         <a href="?cmd=rupdate">[<?% gettext("Update recordings") %?>]</a>&nbsp;
 <?% IF allow('rdelete') %?>
-<a href="#" onClick="Delete('<?% gettext("You would delete follow recordings?") %?>',
-'<?% gettext("You have nothing selected!") %?>','rdelete',document.rlist)">
+<a href="#" onClick="Delete('<?% gettext("Do you want to delete the following recordings?") %?>',
+'<?% gettext("Nothing selected!") %?>','rdelete',document.rlist)">
 [<?% gettext("Delete recordings") %?>]</a>&nbsp;
 <?% END %?>
 		<?% gettext("Search for recordings") %?>:
