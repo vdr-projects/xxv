@@ -282,28 +282,29 @@ sub communicator
             }
         } elsif(my $typ = $mime->{lc((split('\.', $data->{Request}))[-1])}) {
             # Send multimedia files (this must registered in $mime!)
-            if($data->{Request} =~ /epgimages\//) {
+            my $request = $data->{Request};
+            if($request =~ /epgimages\//) {
                 my $epgMod = main::getModule('EPG');
-                $data->{Request} =~ s/.*epgimages\//$epgMod->{epgimages}\//;
-                $console->datei($data->{Request}, $typ);
-            } elsif($data->{Request} =~ /previewimages\//) {
+                $request =~ s/.*epgimages\//$epgMod->{epgimages}\//;
+                $console->datei($request, $typ);
+            } elsif($request =~ /previewimages\//) {
                 my $recMod = main::getModule('RECORDS');
-                $data->{Request} =~ s/.*previewimages\//$recMod->{previewimages}\//;
-                $console->datei($data->{Request}, $typ);
-            } elsif($data->{Request} =~ /coverimages\//) {
+                $request =~ s/.*previewimages\//$recMod->{previewimages}\//;
+                $console->datei($request, $typ);
+            } elsif($request =~ /coverimages\//) {
                 my $musicMod = main::getModule('MUSIC');
-                $data->{Request} =~ s/.*coverimages\//$musicMod->{coverimages}\//;
-                $console->datei($data->{Request}, $typ);
-            } elsif($data->{Request} =~ /vtximages\//) {
+                $request =~ s/.*coverimages\//$musicMod->{coverimages}\//;
+                $console->datei($request, $typ);
+            } elsif($request =~ /vtximages\//) {
                 my $vtxMod = main::getModule('VTX');
-                $data->{Request} =~ s/.*vtximages\//$obj->{paths}->{VTXPATH}\//;
-                $console->datei($data->{Request}, $typ);
-            } elsif($data->{Request} =~ /tempimages\//) {
+                $request =~ s/.*vtximages\//$obj->{paths}->{VTXPATH}\//;
+                $console->datei($request, $typ);
+            } elsif($request =~ /tempimages\//) {
                 my $tmp = $userMod->userTmp;
-                $data->{Request} =~ s/.*tempimages\//$tmp\//;
-                $console->datei($data->{Request}, $typ);
+                $request =~ s/.*tempimages\//$tmp\//;
+                $console->datei($request, $typ);
             } else {
-                $console->datei(sprintf('%s%s', $htmlRootDir, $data->{Request}), $typ);
+                $console->datei(sprintf('%s%s', $htmlRootDir, $request), $typ);
             }
         } elsif( $cgi->param('binary') ) {
             # Send multimedia files (if param binary)
