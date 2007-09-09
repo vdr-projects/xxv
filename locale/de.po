@@ -2190,12 +2190,12 @@ msgid "This module is a multisession HTTPD server."
 msgstr "Dieses Modul ist ein Mehrfachsitzung HTTPD Server."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:480
-msgid "Traffic on HTTPD Socket since %s: sent: %d kbytes - received: %d kbytes - connections: %d"
-msgstr "Datenverkehr des HTTPD Anschlusses seit %s: gesendet: %d Kbytes - empfangen: %d Kbytes - Verbindungen: %d"
+#: ../lib/XXV/MODULES/HTTPD.pm:483
+msgid "Traffic on HTTPD socket since %s: sent: %s kbytes - received: %s kbytes - connections: %d."
+msgstr "Datenverkehr des HTTPD Anschlusses seit %s: gesendet: %s kBytes - empfangen: %s kBytes - Verbindungen: %d."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:523
+#: ../lib/XXV/MODULES/HTTPD.pm:529
 msgid "Could not open file '%s'! : %s"
 msgstr "Konnte Datei '%s' nicht öffnen : %s"
 
@@ -2805,7 +2805,7 @@ msgid "Cut recording 'rid' in vdr"
 msgstr "Schneide Aufnahme 'rid' im VDR"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1544 ../lib/XXV/MODULES/RECORDS.pm:1672 ../lib/XXV/OUTPUT/Html.pm:475 ../lib/XXV/OUTPUT/Wml.pm:267
+#: ../lib/XXV/MODULES/RECORDS.pm:1544 ../lib/XXV/MODULES/RECORDS.pm:1672 ../lib/XXV/OUTPUT/Html.pm:461 ../lib/XXV/OUTPUT/Wml.pm:267
 msgid "Cannot open file '%s' : %s!"
 msgstr "Kann Datei '%s' nicht öffnen : %s"
 
@@ -3944,17 +3944,17 @@ msgid "This receives and sends ASCII messages"
 msgstr "Dies empfängt und sendet ASCII Nachrichten"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:305 ../lib/XXV/OUTPUT/Html.pm:510 ../lib/XXV/OUTPUT/Wml.pm:297 ../wml/widgets/dir.tmpl:8
+#: ../lib/XXV/OUTPUT/Console.pm:305 ../lib/XXV/OUTPUT/Html.pm:496 ../lib/XXV/OUTPUT/Wml.pm:297 ../wml/widgets/dir.tmpl:8
 msgid "Directory '%s' does not exist!"
 msgstr "Verzeichnis '%s' existiert leider nicht!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:310 ../lib/XXV/OUTPUT/Html.pm:515 ../lib/XXV/OUTPUT/Wml.pm:302 ../wml/widgets/file.tmpl:8
+#: ../lib/XXV/OUTPUT/Console.pm:310 ../lib/XXV/OUTPUT/Html.pm:501 ../lib/XXV/OUTPUT/Wml.pm:302 ../wml/widgets/file.tmpl:8
 msgid "File '%s' does not exist!"
 msgstr "Datei '%s' existiert leider nicht!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:314 ../lib/XXV/OUTPUT/Html.pm:524 ../lib/XXV/OUTPUT/Wml.pm:306
+#: ../lib/XXV/OUTPUT/Console.pm:314 ../lib/XXV/OUTPUT/Html.pm:510 ../lib/XXV/OUTPUT/Wml.pm:306
 msgid "Error '%s' (%s) : %s!"
 msgstr "Fehler im Feld '%s' (%s) : %s"
 
@@ -3995,7 +3995,7 @@ msgid "You can only use one of these elements: %s"
 msgstr "Sie können nur einen von diesen Elementen verwenden: %s"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:632 ../lib/XXV/OUTPUT/Html.pm:723
+#: ../lib/XXV/OUTPUT/Console.pm:632 ../lib/XXV/OUTPUT/Html.pm:709
 msgid "Module %s not found!"
 msgstr "Modul %s nicht gefunden!"
 
@@ -4010,32 +4010,32 @@ msgid "This receives and sends HTML messages."
 msgstr "Dies empfängt und sendet HTML Nachrichten"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:451
+#: ../lib/XXV/OUTPUT/Html.pm:437
 msgid "Authorization required"
 msgstr "Berechtigung erforderlich"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:461
+#: ../lib/XXV/OUTPUT/Html.pm:447
 msgid "Forbidden"
 msgstr "Verboten"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:476
+#: ../lib/XXV/OUTPUT/Html.pm:462
 msgid "Not found"
 msgstr "Nicht gefunden"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:562
+#: ../lib/XXV/OUTPUT/Html.pm:548
 msgid "Please wait ..."
 msgstr "Bitte warten ..."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:741 ../lib/XXV/OUTPUT/Wml.pm:385
+#: ../lib/XXV/OUTPUT/Html.pm:727 ../lib/XXV/OUTPUT/Wml.pm:385
 msgid "Back to configuration page."
 msgstr "Zurück zur Konfigurationsseite"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:761
+#: ../lib/XXV/OUTPUT/Html.pm:747
 msgid "File"
 msgstr "Datei"
 

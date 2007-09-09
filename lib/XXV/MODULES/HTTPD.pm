@@ -202,7 +202,7 @@ sub init {
 sub communicator 
 {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!' );
+    my $watcher = shift || return error('No watcher defined!');
 
     # read new line and report it
     my $handle=$watcher->w->fd;
@@ -334,6 +334,7 @@ sub communicator
         );
 
     $obj->{STATUS}->{'sendbytes'} += $console->{'sendbytes'};
+
     $watcher->w->cancel;
     undef $watcher;
 }
@@ -359,7 +360,7 @@ sub _readline {
 sub parseRequest {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $socket = shift || return error ('No Handle!' );
+    my $socket = shift || return error('No handle defined!' );
     my $logout = shift || 0;
 
     binmode $socket;
@@ -394,6 +395,7 @@ sub parseRequest {
     		} else {
           #dumper($line);
     		}
+        $obj->{STATUS}->{'readbytes'} += length($line) if($line);
       }
    
 	$data->{Request} =~ s/%([a-f0-9][a-f0-9])/pack("C", hex($1))/ieg
@@ -407,6 +409,7 @@ sub parseRequest {
         my $bytes = sysread($socket,$post,$data->{ContentLength});
         $data->{Post} = $post
           if($bytes && $data->{ContentLength} == $bytes);
+        $obj->{STATUS}->{'readbytes'} += $bytes;
       }
       #dumper($data);
       return $data;
@@ -420,9 +423,9 @@ sub parseRequest {
 sub handleInput {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $cgi     = shift || return error ('No CGI Object');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $cgi     = shift || return error('No CGI object defined!');
 
     my $ucmd    = $cgi->param('cmd')  || '<undef>';
     my $udata   = $cgi->param('data') || '';
@@ -477,8 +480,11 @@ sub status {
     my $lastReportTime = shift || 0;
 
     return {
-        message => sprintf(gettext('Traffic on HTTPD Socket since %s: sent: %d kbytes - received: %d kbytes - connections: %d'),
-            $obj->{STATUS}->{'starttime'}, convert($obj->{STATUS}->{'sendbytes'}), convert($obj->{STATUS}->{'readbytes'}), $obj->{STATUS}->{'connects'} ),
+        message => sprintf(gettext('Traffic on HTTPD socket since %s: sent: %s kbytes - received: %s kbytes - connections: %d.'),
+            $obj->{STATUS}->{'starttime'}, 
+            convert($obj->{STATUS}->{'sendbytes'}), 
+            convert($obj->{STATUS}->{'readbytes'}),
+            $obj->{STATUS}->{'connects'} ),
     };
 
 }
@@ -516,8 +522,8 @@ sub findskins
 #       return 1 if(load_file($res) eq 'abc');
 # ------ unzip ------------
 sub unzip {
-    my $obj  = shift || return error ('No Object');
-    my $file = shift || return error ('No File');
+    my $obj  = shift || return error('No object defined!');
+    my $file = shift || return error('No file defined!');
 
     my $gz = gzopen($file, "rb")
          or return $obj->msg(undef, sprintf(gettext("Could not open file '%s'! : %s"), $file, &gzerror ));
@@ -544,9 +550,9 @@ sub unzip {
 sub checkvalue {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $data = shift || return error ('No Data!' );
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $data = shift || return error('No data defined!');
 
     my @query = split(':',$data);
     my $check = $query[0];
