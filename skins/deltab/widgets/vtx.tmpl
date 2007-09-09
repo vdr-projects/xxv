@@ -23,16 +23,16 @@
     <p style="color:#aaaaaa;">
     <?% IF param.toppage != 0 %?><a href="<?% url %?><?% param.toppage %?>"><img src="images/home.<?% global.imagetyp %?>" alt="" title="<?% gettext("First page") %?>" /></a><?% ELSE %?><img src="images/home.<?% global.imagetyp %?>" alt="" title="<?% gettext("First page") %?>" /><?% END %?>&nbsp;
     <?% IF param.toppage != 0 %?><a href="<?% url %?><?% param.toppage %?>"><?% gettext("First page",20) %?></a><?% ELSE %?><?% gettext("First page",20) %?><?% END %?><br />
-    <?% IF param.page_prev != 0 %?><a href="<?% url %?><?% param.page_prev %?>"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior page") %?>" /></a><?% ELSE %?><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior page") %?>" /><?% END %?>&nbsp;
-    <?% IF param.page_prev != 0 %?><a href="<?% url %?><?% param.page_prev %?>"><?% gettext("Prior page",20) %?></a><?% ELSE %?><?% gettext("Prior page",20) %?><?% END %?><br />
+    <?% IF param.page_prev != 0 %?><a href="<?% url %?><?% param.page_prev %?>"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Previous page") %?>" /></a><?% ELSE %?><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Previous page") %?>" /><?% END %?>&nbsp;
+    <?% IF param.page_prev != 0 %?><a href="<?% url %?><?% param.page_prev %?>"><?% gettext("Previous page",20) %?></a><?% ELSE %?><?% gettext("Previous page",20) %?><?% END %?><br />
     <?% IF param.page_next != 0 %?><a href="<?% url %?><?% param.page_next %?>"><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next page") %?>" /></a><?% ELSE %?><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next page") %?>" /><?% END %?>&nbsp;
     <?% IF param.page_next != 0 %?><a href="<?% url %?><?% param.page_next %?>"><?% gettext("Next page",20) %?></a><?% ELSE %?><?% gettext("Next page",20) %?><?% END %?><br />
     </p>
     <p style="color:#aaaaaa;">
-    <?% IF param.subpage_prev != 0 %?><a href="<?% url %?><?% param.subpage_prev %?>"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior subpage") %?>" /></a><?% ELSE %?><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior subpage") %?>" /><?% END %?>&nbsp;
-    <?% IF param.subpage_prev != 0 %?><a href="<?% url %?><?% param.subpage_prev %?>"><?% gettext("Prior subpage",20) %?></a><?% ELSE %?><?% gettext("Prior subpage",20) %?><?% END %?><br />
-    <?% IF param.subpage_next != 0 %?><a href="<?% url %?><?% param.subpage_next %?>"><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next subpage") %?>" /></a><?% ELSE %?><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next subpage") %?>" /><?% END %?>&nbsp;
-    <?% IF param.subpage_next != 0 %?><a href="<?% url %?><?% param.subpage_next %?>"><?% gettext("Next subpage",20) %?></a><?% ELSE %?><?% gettext("Next subpage",20) %?><?% END %?><br />
+    <?% IF param.subpage_prev != 0 %?><a href="<?% url %?><?% param.subpage_prev %?>"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior sub page") %?>" /></a><?% ELSE %?><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Prior sub page") %?>" /><?% END %?>&nbsp;
+    <?% IF param.subpage_prev != 0 %?><a href="<?% url %?><?% param.subpage_prev %?>"><?% gettext("Prior sub page",20) %?></a><?% ELSE %?><?% gettext("Prior sub page",20) %?><?% END %?><br />
+    <?% IF param.subpage_next != 0 %?><a href="<?% url %?><?% param.subpage_next %?>"><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next sub page") %?>" /></a><?% ELSE %?><img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next sub page") %?>" /><?% END %?>&nbsp;
+    <?% IF param.subpage_next != 0 %?><a href="<?% url %?><?% param.subpage_next %?>"><?% gettext("Next sub page",20) %?></a><?% ELSE %?><?% gettext("Next sub page",20) %?><?% END %?><br />
     </p>
     <p class="section"><?% gettext("Search",20) %?></p>
     <form method="post" action="?cmd=vs">

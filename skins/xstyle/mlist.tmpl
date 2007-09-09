@@ -1,4 +1,4 @@
-<h1><?% gettext("Music Library") %?></h1>
+<h1><?% gettext("Music library") %?></h1>
 <!-- TableTemplate -->
 <form name="musicform" onSubmit="location.href = '?cmd=ml&amp;data=' + 'search:' + document.forms[0].search.value; return false">
 <table width="95%" border=1>
@@ -52,7 +52,7 @@
 
 <div id="navcontainer">
 <ul id="navlist">
-    <li><a href="#" onClick="Play('<?% gettext("You have nothing selected!") %?>',document.musicform,'<?% param.proxy %?>')">
+    <li><a href="#" onClick="Play('<?% gettext("Nothing selected!") %?>',document.musicform,'<?% param.proxy %?>')">
     <?% gettext("Play selected songs") %?>
     </a></li>
     <li><a href="?cmd=mrefresh"><?% gettext("Update Music Database") %?></a></li>
@@ -76,7 +76,7 @@
         <td colspan=<?% zeile.size %?>>
             <img class="cover" src="?cmd=mcoverimage&amp;data=<?% zeile.0 %?>&amp;__binary=1" alt="<?% zeile.2 %?>" align="right" />&nbsp;
             <?% albummark = "Album"+loop.count %?>
-            <h1>Album: <?% zeile.2 %?>&nbsp;<font size=2><a href="#" onClick="selSwitch(document.musicform, '<?% albummark %?>')">[<?% gettext("Select") %?> album]</a></font></h1>
+            <h1>Album: <?% zeile.2 %?>&nbsp;<font size=2><a href="#" onClick="selSwitch(document.musicform, '<?% albummark %?>')">[<?% gettext("Selection") %?> album]</a></font></h1>
             <h3>
             <?% gettext("Artist") %?>: <?% zeile.1 %?>,&nbsp;
             <?% gettext("Year") %?>: <?% zeile.5 %?>,&nbsp;

@@ -70,7 +70,7 @@
 <ul id="navlist">
     <li><a href="?cmd=rlist"><?% gettext("Recording list") %?></a></li>
 <?% IF allow('rdelete') %?>
-    <li><a href="javascript:sure(document.RecordDisplay, '<?% gettext("You will delete this recording") %?>?','?cmd=rdelete&amp;data=<?% data.RecordId %?>')">
+    <li><a href="javascript:sure(document.RecordDisplay, '<?% gettext("Do you really want to delete these recordings?") %?>?','?cmd=rdelete&amp;data=<?% data.RecordId %?>')">
     <?% gettext("Delete recording") %?>
     </a></li>
 <?% END %?>
@@ -108,7 +108,7 @@
 <?% IF allow('rconvert') %?>
     <select name='data' onChange="di(this.form.data.options[this.form.data.options.selectedIndex].value, '?cmd=rconvert&amp;data=')">
     <?% c = 0 %?>
-        <option value='0'><?% gettext("Choose an action for this recording") %?>:</option>
+        <option value='0'><?% gettext("Choose a command to edit this recording ...") %?>:</option>
     <?% FOREACH cmd = param.reccmds %?>
         <?% c = c + 1 %?>
         <option value='<?% c %?>_<?% data.RecordId %?>'><?% cmd.split(':').first %?></option>

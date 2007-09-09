@@ -61,7 +61,7 @@
         </a>
         <?% IF param.timers.${id} && allow('tedit') %?>
         <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
-            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this Timer") %?>" />
+            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
         </a>
         <?% ELSIF allow('tnew') %?>
         <a href="?cmd=tnew&amp;data=<?% id %?>">
@@ -182,8 +182,8 @@
             </select>
 <?% IF allow('erestart') %?>
       <br />
-      <a title="<?% gettext("Reload EPG data") %?>" href="?cmd=erestart"><img src="images/refresh.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-      <a title="<?% gettext("Reload EPG data") %?>" href="?cmd=erestart"><?% gettext("Reload EPG data",20) %?></a>
+      <a title="<?% gettext("Update EPG data") %?>" href="?cmd=erestart"><img src="images/refresh.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a title="<?% gettext("Update EPG data") %?>" href="?cmd=erestart"><?% gettext("Update EPG data",20) %?></a>
 <?% END %?>
         </p>
     </form>

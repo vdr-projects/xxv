@@ -52,7 +52,7 @@
         </a>
         <?% IF param.timers.${id} && allow('tedit') %?>
         <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
-            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this Timer") %?>" />
+            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
         </a>
         <?% ELSIF allow('tnew') %?>
         <a href="?cmd=tnew&amp;data=<?% id %?>">
@@ -109,7 +109,7 @@
             <br /><br />
             <?% gettext('Video format',30) %?><br />
             <input style="width:auto;" type="radio" name="__VideoFormat" value="all" <?% IF ! cgi.param('__VideoFormat') || cgi.param('__VideoFormat') == 'all' %?>checked="checked"<?% END %?> /><?% gettext('All') %?>&nbsp;
-            <input style="width:auto;" type="radio" name="__VideoFormat" value="widescreen" <?% IF cgi.param('__VideoFormat') == 'widescreen' %?>checked="checked"<?% END %?> /><?% gettext('16:9 Wide-screen') %?>&nbsp;
+            <input style="width:auto;" type="radio" name="__VideoFormat" value="widescreen" <?% IF cgi.param('__VideoFormat') == 'widescreen' %?>checked="checked"<?% END %?> /><?% gettext('16:9 Wide screen') %?>&nbsp;
             <br /><br />
             <?% gettext('Audio format',30) %?><br />
             <input style="width:auto;" type="radio" name="__AudioFormat" value="all" <?% IF ! cgi.param('__AudioFormat') || cgi.param('__AudioFormat') == 'all' %?>checked="checked"<?% END %?> /><?% gettext('All') %?>&nbsp;

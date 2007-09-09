@@ -144,7 +144,7 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <!-- Musiclist -->
-<h1><?% gettext("Music Library") %?></h1>
+<h1><?% gettext("Music library") %?></h1>
 <?% IF data.size > 1%?>
 <?% fields = data.shift %?>
 <form name="mlist" action="">
@@ -226,7 +226,7 @@
   </table>
   <?% IF allow('mplay') %?>
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Select",20) %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("Selection",20) %?></td></tr>
     <tr>
     <td class="sidetext">
         <a href="javascript:selAll(document.mlist,1)"><img src="images/select.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
@@ -235,10 +235,10 @@
         <a href="javascript:selAll(document.mlist,0)"><?% gettext("Unselect all",20) %?></a><br />
         <a href="javascript:reverse(document.mlist)"><img src="images/invers.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
         <a href="javascript:reverse(document.mlist)"><?% gettext("Reverse select",20) %?></a><br />
-        <a href="javascript:Play('<?% gettext("You have nothing selected!") %?>',document.mlist,'<?% param.proxy %?>')">
+        <a href="javascript:Play('<?% gettext("Nothing selected!") %?>',document.mlist,'<?% param.proxy %?>')">
             <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Play selected songs") %?>" />
         </a>&nbsp;
-        <a href="javascript:Play('<?% gettext("You have nothing selected!") %?>',document.mlist,'<?% param.proxy %?>')">
+        <a href="javascript:Play('<?% gettext("Nothing selected!") %?>',document.mlist,'<?% param.proxy %?>')">
             <?% gettext("Play selected songs",20)  %?>
         </a>
     </td>

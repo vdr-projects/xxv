@@ -30,7 +30,7 @@
                         </a>
 			<?% END %?>
 			<?% IF allow('tdelete') %?>
-                        <a href="javascript:surecmd('<?% gettext("You would delete follow timers?") %?>','<?% escape(title) %?><?% IF subtitle != "";"~";escape(subtitle);END %?>','tdelete','<?% id %?>',620,670)">
+                        <a href="javascript:surecmd('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% escape(title) %?><?% IF subtitle != "";"~";escape(subtitle);END %?>','tdelete','<?% id %?>',620,670)">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete timer") %?>" />
                         </a>
 			<?% END %?>
@@ -70,7 +70,7 @@
             <?% '</a>' IF allow('ttoggle') %?>
             </td>
             <td class="fieldinline">
-            <?% IF allow('program') %?><a class="fieldinline" href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program guide:") %?><?% sender %?>" style="vertical-align:bottom;"><?% END %?>
+            <?% IF allow('program') %?><a class="fieldinline" href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program:") %?><?% sender %?>" style="vertical-align:bottom;"><?% END %?>
             <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.</font>&nbsp;<font class="title<?% IF state != "";" ";state;END %?>"><?% sender %?></font>
             <?% '</a>' IF allow('program') %?>
             </td>
@@ -174,11 +174,11 @@
     <td class="sidetext">
 <?% IF allow('topten') %?>
       <a href="?cmd=topten"><img src="images/topten.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-      <a href="?cmd=topten"><?% gettext("TopTen Entrys",20) %?></a><br />
+      <a href="?cmd=topten"><?% gettext("Top Ten entrys",20) %?></a><br />
 <?% END %?>
 <?% IF allow('tnew') %?>
       <a href="javascript:popupcmd('tnew',620,670,1)"><img src="images/new.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-      <a href="javascript:popupcmd('tnew',620,670,1)"><?% gettext("Create a new timer",20) %?></a><br />
+      <a href="javascript:popupcmd('tnew',620,670,1)"><?% gettext("Create new timer",20) %?></a><br />
 <?% END %?>
 <?% IF allow('tupdate') %?>
       <a href="javascript:fire('tupdate','0')"><img src="images/refresh.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
@@ -193,7 +193,7 @@
 <?% END %?>
 <?% IF enableform %?>
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Select") %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("Selection") %?></td></tr>
     <tr>
     <td class="sidetext">
         <a href="javascript:selAll(document.tlist,1)"><img src="images/select.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
@@ -207,12 +207,12 @@
     <tr>
     <td class="sidetext">
 <?% IF allow('ttoggle') %?>
-        <a href="javascript:selToggle('<?% gettext("You have nothing selected!") %?>',document.tlist)"><img src="images/onoff.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:selToggle('<?% gettext("You have nothing selected!") %?>',document.tlist)"><?% gettext("Toggle timer",20) %?></a><br />
+        <a href="javascript:selToggle('<?% gettext("Nothing selected!") %?>',document.tlist)"><img src="images/onoff.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:selToggle('<?% gettext("Nothing selected!") %?>',document.tlist)"><?% gettext("Toggle timer",20) %?></a><br />
 <?% END %?>
 <?% IF allow('tdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow timers?") %?>','<?% gettext("You have nothing selected!") %?>','tdelete',document.tlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow timers?") %?>','<?% gettext("You have nothing selected!") %?>','tdelete',document.tlist,620,670)"><?% gettext("Delete timer",20) %?></a><br />
+        <a href="javascript:DeleteSelected('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist,620,670)"><?% gettext("Delete timer",20) %?></a><br />
 <?% END %?>
     </td>
     </tr>

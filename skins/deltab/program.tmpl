@@ -47,7 +47,7 @@
         </a>
         <?% IF param.timers.${id} && allow('tedit') %?>
         <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
-            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this Timer") %?>" />
+            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
         </a>
         <?% ELSIF allow('tnew') %?>
         <a href="?cmd=tnew&amp;data=<?% id %?>">
@@ -110,7 +110,7 @@
 <?% END %?>
     </p>
 <?% END %?>
-    <p class="section"><?% gettext("Select",20) %?></p>
+    <p class="section"><?% gettext("Selection",20) %?></p>
     <form action="">
     <p>
         <select size="15" name='data' onchange="di('?cmd=program&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">

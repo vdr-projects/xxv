@@ -37,7 +37,7 @@ END %?>
                       <?% color = (step * c) <= data.current ? "wait_full" : "wait_clear" %?>
                              <td class="<?% color %?>">&nbsp;&nbsp;&nbsp;</td>
                     <?% END %?>
-                            <td>&nbsp;<b><?% percent | div 1 | format "%02d" %?>%</b> (<?% data.eta %?>)</td>
+                            <td>&nbsp;<b><?% percent div 1 | format "%02d" %?>%</b> (<?% data.eta %?>)</td>
              </table>
 </div>
 <!-- ###### Kopfzeile ###### -->
@@ -56,7 +56,7 @@ END %?>
       &middot; 
       <?% IF allow( 'n' ) %?>        <a accesskey="n" class="headerNav" href="?cmd=n"><?% gettext("Running now") %?></a> &middot; <?% END %?>
       <?% IF allow( 'p' ) %?>        <a accesskey="p" class="headerNav" href="?cmd=p"><?% gettext("Program guide") %?></a> &middot; <?% END %?>
-      <?% IF allow( 'al' ) %?>       <a accesskey="a" class="headerNav" href="?cmd=al"><?% gettext("AutoTimer") %?></a> &middot; <?% END %?>
+      <?% IF allow( 'al' ) %?>       <a accesskey="a" class="headerNav" href="?cmd=al"><?% gettext("Autotimer") %?></a> &middot; <?% END %?>
       <?% IF allow( 'tl' ) %?>       <a accesskey="t" class="headerNav" href="?cmd=tl"><?% gettext("Timers") %?></a> &middot; <?% END %?>
       <?% IF allow( 'rl' ) %?>       <a accesskey="r" class="headerNav" href="?cmd=rl"><?% gettext("Recordings") %?></a> &middot; <?% END %?>
       <?% IF allow( 'vc' ) %?>       <a accesskey="v" class="headerNav" href="?cmd=vc"><?% gettext("Teletext") %?></a> &middot; <?% END %?>

@@ -122,7 +122,7 @@
         <tr><th width="20"></th>
             <th width="120"><?% gettext('Name') %?></th>
             <th><?% gettext('Transponder frequency',6)%?></th>
-            <th><?% gettext('Various parameters, depends on signal source',8) %?></th>
+            <th><?% gettext('Various parameters, depending on signal source',8) %?></th>
             <th><?% gettext('Signal source',6) %?></th>
             <!--<th><?% gettext('Symbol rate',6) %?></th>-->
             <th><?% gettext('Video PID (VPID)',10) %?></th>
@@ -144,8 +144,8 @@
     <p class="section"><?% gettext("Channels",20) %?>
     <p>
 <?% IF allow( 'cnew' ) %?>
-      <a href="?cmd=cnew"><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("Create a new channel") %?>" /></a>&nbsp;
-      <a href="?cmd=cnew"><?% gettext("Create a new channel",20) %?></a><br />
+      <a href="?cmd=cnew"><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("Create new channel") %?>" /></a>&nbsp;
+      <a href="?cmd=cnew"><?% gettext("Create new channel",20) %?></a><br />
 <?% END %?>
 <?% IF allow( 'cupdate' ) %?>
       <a title="<?% gettext("Update channels") %?>" href="?cmd=cupdate"><img src="images/refresh.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
@@ -160,7 +160,7 @@
         <?% PROCESS SortItem row="POS" label=gettext('Position',20) %?>
         <?% PROCESS SortItem row="Name" label=gettext('Name',20) %?>
         <?% PROCESS SortItem row="Frequency" label=gettext('Transponder frequency',20) %?>
-        <?% PROCESS SortItem row="Parameters" label=gettext('Various parameters, depends on signal source',20) %?>
+        <?% PROCESS SortItem row="Parameters" label=gettext('Various parameters, depending on signal source',20) %?>
         <?% PROCESS SortItem row="Source" label=gettext('Signal source',20) %?>
         <!--<?% PROCESS SortItem row="Srate" label=gettext('Symbol rate',20) %?>-->
         <?% PROCESS SortItem row="VPID" label=gettext('Video PID (VPID)',20) %?>
@@ -171,7 +171,7 @@
   </p>
 <?% END %?>
 <?% IF enableform %?>
-    <p class="section"><?% gettext("Select",20) %?></p>
+    <p class="section"><?% gettext("Selection",20) %?></p>
     <p>
         <a href="javascript:selAll(document.clist,1)"><img src="images/select.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
         <a href="javascript:selAll(document.clist,1)"><?% gettext("Select all",20) %?></a><br />
@@ -182,8 +182,8 @@
 
 <?% IF allow('cdelete') %?>
         <br /><br />
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("You have nothing selected!") %?>','cdelete',document.clist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("You have nothing selected!") %?>','cdelete',document.clist)"><?% gettext("Delete channels",20) %?></a><br />
+        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist)"><?% gettext("Delete channels",20) %?></a><br />
 <?% END %?>
     </p>
 <?% END %?>

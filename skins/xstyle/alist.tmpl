@@ -4,11 +4,11 @@
 <div id="navcontainer">
 <ul id="navlist">
     <?% IF allow('anew') %?>
-    <li><a href="?cmd=anew"><?% gettext("Create a new autotimer") %?></a></li>
+    <li><a href="?cmd=anew"><?% gettext("Create new autotimer") %?></a></li>
     <?% END %?>
     <li><a href="#" onClick="suche('<?% gettext("Search text") %?>', '?cmd=asearch&data=')"><?% gettext("Search in autotimer") %?></a></li>
     <?% IF allow('aupdate') %?>
-    <li><a href="?cmd=aupdate"><?% gettext("Start the autotimer process") %?></a></li>
+    <li><a href="?cmd=aupdate"><?% gettext("Search autotimer") %?></a></li>
     <?% END %?>
 </ul>
 </div>

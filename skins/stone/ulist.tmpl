@@ -9,8 +9,8 @@
                         </a>
 <?% END %?>
 <?% IF allow('udelete') %?>
-                        <a href="javascript:sureandreload('<?% gettext("You will delete this account of user") %?>','<?% escape(user) %?>','udelete','<?% id %?>')">
-                            <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete account of user") %?>" />
+                        <a href="javascript:sureandreload('<?% gettext("Do you really want to delete this user account?") %?>','<?% escape(user) %?>','udelete','<?% id %?>')">
+                            <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete user account") %?>" />
                         </a>
 <?% END %?>
 <?% END %?>
@@ -54,7 +54,7 @@
       </div>
 <?% END %?>
 <?% ######################################################################## %?>
-<h1><?% gettext("Administration of User") %?></h1>
+<h1><?% gettext("User administration") %?></h1>
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
     <?% FOREACH zeile = data %?>
@@ -72,12 +72,12 @@
 <!-- ###### Seite ###### -->
 <div id="sidebar">
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Administration of User",20) %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("User administration",20) %?></td></tr>
 <?% IF allow('unew') %?>
     <tr>
     <td class="sidetext">
-      <a title="<?% gettext("Create a new account for user") %?>" href="javascript:popupcmd('unew',620,670,1)"><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("Create a new account for user") %?>" /></a>&nbsp;
-      <a title="<?% gettext("Create a new account for user") %?>" href="javascript:popupcmd('unew',620,670,1)"><?% gettext("Create a new account for user",20) %?></a><br />
+      <a title="<?% gettext("Create new account for user") %?>" href="javascript:popupcmd('unew',620,670,1)"><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("Create new account for user") %?>" /></a>&nbsp;
+      <a title="<?% gettext("Create new account for user") %?>" href="javascript:popupcmd('unew',620,670,1)"><?% gettext("Create new account for user",20) %?></a><br />
     </td>
     </tr>
 <?% END %?>

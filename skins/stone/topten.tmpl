@@ -9,7 +9,7 @@
                         </a>
                         <?% IF param.timers.${id} && allow('tedit') %?>
                         <a href="javascript:popup('tedit','<?% param.timers.${id}.Id %?>',620,670,1)">
-                            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this Timer") %?>" />
+                            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
                         </a>
                         <?% ELSIF allow('tnew') %?>
                         <a href="javascript:popup('tnew','<?% id %?>',620,670,1)">
@@ -83,7 +83,7 @@
 <?% ######################################################################## %?>
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
-<h1><?% gettext("TopTen Entrys") %?></h1>
+<h1><?% gettext("Top Ten entrys") %?></h1>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;description=zeile.3;channel_id=zeile.4;start=zeile.5;video=zeile.6;audio=zeile.7;rank=zeile.8;level=zeile.9;count=zeile.10 %?>
@@ -103,11 +103,11 @@
     <td class="sidetext">
 <?% IF allow('topten') %?>
       <a href="?cmd=topten"><img src="images/topten.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-      <a href="?cmd=topten"><?% gettext("TopTen Entrys",20) %?></a><br />
+      <a href="?cmd=topten"><?% gettext("Top Ten entrys",20) %?></a><br />
 <?% END %?>
 <?% IF allow('tnew') %?>
       <a href="javascript:popupcmd('tnew',620,670,1)"><img src="images/new.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-      <a href="javascript:popupcmd('tnew',620,670,1)"><?% gettext("Create a new timer",20) %?></a><br />
+      <a href="javascript:popupcmd('tnew',620,670,1)"><?% gettext("Create new timer",20) %?></a><br />
 <?% END %?>
 <?% IF allow('tupdate') %?>
       <a href="javascript:fire('tupdate','0')"><img src="images/refresh.<?% global.imagetyp %?>" alt="" /></a>&nbsp;

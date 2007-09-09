@@ -126,8 +126,8 @@
 <ul id="navlist">
     <li><a href="?cmd=rupdate"><?% gettext("Update recordings") %?></a></li>
     <?% IF allow('rdelete') %?>
-    <li><a href="#" onClick="Delete('<?% gettext("You would delete follow recordings?") %?>',
-    '<?% gettext("You have nothing selected!") %?>','rdelete',document.rlist)">
+    <li><a href="#" onClick="Delete('<?% gettext("Do you want to delete the following recordings?") %?>',
+    '<?% gettext("Nothing selected!") %?>','rdelete',document.rlist)">
     <?% gettext("Delete recordings") %?></a></li>
     <?% END %?>
     <li><a href="#" onClick="suche('<?% gettext("Search text") %?>', '?cmd=rsearch&data=')"><?% gettext("Search for recordings") %?></a></li>

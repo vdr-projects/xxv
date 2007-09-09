@@ -5,7 +5,7 @@
 <?% url = "?cmd=vt&amp;data=" %?>
 <div id="sidebar">
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Select",20) %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("Selection",20) %?></td></tr>
     <tr>
         <td class="sidetext">
             <form action="">
@@ -45,10 +45,10 @@
     <tr>
         <td class="sidetext">
     <?% PROCESS VTXItem page=param.toppage      image='home'    label=gettext('First page',20) %?>
-    <?% PROCESS VTXItem page=param.page_prev    image='back'    label=gettext('Prior page',20) %?>
+    <?% PROCESS VTXItem page=param.page_prev    image='back'    label=gettext('Previous page',20) %?>
     <?% PROCESS VTXItem page=param.page_next    image='forward' label=gettext('Next page',20) %?>
-    <?% PROCESS VTXItem page=param.subpage_prev image='back'    label=gettext('Prior subpage',20) %?>
-    <?% PROCESS VTXItem page=param.subpage_next image='forward' label=gettext('Next subpage',20) %?>
+    <?% PROCESS VTXItem page=param.subpage_prev image='back'    label=gettext('Prior sub page',20) %?>
+    <?% PROCESS VTXItem page=param.subpage_next image='forward' label=gettext('Next sub page',20) %?>
         </td>
     </tr>
     <tr>

@@ -62,7 +62,7 @@ aktiv = window.setInterval("grab()", inter);
   </td>
 <?% END %?>
   <td colspan="2" align="left"><nobr><input type="button" onclick="self.location.href='?cmd=r&monitor=<?% monitor ? 0 : 1 %?>'" name="monitor" value="<?% gettext("Monitor") %?>"></td>
-  <td align="right"><div id='icons'><a href='#' onclick="switch_channel('?cmd=remote&data=Power')" title="<?% gettext("Powerdown") %?>"><img src="images/exit.png"></a></div></td>
+  <td align="right"><div id='icons'><a href='#' onclick="switch_channel('?cmd=remote&data=Power')" title="<?% gettext("Switch off") %?>"><img src="images/exit.png"></a></div></td>
 </tr>
 <tr>
   <td align='center'><input id='small' onclick="switch_channel('?cmd=remote&data=1')" type="button" name="1" value="1"></td>

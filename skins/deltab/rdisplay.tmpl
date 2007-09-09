@@ -141,7 +141,7 @@
 									<form action="">
 									<p>
 										<select name='data' onchange="di('?cmd=rconvert&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)"> 
-											<option value='0'><?% gettext("Choose an action for this recording") %?>...</option>
+											<option value='0'><?% gettext("Choose a command to edit this recording ...") %?></option>
 											<?% FOREACH cmd = param.reccmds %?>
 											<option value='<?% loop.count %?>_<?% id %?>'><?% cmd.split(':').first %?></option>
 											<?% END %?>
@@ -239,11 +239,11 @@
         <br />
 <?% END %?>
 <?% IF allow( 'rdelete' ) %?>
-        <a href="javascript:sure('<?% gettext("You will delete this recording") %?> : \'<?% escape( title ) %?>\' ?','?cmd=rdelete&amp;data=<?% id %?>')">
+        <a href="javascript:sure('<?% gettext("Do you really want to delete these recordings?") %?> : \'<?% escape( title ) %?>\' ?','?cmd=rdelete&amp;data=<?% id %?>')">
             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete recording") %?>" />
         </a>
         &nbsp;
-        <a href="javascript:sure('<?% gettext("You will delete this recording") %?> : \'<?% escape( title ) %?>\' ?','?cmd=rdelete&amp;data=<?% id %?>')">
+        <a href="javascript:sure('<?% gettext("Do you really want to delete these recordings?") %?> : \'<?% escape( title ) %?>\' ?','?cmd=rdelete&amp;data=<?% id %?>')">
             <?% gettext("Delete recording",20) %?>
         </a>
         <br />

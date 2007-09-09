@@ -103,7 +103,7 @@
             </a>
     <?% END %?>
     <?% IF allow('rdelete') %?>
-            <a href="javascript:surecmd('<?% gettext("You will delete this recording") %?>','<?% escape(fulltitle) %?>','rdelete','<?% id %?>',620,670)">
+            <a href="javascript:surecmd('<?% gettext("Do you want to delete the following recordings?") %?>','<?% escape(fulltitle) %?>','rdelete','<?% id %?>',620,670)">
                 <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete recording") %?>" />
             </a>
     <?% END %?>
@@ -291,7 +291,7 @@
 <?% END %?>
 <?% IF enableform %?>
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Select",20) %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("Selection",20) %?></td></tr>
     <tr>
     <td class="sidetext">
         <a href="javascript:selAll(document.rlist,1)"><img src="images/select.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
@@ -305,8 +305,8 @@
     <tr>
     <td class="sidetext">
 <?% IF allow('rdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow recordings?") %?>','<?% gettext("You have nothing selected!") %?>','rdelete',document.rlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow recordings?") %?>','<?% gettext("You have nothing selected!") %?>','rdelete',document.rlist,620,670)"><?% gettext("Delete recordings",20) %?></a><br />
+        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><?% gettext("Delete recordings",20) %?></a><br />
 <?% END %?>
     </td>
     </tr>

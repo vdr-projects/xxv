@@ -13,16 +13,16 @@
 <div id="navcontainer">
 <ul id="navlist">
 <?% IF allow('tnew') %?>
-    <li><a href="?cmd=tnew"><?% gettext("Create a new timer") %?></a></li>
+    <li><a href="?cmd=tnew"><?% gettext("Create new timer") %?></a></li>
 <?% END %?>
 <?% IF allow('tupdate') %?>
     <li><a href="?cmd=tupdate"><?% gettext("Update timers") %?></a></li>
 <?% END %?>
 <?% IF allow('ttoggle') %?>
-    <li><a href="#" onClick="Toggle('<?% gettext("You have nothing selected!") %?>',document.TimerList)"><?% gettext("Toggle timer") %?></a></li>
+    <li><a href="#" onClick="Toggle('<?% gettext("Nothing selected!") %?>',document.TimerList)"><?% gettext("Toggle timer") %?></a></li>
 <?% END %?>
 <?% IF allow('tdelete') %?>
-    <li><a href="#" onClick="Delete('<?% gettext("You would delete follow timers?") %?>','<?% gettext("You have nothing selected!") %?>','tdelete',document.TimerList)"><?% gettext("Delete timer") %?></a></li>
+    <li><a href="#" onClick="Delete('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.TimerList)"><?% gettext("Delete timer") %?></a></li>
 <?% END %?>
     <li><a href="#" onClick="suche('<?% gettext("Search text") %?>', '?cmd=tsearch&data=')"><?% gettext("Search for timers") %?></a></li>
 </ul>
@@ -40,7 +40,7 @@
             <th><?% field %?></th>
         <?% END %?>
 <?% IF enableform %?>
-            <th><?% gettext("Select") %?></th>
+            <th><?% gettext("Selection") %?></th>
 <?% END %?>
         </tr>
         <?% FOREACH zeile = data %?>
@@ -74,7 +74,7 @@
 <!--
                         <a href="?cmd=search&amp;data=<?% url( zeile.7.split('~').last ) %?>" title="<?% gettext("Search for repeats") %?>"><img src="images/repeat.png"></a><br/>
     <?% IF allow('tdelete') %?>
-                        <a href="javascript:sure(document.TimerList, '<?% gettext("You will delete this timer") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Delete this timer") %?>"><img src="images/delete.png"></a><br/>
+                        <a href="javascript:sure(document.TimerList, '<?% gettext("Would You like to delete the following timer(s)?") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Would You like to delete the following timer(s)?") %?>"><img src="images/delete.png"></a><br/>
     <?% END %?>
 -->
                         </div>
@@ -107,7 +107,7 @@
     		        </td>
                     <?% ELSIF c == 2; # Channel Field %?>
                     <td nowrap>
-                        <a href="?cmd=program&amp;data=<?% field %?>" title="<?% gettext("Jump to program guide:") %?> <?% zeile.2 %?>"><div class="<?% myclass %?>"><?% zeile.2 %?></div></a>
+                        <a href="?cmd=program&amp;data=<?% field %?>" title="<?% gettext("Jump to program:") %?> <?% zeile.2 %?>"><div class="<?% myclass %?>"><?% zeile.2 %?></div></a>
                     </td>
                     <?% ELSIF c == 7; # Title %?>
                     <td>

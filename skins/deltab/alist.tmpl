@@ -113,12 +113,12 @@
   <p class="section"><?% gettext("Autotimer",20) %?></p>
     <p>
 <?% IF allow( 'anew' ) %?>
-      <a href="?cmd=anew"><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("Create a new autotimer") %?>" /></a>&nbsp;
-      <a href="?cmd=anew"><?% gettext("Create a new autotimer",20) %?></a><br />
+      <a href="?cmd=anew"><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("Create new autotimer") %?>" /></a>&nbsp;
+      <a href="?cmd=anew"><?% gettext("Create new autotimer",20) %?></a><br />
 <?% END %?>
 <?% IF allow( 'aupdate' ) %?>
-      <a href="?cmd=aupdate"><img src="images/refresh.<?% global.imagetyp %?>" alt="" title="<?% gettext("Start the autotimer process") %?>" /></a>&nbsp;
-      <a href="?cmd=aupdate"><?% gettext("Start the autotimer process",20) %?></a><br />
+      <a href="?cmd=aupdate"><img src="images/refresh.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search autotimer") %?>" /></a>&nbsp;
+      <a href="?cmd=aupdate"><?% gettext("Search autotimer",20) %?></a><br />
 <?% END %?>
     </p>
 <?% IF param.sortable.defined %?>
@@ -145,7 +145,7 @@
         <?% PROCESS SortItem row="Id" label=gettext('Index',20) %?>
         <?% PROCESS SortItem row="Search" label=gettext('Search',20) %?>
         <?% PROCESS SortItem row="Channels" label=gettext('Channels',20) %?>
-        <?% PROCESS SortItem row="Dir" label=gettext('Group all recordings on a directory',20) %?>
+        <?% PROCESS SortItem row="Dir" label=gettext('Group all recordings into one directory',20) %?>
       </table>
 <?% END %?>
   <p class="section"><?% gettext("Search text",20) %?></p>

@@ -102,7 +102,7 @@
 <div id="navcontainer">
 <ul id="navlist">
 <?% IF allow( 'cnew' ) %?>
-    <li><a href="?cmd=cnew"><?% gettext("Create a new channel") %?></a></li>
+    <li><a href="?cmd=cnew"><?% gettext("Create new channel") %?></a></li>
 <?% END %?>
 <?% IF allow( 'cupdate' ) %?>
     <li><a href="?cmd=cupdate"><?% gettext("Update channels") %?></a></li>
@@ -118,7 +118,7 @@
         <a href="#" onclick="selAll(document.clist,0)">[<?% gettext("Unselect all") %?>]</a>&nbsp;
         <a href="#" onclick="reverse(document.clist)">[<?% gettext("Reverse select") %?>]</a>&nbsp;
         <a href="#" onclick="Delete('<?% gettext("You would delete follow channels?") %?>',
-                            '<?% gettext("You have nothing selected!") %?>','cdelete',document.clist)">
+                            '<?% gettext("Nothing selected!") %?>','cdelete',document.clist)">
                             [<?% gettext("Delete channels") %?>]
         </a>
     </p>
@@ -132,7 +132,7 @@
     <tr><th width="20"><?% PROCESS SortItem row="POS" label="" trunc=5 %?></th>
         <th width="120"><?% PROCESS SortItem row="Name" label=gettext('Name') trunc=20 %?></th>
         <th><?% PROCESS SortItem row="Frequency"  label=gettext('Transponder frequency') trunc=6 %?></th>
-        <th><?% PROCESS SortItem row="Parameters"  label=gettext('Various parameters, depends on signal source') trunc=8 %?></th>
+        <th><?% PROCESS SortItem row="Parameters"  label=gettext('Various parameters, depending on signal source') trunc=8 %?></th>
         <th><?% PROCESS SortItem row="Srate" label=gettext('Symbol rate') trunc=6  %?></th>
         <th><?% PROCESS SortItem row="VPID" label=gettext('Video PID (VPID)') trunc=10  %?></th>
         <th><?% PROCESS SortItem row="APID" label=gettext('Audio PID (APID)') trunc=10  %?></th>
