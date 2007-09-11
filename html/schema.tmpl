@@ -21,7 +21,10 @@ Duration = param.zeitbis - param.zeitvon;
 
 <form>
 <h1><?% gettext("What is running at") %?>&nbsp;<?% day %?><br/>
-<?% gettext('Display') %?>&nbsp;<?% gettext('from') %?>&nbsp;<?% date.format(param.zeitvon, '%H:%M', locale) %?>&nbsp;<?% gettext('to') %?>&nbsp;<?% date.format(param.zeitbis, '%H:%M', locale) %?>&nbsp;<?% gettext("o'clock") %?>
+<?% gettext('Display') %?>&nbsp;
+<?% gettext('from') %?>&nbsp;<?% date.format(param.zeitvon, '%H:%M', locale) %?>&nbsp;
+<?% gettext('to') %?>&nbsp;<?% date.format(param.zeitbis, '%H:%M', locale) %?>&nbsp;
+<?% gettext("o'clock") %?>
 </h1>
 
 <!-- TableTemplate -->
@@ -42,7 +45,7 @@ Duration = param.zeitbis - param.zeitvon;
              colspan = colspan + 1;
              zeit = param.zeitvon + c;
         -%?>
-    <td bgcolor="white" width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) | format('%d') %?>" align='right'>
+    <td bgcolor="white" width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) div 1 %?>" align='right'>
         <?% IF c == abstand && zeit > date.now %?>
         &nbsp;<a href='?cmd=schema&amp;data=<?% (param.zeitvon - Duration) %?>&amp;__cgrp=<?% param.channelgroup %?>'><</a>
         <?% END %?>
@@ -64,10 +67,10 @@ Duration = param.zeitbis - param.zeitvon;
             p = (a / Duration) * width;
          %?>
         <div style="position:absolute; z-index:1">
-            <div style="position:relative; top:0px; left:0px; width:<?% p | format('%d') %?>px; height:10px; z-index:2; border:thin solid #804000; background-color:#FF0000; text-align: right; -moz-opacity:0.2; filter:Alpha(opacity=20)"><font size="1">&nbsp;</font></div>
+            <div style="position:relative; top:0px; left:0px; width:<?% p div 1 %?>px; height:10px; z-index:2; border:thin solid #804000; background-color:#FF0000; text-align: right; -moz-opacity:0.2; filter:Alpha(opacity=20)"><font size="1">&nbsp;</font></div>
         </div>
         <div style="position:absolute; z-index:1">
-            <div style="position:relative; top:0px; left:<?% p | format('%d') %?>px; width:1px; height:100%; border-left:1px solid red; margin:0px; z-Index: 2;"><img alt="" src='images/blank.png' width='1' height='<?% data.keys.size * 23 %?>' border="0" hspace="0" vspace="0" /></div>
+            <div style="position:relative; top:0px; left:<?% p div 1 %?>px; width:1px; height:100%; border-left:1px solid red; margin:0px; z-Index: 2;"><img alt="" src='images/blank.png' width='1' height='<?% data.keys.size * 23 %?>' border="0" hspace="0" vspace="0" /></div>
         </div>
         <?%- END -%?>
         <?%- WHILE c < Duration;
@@ -75,7 +78,7 @@ Duration = param.zeitbis - param.zeitvon;
              percent = (abstand / Duration) * width
         -%?><img alt="" style="background:white" src='images/blank.png' width="<?%-
             offset = (c % 3600 ? 1 : 2);
-            (percent - offset) | format('%d')
+            (percent - offset) div 1
         -%?>" height='10' /><img alt=""
             style="background:<?% c % 900 ? "gray" : "black" %?>"
             src='images/blank.png'
@@ -119,7 +122,7 @@ Duration = param.zeitbis - param.zeitvon;
                     percent = (laenge / Duration) * width;
                     ges = ges + percent;
         -%?>
-        <img alt="" src='images/blank.png' width='<?% percent | format('%d') %?>' height=8 border=0 align='left' />
+        <img alt="" src='images/blank.png' width='<?% percent div 1 %?>' height=8 border=0 align='left' />
                 <?% END;
                 IF second_start < oldend;
                     dur = second_stop - oldend;
@@ -132,7 +135,7 @@ Duration = param.zeitbis - param.zeitvon;
                     percent = width - ges;
                 END;
                 ges = ges + percent;
-                trun = percent / 10 | format('%d');
+                trun = ( percent / 10 ) div 1;
                 IF dur < 300;
                     trun = 3;
 
@@ -140,9 +143,9 @@ Duration = param.zeitbis - param.zeitvon;
                 -%?>
         <?% d=[epgStart, " - ", epgStop ,"<br />", epgDesc ];desc=d.join("") %?>
 <?% IF trun <= 3 %?>
-        <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=epgTitle subtitle=epgSubTitle eventid=epgId linkid=epgId ttp_offset=-200 %?><img alt="" src='images/blank.png' width='<?% percent | format('%d') %?>' height=8 border=0 hspace=0 vspace=0 align='left' /></a>
+        <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=epgTitle subtitle=epgSubTitle eventid=epgId linkid=epgId ttp_offset=-200 %?><img alt="" src='images/blank.png' width='<?% percent div 1 %?>' height=8 border=0 hspace=0 vspace=0 align='left' /></a>
 <?% ELSE %?>
-        <table class='<?% PROCESS getStatus e=event t=param.timers r=param.runningTimer %?>' align="left" width="<?% percent | format('%d') %?>" cellpadding="0" cellspacing="0"><tr><td>
+        <table class='<?% PROCESS getStatus e=event t=param.timers r=param.runningTimer %?>' align="left" width="<?% percent div 1 %?>" cellpadding="0" cellspacing="0"><tr><td>
         <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=epgTitle subtitle=epgSubTitle eventid=epgId linkid=epgId ttp_offset=-200 %?>
         <?% chop(epgTitle,trun) %?></a></td></tr></table>
 <?% END %?>

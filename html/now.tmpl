@@ -86,9 +86,9 @@
                 <td><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% stop %?><?% IF param.timers.${id} && param.timers.${id}.Status %?></b><?% END %?></td>
                 <?% UNLESS duration > 100 OR duration <= 0 %?>
                 <td width="100" valign='bottom'><nobr>
-                    <?% per = (100 - duration) + 0.999 | format('%d'); per = (per > 100 ? 100 : per)  %?>
+                    <?% per = ( (100 - duration) + 0.999 ) div 1 ; per = (per > 100 ? 100 : per)  %?>
                     <?% per2 = 100 - per %?>
-                    <?% text = per | format("<br><font size='1'>${per}%%</font>") %?>
+                    <?% text = per div 1 | format("<br><font size='1'>${per}%%</font>") %?>
                     <table width="100%" cellspacing='0' cellpadding='0'>
                         <tr>
                         <td bgcolor="#dedede"><img src='images/blank.png' width="<?% per %?>" height='1' hspace=0 vspace=0><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% (per > 19 ? text : "&nbsp;") %?></td>

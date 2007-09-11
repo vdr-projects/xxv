@@ -327,7 +327,7 @@ sub handleInput {
 sub usage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    return main::getModule('TELNET')->usage(@_);
+    return main::getModule('HTTPD')->usage(@_);
 }
 
 # ------------------

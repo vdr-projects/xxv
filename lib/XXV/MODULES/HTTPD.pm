@@ -107,6 +107,24 @@ sub module {
             },
         },
         Commands => {
+            help => {
+                description => gettext("This will display all commands or description of module 'name'."),
+                short       => 'h',
+                callback    => sub{
+                    return $obj->usage(@_);
+                },
+            },
+            reload => {
+                description => gettext("Restart all modules."),
+                short       => 'rel',
+                callback    => sub{
+                    my ($w, $c, $l) = @_;
+                    $Module::Reload::Debug = 2;
+                    Module::Reload->check;
+                    $c->message(gettext("Modules loaded."));
+                },
+              Level   => 'admin'
+            },
             checkvalue => {
                 hidden      => 'yes',
                 callback    => sub{ $obj->checkvalue(@_) },
@@ -361,7 +379,7 @@ sub _readline {
 sub parseRequest {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $socket = shift || return error('No handle defined!' );
+    my $socket = shift || return error('No handle defined!');
     my $logout = shift || 0;
 
     binmode $socket;
@@ -396,7 +414,7 @@ sub parseRequest {
     		} else {
           #dumper($line);
     		}
-        $obj->{STATUS}->{'readbytes'} += length($line) if($line);
+        $obj->{STATUS}->{'readbytes'} += length($line);
       }
    
 	$data->{Request} =~ s/%([a-f0-9][a-f0-9])/pack("C", hex($1))/ieg
@@ -469,7 +487,54 @@ sub handleInput {
 sub usage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    return main::getModule('TELNET')->usage(@_);
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $modulename = shift || 0;
+    my $hint = shift || '';
+    my $user = shift || $console->{USER};
+
+    my $u = main::getModule('USER');
+    unless($user) {
+        my $loginObj = $obj;
+        $loginObj = main::getModule('HTTPD')
+                if ($console->{TYP} eq 'HTML') ;
+        $loginObj = main::getModule('WAPD')
+                if ($console->{TYP} eq 'WML') ;
+        $user = $loginObj->{USER};
+    }
+
+    my $ret;
+    push(@$ret, sprintf(gettext("%sThis is the xxv %s server.\nPlease use the following commands:\n"),
+        ($hint ? "$hint\n\n" : ''), $console->typ));
+
+    my $mods = main::getModules();
+    my @realModName;
+
+    # Search for command and display the Description
+    foreach my $modName (sort keys %{$mods}) {
+        my $modCfg = $mods->{$modName}->{MOD};
+        push(@realModName, $mods->{$modName}->{MOD}->{Name});
+        next if($modulename and uc($modulename) ne $modCfg->{Name});
+        foreach my $cmdName (sort keys %{$modCfg->{Commands}}) {
+            push(@$ret,
+                [
+                    (split('::', $modName))[-1],
+                    $modCfg->{Commands}->{$cmdName}->{short},
+                    $cmdName,
+                    $modCfg->{Commands}->{$cmdName}->{description},
+                ]
+            ) if(! $modCfg->{Commands}->{$cmdName}->{hidden} and ($u->{active} ne 'y') || $u->allowCommand($modCfg, $cmdName, $user, "1"));
+        }
+    }
+
+    $console->menu(
+        $ret,
+        {
+            periods  => $mods->{'XXV::MODULES::EPG'}->{periods},
+            CHANNELS => $mods->{'XXV::MODULES::CHANNELS'}->ChannelArray('Name'),
+            CONFIGS  => [ sort @realModName ],
+        },
+    );
 }
 
 # ------------------
