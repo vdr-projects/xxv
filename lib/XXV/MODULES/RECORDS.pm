@@ -231,7 +231,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul!: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
@@ -241,7 +241,7 @@ sub new {
     $self->{framerate} = 25;
 
     # The Initprocess
-    my $erg = $self->_init or return error('Problem to initialize module');
+    my $erg = $self->_init or return error('Problem to initialize modul!');
 
   return $self;
 }
@@ -285,7 +285,7 @@ sub _init {
     main::after(sub{
         $obj->{svdrp} = main::getModule('SVDRP');
         unless($obj->{svdrp}) {
-           panic ("Can't get modul SVDRP");
+           panic ("Couldn't get modul SVDRP");
            return 0;
         }
 
@@ -318,7 +318,7 @@ sub dot1000 {
 sub parseData {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $vdata = shift || return error('Problem to read data!');
+    my $vdata = shift || return error('No data defined!');
     my ($event, $hash, $id, $date, $hour, $minute, $state, $duration, $title, $day, $month, $year);
     my $dataHash = {};
 
@@ -334,7 +334,7 @@ sub parseData {
         }
 
         unless($id) {
-          error sprintf("Can't parse svdrp data : '%s'",$record);
+          error sprintf("Couldn't parse svdrp data : '%s'",$record);
           next;
         }
 
@@ -358,8 +358,9 @@ sub parseData {
 }
 
 # ------------------
-sub scandirectory {# ------------------
-    my $obj = shift || return error ('No Object!');
+sub scandirectory {
+# ------------------
+    my $obj = shift || return error('No object defined!');
 
     find(
             {
@@ -368,7 +369,7 @@ sub scandirectory {# ------------------
                         push(@{$obj->{FILES}},[$File::Find::name,$obj->converttitle($File::Find::name)])
                             if($File::Find::name =~ /\.rec\/\d{3}.vdr$/sig);  # Lookup for *.rec/001.vdr
                     } else {
-                        lg "Permissions deny, can't read : $File::Find::name";
+                        lg "Permissions deny, Couldn't read : $File::Find::name";
                     }
                 },
                 follow => 1,
@@ -415,7 +416,7 @@ sub readData {
         $obj->{CapacityPercent} = int($percent);
 
     } else {
-        error("Can't get disc state : ".join("\n", @$stat));
+        error("Couldn't get disc state : ".join("\n", @$stat));
         $obj->{CapacityMessage} = gettext("Unknown disc capacity!");
         $obj->{CapacityPercent} = 0;
 
@@ -548,7 +549,7 @@ sub readData {
         my $sql = sprintf('DELETE FROM RECORDS WHERE RecordMD5 IN (%s)', join(',' => ('?') x @todel)); 
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute(@todel)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       }
     
     debug sprintf 'Finish .. %d recordings inserted, %d recordings updated, %d recordings removed',
@@ -566,7 +567,7 @@ sub readData {
         my @jobs = @{$obj->{JOBS}};
         $obj->{JOBS} = [];
 
-        defined(my $child = fork()) or return error sprintf("Can't fork : %s",$!);
+        defined(my $child = fork()) or return error sprintf("Couldn't fork : %s",$!);
         if($child == 0) {
             $obj->{dbh}->{InactiveDestroy} = 1;
 
@@ -594,7 +595,7 @@ sub readData {
         my $sql = sprintf('DELETE FROM OLDEPG where (UNIX_TIMESTAMP(starttime) + duration) < (UNIX_TIMESTAMP() - 86400) and eventid not in (%s)', join(',' => ('?') x @merkIds)); 
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute(@merkIds)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     }
 
    $obj->updated() if($insertedData);
@@ -607,7 +608,7 @@ sub readData {
         if(scalar @{$err} == 0) {
             $console->message(sprintf(gettext("Write %d recordings to the database."), scalar @merkIds));
         } else {
-            unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Cannot assign %d recordings."), scalar @merkIds , scalar @{$err}));
+            unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Couldn't assign %d recordings."), scalar @merkIds , scalar @{$err}));
             lg join("\n", @$err);
             $console->err($err);
         }
@@ -696,16 +697,17 @@ sub _updateEvent {
     
     my $sth = $obj->{dbh}->prepare('UPDATE OLDEPG SET duration=?, starttime=FROM_UNIXTIME(?), addtime=FROM_UNIXTIME(?) where eventid=?');
     if(!$sth->execute($event->{duration},$event->{starttime},$event->{addtime},$event->{eventid})) {
-        error sprintf("Can't update Event!: '%s' !",$event->{eventid});
+        error sprintf("Couldn't update event!: '%s' !",$event->{eventid});
         return undef;
     }
     return $event;
 }
 
 # ------------------
-sub _updateState {# ------------------
-    my $obj = shift || return error ('No Object!');
-    my $oldattr = shift || return error ('Missing data');
+sub _updateState {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $oldattr = shift || return error ('No data defined!');
     my $attr = shift || return error ('No data to replace!');
 
     my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET RecordId=?, State=?, addtime=FROM_UNIXTIME(?) where RecordMD5=?');
@@ -724,7 +726,7 @@ sub analyze {
 
     my $info = $obj->videoInfo($recattr->{title}, $recattr->{starttime});
     unless($info && ref $info eq 'HASH') {
-      error sprintf("Can't find recording '%s' with id : '%s' !",$recattr->{title}, $recattr->{id});
+      error sprintf("Couldn't find recording '%s' with id : '%s' !",$recattr->{title}, $recattr->{id});
       return 0;
     }
 
@@ -755,7 +757,7 @@ sub analyze {
         # erfunden werden ;)
         $event = $obj->createOldEventId($recattr->{id}, $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info);
         unless($event) {
-          error sprintf("Can't create Event!: '%s' !",$recattr->{id});
+          error sprintf("Couldn't create event!: '%s' !",$recattr->{id});
           return 0;
         }
     }
@@ -786,15 +788,16 @@ sub analyze {
 sub videoInfo {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $title   = shift || return error ('No title!' );
-    my $starttime   = shift || return error ('No title!' );
+    my $title   = shift || return error('No title defined!');
+    my $starttime   = shift || return error('No start time defined!');
 
     lg sprintf('Get information from recording "%s"', $title );
 
-    my $month=sprintf("%02d",(localtime($starttime))[4]+1);
-    my $day=sprintf("%02d",(localtime($starttime))[3]);
-    my $hour=sprintf("%02d",(localtime($starttime))[2]);
-    my $minute=sprintf("%02d",(localtime($starttime))[1]);
+    my @ltime = localtime($starttime);
+    my $month=sprintf("%02d",$ltime[4]+1);
+    my $day=sprintf("%02d",$ltime[3]);
+    my $hour=sprintf("%02d",$ltime[2]);
+    my $minute=sprintf("%02d",$ltime[1]);
 
     my @files;
 
@@ -808,7 +811,7 @@ sub videoInfo {
     }
 
     unless(scalar @files) {
-      error sprintf("Can't assign recording with title: '%s' (%s/%s %s:%s)", $title,$month,$day,$hour,$minute);
+      error sprintf("Couldn't assign recording with title: '%s' (%s/%s %s:%s)", $title,$month,$day,$hour,$minute);
       return 0;
     }
 
@@ -838,7 +841,7 @@ sub videoInfo {
         my $marks = sprintf("%s/marks.vdr", $path);
         if(-r $marks) {
             my $data = load_file($marks)
-                or error sprintf("I can't read file '%s'",$marks);
+                or error sprintf("Couldn't read file '%s'",$marks);
             if($data) {
                 foreach my $zeile (split("\n", $data)) {
                     # 0:35:07.09 moved from [0:35:13.24 Logo start] by checkBlackFrameOnMark
@@ -900,8 +903,8 @@ sub videoInfo {
 sub videoPreview {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $eventid   = shift || return error ('No eventid!');
-    my $info    = shift || return error ('No InfoHash!');
+    my $eventid   = shift || return error('No eventid defined!');
+    my $info    = shift || return error ('No information defined!');
     my $rebuild    = shift || 0;
 
     if ($obj->{previewcommand} eq 'Nothing') {
@@ -940,13 +943,13 @@ sub videoPreview {
 
     # Mplayer
     unless(-x $obj->{previewbinary}) {
-      error("I can't find executable file as usable preview command !");
+      error("Couldn't find executable file as usable preview command!");
       return 0;
     }
 
     unless(-d $outdir) {
       if(!mkpath($outdir)) {
-        error sprintf("Can't mkpath '%s' : %s",$outdir,$!);
+        error sprintf("Couldn't make path '%s' : %s",$outdir,$!);
         return 0;
       }
     }
@@ -1000,15 +1003,15 @@ sub videoPreview {
         foreach (@files) { s/(\")/\\$1/g; }
     }
 
-    $vdir =~ s/(\")/\\$1/g;
+    $vdir =~ s/(\')/\\$1/g;
 
     my $scalex = 180;
     my $mversions = {
-        'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=\"%s\" -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d \"%s\" >> \"%s\" 2>&1",
-                                $obj->{previewbinary}, $outdir, $startseconds / 5, $stepseconds / 5, $scalex, $count, join("\" \"",@files), $log),
-        'MPlayer1.0pre6' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg:outdir=\"%s\" -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d \"%s\" >> \"%s\" 2>&1",
-                                $obj->{previewbinary}, $outdir, $startseconds / 5, $stepseconds / 5, $scalex, $count, join("\" \"",@files), $log),
-        'vdr2jpeg'       => sprintf("%s -r \"%s\" -f %s -x %d -o \"%s\" >> \"%s\" 2>&1",
+        'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=\'%s\' -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d \'%s\' >> \'%s\' 2>&1",
+                                $obj->{previewbinary}, $outdir, $startseconds / 5, $stepseconds / 5, $scalex, $count, join("\' \'",@files), $log),
+        'MPlayer1.0pre6' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg:outdir=\'%s\' -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d \'%s\' >> \'%s\' 2>&1",
+                                $obj->{previewbinary}, $outdir, $startseconds / 5, $stepseconds / 5, $scalex, $count, join("\' \'",@files), $log),
+        'vdr2jpeg'       => sprintf("%s -r \'%s\' -f %s -x %d -o \'%s\' >> \'%s\' 2>&1",
                                 $obj->{previewbinary}, $vdir, join(" -f ", @frames), $scalex, $outdir, $log),
     };
     return $mversions->{$obj->{previewcommand}};
@@ -1027,9 +1030,9 @@ sub _mark2frames{
 sub SearchEpgId {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $start = shift || return error ('No Start!' );
-    my $dur = shift || return;
-    my $title = shift || return error ('No title!' );
+    my $start = shift || return error('No start time defined!');
+    my $dur = shift || return 0;
+    my $title = shift || return error('No title defined!');
     my $subtitle = shift;
     my $channel = shift;    
 
@@ -1044,7 +1047,7 @@ qq|SELECT * FROM OLDEPG WHERE
     AND subtitle = ? 
     AND channel_id = ?|);
         $sth->execute($start,$bis,$title,$subtitle,$channel)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } elsif($subtitle) {
         $sth = $obj->{dbh}->prepare(
 qq|SELECT * FROM OLDEPG WHERE 
@@ -1053,7 +1056,7 @@ qq|SELECT * FROM OLDEPG WHERE
     AND title = ? 
     AND subtitle = ?|);
         $sth->execute($start,$bis,$title,$subtitle)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
         $sth = $obj->{dbh}->prepare(
 qq|SELECT * FROM OLDEPG WHERE 
@@ -1061,7 +1064,7 @@ qq|SELECT * FROM OLDEPG WHERE
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ?|);
         $sth->execute($start,$bis,$title)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     }
     return 0 if(!$sth);
 
@@ -1079,14 +1082,13 @@ qq|SELECT * FROM OLDEPG WHERE
 sub createOldEventId {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $id = shift || return error ('No Id!' );
-    my $start = shift || return error ('No Starttime!' );
+    my $id = shift || return error('No eventid defined!');
+    my $start = shift || return error('No start time defined!');
     my $duration = shift || 0;
-    my $title = shift || return error ('No title!' );
+    my $title = shift || return error('No title defined!');
     my $subtitle = shift;
     my $info = shift;
 
-#warn($title);
     my $attr = {
         title => $title,
         subtitle => $subtitle,
@@ -1102,9 +1104,7 @@ sub createOldEventId {
     $attr->{eventid} = $obj->{dbh}->selectrow_arrayref('select max(eventid)+1 from OLDEPG')->[0];
     $attr->{eventid} = 1000000000 if(not defined $attr->{eventid} or $attr->{eventid} < 1000000000 );
 
-    # dumper($attr);
-
-    lg sprintf('Create OldEventId from event "%s" - "%s"',
+    lg sprintf('Create event "%s" - "%s" into OLDEPG',
             $title,
             $subtitle ? $subtitle : '',
         );
@@ -1131,8 +1131,8 @@ sub createOldEventId {
 sub display {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $recordid = shift || return $console->err(gettext("No recording defined for display! Please use rdisplay 'rid'"));
 
     my $start = "e.starttime";
@@ -1167,7 +1167,7 @@ where
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($recordid)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
 
     $obj->_loadreccmds;
@@ -1189,8 +1189,8 @@ where
 sub play {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT RecordID FROM RECORDS WHERE RecordMD5 = ?|;
@@ -1209,8 +1209,8 @@ sub play {
 sub cut {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT RecordID FROM RECORDS WHERE RecordMD5 = ?|;
@@ -1229,8 +1229,8 @@ sub cut {
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $text    = shift || "";
     my $params  = shift;
 
@@ -1321,8 +1321,8 @@ GROUP BY
 sub search {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $text    = shift || return $obj->list($watcher,$console);
     my $params  = shift;
 
@@ -1390,8 +1390,8 @@ WHERE
 sub delete {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $record  = shift || return $console->err(gettext("No recording defined for deletion! Please use rdelete 'id'."));
     my $answer  = shift || 0;
 
@@ -1414,7 +1414,7 @@ sub delete {
     my $sql = sprintf("SELECT r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 FROM RECORDS as r,OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) ORDER BY r.RecordId desc", join(',' => ('?') x @recordings)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@recordings)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $data = $sth->fetchall_arrayref(); # Query as array to hold ordering !
 
     foreach my $recording (@$data) {
@@ -1505,8 +1505,8 @@ sub is_empty_dir {
 sub redit {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $recordid  = shift || return $console->err(gettext("No recording defined for editing!"));
     my $data    = shift || 0;
 
@@ -1541,7 +1541,7 @@ WHERE
 
     if(-r $file) {
         my $text = load_file($file) 
-        or $console->err(sprintf(gettext("Cannot open file '%s' : %s!"),$file,$!));
+        or $console->err(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$!));
 
         foreach my $zeile (split(/[\r\n]/, $text)) {
             if($zeile =~ /^D\s+(.+)/s) {
@@ -1669,7 +1669,7 @@ WHERE
             $data->{summary} =~ s/\s+$//;               # no trailing white space
             if(-r $file) {
               my $text = load_file($file) 
-                or $console->err(sprintf(gettext("Cannot open file '%s' : %s!"),$file,$!));
+                or $console->err(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$!));
               foreach my $zeile (split(/[\r\n]/, $text)) {
                     $zeile =~ s/^\s+//;
                     $zeile =~ s/\s+$//;
@@ -1732,13 +1732,13 @@ WHERE
             }
 
             save_file($file, $out)
-               or return $console->err(sprintf(gettext("Can't write file '%s' : %s"),$file,$!));
+               or return $console->err(sprintf(gettext("Couldn't write file '%s' : %s"),$file,$!));
             $dropEPGEntry = 1;
         }
 
         if($data->{marks} ne $marks) {
             save_file($marksfile, $data->{marks})
-               or return $console->err(sprintf(gettext("Can't write file '%s' : %s"),$marksfile,$!));
+               or return $console->err(sprintf(gettext("Couldn't write file '%s' : %s"),$marksfile,$!));
             $ChangeRecordingData = 1;
         }
 
@@ -1757,7 +1757,7 @@ WHERE
             my $newPath = join('.', @options);
 
             move($rec->{Path}, $newPath)
-                 or return $console->err(sprintf(gettext("Recording: '%s', can't move to '%s' : %s"),$rec->{title},$newPath,$!));
+                 or return $console->err(sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$newPath,$!));
 
             $rec->{Path} = $newPath;
             $touchVDR = 1;
@@ -1776,18 +1776,18 @@ WHERE
             my $parentnew = dirname($newPath);
             unless( -d $parentnew) {
                 mkpath($parentnew)
-                    or return $console->err(sprintf(gettext("Recording: '%s', can't mkpath: '%s' : %s"),$rec->{title},$parentnew,$!));
+                    or return $console->err(sprintf(gettext("Recording: '%s', couldn't mkpath: '%s' : %s"),$rec->{title},$parentnew,$!));
             }
 
             move($rec->{Path},$newPath)
-                    or return $console->err(sprintf(gettext("Recording: '%s', can't move to '%s' : %s"),$rec->{title},$data->{title},$!));
+                    or return $console->err(sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$data->{title},$!));
 
             my $parentold = dirname($rec->{Path});
             if($obj->{videodir} ne $parentold
                 and -d $parentold
                 and is_empty_dir($parentold)) {
                 rmdir($parentold)
-                    or return $console->err(sprintf(gettext("Recording: '%s', can't remove '%s' : %s"),$rec->{title},$parentold,$!));
+                    or return $console->err(sprintf(gettext("Recording: '%s', couldn't remove '%s' : %s"),$rec->{title},$parentold,$!));
             }
 
             $ChangeRecordingData = 1;
@@ -1798,13 +1798,13 @@ WHERE
         if($dropEPGEntry) { # Delete EpgOld Entrys
             my $sth = $obj->{dbh}->prepare('DELETE FROM OLDEPG WHERE eventid = ?');
             $sth->execute($rec->{EventId})
-                or return error sprintf("Can't execute query: %s.",$sth->errstr);
+                or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
         }
 
         if($ChangeRecordingData) { 
             my $sth = $obj->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
             $sth->execute($recordid)
-                or return error sprintf("Can't execute query: %s.",$sth->errstr);
+                or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
         }
 
         if($touchVDR) { #Ab 1.3.11 resync with touch /video/.update
@@ -1850,8 +1850,8 @@ sub _loadreccmds {
 sub conv {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $data = shift || 0;
 
     $obj->_loadreccmds;
@@ -1869,7 +1869,7 @@ sub conv {
     }
 
     my ($cmdid, $recid) = split(/[\s_]/, $data);
-    my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return $console->err(gettext("Cannot find this command ID!"));
+    my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return $console->err(gettext("Couldn't find this command ID!"));
     my $path = $obj->IdToPath($recid) || return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
 
     debug sprintf('Call command "%s" on recording "%s"%s',
@@ -1920,7 +1920,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($lastReportTime)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
     return {
@@ -1939,7 +1939,7 @@ sub IdToPath {
 
     my $sth = $obj->{dbh}->prepare('select Path from RECORDS where RecordMD5 = ?');
     $sth->execute($id)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg ? $erg->{Path} : undef;
 }
@@ -1948,7 +1948,7 @@ sub IdToPath {
 sub getPreviewFiles {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $id = shift || return error ('No EventID!' );
+    my $id = shift || return error('No eventid defined!');
 
     # look for pictures
     my $outdir = sprintf('%s/%lu_shot', $obj->{previewimages}, $id);
@@ -1968,11 +1968,11 @@ sub getPreviewFiles {
 sub getGroupIds {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $recid = shift || return error ('No recording defined!' );
+    my $recid = shift || return error ('No recording defined!');
     
     my $epgid = getDataById($recid, 'RECORDS', 'RecordMD5');
     if(!$epgid) {
-      error sprintf("Can't find recording '%s'!", $recid);
+      error sprintf("Couldn't find recording '%s'!", $recid);
       return;
     }
     my $epgdata = main::getModule('EPG')->getId($epgid->{eventid});
@@ -2033,7 +2033,7 @@ sub translate {
     {
         $title =~ s/([^üהצßa-z0-9\&\!\-\s\.\@\~\,\(\)\%\+])/sprintf('#%X', ord($1))/seig;
         $title =~ s/[^üהצßa-z0-9\!\&\-\#\.\@\~\,\(\)\%\+]/_/sig;
-        # Windows can't handle '.' at the end of directory names
+        # Windows couldn't handle '.' at the end of directory names
         $title =~ s/(\.$)/\#2E/sig;
         $title =~ s/(\.~)/\#2E~/sig;
     } else {
@@ -2091,10 +2091,11 @@ sub converttitle {
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {
+# ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
 
@@ -2127,7 +2128,7 @@ LIMIT 25
         |;
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute('%'.$search.'%','%'.$search.'%')
-            or return error "Can't execute query: $sth->errstr.";
+            or return error "Couldn't execute query: $sth->errstr.";
         my $result = $sth->fetchall_arrayref();
         $console->table($result)
             if(ref $console && $result);

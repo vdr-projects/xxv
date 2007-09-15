@@ -148,7 +148,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{TYP} = 'text/plain';
@@ -157,8 +157,8 @@ sub new {
     main::after(sub{
         # The Initprocess
         my $erg = $self->init
-            or return error('Problem to initialize news module');
-    }, "NEWS::JABBER: Start initiate the Jabber module ...")
+            or return error('Problem to initialize news modul!');
+    }, "NEWS::JABBER: Start initiate the jabber modul ...")
         if($self->{active} eq 'y');
 
 	return $self;
@@ -222,7 +222,7 @@ sub jdisconnect {
 sub send {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $vars    = shift || return error ('No Vars!' );
+    my $vars    = shift || return error('No data defined!');
 
     return undef, lg('This function is deactivated!')
         if($obj->{active} ne 'y');
@@ -245,7 +245,7 @@ sub send {
 sub read {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $vars = shift || return error ('No News!' );
+    my $vars = shift || return error('No data defined!');
 
     return $obj->send($vars);
 
@@ -270,7 +270,7 @@ sub req {
     if($obj->send($vars)) {
         return sprintf('Message is send to %s at %s', $obj->{receiveUser}, datum($vars->{AddDate}, 'voll'));
     } else {
-        return sprintf('Upps, problem send Message to %s at %s', $obj->{receiveUser}, datum($vars->{AddDate}, 'voll'));
+        return sprintf("Sorry, couldn't send message to %s at %s", $obj->{receiveUser}, datum($vars->{AddDate}, 'voll'));
     }
 }
 

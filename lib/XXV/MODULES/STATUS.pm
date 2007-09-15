@@ -145,7 +145,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your System:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # Interval to read timers and put to DB
@@ -193,8 +193,8 @@ sub remember {
 sub vitals {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my $output = {
         name    => $obj->name(),
@@ -220,8 +220,8 @@ sub vitals {
 sub network {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my $interfaces = $obj->netDevs();
     my $param = {
@@ -238,8 +238,8 @@ sub network {
 sub hardware {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my ($number, $model, $speed, $cache, $bogomips) = $obj->CPU();
     my $pci = $obj->pci();
@@ -266,8 +266,8 @@ sub hardware {
 sub memory {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my $ret = $obj->meminfo();
     my $param = {
@@ -284,8 +284,8 @@ sub memory {
 sub filesys {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my $ret = $obj->mounts();
     my $param = {
@@ -494,7 +494,7 @@ sub CPU {
 sub util {
     my $obj = shift || return error('No object defined!');
 
-    open(STAT, "/proc/stat") or return error "Can't open /proc/stat\n";
+    open(STAT, "/proc/stat") or return error "Couldn't open /proc/stat\n";
     my $buffer = <STAT>;
     close(STAT);
 
@@ -507,7 +507,7 @@ sub util {
     #take an argument < 1
     sleep(1);
 
-    open (STAT, "/proc/stat") or return error "Can't open /proc/stat\n";
+    open (STAT, "/proc/stat") or return error "Couldn't open /proc/stat\n";
     $buffer = <STAT>;
     close(STAT);
 
@@ -535,7 +535,7 @@ sub users {
     my $obj = shift || return error('No object defined!');
 
     my $result = `$obj->{whoBinary} | $obj->{wcBinary} -l`
-        or return error "Can't execute $obj->{whoBinary} or $obj->{wcBinary}\n";
+        or return error "Couldn't execute $obj->{whoBinary} or $obj->{wcBinary}\n";
     $result =~ s/\n//g;
     return $result;
 
@@ -609,7 +609,7 @@ sub scsi {
         my $cd_no = '0';
         my $st_no = '0';
         open(F,$file) 
-            or return error "Can't open $file : $!\n";;
+            or return error "Couldn't open $file : $!\n";;
         while(<F>) {
             if(/Host: (\S+) Channel: (\d+) Id: (\d+) Lun: (\d+)/) {
                 $host = $1, $channel = $2, $id = $3, $lun = $4;
@@ -683,7 +683,7 @@ sub mounts{
     my $clr = shift || 0;
 
     my $df = `$obj->{dfBinary} -TP -x cdfs -x iso9660 -x udf`
-        or return error "Can't execute $obj->{dfBinary} $!\n";
+        or return error "Couldn't execute $obj->{dfBinary} $!\n";
     my $ret = [[qw/FS Typ Space Used Free Cap. Mount/]];
 
     foreach my $zeile (split('\n', $df)) {
@@ -706,7 +706,7 @@ sub mounts{
 sub videoMounts {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $videodir = shift || return error ('No Video dir!');
+    my $videodir = shift || return error('No video path defined!');
     my $mounts = $obj->mounts;
 
     my $ret = [];
@@ -738,7 +738,7 @@ sub findttf
         },
         $obj->{paths}->{FONTPATH}
     );
-    error "Can't find useful font at : $obj->{paths}->{FONTPATH}"
+    error "Couldn't find useful font at : $obj->{paths}->{FONTPATH}"
         if(scalar $found == 0);
     return $found;
 }
@@ -747,7 +747,7 @@ sub findttf
 sub watchDog {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $mou = shift  || return error ('No Data!' );
+    my $mou = shift  || return error('No data defined!');
 
     # Not all 15 seconds a panic message ;)
     return if($obj->{LastWarning}+900 > time);

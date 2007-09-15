@@ -107,24 +107,6 @@ sub module {
             },
         },
         Commands => {
-            help => {
-                description => gettext("This will display all commands or description of module 'name'."),
-                short       => 'h',
-                callback    => sub{
-                    return $obj->usage(@_);
-                },
-            },
-            reload => {
-                description => gettext("Restart all modules."),
-                short       => 'rel',
-                callback    => sub{
-                    my ($w, $c, $l) = @_;
-                    $Module::Reload::Debug = 2;
-                    Module::Reload->check;
-                    $c->message(gettext("Modules loaded."));
-                },
-              Level   => 'admin'
-            },
             checkvalue => {
                 hidden      => 'yes',
                 callback    => sub{ $obj->checkvalue(@_) },
@@ -156,14 +138,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    $self->init or return error('Problem to initialize module');
+    $self->init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -184,7 +166,7 @@ sub init {
 		LocalPort	=> $obj->{Port},
     LocalAddr => $obj->{Interface},
 		Reuse		=> 1
-    ) or return error("Can't create Socket: $!");
+    ) or return error("Couldn't create socket: $!");
 
     # install an initial watcher
     Event->io(
@@ -193,7 +175,7 @@ sub init {
         cb => sub {
             # accept client
             my $client=$socket->accept;
-            panic "Can't connect http to new client." and return unless $client;
+            panic "Couldn't connect to new http client." and return unless $client;
             $client->autoflush;
 
             # make "channel" number
@@ -487,54 +469,7 @@ sub handleInput {
 sub usage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
-    my $console = shift || return error('No console defined!');
-    my $modulename = shift || 0;
-    my $hint = shift || '';
-    my $user = shift || $console->{USER};
-
-    my $u = main::getModule('USER');
-    unless($user) {
-        my $loginObj = $obj;
-        $loginObj = main::getModule('HTTPD')
-                if ($console->{TYP} eq 'HTML') ;
-        $loginObj = main::getModule('WAPD')
-                if ($console->{TYP} eq 'WML') ;
-        $user = $loginObj->{USER};
-    }
-
-    my $ret;
-    push(@$ret, sprintf(gettext("%sThis is the xxv %s server.\nPlease use the following commands:\n"),
-        ($hint ? "$hint\n\n" : ''), $console->typ));
-
-    my $mods = main::getModules();
-    my @realModName;
-
-    # Search for command and display the Description
-    foreach my $modName (sort keys %{$mods}) {
-        my $modCfg = $mods->{$modName}->{MOD};
-        push(@realModName, $mods->{$modName}->{MOD}->{Name});
-        next if($modulename and uc($modulename) ne $modCfg->{Name});
-        foreach my $cmdName (sort keys %{$modCfg->{Commands}}) {
-            push(@$ret,
-                [
-                    (split('::', $modName))[-1],
-                    $modCfg->{Commands}->{$cmdName}->{short},
-                    $cmdName,
-                    $modCfg->{Commands}->{$cmdName}->{description},
-                ]
-            ) if(! $modCfg->{Commands}->{$cmdName}->{hidden} and ($u->{active} ne 'y') || $u->allowCommand($modCfg, $cmdName, $user, "1"));
-        }
-    }
-
-    $console->menu(
-        $ret,
-        {
-            periods  => $mods->{'XXV::MODULES::EPG'}->{periods},
-            CHANNELS => $mods->{'XXV::MODULES::CHANNELS'}->ChannelArray('Name'),
-            CONFIGS  => [ sort @realModName ],
-        },
-    );
+    return main::getModule('CONFIG')->usage(@_);
 }
 
 # ------------------
@@ -575,7 +510,7 @@ sub findskins
         },
         $obj->{paths}->{HTMLDIR}
     );
-    error "Can't find useful HTML Skin at : $obj->{paths}->{HTMLDIR}"
+    error "Couldn't find useful HTML Skin at : $obj->{paths}->{HTMLDIR}"
         if(scalar $found == 0);
     return sort { lc($a->[0]) cmp lc($b->[0]) } @{$found};
 }

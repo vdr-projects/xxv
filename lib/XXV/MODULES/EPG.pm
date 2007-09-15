@@ -83,8 +83,8 @@ sub module {
                 description => gettext('Update EPG data.'),
                 short       => 'er',
                 callback    => sub{
-                    my $watcher = shift || return error ('No Watcher!');
-                    my $console = shift || return error ('No Console');
+                    my $watcher = shift || return error('No watcher defined!');
+                    my $console = shift || return error('No console defined!');
 
                     debug sprintf('Start reload EPG data%s',
                         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
@@ -134,7 +134,7 @@ sub status {
         my $sth = $obj->{dbh}->prepare("select count(*) as count from EPG");
         if(!$sth->execute())
         {
-            error sprintf("Can't execute query: %s.",$sth->errstr);
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
         } else {
             my $erg = $sth->fetchrow_hashref();
             $total = $erg->{count} if($erg && $erg->{count});
@@ -145,7 +145,7 @@ sub status {
         my $sth = $obj->{dbh}->prepare("select count(*) as count from EPG where UNIX_TIMESTAMP(addtime) > ?");
         if(!$sth->execute($lastReportTime))
         {
-            error sprintf("Can't execute query: %s.",$sth->errstr);
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
         } else {
             my $erg = $sth->fetchrow_hashref();
             $newEntrys = $erg->{count} if($erg && $erg->{count});
@@ -180,14 +180,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    $self->_init or return error('Problem to initialize module');
+    $self->_init or return error('Problem to initialize modul!');
 
     return $self;
 }
@@ -236,7 +236,7 @@ sub _init {
     main::after(sub{
         $obj->{svdrp} = main::getModule('SVDRP');
         unless($obj->{svdrp}) {
-           panic ("Can't get modul SVDRP");
+           panic ("Couldn't get modul SVDRP");
            return 0;
         }
 
@@ -330,7 +330,7 @@ sub updated {
 sub compareEpgData {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $vdata = shift || return error('No data');
+    my $vdata = shift || return error('No data defined!');
     my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
@@ -356,7 +356,7 @@ sub compareEpgData {
       my $sql = qq|select eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio from EPG where channel_id = ? |;
       my $sth = $obj->{dbh}->prepare($sql);
       $sth->execute($channel)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       my $db_data = $sth->fetchall_hashref('eventid');
 
       lg sprintf( 'Compare EPG Database with data from vdr : %d / %d for channel %s', scalar keys %$db_data,scalar keys %$vdrData, $channel);
@@ -394,7 +394,7 @@ sub compareEpgData {
         my $sth = $obj->{dbh}->prepare('DELETE FROM EPG WHERE eventid IN (?)');
         foreach my $eventid (keys %$db_data) {
             if(!$sth->execute($eventid)) {
-                error sprintf("Can't execute query: %s.",$sth->errstr);
+                error sprintf("Couldn't execute query: %s.",$sth->errstr);
             }
         }
       }
@@ -433,9 +433,9 @@ sub deleteDoubleEPGEntrys {
 # ------------------
 sub replace {
 # ------------------
-    my $obj = shift || return error ('No Object!');
-    my $eventid = shift || return error ('No eventid to insert!');;
-    my $attr = shift || return error ('No data to insert!');
+    my $obj = shift || return error('No object defined!');
+    my $eventid = shift || return error('No eventid defined!');
+    my $attr = shift || return error('No data defined!');
 
     my $sth = $obj->{dbh}->prepare('REPLACE INTO EPG(eventid, title, subtitle, description, channel_id, duration, tableid, image, version, video, audio, starttime, addtime, vpstime) VALUES (?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),FROM_UNIXTIME(?))');
     $sth->execute(
@@ -460,8 +460,8 @@ sub replace {
 sub encodeEpgId {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $epgid = shift || return error('No EPG Id!');
-    my $channel = shift || return error('No Channel!');
+    my $epgid = shift || return error('No event defined!');
+    my $channel = shift || return error('No channel defined!');
 
     # look for NID-TID-SID for unique eventids (SID 0-30000 / TID 0 - 1000 / NID 0 - 10000
     my @id = split('-', $channel);
@@ -476,7 +476,7 @@ sub encodeEpgId {
 sub readEpgData {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $vdata = shift || return error('Problem to read Data!');
+    my $vdata = shift || return error('No data defined!');
     my $count = shift || 0;
     my $dataHash = {};
 
@@ -575,8 +575,8 @@ sub readEpgData {
 sub search {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $data = shift;
     my $params = shift;
 
@@ -665,8 +665,8 @@ sub search {
 sub program {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $channel = shift || $obj->{dbh}->selectrow_arrayref("select POS from CHANNELS limit 1")->[0];
 
     my $mod = main::getModule('CHANNELS');
@@ -704,7 +704,7 @@ order by
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($cid)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -721,8 +721,8 @@ order by
 sub display {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $eventid = shift || return $console->err(gettext("No ID defined to display this program! Please use display 'eid'!"));
 
     my %f = (
@@ -771,7 +771,7 @@ where
     $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventid)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     $erg = $sth->fetchall_arrayref();
 
     last
@@ -791,8 +791,8 @@ where
 sub runningNext {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $data   = shift;
     my $param   = shift || {};
     my $cgroups = main::getModule('CHANNELS')->ChannelGroupsArray('Name');
@@ -822,7 +822,7 @@ GROUP BY c.Id
 |;
     my $sthtemp = $obj->{dbh}->prepare($sqltemp);
     $sthtemp->execute($cgrp)
-        or return error sprintf("Can't execute query: %s.",$sthtemp->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sthtemp->errstr);
 
     my %f = (
         'Service' => umlaute(gettext('Service')),
@@ -858,7 +858,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($cgrp)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -879,8 +879,8 @@ ORDER BY
 sub runningNow {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $zeit = shift || time;
     my $param   = shift || {};
     my $cgroups = main::getModule('CHANNELS')->ChannelGroupsArray('Name');
@@ -934,7 +934,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeit, $cgrp)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -955,9 +955,9 @@ ORDER BY
 sub NowOnChannel {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $channel = shift || $obj->_actualChannel || return error('No Channel!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $channel = shift || $obj->_actualChannel || return error('No channel defined!');
     my $zeit = time;
 
     my $sql =
@@ -989,7 +989,7 @@ LIMIT 1
 #dumper($sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeit, $channel)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
 
     if(ref $console) {
@@ -1013,8 +1013,8 @@ sub _actualChannel {
 sub schema {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $zeit = shift || time;
     my $param   = shift || {};
 
@@ -1074,7 +1074,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeitvon,$zeitbis,$zeitvon,$zeitbis,$zeitvon,$zeitbis,$cgrp)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
 
     my $data = {};
@@ -1101,9 +1101,9 @@ ORDER BY
 sub checkOnTimer {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $eid = shift  || return error('No Id');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $eid = shift  || return error('No id defined!');
     my $tim = main::getModule('TIMERS');
 
     my $sql = qq|
@@ -1122,7 +1122,7 @@ WHERE
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eid)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $data = $sth->fetchrow_hashref();
     my $erg = $tim->checkOverlapping($data) || ['ok'];
     my $tmod = main::getModule('TIMERS');
@@ -1138,10 +1138,11 @@ WHERE
 }
 
 # ------------------
-sub getDescription {# ------------------
+sub getDescription {
+# ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $eid = shift || 0;
 
     my $event = $obj->getId($eid,"description");
@@ -1154,7 +1155,7 @@ sub getDescription {# ------------------
 sub toFullHour {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $zeit = shift || return error ('No Time to convert!' );
+    my $zeit = shift || return error ('No time to convert defined!');
 
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
                                              localtime($zeit);
@@ -1167,7 +1168,7 @@ sub toFullHour {
 sub getId {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $id = shift || return error ('No Id!' );
+    my $id = shift || return error('No id defined!');
     my $fields = shift || '*';
 
     foreach my $table (qw/EPG OLDEPG/) {
@@ -1175,7 +1176,7 @@ sub getId {
         my $sql = sprintf('select %s from %s WHERE eventid = ?',$fields, $table); 
         my $sth = $obj->{dbh}->prepare($sql);
            $sth->execute($id) 
-                or return error "Can't execute query: $sth->errstr.";
+                or return error "Couldn't execute query: $sth->errstr.";
 
         my $erg = $sth->fetchrow_hashref();
         return $erg
@@ -1188,8 +1189,8 @@ sub getId {
 # ------------------
 sub suggest {# ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
 
@@ -1230,10 +1231,10 @@ LIMIT 25
         my $sth = $obj->{dbh}->prepare($sql);
         if($params->{channel}) {
             $sth->execute('%'.$search.'%',$params->{channel},'%'.$search.'%',$params->{channel}) 
-                or return error "Can't execute query: $sth->errstr.";
+                or return error "Couldn't execute query: $sth->errstr.";
         } else {
             $sth->execute('%'.$search.'%','%'.$search.'%')
-                or return error "Can't execute query: $sth->errstr.";
+                or return error "Couldn't execute query: $sth->errstr.";
         }
         my $result = $sth->fetchall_arrayref();
         $console->table($result)

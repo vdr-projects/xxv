@@ -103,8 +103,8 @@ or the same parameter is set for each function."),
                 description => gettext("Log out from current session."),
                 short       => 'exit',
                 callback    => sub{
-                    my $watcher = shift || return error ('No Watcher!');
-                    my $console = shift || return error ('No Console');
+                    my $watcher = shift || return error('No watcher defined!');
+                    my $console = shift || return error('No console defined!');
 
                     if($obj->{active} eq 'y') {
                         $console->message(gettext("Session closed."));
@@ -169,14 +169,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    my $erg = $self->_init or return error('Problem to initialize module');
+    my $erg = $self->_init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -227,8 +227,8 @@ sub _init {
 # ------------------
 sub create {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
@@ -240,8 +240,8 @@ sub create {
 sub userprefs {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id      = shift || $obj->{USER}->{Id};
     my $data    = shift || 0;
 
@@ -323,8 +323,8 @@ sub userprefs {
 # ------------------
 sub edit {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
@@ -490,9 +490,9 @@ sub edit {
 # ------------------
 sub delete {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $id = shift || return $console->err(gettext("No user account defined to delete! Please use udelete 'uid'."));
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $id = shift || return $console->err(gettext("No user account defined for deletion! Please use udelete 'uid'."));
 
     my $sth = $obj->{dbh}->prepare('delete from USER where Id = ?');
     $sth->execute($id)
@@ -514,8 +514,8 @@ sub delete {
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my %f = (
         'Id' => umlaute(gettext('Service')),
@@ -625,7 +625,7 @@ sub check {
         # check User
         my $sth = $obj->{dbh}->prepare('select * from USER where Name = ? and Password = md5( ? )');
         $sth->execute($name, $password)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
         $obj->{USER} = $sth->fetchrow_hashref();
 
         # Set the user settings from user
@@ -691,9 +691,9 @@ sub setUserSettings {
 sub allowCommand {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $modCfg = shift || return error('No Moduleinformation');
-    my $cmdName = shift || return error('No Command name');
-    my $user = shift || return error('No User');
+    my $modCfg = shift || return error('No modul defined!');
+    my $cmdName = shift || return error('No command name defined!');
+    my $user = shift || return error('No user defined!');
     my $DontdumpViolation = shift || '';
 
     if(
@@ -734,8 +734,8 @@ sub t_checkCommand {
 # ------------------
 sub checkCommand {
     my $obj = shift  || return error('No object defined!');
-    my $console = shift || return error ('No Console' );
-    my $ucmd = shift || return error ('No Command' );
+    my $console = shift || return error('No console defined!');
+    my $ucmd = shift || return error('No command defined!');
     my $DontdumpViolation = shift || '';
 
     my $mods = main::getModules();
@@ -775,7 +775,7 @@ sub checkCommand {
         }
     }
     unless($ok) {
-        $err = sprintf(gettext("I do not understand the command '%s' \n"), $ucmd);
+        $err = sprintf(gettext("Sorry, couldn't understand command '%s'!\n"), $ucmd);
         $shorterr = 'noexists';
     }
 
@@ -907,7 +907,7 @@ sub userTmp {
     my $dir = sprintf('%s/%s/%d', $obj->{tempimages} , $user, $$);
 
     unless(-d $dir) {
-        mkpath($dir) or error "Can't mkpath $dir : $!";
+        mkpath($dir) or error "Couldn't mkpath $dir : $!";
     }
 
     # Nach Logout oder beenden von xxv das temp löschen

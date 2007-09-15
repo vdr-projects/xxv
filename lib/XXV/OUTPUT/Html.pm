@@ -65,7 +65,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{handle} = $attr{'-handle'}
@@ -458,7 +458,7 @@ sub status404 {
 
     $file =~ s/$obj->{htmdir}\///g; # Don't post html root, avoid spy out
 
-    $obj->statusmsg(404,sprintf(gettext("Cannot open file '%s' : %s!"),$file,$why),
+    $obj->statusmsg(404,sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),
                     gettext("Not found"));
 }
 
@@ -642,7 +642,7 @@ sub datei {
 
       my $child = fork(); 
       if ($child < 0) {
-        error("Can't create process for streaming : " . $!);
+        error("Couldn't create process for streaming : " . $!);
         return $obj->status404($file,$!);
       }
       elsif ($child > 0) {

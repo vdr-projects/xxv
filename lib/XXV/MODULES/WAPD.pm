@@ -111,14 +111,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    $self->init or return error('Problem to initialize module');
+    $self->init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -138,7 +138,7 @@ sub init {
 		LocalPort	=> $obj->{Port},
     LocalAddr => $obj->{Interface},
 		Reuse		=> 1
-    ) or return error("Can't create Socket: $!");
+    ) or return error("Couldn't create socket: $!");
 
     # install an initial watcher
     Event->io(
@@ -147,7 +147,7 @@ sub init {
         cb => sub {
             # accept client
             my $client=$socket->accept;
-            panic "Can't connect wapd to new client." and return unless $client;
+            panic "Couldn't connect to new wap client." and return unless $client;
             $client->autoflush;
 
             # make "channel" number
@@ -245,7 +245,7 @@ sub init {
 sub parseRequest {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $hdl = shift || return error ('No Handle!' );
+    my $hdl = shift || return error('No handle defined!');
     my $logout = shift || 0;
 
     my ($Req, $size) = getFromSocket($hdl);
@@ -283,8 +283,8 @@ sub parseRequest {
 sub handleInput {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $cgi     = shift || return error ('No CGI Object');
 
     my $ucmd    = $cgi->param('cmd')  || '<undef>';
@@ -327,7 +327,7 @@ sub handleInput {
 sub usage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    return main::getModule('HTTPD')->usage(@_);
+    return main::getModule('CONFIG')->usage(@_);
 }
 
 # ------------------
@@ -347,7 +347,7 @@ sub findskins
         },
         $obj->{paths}->{HTMLDIR}
     );
-    error "Can't find useful WML Skin at : $obj->{paths}->{HTMLDIR}"
+    error "Couldn't find useful WML Skin at : $obj->{paths}->{HTMLDIR}"
         if(scalar $found == 0);
     return $found;
 }

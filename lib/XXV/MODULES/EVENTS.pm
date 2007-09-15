@@ -83,14 +83,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    my $erg = $self->_init or return error('Problem to initialize module');
+    my $erg = $self->_init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -136,7 +136,7 @@ sub searchForEvents {
 # ------------------
 sub callEvent {
 # ------------------
-    my $obj = shift || return error ('No Object in callEvent!' );
+    my $obj = shift || return error('No object defined!');
     my $args = {
         'Mod' => shift,
         'Sub' => shift,

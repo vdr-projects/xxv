@@ -71,14 +71,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    $self->init or return error('Problem to initialize module');
+    $self->init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -133,7 +133,7 @@ BEGIN {
     # ------------------
     sub getCommand {
         my $obj = shift || return error('No object defined!');
-        my $cmd = shift || return error ('No Command!' );
+        my $cmd = shift || return error('No command defined!');
         my $data = shift;
 
         my $ret = $obj->handleInput($cmd, $data);
@@ -144,7 +144,7 @@ BEGIN {
     sub handleInput {
     # ------------------
         my $obj     = shift || return error('No object defined!');
-        my $ucmd    = shift || return error ('No Command');
+        my $ucmd    = shift || return error('No command defined!');
         my $udata   = shift;
 
         my $watcher = $obj;
@@ -172,7 +172,7 @@ BEGIN {
     sub usage {
     # ------------------
         my $obj = shift || return error('No object defined!');
-        return main::getModule('TELNET')->usage(@_);
+        return main::getModule('CONFIG')->usage(@_);
     }
 
 } # End BEGIN

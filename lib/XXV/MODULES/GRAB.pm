@@ -109,7 +109,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # create Template object
@@ -121,7 +121,7 @@ sub new {
       EVAL_PERL    => 1,                # evaluate Perl code blocks
     );
 
-    $self->_init or return error('Problem to initialize module');
+    $self->_init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -134,11 +134,11 @@ sub _init {
     main::after(sub{
           $obj->{svdrp} = main::getModule('SVDRP');
           unless($obj->{svdrp}) {
-            panic ("Can't get modul SVDRP");
+            panic ("Couldn't get modul SVDRP");
             return 0;
           }
           return 1;
-        }, "GRAB: Init module ...");
+        }, "GRAB: init modul ...");
     return 1;
 }
 
@@ -169,7 +169,7 @@ sub grab {
             $erg = $data;
         } elsif(!open(F, ">$file")) {
             # Open failed
-            $erg = sprintf("Can't write to file %s : %s",$file,$!);
+            $erg = sprintf("Couldn't write file %s : %s",$file,$!);
         } else {
             # uudecode data to file
             binmode(F);
@@ -179,7 +179,7 @@ sub grab {
     } else {
 
         if(-e $file) {
-          unlink($file) || error("Can't remove '%s' : %s",$file,$!);
+          unlink($file) || error("Couldn't remove '%s' : %s",$file,$!);
         }
         # the command
         my $cmd = sprintf('grab %s jpeg %d %d %d',
@@ -204,15 +204,15 @@ sub grab {
 sub display {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my $file = $obj->grab();
     if(-s $file) { #  Datei existiert und hat eine Grösse von mehr als 0 Bytes
       $console->{nocache} = 1;
       return $console->image($file);
     } else {
-      error("Can't locate file : $file, maybe grabbing was failed");
+      error("Couldn't locate file : $file, maybe grabbing was failed");
       return 0;
     }
 }
@@ -221,16 +221,16 @@ sub display {
 sub makeImgText {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $file = shift || $obj->{file} || return error ('No File to display');
-    my $text = shift || $obj->{imgtext} || return error ('No Text to display');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $file = shift || $obj->{file} || return error ('No file to display defined!');
+    my $text = shift || $obj->{imgtext} || return error ('No text to display defined!');
 
     my $im;
     if(int(${GD::VERSION}) >= 2.0) {
-        $im = GD::Image->newFromJpeg($file, 1) || return error("Can't read $file $!");
+        $im = GD::Image->newFromJpeg($file, 1) || return error("Couldn't read $file $!");
     } else {
-        $im = GD::Image->newFromJpeg($file) || return error("Can't read $file $!");
+        $im = GD::Image->newFromJpeg($file) || return error("Couldn't read $file $!");
     }
     my $color   = $im->colorClosest(255,255,255);
     my $shadow  = $im->colorClosest(0,0,0);
@@ -283,7 +283,7 @@ sub findttf
         },
         $obj->{paths}->{FONTPATH}
     );
-    error "Can't find useful font at : ", $obj->{paths}->{FONTPATH}
+    error "Couldn't find useful font at : ", $obj->{paths}->{FONTPATH}
         if(scalar $found == 0);
     return $found;
 }

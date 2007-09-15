@@ -154,7 +154,7 @@ $MODULES->{'XXV::MODULES::General'}->{MOD} = &module;
 # Try to use the Requirments
 map {
     eval "use $_";
-    warn("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+    warn("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
 } keys %{$MODULES->{'XXV::MODULES::General'}->{MOD}->{Prereq}};
 
 
@@ -220,7 +220,7 @@ my $CFGOBJ = Config::Tiny->new();
 my $cfgFile = &getConfigFile();
 my $Config = $CFGOBJ->read( $cfgFile );
 unless($Config){
-    print sprintf("Can't read file with configuration '%s' : %s", $cfgFile, $CFGOBJ->errstr);
+    print sprintf("Couldn't read file with configuration '%s' : %s", $cfgFile, $CFGOBJ->errstr);
     exit(1);
 }
 
@@ -239,7 +239,7 @@ debug sprintf('Verbose Level is set to %d', $verbose);
 
 my $cfgUsrFile = &getUsrConfigFile();
 if($cfgUsrFile ne $cfgFile) {
-    debug sprintf('Maybe 1st Start, used configuration : read from file "%s" write to file "%s"', $cfgFile, $cfgUsrFile);
+    debug sprintf('Maybe 1st start, used configuration : read from file "%s" write to file "%s"', $cfgFile, $cfgUsrFile);
 } else {
     debug sprintf('Use configuration file "%s"', $cfgUsrFile);
 }
@@ -270,7 +270,7 @@ Event::loop();
 # ------------------
 sub init {
 # ------------------
-    my $modules = shift || return error ('No Modules Path!' );
+    my $modules = shift || return error('No modul path defined!');
     my @mods = glob($modules.'/*.pm');
 
     foreach my $module (reverse @mods) {
@@ -284,7 +284,7 @@ sub init {
             -dbh    => $DBH,
             -paths  => $PATHS,
         );
-        debug sprintf("Load Module %s(%s)\n",
+        debug sprintf("Load modul %s(%s)\n",
             $moduleName,
             (ref $MODULES->{$moduleName})
                 ? $MODULES->{$moduleName}->{MOD}->{Version}
@@ -379,8 +379,8 @@ sub toCleanUp {
 # ------------------
 sub getDbh {
 # ------------------
-    my $dsn = shift || return error ('No DSN!' );
-    my $usr = shift || return error ('No USR!' );
+    my $dsn = shift || return error('No database parameter defined!');
+    my $usr = shift || return error('No user defined!');
     my $pwd = shift || '';
 
     my $dbh = DBI->connect($dsn, $usr, $pwd,{
@@ -404,8 +404,8 @@ sub getDbh {
 # ------------------
 sub addModule {
 # ------------------
-    my $name = shift || return error('No Modname!');
-    my $modobj  = shift || return error('No Modobject!');
+    my $name = shift || return error('No modul name defined!');
+    my $modobj  = shift || return error('No modul object defined!');
     $MODULES->{$name} = $modobj;
     return $MODULES;
 }
@@ -420,7 +420,7 @@ sub getModules {
 # ------------------
 sub getModule {
 # ------------------
-    my $name = shift || return error ('No DSN!' );
+    my $name = shift || return error('No database parameter defined!');
 
     my ($modname) = grep(/${name}$/, keys %$MODULES);
 
@@ -586,7 +586,7 @@ sub restart {
 
         my $erg = `$run`;
     } else {
-        $console->err(gettext("Cannot restart the xxv system! Script for initialization cannot be executed."));
+        $console->err(gettext("Couldn't restart the xxv system! Script for initialization couldn't be executed."));
     }
 }
 
@@ -601,7 +601,7 @@ sub getActualDbVersion {
 # ------------------
 sub checkDB {
 # ------------------
-    my $dbh = shift || return error('No database handle');
+    my $dbh = shift || return error('No database handle defined!');
     my $dbversion = &getDBVersion($dbh);
     my $aver = &getActualDbVersion();
 
@@ -621,8 +621,8 @@ Please go to contribdir 'cd %s' and start
 # ------------------
 sub init_locale {
 # ------------------
-    my $cfg = shift || return error('No Config Hash');
-    my $pat = shift || return error('No Paths Hash');
+    my $cfg = shift || return error('No configuration defined!');
+    my $pat = shift || return error('No path defined!');
     # TODO set to installed folder like /usr/share/locale
     # set /usr/share/locale/de/LC_MESSAGES/xxv.mo
     # Message catalogs will be expected at the pathnames dirname/locale/cate-
@@ -641,7 +641,7 @@ sub init_locale {
 # ------------------
 sub init_logging {
 # ------------------
-    my $pat = shift || return error('No Paths Hash');
+    my $pat = shift || return error('No path defined!');
 
     my $loggercnt = 0;
     my $loggerfile = $pat->{LOGFILE};
@@ -700,7 +700,7 @@ with debian:
 # ------------------
 sub init_signal_handler {
 # ------------------
-    my $pat = shift || return error('No Paths Hash');
+    my $pat = shift || return error('No path defined!');
 
     # Signal stuff
     $SIG{__WARN__}  = sub{ error @_; };
@@ -712,7 +712,7 @@ sub init_signal_handler {
         $Config = Config::Tiny->read( $pat->{CFGFILE} )
             or return error('Problem to read the %s: %s', $pat->{CFGFILE}, $CFGOBJ->errstr);
         my $configModule = getModule('CONFIG')
-            or return error('Can not load the config module');
+            or return error("Couldn't load the config modul!");
         $configModule->reconfigure;
     };
 
@@ -721,14 +721,14 @@ sub init_signal_handler {
 # ------------------
 sub init_db_connect {
 # ------------------
-    my $cfg = shift || return error('No Config Hash');
+    my $cfg = shift || return error('No configuration defined!');
 
     # Connect to Database
     my $dbh = &getDbh(
         $cfg->{General}->{DSN},
         $cfg->{General}->{USR},
         $cfg->{General}->{PWD},
-        ) or return error 'Can not connect to database';
+        ) or return error "Couldn't connect to database";
 
     # Test on compare Version from DB and Sourcepaket
     my ($dbok, $dberr) = &checkDB($dbh);

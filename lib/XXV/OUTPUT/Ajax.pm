@@ -58,7 +58,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{handle} = $attr{'-handle'}
@@ -154,7 +154,7 @@ sub printout {
 sub header {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $typ = shift || return error ('No Type!' );
+    my $typ = shift || return error('No type defined!');
     my $arg = shift || {};
 
     $arg->{'Content-encoding'} = 'gzip'
@@ -216,7 +216,7 @@ sub typ {
 sub setCall {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $name = shift || return error ('No Name!' );
+    my $name = shift || return error('No name defined!');
 
     $obj->{call} = $name;
     return $obj->{call};

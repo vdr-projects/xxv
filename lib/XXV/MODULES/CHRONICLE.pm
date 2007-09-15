@@ -74,14 +74,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    my $erg = $self->_init or return error('Problem to initialize module');
+    my $erg = $self->_init or return error('Problem to initialize modul!');
 
     return $self;
 }
@@ -153,8 +153,8 @@ INSERT IGNORE INTO CHRONICLE
 sub list {
 # ------------------
     my $self = shift;
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my %f = (
         'id' => umlaute(gettext('Service')),
@@ -189,8 +189,8 @@ ORDER BY CHRONICLE.starttime
 sub search {
 # ------------------
     my $self = shift;
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $quest  = shift || return $console->err(gettext("No 'string' to search for! Please use chrsearch 'text'."));
 
     $quest =~ s/\'/\./sg;
@@ -221,7 +221,7 @@ ORDER BY CHRONICLE.starttime
     my $fields = fields($self->{dbh}, $sql);
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute($quest)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
     $console->table($erg);
@@ -233,8 +233,8 @@ ORDER BY CHRONICLE.starttime
 sub delete {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $items  = shift || return $console->err(gettext("No ID to delete! Please use chrdelete 'id'"));
 
     my @ids  = reverse sort{ $a <=> $b } split(/[^0-9]/, $items);
@@ -242,7 +242,7 @@ sub delete {
     my $sql = sprintf('DELETE FROM CHRONICLE WHERE id in (%s)', join(',' => ('?') x @ids)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@ids)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
 
     return 1;
 }

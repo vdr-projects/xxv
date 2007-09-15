@@ -84,7 +84,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
@@ -200,7 +200,7 @@ sub command {
 sub status {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
+    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return;
 
     my $erg = $obj->command('stat disk');
@@ -212,8 +212,8 @@ sub status {
 sub scommand {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $text = shift || return $console->err(gettext("No command defined! Please use scommand 'cmd'."));
 
     my $erg = $obj->command($text);

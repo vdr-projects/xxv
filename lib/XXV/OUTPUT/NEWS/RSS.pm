@@ -81,7 +81,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{TYP} = 'application/xhtml+xml';
@@ -90,8 +90,8 @@ sub new {
     main::after(sub{
         # The Initprocess
         my $erg = $self->init
-            or return error('Problem to initialize News Module');
-    }, "NEWS::RSS: Start initiate the RSS Feed ...")
+            or return error('Problem to initialize news modul!');
+    }, "NEWS::RSS: Start initiate rss feed ...")
         if($self->{active} eq 'y');
 
 
@@ -167,7 +167,7 @@ sub createRSS {
 sub send {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $vars = shift || return error ('No Vars!' );
+    my $vars = shift || return error('No data defined!');
 
     ++$obj->{COUNT};
 
@@ -187,7 +187,7 @@ sub send {
 sub read {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $vars = shift || return error ('No News!' );
+    my $vars = shift || return error('No data defined!');
 
     return undef, lg('This function is deactivated!')
         if($obj->{active} ne 'y');

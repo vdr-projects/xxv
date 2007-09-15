@@ -65,7 +65,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
 	return $self;
@@ -75,10 +75,10 @@ sub new {
 sub saveRobot {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $rname = shift || return error ('No robot Name!' );
-    my $rsub = shift || return error ('No Robot sub!' );
+    my $rname = shift || return error('No robot name defined!');
+    my $rsub = shift || return error('No robot subroutine defined!');
 
-    return error("$rname is not a Code Reference!'")
+    return error("$rname is not a code reference!'")
         unless(ref $rsub eq 'CODE');
 
     $obj->clean( $rname );
@@ -90,7 +90,7 @@ sub saveRobot {
 sub register {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $rname = shift || return error ('No robot Name!' );
+    my $rname = shift || return error('No robot name defined!');
     my @args = @_;
 
     return error("$rname is not a Robot!'")
@@ -103,7 +103,7 @@ sub register {
 sub start {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $rname = shift || return error ('No Robot Name to start!');
+    my $rname = shift || return error('No robot name defined!');
     my $watcher = shift;
     my $console = shift;
     my $endcb   = shift;
@@ -115,7 +115,7 @@ sub start {
     }
 
     # fork and forget
-    defined(my $child = fork()) or die "Can't fork: $!";
+    defined(my $child = fork()) or die "Couldn't fork: $!";
     if($child == 0) {
         $obj->{dbh}->{InactiveDestroy} = 1;
         # create a new browser
@@ -144,7 +144,7 @@ sub start {
 sub clean {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $rname = shift || return error ('No Robot Name to clean!');
+    my $rname = shift || return error('No robot name defined!');
     delete $obj->{jobs}->{$rname};
 }
 
@@ -153,7 +153,7 @@ sub clean {
 sub result {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $rname = shift || return error ('No robot Name!' );
+    my $rname = shift || return error('No robot name defined!');
 
     return $obj->{result}->{$rname};
 

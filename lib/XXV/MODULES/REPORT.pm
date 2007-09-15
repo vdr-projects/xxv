@@ -85,7 +85,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{LastReportTime} = time;
@@ -101,7 +101,7 @@ sub new {
     );
 
     # The Initprocess
-    my $erg = $self->init or return error('Problem to initialize module');
+    my $erg = $self->init or return error('Problem to initialize modul!');
 
     # Initiat after load modules ...
     main::after(sub{
@@ -193,7 +193,7 @@ sub report {
 sub news {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $title = shift || return error ('No title!' );
+    my $title = shift || return error('No title defined!');
     my $text  = shift || '';
     my $cmd   = shift || '';
     my $id    = shift || '';
@@ -201,7 +201,7 @@ sub news {
 
     # convert Levelname to integer
     my $lev   = $obj->scala($levname)
-        || return error('Problem to analyze Level!');
+        || return error('Problem to analyze level!');
 
     my  $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
         $url = sprintf("%s?cmd=%s&data=%s", $url, $cmd, $id)
@@ -238,8 +238,8 @@ sub news {
 sub request {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!' );
-    my $console = shift || return error ('No Console!' );
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     # To this time you can set on
     # cmd=request&data=rss&ver=2 or
     # cmd=request&data=mail

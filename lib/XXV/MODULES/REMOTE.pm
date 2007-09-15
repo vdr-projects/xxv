@@ -92,10 +92,10 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
-    $self->init or return error('Problem to initialize module');
+    $self->init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -108,7 +108,7 @@ sub init {
     main::after(sub{
           $obj->{svdrp} = main::getModule('SVDRP');
           unless($obj->{svdrp}) {
-            panic ("Can't get modul SVDRP");
+            panic ("Couldn't get modul SVDRP");
             return 0;
           }
 
@@ -152,8 +152,8 @@ sub parse {
 sub list {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $cmds = $obj->parse();
 
     my @list = (['__Id', 'Name', 'Cmd']);
@@ -168,9 +168,9 @@ sub list {
 sub command {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $command = shift || return error ('No Command!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $command = shift || return error('No command defined!');
     my $cmds = $obj->parse();
 
     return $console->err(gettext('This cmd id does not exist!'))
@@ -182,7 +182,7 @@ sub command {
     lg $msg;
 
     my $out;
-    open(README, "$cmds->{$command}->{bat} 2>&1 |") or return error("Can't run program: $!");
+    open(README, "$cmds->{$command}->{bat} 2>&1 |") or return error("Couldn't run program: $!");
     while(<README>) {
         $out .= $_;
     }
@@ -200,8 +200,8 @@ sub command {
 sub remote {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $command = shift;
 
     debug sprintf('Call remote with command "%s"%s',

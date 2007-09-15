@@ -58,7 +58,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{handle} = $attr{'-handle'}
@@ -74,13 +74,13 @@ sub new {
         || return error('No wmldir given!');
 
     $self->{cgi} = $attr{'-cgi'}
-        || return error('No TemplateDir given!');
+        || return error('No cgi object given!');
 
     $self->{mime} = $attr{'-mime'}
-        || return error('No Mimehash given!');
+        || return error('No mime hash given!');
 
     $self->{browser} = $attr{'-browser'}
-        || return error('No Mimehash given!');
+        || return error('No browser given!');
 
 #    $self->{start} = $attr{'-start'}
 #        || return error('No StartPage given!');
@@ -107,8 +107,8 @@ sub new {
 sub parseTemplate {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $name = shift || return error ('No Name!' );
-    my $data = shift || return error ('No Data!' );
+    my $name = shift || return error('No name defined!');
+    my $data = shift || return error('No data defined!');
     my $params = shift || {};
 
     my $t = $obj->{tt};
@@ -210,7 +210,7 @@ sub header {
 # ------------------
 sub statusmsg {
 # ------------------
-    my $obj = shift  || return error ('No Object!');
+    my $obj = shift  || return error('No object defined!');
     my $msg = shift || return error ('No Msg!');
     my $status = shift || return error ('No Status!');
 
@@ -235,7 +235,7 @@ sub statusmsg {
 # Send HTTP Status 401 (Authorization Required)
 sub login {
 # ------------------
-    my $obj = shift || return error ('No Object!');
+    my $obj = shift || return error('No object defined!');
     my $msg = shift || '';
 
     $obj->statusmsg($msg,"401 Authorization Required\nWWW-Authenticate: Basic realm=\"xxvd\"");
@@ -245,7 +245,7 @@ sub login {
 # Send HTTP Status 403 (Access Forbidden)
 sub status403 {
 # ------------------
-    my $obj = shift  || return error ('No Object!');
+    my $obj = shift  || return error('No object defined!');
     my $msg = shift  || '';
 
     $obj->statusmsg($msg,"403 Forbidden");
@@ -256,15 +256,15 @@ sub status403 {
 # Send HTTP Status 404 (File not found)
 sub status404 {
 # ------------------
-    my $obj = shift  || return error ('No Object!');
-    my $file = shift || return error ('No File!');
+    my $obj = shift  || return error('No object defined!');
+    my $file = shift || return error('No file defined!');
     my $why = shift || "";
 
-    warn("I can't read file $file");
+    lg sprintf("Couldn't open file '%s' : %s!",$file,$why);
 
     $file =~ s/$obj->{wmldir}\///g; # Don't post wml root, avoid spy out
 
-    $obj->statusmsg(sprintf(gettext("Cannot open file '%s' : %s!"),$file,$why),"404 File not found");
+    $obj->statusmsg(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),"404 File not found");
 }
 
 # ------------------
@@ -272,7 +272,7 @@ sub question {
 # ------------------
     my $obj         = shift || return error('No object defined!');
     my $titel       = shift || 'undef';
-    my $questions   = shift || return error ('No Data!' );
+    my $questions   = shift || return error('No data defined!');
     my $erg         = shift || 0;
 
     my $q = $obj->{cgi};
@@ -338,7 +338,7 @@ sub question {
 sub image {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $file = shift || return error ('No File!' );
+    my $file = shift || return error('No file defined!');
     my $typ = shift  || $obj->{mime}->{lc((split('\.', $file))[-1])}
         or return error("No Type in Mimehash or File: $file");
 
@@ -352,7 +352,7 @@ sub image {
 sub datei {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $file = shift || return error ('No File!' );
+    my $file = shift || return error('No file defined!');
 
     my $data = load_file($file)
         or return $obj->status404($file,$!);
@@ -364,7 +364,7 @@ sub datei {
 sub pod {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $modname = shift || return error ('No Modname!' );
+    my $modname = shift || return error('No modul name defined!');
     $modname = ucfirst($modname) if($modname eq 'GENERAL');
 
     my $podfile = sprintf('%s/%s.pod', $obj->{paths}->{PODPATH}, $modname);
@@ -399,7 +399,7 @@ sub typ {
 sub setCall {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $name = shift || return error ('No Name!' );
+    my $name = shift || return error('No name defined!');
 
     $obj->{call} = $name;
     return $obj->{call};

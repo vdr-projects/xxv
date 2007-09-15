@@ -82,11 +82,11 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your System:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # The Initprocess
-    my $erg = $self->init or return error('Problem to initialize module');
+    my $erg = $self->init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -104,8 +104,8 @@ sub init {
 sub live_stream {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $channel = shift || return $console->err(gettext("No ChannelID to Stream! Please use livestream 'cid'"));
 
     debug sprintf('Call live stream with channel "%s"%s',
@@ -137,14 +137,14 @@ sub live_stream {
 sub play_record {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $recid   = shift || return $console->err(gettext("No RecordID to Play! Please use rplay 'rid'"));
 
     my $rmod = main::getModule('RECORDS');
     my $videopath = $rmod->{videodir};
     my $path = $rmod->IdToPath($recid)
-        or return $console->err(gettext(sprintf('I can\'t found recid: %s', $recid)));
+        or return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)));
 
     debug sprintf('Call play record "%s"%s',
         $path,

@@ -309,7 +309,7 @@ sub status {
         my $sth = $obj->{dbh}->prepare("select count(*) as count from TIMERS");
         if(!$sth->execute())
         {
-            error sprintf("Can't execute query: %s.",$sth->errstr);
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
         } else {
             my $erg = $sth->fetchrow_hashref();
             $total = $erg->{count} if($erg && $erg->{count});
@@ -343,14 +343,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    my $erg = $self->_init or return error('Problem to initialize module');
+    my $erg = $self->_init or return error('Problem to initialize modul!');
 
   	return $self;
 }
@@ -399,7 +399,7 @@ sub _init {
     main::after(sub{
         $obj->{svdrp} = main::getModule('SVDRP');
         unless($obj->{svdrp}) {
-           panic ("Can't get modul SVDRP");
+           panic ("Couldn't get modul SVDRP");
            return 0;
         }
 
@@ -424,7 +424,7 @@ sub _init {
 sub saveTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $data = shift || return error('No Data to Save!');
+    my $data = shift || return error('No data defined!');
     my $timerid = shift || 0;
 
     my $status = ($data->{Activ} eq 'y' ? 1 : 0);
@@ -465,7 +465,7 @@ sub saveTimer {
                 ], $pos);
     }
 
-    event('Save timer "%s" with TimerId: "%d"', $data->{File}, $pos);
+    event('Save timer "%s" with id: "%d"', $data->{File}, $pos);
 
     return $erg;
 }
@@ -474,8 +474,8 @@ sub saveTimer {
 sub newTimer {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $epgid   = shift || 0;
     my $epg     = shift || 0;
 
@@ -537,8 +537,8 @@ WHERE
 sub editTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $timerid = shift || 0;   # If timerid the edittimer
     my $data    = shift || 0;  # Data for defaults
 
@@ -780,8 +780,8 @@ WHERE
 sub deleteTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
-    my $console = shift;
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $timerid = shift || return $console->err(gettext("No timer defined for deletion! Please use tdelete 'tid'."));   # If timerid the edittimer
     my $answer  = shift || 0;
 
@@ -790,7 +790,7 @@ sub deleteTimer {
     my $sql = sprintf('SELECT Id,File,ChannelID,NextStartTime,IF(Status & 1 and NOW() between NextStartTime and NextStopTime,1,0) as Running FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@timers)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $data = $sth->fetchall_hashref('Id');
 
     my $mod = main::getModule('CHANNELS') or return;
@@ -844,8 +844,8 @@ sub deleteTimer {
 sub toggleTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $timerid = shift || return $console->err(gettext("No timer defined to toggle! Please use ttoggle 'id'."));   # If timerid the edittimer
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
@@ -853,7 +853,7 @@ sub toggleTimer {
     my $sql = sprintf('SELECT Id,File,Status,NextStartTime, NextStopTime FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@timers)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $data = $sth->fetchall_hashref('Id');
     my $ref;
 
@@ -898,7 +898,7 @@ sub toggleTimer {
                              join(',' => ('?') x @timers),$ref); 
           my $sth = $obj->{dbh}->prepare($sql);
           $sth->execute(@timers)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
           my $erg = $sth->fetchall_arrayref();
           $console->table($erg);
         }
@@ -932,7 +932,7 @@ sub insert {
 
     # NextTime
     my $nexttime = $obj->getNextTime( $data->[3], $data->[4], $data->[5] )
-        or return error(sprintf("Can't get time form this data: %s", join(' ', @$data)));
+        or return error(sprintf("Couldn't get time form this data: %s", join(' ', @$data)));
     push(@$data, $nexttime->{start}, $nexttime->{stop});
 
     # insert placeholder
@@ -1022,7 +1022,7 @@ sub readData {
     $obj->{REGISTER}++;
     if(scalar keys %$oldTimers != $c or $obj->{REGISTER} == 2) {
         # Event to signal we are finish to read
-        event(sprintf('Reread %d timers and written to DB!', $c));
+        event(sprintf('Reread %d timers and written into database!', $c));
     }
 
     $console->message(sprintf(gettext("%d timer written to database."), $c), {overlapping => $overlapping})
@@ -1059,8 +1059,8 @@ sub updated {
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $text    = shift || '';
 
 	my $in = '';
@@ -1152,7 +1152,7 @@ ORDER BY
 sub getTimerById {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $tid = shift  || return error ('No TimerId!' );
+    my $tid = shift  || return error('No id defined!');
 
     my $sql = qq|
 SELECT
@@ -1311,7 +1311,7 @@ sub getEpgIds {
 sub getEpgDesc {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $tid = shift  || return error ('No TimerId!' );
+    my $tid = shift  || return error('No id defined!');
 
     my $sql = qq|
 select
@@ -1367,7 +1367,7 @@ where TIMERS.ChannelID = CHANNELS.Id
 sub checkOverlapping {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $data = shift  || return error ('No Data!' );
+    my $data = shift  || return error('No data defined!');
 
     my $NextStartTime =  $data->{NextStartTime};
     my $NextStopTime  =  $data->{NextStopTime};
@@ -1401,7 +1401,7 @@ ORDER BY
             $NextStartTime,$NextStopTime,
             $NextStartTime,$NextStopTime,
             $tid,$transponder,$source)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $result = $sth->fetchall_arrayref();
 
     if(scalar @{$result}) {
@@ -1492,7 +1492,7 @@ sub getNextTimer {
 sub _getNextEpgId {
 # ------------------
     my $obj  = shift || return error('No object defined!');
-    my $timer  = shift || return error ('No Hash!' );
+    my $timer  = shift || return error('No data defined!');
 
     my $e;
     my @file = split('~', $timer->{File});
@@ -1512,7 +1512,7 @@ sub _getNextEpgId {
                       '%'.$file[-2].'%',
                       '%'.$file[-1].'%',
                       $timer->{NextStartTime})) {
-            lg sprintf("Can't find epg event for timer with id %d - %s", $timer->{Id} , $timer->{File} );
+            lg sprintf("Couldn't find epg event for timer with id %d - %s", $timer->{Id} , $timer->{File} );
             return 0;
         }
         $e = $sth->fetchrow_hashref();
@@ -1531,14 +1531,14 @@ sub _getNextEpgId {
                       $timer->{NextStopTime},
                       '%'.$timer->{File}.'%',
                       $timer->{NextStartTime})) {
-            lg sprintf("Can't find epg event for timer with id %d - %s", $timer->{Id} , $timer->{File} );
+            lg sprintf("Couldn't find epg event for timer with id %d - %s", $timer->{Id} , $timer->{File} );
             return 0;
         }
         $e = $sth->fetchrow_hashref();
     }
 
 
-    lg sprintf("Can't find epg event for timer with id %d - %s", $timer->{Id} , $timer->{File} )
+    lg sprintf("Couldn't find epg event for timer with id %d - %s", $timer->{Id} , $timer->{File} )
         if(not exists $e->{eventid});
     return $e;
 }
@@ -1550,9 +1550,9 @@ sub _getNextEpgId {
 sub getNextTime {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $dor = shift || return error ('No Day!' );
-    my $start = shift || return error ('No Starttime!' );
-    my $stop =  shift || return error ('No Stoptime!' );
+    my $dor = shift || return error('No day defined!');
+    my $start = shift || return error('No start time defined!');
+    my $stop =  shift || return error('No stop time defined!');
 
     $start = sprintf('%04d', $start);
     $stop = sprintf('%04d', $stop);
@@ -1641,7 +1641,7 @@ sub getTimersByAutotimer {
             activeTimer => [],
             deactiveTimer => [],
         };
-        my $erg = getDataBySearch('TIMERS', sprintf('AutotimerId = %d', $aid));
+        my $erg = getDataBySearch('TIMERS', 'AutotimerId = ?', $aid);
         map {
             my $type = ($_->[1] ? 'activeTimer' : 'deactiveTimer');
             push(@{$obj->{AIDS}->{$aid}->{$type}}, $_->[0]);
@@ -1686,10 +1686,11 @@ sub my_strftime {
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {
+# ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
 
@@ -1709,7 +1710,7 @@ sub suggest {# ------------------
         |;
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute('%'.$search.'%')
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
         my $result = $sth->fetchall_arrayref();
         $console->table($result)
             if(ref $console && $result);

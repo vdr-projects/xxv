@@ -192,7 +192,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($lastReportTime)
-        or return error "Can't execute query: $sth->errstr.";
+        or return error "Couldn't execute query: $sth->errstr.";
     my $erg = $sth->fetchall_arrayref();
     for(@$erg) {
         $_->[6] = fmttime($_->[6]);
@@ -230,7 +230,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
@@ -316,11 +316,11 @@ sub autotimer {
     if($autotimerid) {
         $sth = $obj->{dbh}->prepare('select * from AUTOTIMER where Activ = "y" AND Id = ? order by Id');
         $sth->execute($autotimerid)
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
         $sth = $obj->{dbh}->prepare('select * from AUTOTIMER where Activ = "y" order by Id');
         $sth->execute()
-            or return error sprintf("Can't execute query: %s.",$sth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     }
     my $att = $sth->fetchall_hashref('Id');
 
@@ -387,7 +387,7 @@ sub autotimer {
             }
 
             my $nexttime = $timermod->getNextTime( $events->{$Id}->{Day} , $events->{$Id}->{Start},$events->{$Id}->{Stop} )
-                  or error(sprintf("Can't get the nexttime for this autotimer: %d", $events->{$Id}->{eventid}));
+                  or error(sprintf("Couldn't get next time for this autotimer: %d", $events->{$Id}->{eventid}));
 
             # Add anchor for reidentify timer
             my $aidcomment = sprintf('#~AT[%d]', $id);
@@ -503,8 +503,8 @@ sub autotimer {
 # ------------------
 sub autotimerCreate {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $timerid = shift || 0;
     my $data    = shift || 0;
 
@@ -518,8 +518,8 @@ sub autotimerCreate {
 # ------------------
 sub autotimerEdit {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $timerid = shift || 0;
     my $data    = shift || 0;
 
@@ -882,16 +882,16 @@ You can also fine tune your search :
 # ------------------
 sub autotimerDelete {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $timerid = shift || return $console->err(gettext("No autotimer defined to delete! Please use adelete 'aid'!"));   # If timerid the edittimer
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $timerid = shift || return $console->err(gettext("No autotimer defined for deletion! Please use adelete 'aid'!"));   # If timerid the edittimer
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
 
     my $sql = sprintf('DELETE FROM AUTOTIMER where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute(@timers)) {
-        error sprintf("Can't execute query: %s.",$sth->errstr);
+        error sprintf("Couldn't execute query: %s.",$sth->errstr);
         $console->err(sprintf gettext("The autotimer '%s' does not exist in the database."), join(',', @timers));
         return 0;
     }
@@ -912,8 +912,8 @@ sub autotimerDelete {
 # ------------------
 sub autotimerToggle {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $timerid = shift || return $console->err(gettext("No autotimer defined to toggle! Please use atoggle 'aid'!"));
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
@@ -921,7 +921,7 @@ sub autotimerToggle {
     my $sql = sprintf('SELECT Id,Activ FROM AUTOTIMER where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute(@timers)) {
-        error sprintf("Can't execute query: %s.",$sth->errstr);
+        error sprintf("Couldn't execute query: %s.",$sth->errstr);
         $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."),$timerid));
         return 0;
     }
@@ -940,12 +940,12 @@ sub autotimerToggle {
         my $sql = "UPDATE AUTOTIMER set Activ = ? where Id = ?"; 
         my $sth = $obj->{dbh}->prepare($sql);
         if(!$sth->execute($status,$timer)) {
-            error sprintf("Can't execute query: %s.",$sth->errstr);
-            $console->err(sprintf(gettext("Can't toggle autotimer with ID '%s'!"),$timer));
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
+            $console->err(sprintf(gettext("Couldn't toggle autotimer with ID '%s'!"),$timer));
             next;
         }
 
-        debug sprintf('autotimer with id "%s" is %s%s',
+        debug sprintf('Autotimer with id "%s" is %s%s',
             $timer,
             ($status eq 'n' ? 'disabled' : 'activated'),
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
@@ -979,8 +979,8 @@ sub autotimerToggle {
 # ------------------
 sub list {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $text      = shift || '';
     my $params  = shift;
 
@@ -1050,8 +1050,8 @@ sub list {
 sub _eventsearch {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $a   = shift  || return error ('No Data from Autotimer!' );
-    my $timermod = shift  || main::getModule('TIMERS') || return error ("Can't access modul TIMERS!");
+    my $a   = shift  || return error('No data defined!');
+    my $timermod = shift  || main::getModule('TIMERS') || return error ("Couldn't access modul TIMERS!");
 
 		# Searchstrings to Paragraphs Changed
 		$a->{Search} =~ s/\:/\:\.\*/
@@ -1140,7 +1140,7 @@ WHERE
 sub _timerexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error ('No Data from Autotimer!' );
+    my $eventdata = shift  || return error('No data defined!');
     my ($nexttime, $aidcomment) = @_;
 
     # Avoid Timer already defined (the timer with the same data again do not put on)
@@ -1160,7 +1160,7 @@ sub _timerexists {
     $sth->execute($eventdata->{ChannelID},$nexttime->{start},$nexttime->{stop},
                   $eventdata->{Priority},$eventdata->{Lifetime},
                   $eventdata->{File},$eventdata->{Summary},"%".$aidcomment)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
         if($erg);
@@ -1172,7 +1172,7 @@ sub _timerexists {
 sub _timerexistsfuzzy {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error ('No Data from Autotimer!' );
+    my $eventdata = shift  || return error('No data defined!');
     my ($nexttime, $aidcomment) = @_;
 
     # Adjust timers set by the autotimer
@@ -1187,7 +1187,7 @@ sub _timerexistsfuzzy {
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{ChannelID},$nexttime->{start},$nexttime->{stop},
                   "%".$aidcomment)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{ID} 
         if($erg);
@@ -1198,7 +1198,7 @@ sub _timerexistsfuzzy {
 sub _recordexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error ('No Data from Autotimer!' );
+    my $eventdata = shift  || return error('No data defined!');
     my ($nexttime, $aidcomment) = @_;
 
     # Ignore timer if it already with same title recorded
@@ -1209,7 +1209,7 @@ sub _recordexists {
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{File})
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
         if($erg);
@@ -1220,17 +1220,17 @@ sub _recordexists {
 sub _chronicleexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error ('No Data from Autotimer!' );
+    my $eventdata = shift  || return error('No data defined!');
     my ($nexttime, $aidcomment) = @_;
 
-    my $chroniclemod  = main::getModule('CHRONICLE') || return error ("Can't access modul CHRONICLE!");
+    my $chroniclemod  = main::getModule('CHRONICLE') || return error ("Couldn't access modul CHRONICLE!");
     return 0
       if(not $chroniclemod or $chroniclemod->{active} ne 'y');
 
     my $sql = "select count(*) as cc from CHRONICLE where title = ?";
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{File})
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
         if($erg);
@@ -1241,14 +1241,14 @@ sub _chronicleexists {
 sub _timerexiststitle {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error ('No Data from Autotimer!' );
+    my $eventdata = shift  || return error('No data defined!');
     my ($nexttime, $aidcomment) = @_;
 
     my $sql = "select count(*) as cc from TIMERS where File = ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{File})
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
         if($erg);
@@ -1289,8 +1289,8 @@ sub _insert {
 # ------------------
 sub _placeholder {
     my $obj  = shift  || return error('No object defined!');
-    my $data = shift  || return error ('No Data!' );
-    my $at   = shift  || return error ('No AtData!' );
+    my $data = shift  || return error('No data defined!');
+    my $at   = shift  || return error('No attribute defined!');
 
     my $file;
 
@@ -1330,10 +1330,11 @@ sub _placeholder {
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {
+# ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
 
@@ -1353,7 +1354,7 @@ sub suggest {# ------------------
         |;
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute('%'.$search.'%')
-            or return error "Can't execute query: $sth->errstr.";
+            or return error "Couldn't execute query: $sth->errstr.";
         my $result = $sth->fetchall_arrayref();
         $console->table($result)
             if(ref $console && $result);

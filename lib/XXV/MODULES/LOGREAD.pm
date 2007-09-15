@@ -83,7 +83,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
 	return $self;
@@ -93,8 +93,8 @@ sub new {
 sub logger {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $logname = shift || 'standard';
     my $params  = shift || {};
 
@@ -167,7 +167,7 @@ sub logger {
 sub tail {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $logfile = shift  || return error ('No Logfile!' );
+    my $logfile = shift  || return error('No file defined!');
     my $rows = shift  || $obj->{rows};
 
     my $cmd = sprintf('%s --lines=%d %s', $obj->{tail}, $rows, $logfile);
@@ -180,7 +180,7 @@ sub tail {
 sub parseLogOutput {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $log = shift  || return error ('No Prefs for logfile!' );
+    my $log = shift  || return error('No data defined!');
     my $out = shift  || return;
 
     my $regex = $log->{regex};
@@ -204,7 +204,7 @@ sub parseLogOutput {
 sub parseData {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $ret     = shift || return error('No Referenced Array');
+    my $ret     = shift || return error('No data defined!');
     my $data    = shift || 0;
 
 

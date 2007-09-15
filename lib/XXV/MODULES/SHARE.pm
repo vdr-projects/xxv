@@ -106,11 +106,11 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # The Initprocess
-    $self->_init or return error('Problem to initialize module');
+    $self->_init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -128,7 +128,7 @@ sub _init {
         $obj->{SOAP} = $obj->ConnectToSOAP($obj->{SessionId});
 
         unless($obj->{SOAP}) {
-            error("Can't connect to SOAP server %s!", $obj->{uri});
+            error("Couldn't connect to SOAP server %s!", $obj->{uri});
             return 0;
         } else {
             $obj->getSoapData();
@@ -179,7 +179,7 @@ sub generateUniqueId {
 sub ConnectToSOAP {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $sid = shift  || $obj->{SessionId} || return error ('No SesionID!' );
+    my $sid = shift  || $obj->{SessionId} || return error('No session id defined!');
     my $uri = shift  || $obj->{uri};
     my $prx = shift  || $obj->{proxy};
 
@@ -193,7 +193,7 @@ sub ConnectToSOAP {
 
     my $usrkey;
     if($soap) {
-      $usrkey = $obj->CmdToSoap($soap,'getUsrKey',$obj->{SessionId}) or error "Can't get user key";
+      $usrkey = $obj->CmdToSoap($soap,'getUsrKey',$obj->{SessionId}) or error "Couldn't get user key";
       error "Response contain wrong answer" if($usrkey ne $obj->{SessionId});
     }
 
@@ -219,8 +219,8 @@ sub getEventLevel {
 sub TopTen {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $anzahl = shift || 10;
 
     $obj->{TopTen} = $obj->getTopTen(1000) 
@@ -260,8 +260,8 @@ sub TopTen {
 sub CmdToSoap {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $soap = shift  || return error ('No SOAP!' );
-    my $cmd = shift  || return error ('No Command!' );
+    my $soap = shift  || return error('No SOAP defined!');
+    my $cmd = shift  || return error('No command defined!');
     my @arg = @_;
 
     lg(sprintf("CmdToSoap : %s - %s",$cmd, join(", ",@arg)));

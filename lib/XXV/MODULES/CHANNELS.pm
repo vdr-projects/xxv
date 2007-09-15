@@ -161,7 +161,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
@@ -233,13 +233,13 @@ sub _init {
     main::after(sub{
         $obj->{svdrp} = main::getModule('SVDRP');
         unless($obj->{svdrp}) {
-           panic ("Can't get modul SVDRP");
+           panic ("Couldn't get modul SVDRP");
            return 0;
         }
 
         my $erg = $obj->readData();
         return 1;
-    }, "CHANNELS: Read and register Channels ...", 5);
+    }, "CHANNELS: Read and register channels ...", 5);
     return 1;
 }
 
@@ -289,10 +289,12 @@ sub insert {
 	    $data->[0] = $ch if($ch);
 	}
 
+    
     # ID
+    my $freqID = $data->[1];
     if ( $data->[3] eq 'C' or $data->[3] eq 'T') {
-      while(length($data->[1]) > 3) {
-  	    $data->[1] = substr($data->[1], 0, length($data->[1])-3);
+      while(length($freqID) > 3) {
+  	    $freqID = substr($freqID, 0, length($freqID)-3);
       }
     }
 
@@ -302,9 +304,9 @@ sub insert {
     # By DVB-C gabs Probleme weil die Zahl grösser 100 war
     # Siehe auch http://www.vdr-portal.de/board/thread.php?sid=&postid=364373
     if($data->[12] && $data->[12] > 0) {
-        $id = sprintf('%s-%u-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $data->[1], $data->[9],$data->[12]);
+        $id = sprintf('%s-%u-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $freqID, $data->[9],$data->[12]);
     } else {
-        $id = sprintf('%s-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $data->[1], $data->[9]);
+        $id = sprintf('%s-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $freqID, $data->[9]);
     }
     unshift(@$data, $id);
 
@@ -316,7 +318,7 @@ sub insert {
 
     my $sth = $obj->{dbh}->prepare('REPLACE INTO CHANNELS VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     $sth->execute( @$data );
-    lg sprintf('Add new Channel "%s" with Id "%s" in ChannelsDB!', $data->[1], $id);
+    lg sprintf('Add new channel "%s" with id "%s".', $data->[1], $id);
     return 1;
 }
 
@@ -327,10 +329,10 @@ sub insertGrp {
     my $pos = shift || return;
     my $name = shift || 0;
 
-    lg sprintf('Add new ChannelGroup "%s" in ChannelsGroup!', $name);
+    lg sprintf('Add new group of channels "%s".', $name);
     my $sth = $obj->{dbh}->prepare('INSERT INTO CHANNELGROUPS SET Name=?, Counter=?');
     $sth->execute($name, $pos)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     return $sth->{mysql_insertid};
 }
 
@@ -342,7 +344,7 @@ sub readData {
     my $console = shift;
     my $file = $obj->{file} || return 1, error ('No Channels File');
 
-    return 1, panic ('No Channels File found') if( ! -e $file);
+    return 1, panic ("Couldn't find channels.conf as file $file!") if( ! -e $file);
 
     # only if file modification from last read time
     my $mtime = (stat($file)->mtime);
@@ -352,7 +354,7 @@ sub readData {
     $obj->{dbh}->do('DELETE FROM CHANNELS');
     $obj->{dbh}->do('DELETE FROM CHANNELGROUPS');
 
-    my $fh = IO::File->new("< $file") or return error("Can't open File $file $! ");
+    my $fh = IO::File->new("< $file") or return error("Couldn't open file $file $!");
     my $c = 0;
     my $nPos = 1;
     my $grp = 0;
@@ -424,8 +426,8 @@ sub is_numeric { defined getnum($_[0]) }
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id      = shift || '';
     my $params = shift;
 
@@ -453,7 +455,7 @@ where
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute('%'.$id.'%')
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
 
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
@@ -469,7 +471,7 @@ sub NameToChannel {
 
     my $sth = $obj->{dbh}->prepare('select Id from CHANNELS where UPPER(Name) = UPPER( ? )');
     $sth->execute($name)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg ? $erg->{Id} : undef;
 }
@@ -482,7 +484,7 @@ sub PosToName {
 
     my $sth = $obj->{dbh}->prepare('select Name from CHANNELS where POS = ?');
     $sth->execute($pos)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg ? $erg->{Name} : undef;
 }
@@ -495,7 +497,7 @@ sub PosToChannel {
 
     my $sth = $obj->{dbh}->prepare('select Id from CHANNELS where POS = ?');
     $sth->execute($pos)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg ? $erg->{Id} : undef;
 }
@@ -560,7 +562,7 @@ sub ChannelToName {
 
     my $sth = $obj->{dbh}->prepare('select Name from CHANNELS where Id = ?');
     $sth->execute($id)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg ? $erg->{Name} : undef;
 }
@@ -573,7 +575,7 @@ sub ChannelToPos {
 
     my $sth = $obj->{dbh}->prepare('select POS from CHANNELS where Id = ?');
     $sth->execute($id)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg ? $erg->{POS} : undef;
 }
@@ -597,7 +599,7 @@ sub getChannelType {
         }
       }
     }
-    error("Unknown channel! Can't identify type of channel with id: %s", $id);
+    error("Unknown channel! Couldn't identify type of channel with id: %s", $id);
     return 'UNKNOWN';
 }
 
@@ -614,8 +616,8 @@ sub _LastChannel {
 sub newChannel {
 # ------------------
     my $self         = shift || return error('No object defined!');
-    my $watcher      = shift || return error ('No Watcher!');
-    my $console      = shift || return error ('No Console');
+    my $watcher      = shift || return error('No watcher defined!');
+    my $console      = shift || return error('No console defined!');
     my $id           = shift || 0;
     my $defaultData  = shift || 0;
 
@@ -626,8 +628,8 @@ sub newChannel {
 sub editChannel {
 # ------------------
     my $self    = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $cid     = shift || 0;  # If channelid then edit channel
     my $data    = shift || 0;  # Data for defaults
 
@@ -882,7 +884,7 @@ sub editChannel {
 sub saveChannel {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $data = shift || return error('No Data to Save!');
+    my $data = shift || return error('No data defined!');
     my $pos = shift || 0;
 
     my $erg;
@@ -934,7 +936,7 @@ sub deleteChannel {
     my $sql = sprintf('select Id,POS,Name from CHANNELS where POS in (%s)', join(',' => ('?') x @channels)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@channels)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $data = $sth->fetchall_hashref('POS');
 
     foreach my $pos (@channels) {
@@ -988,7 +990,7 @@ sub _brandNewChannels {
     my $sql = 'select * from CHANNELS where POS > ?'; 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($oldmaximumpos)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_hashref('POS');
 
     my $text;

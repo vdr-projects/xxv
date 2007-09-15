@@ -174,14 +174,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    my $erg = $self->_init or return error('Problem to initialize module');
+    my $erg = $self->_init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -213,7 +213,7 @@ sub _init {
           $obj->{ICE}->add_file($File::Find::name)
             if($File::Find::name =~ /\.mp3$/sig);  # Lookup for *.mp3
           } else {
-            lg "Permissions deny, can't read : $File::Find::name";
+            lg "Permissions deny, couldn't read : $File::Find::name";
           }
         },
         follow => 1,
@@ -239,7 +239,7 @@ sub _init {
         cb => sub {
             # accept client
             my $client = $obj->{SOCK}->accept;
-            panic "Can't connect to new icecast client." and return unless $client;
+            panic "Couldn't connect to new icecast client." and return unless $client;
             $client->autoflush;
 
             # make "channel" number
@@ -438,9 +438,9 @@ sub refresh {
 sub play {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $data = shift || return error ('No data');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $data = shift || return error('No data defined!');
 
     debug sprintf('Call play%s',
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
@@ -453,9 +453,9 @@ sub play {
 sub playlist {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $data = shift || return error ('No data');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $data = shift || return error('No data defined!');
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
 
@@ -509,8 +509,8 @@ sub playlist {
 sub search {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $text   = shift || return $console->err(gettext("No Text to search! Please use msearch 'text'"));
 
     return $obj->list($watcher,$console,"search:".$text);
@@ -520,8 +520,8 @@ sub search {
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $search  = shift;
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
@@ -686,7 +686,7 @@ sub list {
 sub handleInput {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $data    = shift || return error ('No Request!' );
+    my $data    = shift || return error('No request defined!');
     my $cgi = CGI->new( $data->{Query} );
 
     my $ucmd = $cgi->param('cmd')   || 'play';
@@ -706,8 +706,8 @@ sub handleInput {
 sub field2path {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $field = shift || return error ('No Field!' );
-    my $data = shift || return error ('No ids!' );
+    my $field = shift || return error('No field defined!');
+    my $data = shift || return error('No data defined!');
     my $pathfield;
     my $sql;
 
@@ -756,13 +756,13 @@ sub insert {
 sub stream {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $files = shift || return error ('No Files!' );
-    my $client = shift || return error ('No Client!' );
+    my $files = shift || return error('No file defined!');
+    my $client = shift || return error('No client defined!');
 
     my %seen = ();
     my @uniqu = grep { ! $seen{$_} ++ } @$files;
 
-    defined(my $child = fork()) or die "Can't fork: $!";
+    defined(my $child = fork()) or die "Couldn't fork: $!";
     if($child == 0) {
         $obj->{SOCK}->close;
         $obj->{dbh}->{InactiveDestroy} = 1;
@@ -772,7 +772,7 @@ sub stream {
             $file = $obj->{path} . "/" . $file
                 if($obj->{mdbh});
 
-            debug('Stream file "%s" to Client: %s',
+            debug('Stream file "%s" to client: %s',
                 $file,$client);
             my $erg = $obj->{ICE}->stream($file,0,$client)
                 || last;
@@ -785,7 +785,7 @@ sub stream {
 sub parseRequest {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $hdl = shift || return error ('No Request!' );
+    my $hdl = shift || return error('No request defined!');
 
     my ($Req, $size) = getFromSocket($hdl);
 
@@ -933,7 +933,7 @@ sub getcovers {
         if(ref $console);
 
     unless(-d $obj->{coverimages}) {
-        mkpath($obj->{coverimages}) or error "Can't mkpath $obj->{coverimages} : $!";
+        mkpath($obj->{coverimages}) or error "Couldn't mkpath $obj->{coverimages} : $!";
         lg sprintf('mkdir path "%s"',
                 $obj->{coverimages}
             );
@@ -1048,7 +1048,7 @@ sub getcovers {
 sub _findcoverfromcache {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $album = shift || return error ('No Album!' );
+    my $album = shift || return error('No album defined!');
     my $artist = shift || 0;
     my $typ = shift || 'absolute';
 
@@ -1118,7 +1118,7 @@ sub ConnectToMuggleDB {
 sub _findcover {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $file = shift || return error ('No file!' );
+    my $file = shift || return error('No file defined!');
     my $artist = shift;
     my $album = shift;
 
@@ -1141,7 +1141,7 @@ sub _findcover {
                           push(@images,$File::Find::name)
                               if($File::Find::name =~ /\.jpg$|\.jpeg$|\.gif$|\.png/sig);  # Lookup for images
                       } else {
-                          lg "Permissions deny, can't read : $File::Find::name";
+                          lg "Permissions deny, couldn't read : $File::Find::name";
                       }
                   },
                   follow => 1,
@@ -1218,9 +1218,9 @@ sub _findcover {
 sub coverimage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $data = shift || return error ('No data');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $data = shift || return error('No data defined!');
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
 
@@ -1289,9 +1289,9 @@ sub coverimage {
 sub getfile {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
-    my $data = shift || return error ('No data');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $data = shift || return error('No data defined!');
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
 
@@ -1320,15 +1320,16 @@ sub getfile {
             return 1;
         }
     }
-    $console->err(gettext("Sorry, can't get file."));
+    $console->err(gettext("Sorry, couldn't get file."));
     return 0;
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {
+# ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
 

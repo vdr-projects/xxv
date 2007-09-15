@@ -135,7 +135,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # create Template object
@@ -161,7 +161,7 @@ sub new {
 
     # The Initprocess
     my $erg = $self->init
-        or return error('Problem to initialize news module')
+        or return error('Problem to initialize news modul!')
             if($self->{active} eq 'y');
 
     $self->{TYP} = 'text/plain';
@@ -271,7 +271,7 @@ sub parseFooter {
 sub read {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $vars = shift || return error ('No News!' );
+    my $vars = shift || return error('No data defined!');
 
     my $output = '';
     $vars->{count} = ++$obj->{NEWSCOUNT};

@@ -176,14 +176,14 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
     # The Initprocess
-    my $erg = $self->_init or return error('Problem to initialize module');
+    my $erg = $self->_init or return error('Problem to initialize modul!');
 
 	return $self;
 }
@@ -267,7 +267,7 @@ sub _init {
     |);
 
     unless(-d $obj->{libraryimagedir}) {
-        mkpath($obj->{libraryimagedir}) or error "Can't mkpath $obj->{libraryimagedir} : $!";
+        mkpath($obj->{libraryimagedir}) or error "Couldn't mkpath $obj->{libraryimagedir} : $!";
         lg sprintf('mkdir path "%s" ',
                 $obj->{coverimages},
             );
@@ -304,8 +304,8 @@ FROM
 sub researchMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params = shift || {};
 
@@ -317,7 +317,7 @@ sub researchMedia {
         if ( $params->{source} eq 'dvdpalace' ) {
             
             eval "use MediaLibParser::DVDPalace";
-            return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+            return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
             
             my $mlp = MediaLibParser::DVDPalace->new(
                         'lookup_result' => $params->{title},
@@ -335,8 +335,8 @@ sub researchMedia {
 sub createMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || 0;
 
@@ -347,8 +347,8 @@ sub createMedia {
 sub copyMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || 0;
 
@@ -374,8 +374,8 @@ WHERE
 sub importMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
 
@@ -387,7 +387,7 @@ sub importMedia {
        
         if ( $params->{source} eq 'dvdpalace' ) {
             eval "use MediaLibParser::DVDPalace";
-            return panic("\nCan not load Module: MediaLibParser::DVDPalace") if($@);
+            return panic("\nCouldn't load modul: MediaLibParser::DVDPalace") if($@);
             
             my $mlp = MediaLibParser::DVDPalace->new(
                         'url_media' => $params->{import},
@@ -457,8 +457,8 @@ sub importMedia {
 sub searchMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
     #print Dumper($params);
@@ -544,8 +544,8 @@ ORDER BY title
 sub editMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
     #print Dumper($params);
@@ -592,8 +592,8 @@ WHERE
 sub listMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
 
@@ -652,8 +652,8 @@ ORDER BY title
 sub displayMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
 
@@ -698,8 +698,8 @@ WHERE id = ?
 sub saveMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
 
@@ -742,8 +742,8 @@ sub saveMedia {
 sub deleteMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
 
@@ -753,7 +753,7 @@ sub deleteMedia {
         my $sql = sprintf('DELETE FROM MEDIALIB_VIDEODATA WHERE id IN (%s)', join(',' => ('?') x @media)); 
         my $sth = $obj->{dbh}->prepare($sql);
         if(!$sth->execute(@media)) {
-            error sprintf("Can't execute query: %s.",$sth->errstr);
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
             $console->err(sprintf gettext("Media with ID '%s' does not exist in the database!"), join(',', @media));
             return 0;
         }
@@ -763,7 +763,7 @@ sub deleteMedia {
         my $sql = sprintf('DELETE FROM MEDIALIB_VIDEOGENRE WHERE video_id IN (%s)', join(',' => ('?') x @media)); 
         my $sth = $obj->{dbh}->prepare($sql);
         if(!$sth->execute(@media)) {
-            error sprintf("Can't execute query: %s.",$sth->errstr);
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
             $console->err(sprintf gettext("Genres for Media with ID '%s' does not exist in the database!"), join(',', @media));
             return 0;
         }
@@ -782,8 +782,8 @@ sub deleteMedia {
 sub _saveActors {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $input = shift || '';
     
     $input =~ s/\r\n/\n/g;
@@ -800,7 +800,7 @@ sub _saveActors {
         lg( sprintf("Looking for image of %s", $name ));
 
         eval "use MediaLibParser::IMDb";
-        return panic("\nCan not load Module: MediaLibParser::DVDPalace") if($@);
+        return panic("\nCouldn't load modul: MediaLibParser::DVDPalace") if($@);
 
         my $mlp = MediaLibParser::IMDb->new(
                     'lookup_actor' => $name,
@@ -876,7 +876,7 @@ sub _saveGenres {
 sub _saveMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $data = shift || return error ('No Data to Save!' );
+    my $data = shift || return error('No data defined!');
 
     if(ref $data eq 'HASH') {
         my ($names, $vals, $kenn);
@@ -993,8 +993,8 @@ sub _nocover {
 sub mediacache {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || '';
     
@@ -1074,7 +1074,7 @@ sub _get_mediatype_as_hash {
 sub _get_mediatype_namebyid {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $id = shift || return error ('No Mediatype ID given');
+    my $id = shift || return error ('No media type ID given!');
 
     my $types = $obj->_get_mediatype_as_array;
 

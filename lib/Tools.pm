@@ -213,8 +213,8 @@ sub dumper {
 # ------------------
 sub fields {
 # ------------------
-    my $dbh = shift || return error ('No DBH!' );
-    my $str = shift || return error ('No SQL!');
+    my $dbh = shift || return error('No database handle defined!');
+    my $str = shift || return error('No sql query defined!');
 
     $str =~ s/order\s+by.+//sig;
     my $sql = sprintf('%s %s 0 = 1', $str, ($str =~ /where/i ? 'AND' : 'WHERE'));
@@ -227,8 +227,8 @@ sub fields {
 # ------------------
 sub tableExists {
 # ------------------
-    my $dbh = shift || return error ('No DBH!' );
-    my $name = shift || return error ('No Table!');
+    my $dbh = shift || return error('No database handle defined!');
+    my $name = shift || return error('No table defined!');
 
     my $erg = $dbh->selectall_arrayref('show tables');
     for(@$erg) {
@@ -240,9 +240,9 @@ sub tableExists {
 # ------------------
 sub tableUpdated {
 # ------------------
-    my $dbh = shift || return error ('No DBH!');
-    my $table = shift || return error ('No Table!');
-    my $rows = shift || return error ('No Rows!');
+    my $dbh = shift || return error('No database handle defined!');
+    my $table = shift || return error('No table defined!');
+    my $rows = shift || return error('No rows defined!');
     my $drop = shift || 0;
 
     # remove old Version, if updated
@@ -252,7 +252,7 @@ sub tableUpdated {
             if($drop) {
               lg sprintf('Remove old version from database table %s',$table);
               $dbh->do(sprintf('drop table %s',$table))
-                  or return panic sprintf("Can't drop table %s - %s",$table, $DBI::errstr);
+                  or return panic sprintf("Couldn't drop table %s - %s",$table, $DBI::errstr);
             } else {
               panic sprintf(
 q|------- !PROBLEM! ----------
@@ -274,14 +274,14 @@ or use the script contrib/upgrade-xxv.sh to upgrade the database!
 #--------------------------------------------------------
 sub load_file {
 #--------------------------------------------------------
-	my $file = shift || die "Kein File bei Loader $!";
+	my $file = shift || return error('No file defined!');
 
     lg sprintf('Load file "%s"',
             $file,
         );
 
 	my $fh = IO::File->new("< $file")
-	    or return error(sprintf("Can't open %s : %s!",$file,$!));
+	    or return error(sprintf("Couldn't open %s : %s!",$file,$!));
 	my $data;
 	while ( defined (my $l = <$fh>) ) {
 	        $data .= $l;
@@ -304,7 +304,7 @@ sub save_file {
         );
 
 	my $fhi = new IO::File("> $file")
-	    or return error(sprintf("Can't write %s : %s!",$file,$!));
+	    or return error(sprintf("Couldn't write %s : %s!",$file,$!));
 	print $fhi $data;
 	$fhi->close;
 
@@ -416,7 +416,7 @@ sub deleteDir {
 # ------------------
 sub getip {
 # ------------------
-    my $handle = shift  || return error ('No Handle!' );
+    my $handle = shift  || return error('No handle defined!');
     my $p = getpeername($handle)
         or return;
     my($port, $iaddr) = unpack_sockaddr_in($p);
@@ -431,17 +431,17 @@ sub getip {
 # Usage: my $hash = $obj->getDataByTable('TABLE', ['ID']);
 # ------------------
 sub getDataByTable {
-    my $table = shift || return error ('No Table!' );
+    my $table = shift || return error('No table defined!');
     my $key = shift;
     unless($key) {
       my $erg = &fields($DBH, 'select * from '.$table)
-          or return error sprintf("Can't execute query: %s.",$DBI::errstr);
+          or return error sprintf("Couldn't execute query: %s.",$DBI::errstr);
       $key = $erg->[0];
     } 
 
     my $sth = $DBH->prepare(sprintf('select * from %s',$table));
     $sth->execute()
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     return $sth->fetchall_hashref($key);
 }
 
@@ -452,30 +452,30 @@ sub getDataByTable {
 # Usage: my $hashrow = $obj->getDataById(123, 'TABLE', ['ID']);
 # ------------------
 sub getDataById {
-    my $id = shift  || return error ('No Object!' );
-    my $table = shift || return error ('No Table!' );
+    my $id = shift  || return error('No id defined!');
+    my $table = shift || return error('No table defined!');
     my $key = shift  || &fields($DBH, 'select * from '.$table)->[0];
 
     my $sth = $DBH->prepare(sprintf('select * from %s where %s = ?',$table, $key));
     $sth->execute($id)
-        or return error sprintf("Can't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     return $sth->fetchrow_hashref();
 }
 
 # ------------------
 # Name:  getDataBySearch
 # Descr: universal routine to get data by search from table
-# Usage: my $arref = $obj->getDataBySearch('TABLE', 'ID = 123');
+# Usage: my $arref = $obj->getDataBySearch('TABLE', 'ID = ?', 'ID');
 # ------------------
 sub getDataBySearch {
-    my $table = shift || return error ('No Table!' );
-    my $search = shift || return error ('No Searchtxt!' );
+    my $table = shift || return error('No table defined!');
+    my $search = shift || return error('No sql query defined!');
+    my $data = shift || return error('No sql data defined!');
 
-    my $sql = sprintf('select * from %s where %s',
-                $table, $search);
-
-    my $erg = $DBH->selectall_arrayref($sql);
-    return $erg;
+    my $sth = $DBH->prepare(sprintf('select * from %s where %s',$table, $search));
+    $sth->execute($data)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    return $sth->fetchall_arrayref();
 }
 
 # ------------------
@@ -484,7 +484,7 @@ sub getDataBySearch {
 # Usage: my $arref = $obj->getDataBySearch('TABLE', 'ID', ['WHERE']);
 # ------------------
 sub getDataByFields {
-    my $table = shift || return error ('No Table!' );
+    my $table = shift || return error('No table defined!');
     my $field = shift || '*';
     my $where = shift || '';
 

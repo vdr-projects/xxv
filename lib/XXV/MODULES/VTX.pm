@@ -83,7 +83,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCan not load Module: $_\nPlease install this module on your System:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     return $self;
@@ -94,12 +94,12 @@ sub new {
 # Find first usable channel
 sub findfirst {
 
-	my $self = shift || return error ('No Object!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+	my $self = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
 
     my $basedir = $self->{dir}
-        || return $self->pagedump($console,gettext("directory is for modul vtx not registered!"),"");
+        || return $self->pagedump($console,gettext("Directory is for modul vtx not registered!"),"");
 
 	my $mod = main::getModule ('CHANNELS');
 	my $channels =[];
@@ -124,12 +124,12 @@ sub findfirst {
 # Callback "Channel choice"
 sub channel
 {
-    my $self = shift || return error ('No Object!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $self = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $channel = shift || return $self->findfirst ($watcher, $console);
 
-    my $basedir = $self->{dir} || return error ('No Base Directory defined !');
+    my $basedir = $self->{dir} || return error ('No base directory defined!');
     my $cache = $self->{cache} || 'packed';
 
     my $mod = main::getModule ('CHANNELS');
@@ -214,7 +214,7 @@ sub channel
 #               warn($dump);
 #      }
 
-        $console->message(sprintf(gettext("channel \'%s\' for modul vtx registered."),$channelname))
+        $console->message(sprintf(gettext("Channel \'%s\' for modul vtx registered."),$channelname))
             if ($console->{TYP} ne 'HTML') ;
     } else {
         $self->pagedump($console,sprintf(gettext("No data found for \'%s\'!"),$channelname),"");
@@ -227,13 +227,13 @@ sub channel
 ################################################################################
 # Callback "Teletextpage choice"
 sub page {
-    my $self = shift || return error ('No Object!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $self = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $page = shift || "";
     my $channel = $self->{CHANNEL} || return $self->findfirst ($watcher, $console);
-    my $basedir = $self->{dir} || return error ('No Base Directory defined !');
-    my $chandir  = $self->{CHANNELDIR} || return error ('No CHANNEL');
+    my $basedir = $self->{dir} || return error('No base directory defined!');
+    my $chandir  = $self->{CHANNELDIR} || return error('No channel defined!');
     my $cache = $self->{cache} || 'packed';
 
     my @pp = split ('_', $page);
@@ -263,8 +263,8 @@ sub page {
 ################################################################################
 # Generate Message
 sub pagedump {
-    my $self = shift || return error ('No Object!');
-    my $console = shift || return error ('No Console');
+    my $self = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
     my $result = shift;
     my $chandir = shift;
 
@@ -414,14 +414,14 @@ sub NavigatePages {
 ################################################################################
 # Our internal real page deliverer
 sub realpage {
-  my $self    = shift || return error ('No Object!');
-  my $console = shift || return error ('No Console!');
-  my $mainpage= shift || return error ('No Page!');
-  my $subpage = shift || return error ('No Subpage!');
+  my $self    = shift || return error('No object defined!');
+  my $console = shift || return error('No console defined!');
+  my $mainpage= shift || return error('No page defined!');
+  my $subpage = shift || return error('No sub page defined!');
   my $bHTML = shift;
 
-  my $basedir = $self->{dir} || return error ('No directory is defined!');
-  my $chandir  = $self->{CHANNELDIR} || return error ('No CHANNEL');
+  my $basedir = $self->{dir} || return error('No base directory defined!');
+  my $chandir  = $self->{CHANNELDIR} || return error('No channel defined!');
   my $cache = $self->{cache} || 'packed';
 ################################################################################
 # get filename
@@ -438,7 +438,7 @@ sub realpage {
 # Now open and read this file
   my $fh = FileHandle->new;
   if(!$fh->open($filename)) {
-      $self->pagedump($console,gettext("The page could not be found!"),"");
+      $self->pagedump($console,gettext("Couldn't find page!"),"");
       return "";
   }
 
@@ -1065,7 +1065,7 @@ sub readpage {
         my $notfound = 1;
         while($notfound == 1) {
             if($fh->read($tocbuf, 4*2*8) ne 64) {
-                $self->pagedump($console,gettext("The page could not readed!"),"");
+                $self->pagedump($console,gettext("Couldn't read page!"),"");
                 return "";
             }
             my @toc = unpack( "i*", $tocbuf);
@@ -1075,7 +1075,7 @@ sub readpage {
                 my $spage = int(sprintf ("%X",@toc[($n*2)+1]));
                 # Check for last toc entry 0/0
                 if($mpage == 0 and $spage == 0) {
-                    $self->pagedump($console,gettext("The page could not be found!"),"");
+                    $self->pagedump($console,gettext("Couldn't find page!"),"");
                     return "";
                 }
                 # Look for toc entry same wanted page
@@ -1093,7 +1093,7 @@ sub readpage {
             --$n if($notfound == 0);
             # Skip unwanted Pages
             if(0 == $fh->seek((972*$n), 1)) {
-                $self->pagedump($console,gettext("The page could not readed!"),"");
+                $self->pagedump($console,gettext("Couldn't read page!"),"");
                 return "";
             }
         }
@@ -1105,7 +1105,7 @@ sub readpage {
 # Read page now
     my $packed;
     if($fh->read($packed, 972) ne 972) {
-        $self->pagedump($console,gettext("The page could not readed!"),"");
+        $self->pagedump($console,gettext("Couldn't read page!"),"");
         return "";
     }
     my $result = "";
@@ -1252,7 +1252,7 @@ sub GetPackedToc {
     my @index;
     my $fh = FileHandle->new;
     if(!$fh->open($filename)) {
-        error ("The page could not be found! : $filename");
+        error ("Couldn't find page! : $filename");
     } else {
         # Parse TOC
         #
@@ -1331,9 +1331,9 @@ sub HighLight {
 ################################################################################
 # Callback "Teletext search"
 sub search {
-    my $self = shift || return error ('No Object!');
-    my $watcher = shift || return error ('No Watcher!');
-    my $console = shift || return error ('No Console');
+    my $self = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
     my $search = shift;
 
     my $channel = $self->{CHANNEL};
