@@ -304,11 +304,11 @@ sub _init {
             ) COMMENT = '$version'
         |);
 
-        $obj->{fields} = fields($obj->{dbh}, 'select * from MUSIC');
+        $obj->{fields} = fields($obj->{dbh}, 'SELECT SQL_CACHE  * from MUSIC');
 
         # Read File to Database, if the DB empty and Musicdir exists
         $obj->refresh()
-            unless($obj->{dbh}->selectrow_arrayref("select count(*) from MUSIC")->[0]);
+            unless($obj->{dbh}->selectrow_arrayref("SELECT SQL_CACHE  count(*) from MUSIC")->[0]);
     }
 
     return 1;
@@ -373,7 +373,7 @@ sub refresh {
 
     $obj->{CACHE} = {};
 
-    my $data = $dbh->selectall_hashref("select ID, FILE from MUSIC", 'FILE');
+    my $data = $dbh->selectall_hashref("SELECT SQL_CACHE  ID, FILE from MUSIC", 'FILE');
     my @files = $obj->{ICE}->files;
 
     lg sprintf('Found %d music files !', scalar @files);
@@ -465,9 +465,9 @@ sub playlist {
     foreach my $id (split('_', $data)) {
         my $data;
         if($obj->{mdbh}) {
-            $data = $dbh->selectrow_hashref("select * from tracks where id = '$id'");
+            $data = $dbh->selectrow_hashref("SELECT SQL_CACHE  * from tracks where id = '$id'");
         } else {
-            $data = $dbh->selectrow_hashref("select * from MUSIC where ID = '$id'");
+            $data = $dbh->selectrow_hashref("SELECT SQL_CACHE  * from MUSIC where ID = '$id'");
         }
         next unless($data);
   
@@ -529,15 +529,15 @@ sub list {
       if(!$dbh);
 
     # Genres cachen
-    $obj->{GENRES} = $dbh->selectall_hashref('select * from genre', 'id')
+    $obj->{GENRES} = $dbh->selectall_hashref('SELECT SQL_CACHE  * from genre', 'id')
         if($obj->{mdbh} && !$obj->{GENRES});
 
     if($obj->{mdbh} && ! $search) {
-        my $eg = $dbh->selectrow_arrayref('select title from album limit 1')
+        my $eg = $dbh->selectrow_arrayref('SELECT SQL_CACHE  title from album limit 1')
             || return $console->err($obj->{mdbh}->errstr);
         $search = sprintf('album:%s', $eg->[0]);
     } elsif(! $search) {
-        my $eg = $dbh->selectrow_arrayref('select ALBUM from MUSIC limit 1')
+        my $eg = $dbh->selectrow_arrayref('SELECT SQL_CACHE  ALBUM from MUSIC limit 1')
             || return $console->err($dbh->errstr);
         $search = sprintf('album:%s', $eg->[0]);
     }
@@ -598,7 +598,7 @@ sub list {
     if($obj->{mdbh}) {
 
         $sql = qq|
-        SELECT
+        SELECT SQL_CACHE 
         	tracks.id as $f{'Id'},
         	tracks.artist as $f{'Artist'},
         	album.title as $f{'Album'},
@@ -619,7 +619,7 @@ sub list {
         $sql .= qq|
 
      UNION
-        SELECT
+        SELECT SQL_CACHE 
         	tracks.id as $f{'Id'},
         	tracks.artist as $f{'Artist'},
         	album.title as $f{'Album'},
@@ -647,7 +647,7 @@ sub list {
     } else {
 
         $sql = qq|
-        SELECT
+        SELECT SQL_CACHE 
         	ID as $f{'Id'},
         	ARTIST as $f{'Artist'},
         	ALBUM as $f{'Album'},
@@ -720,10 +720,10 @@ sub field2path {
 
     if($obj->{mdbh}) {
       $pathfield = 'mp3file';
-      $sql = sprintf "select %s, %s from tracks", $pathfield, $field;
+      $sql = sprintf "SELECT SQL_CACHE  %s, %s from tracks", $pathfield, $field;
     } else {
       $pathfield = 'FILE';
-      $sql = sprintf "select %s, %s from MUSIC", $pathfield, $field;
+      $sql = sprintf "SELECT SQL_CACHE  %s, %s from MUSIC", $pathfield, $field;
     }
     $sql .= sprintf " where %s in (%s)", $field, join(',', @$data)
         if($data->[0] ne '*');
@@ -851,9 +851,9 @@ sub GroupArray {
 
     my $sql;
     if($obj->{mdbh}) {
-        $sql = sprintf('select %s, %s from %s %s group by %s order by %s %s', $field, $idfield, $table, $where, $field, $field, $limit);
+        $sql = sprintf('SELECT SQL_CACHE  %s, %s from %s %s group by %s order by %s %s', $field, $idfield, $table, $where, $field, $field, $limit);
     } else {
-        $sql = sprintf('select %s, ID from MUSIC %s group by %s order by %s %s %s ', $field, $where, $field, $field, $limit);
+        $sql = sprintf('SELECT SQL_CACHE  %s, ID from MUSIC %s group by %s order by %s %s %s ', $field, $where, $field, $field, $limit);
     }
     my $erg = $dbh->selectall_arrayref($sql);
 
@@ -869,10 +869,10 @@ sub GenreArray {
 
     my $sql;
     if($obj->{mdbh}) {
-        $sql = "select genre, genre.id as id from genre,tracks where genre.id = tracks.genre1 group by id order by id";
+        $sql = "SELECT SQL_CACHE  genre, genre.id as id from genre,tracks where genre.id = tracks.genre1 group by id order by id";
     } else {
         my $field = 'genre';
-        $sql = sprintf('select %s, %s from MUSIC group by %s order by %s', $field, $field, $field, $field);
+        $sql = sprintf('SELECT SQL_CACHE  %s, %s from MUSIC group by %s order by %s', $field, $field, $field, $field);
     }
     my $erg = $dbh->selectall_arrayref($sql);
 
@@ -892,11 +892,11 @@ sub status {
 
     my $report = {};
     if($obj->{mdbh}) {
-        $report->{FILE} = $obj->{mdbh}->selectrow_arrayref('select count(*) from tracks')->[0];
-        $report->{ALBUM} = $obj->{mdbh}->selectrow_arrayref('select count(*) from album')->[0];
-        my $d = $obj->{mdbh}->selectall_arrayref('select artist from tracks group by artist');
+        $report->{FILE} = $obj->{mdbh}->selectrow_arrayref('SELECT SQL_CACHE  count(*) from tracks')->[0];
+        $report->{ALBUM} = $obj->{mdbh}->selectrow_arrayref('SELECT SQL_CACHE  count(*) from album')->[0];
+        my $d = $obj->{mdbh}->selectall_arrayref('SELECT SQL_CACHE  artist from tracks group by artist');
         $report->{ARTIST} = scalar @$d;
-        $d = $obj->{mdbh}->selectall_arrayref('select genre1 from tracks group by genre1');
+        $d = $obj->{mdbh}->selectall_arrayref('SELECT SQL_CACHE  genre1 from tracks group by genre1');
         $report->{GENRE} = scalar @$d;
     } else {
         foreach my $field (qw/FILE ALBUM ARTIST GENRE/) {
@@ -980,9 +980,9 @@ sub getcovers {
 
     my $erg;
     if($obj->{mdbh}) {
-        $erg = $dbh->selectall_hashref('select DISTINCT t.id as ID,t.mp3file as FILE, a.artist as ARTIST, a.title as ALBUM, t.year as YEAR from album as a, tracks as t where a.cddbid = t.sourceid group by a.title', 'ID');
+        $erg = $dbh->selectall_hashref('SELECT SQL_CACHE  DISTINCT t.id as ID,t.mp3file as FILE, a.artist as ARTIST, a.title as ALBUM, t.year as YEAR from album as a, tracks as t where a.cddbid = t.sourceid group by a.title', 'ID');
     } else {
-        $erg = $dbh->selectall_hashref('select DISTINCT Id as ID, FILE, ARTIST, ALBUM, YEAR from MUSIC group by ALBUM', 'ID');
+        $erg = $dbh->selectall_hashref('SELECT SQL_CACHE  DISTINCT Id as ID, FILE, ARTIST, ALBUM, YEAR from MUSIC group by ALBUM', 'ID');
     }
 
     my $current = 0;
@@ -1233,7 +1233,7 @@ sub coverimage {
 
       if($obj->{mdbh}) {
         $sql = sprintf qq|
-                select id, mp3file as file, 
+                SELECT SQL_CACHE  id, mp3file as file, 
                         tracks.artist as artist, 
                         album.title as album 
                 from tracks, album 
@@ -1241,7 +1241,7 @@ sub coverimage {
                               and id in (%s)|, join(',', @id);
       } else {
         $sql = sprintf qq|
-                select ID as id,
+                SELECT SQL_CACHE  ID as id,
                         FILE as file, 
                         ARTIST as artist,
                         ALBUM as album 
@@ -1303,11 +1303,11 @@ sub getfile {
 
       if($obj->{mdbh}) {
         $sql = sprintf qq|
-                select id, mp3file as file from tracks
+                SELECT SQL_CACHE  id, mp3file as file from tracks
                 where id in (%s)|, join(',', @id);
       } else {
         $sql = sprintf qq|
-                select ID as id, FILE as file from MUSIC 
+                SELECT SQL_CACHE  ID as id, FILE as file from MUSIC 
                 where id in (%s)|, join(',', @id);
       }
 

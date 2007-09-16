@@ -165,7 +165,7 @@ sub status {
     my $lastReportTime = shift || 0;
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     t.Id as __Id,
     t.File,
     t.Status as __Status,
@@ -314,11 +314,11 @@ sub autotimer {
     # Get Autotimer
     my $sth;
     if($autotimerid) {
-        $sth = $obj->{dbh}->prepare('select * from AUTOTIMER where Activ = "y" AND Id = ? order by Id');
+        $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from AUTOTIMER where Activ = "y" AND Id = ? order by Id');
         $sth->execute($autotimerid)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
-        $sth = $obj->{dbh}->prepare('select * from AUTOTIMER where Activ = "y" order by Id');
+        $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from AUTOTIMER where Activ = "y" order by Id');
         $sth->execute()
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     }
@@ -528,7 +528,7 @@ sub autotimerEdit {
 
     my $epg;
     if($timerid and not ref $data) {
-        my $sth = $obj->{dbh}->prepare("select * from AUTOTIMER where Id = ?");
+        my $sth = $obj->{dbh}->prepare("SELECT SQL_CACHE  * from AUTOTIMER where Id = ?");
         $sth->execute($timerid)
             or return $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."),$timerid));
         $epg = $sth->fetchrow_hashref();
@@ -855,7 +855,7 @@ You can also fine tune your search :
 
     	$obj->_insert($data);
 
-    	$data->{Id} = $obj->{dbh}->selectrow_arrayref('SELECT max(ID) FROM AUTOTIMER')->[0]
+    	$data->{Id} = $obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(ID) FROM AUTOTIMER')->[0]
     		if(not $data->{Id});
 
         $console->message(gettext('Autotimer saved!'));
@@ -918,7 +918,7 @@ sub autotimerToggle {
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
 
-    my $sql = sprintf('SELECT Id,Activ FROM AUTOTIMER where Id in (%s)', join(',' => ('?') x @timers)); 
+    my $sql = sprintf('SELECT SQL_CACHE  Id,Activ FROM AUTOTIMER where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute(@timers)) {
         error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1005,7 +1005,7 @@ sub list {
     );
 
     my $sql = qq|
-    select
+    SELECT SQL_CACHE 
       Id as $f{'Id'},
       Activ as $f{'Act'},
       Search as $f{'Search'},
@@ -1110,7 +1110,7 @@ sub _eventsearch {
 
     # Search for events
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     e.eventid as eventid,
     e.channel_id as ChannelID,
     c.Name as Channel,
@@ -1144,7 +1144,7 @@ sub _timerexists {
     my ($nexttime, $aidcomment) = @_;
 
     # Avoid Timer already defined (the timer with the same data again do not put on)
-    my $sql = "select count(*) as cc from TIMERS where
+    my $sql = "SELECT SQL_CACHE  count(*) as cc from TIMERS where
                 ChannelID = ?
                 and UNIX_TIMESTAMP(NextStartTime) = ?
                 and UNIX_TIMESTAMP(NextStopTime)  = ?
@@ -1177,7 +1177,7 @@ sub _timerexistsfuzzy {
 
     # Adjust timers set by the autotimer
     my $timerID = 0;
-    my $sql = "select ID from TIMERS where
+    my $sql = "SELECT SQL_CACHE  ID from TIMERS where
                 ChannelID = ?
                 and UNIX_TIMESTAMP(NextStartTime) = ?
                 and UNIX_TIMESTAMP(NextStopTime)  = ?
@@ -1202,7 +1202,7 @@ sub _recordexists {
     my ($nexttime, $aidcomment) = @_;
 
     # Ignore timer if it already with same title recorded
-    my $sql = "SELECT count(*) as cc
+    my $sql = "SELECT SQL_CACHE  count(*) as cc
                 FROM RECORDS as r, OLDEPG as e
                 WHERE e.eventid = r.EventId
                     AND CONCAT_WS('~',e.title,IF(e.subtitle<>'',e.subtitle,NULL)) = ?";
@@ -1227,7 +1227,7 @@ sub _chronicleexists {
     return 0
       if(not $chroniclemod or $chroniclemod->{active} ne 'y');
 
-    my $sql = "select count(*) as cc from CHRONICLE where title = ?";
+    my $sql = "SELECT SQL_CACHE  count(*) as cc from CHRONICLE where title = ?";
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{File})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1244,7 +1244,7 @@ sub _timerexiststitle {
     my $eventdata = shift  || return error('No data defined!');
     my ($nexttime, $aidcomment) = @_;
 
-    my $sql = "select count(*) as cc from TIMERS where File = ?";
+    my $sql = "SELECT SQL_CACHE  count(*) as cc from TIMERS where File = ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{File})
@@ -1340,7 +1340,7 @@ sub suggest {
 
     if($search) {
         my $sql = qq|
-    SELECT
+    SELECT SQL_CACHE 
         Search
     FROM
         AUTOTIMER

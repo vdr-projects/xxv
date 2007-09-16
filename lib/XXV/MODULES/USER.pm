@@ -210,7 +210,7 @@ sub _init {
     |);
 
     # The Table is empty? Make a default User ...
-    unless($obj->{dbh}->selectrow_arrayref('select count(*) from USER')->[0]) {
+    unless($obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  count(*) from USER')->[0]) {
         $obj->_insert({
             Name => 'xxv',
             Password => 'xxv',
@@ -247,7 +247,7 @@ sub userprefs {
 
     my $user;
     if($id and not ref $data) {
-        my $sth = $obj->{dbh}->prepare('select * from USER where Id = ?');
+        my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from USER where Id = ?');
         $sth->execute($id)
             or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
         $user = $sth->fetchrow_hashref();
@@ -330,7 +330,7 @@ sub edit {
 
     my $user;
     if($id and not ref $data) {
-        my $sth = $obj->{dbh}->prepare('select * from USER where Id = ?');
+        my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from USER where Id = ?');
         $sth->execute($id)
             or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
         $user = $sth->fetchrow_hashref();
@@ -526,7 +526,7 @@ sub list {
     );
 
     my $sql = qq|
-select 
+SELECT SQL_CACHE  
   Id as $f{Id}, 
   Name as $f{Name}, 
   Level as $f{Level}, 
@@ -623,7 +623,7 @@ sub check {
         }
 
         # check User
-        my $sth = $obj->{dbh}->prepare('select * from USER where Name = ? and Password = md5( ? )');
+        my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from USER where Name = ? and Password = md5( ? )');
         $sth->execute($name, $password)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
         $obj->{USER} = $sth->fetchrow_hashref();
@@ -701,7 +701,7 @@ sub allowCommand {
         or
         (exists $modCfg->{Commands}->{$cmdName}->{Level} and $user->{value} < $obj->getLevel($modCfg->{Commands}->{$cmdName}->{Level}))
         or
-        (exists $user->{Deny} and exists $modCfg->{Commands}->{$cmdName}->{DenyClass} and $user->{Deny} =~ /$modCfg->{Commands}->{$cmdName}->{DenyClass}/)
+        ($user->{Deny} and exists $modCfg->{Commands}->{$cmdName}->{DenyClass} and $user->{Deny} =~ /$modCfg->{Commands}->{$cmdName}->{DenyClass}/)
     ) {
         error(sprintf('User %s with Level %s has try to call command %s without permissions!',
             $user->{Name}, $user->{Level}, $cmdName))

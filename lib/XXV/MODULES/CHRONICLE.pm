@@ -135,7 +135,7 @@ sub _insertData {
 
     my $sql = qq|
 INSERT IGNORE INTO CHRONICLE 
-  SELECT 
+  SELECT SQL_CACHE  
     0, PASSWORD(CONCAT(e.channel_id,e.starttime,title)),
     REPLACE(IF(Length(e.subtitle)<=0, IF(left(e.title,1) = '%',right(e.title,length(e.title)-1),e.title), CONCAT_WS('~',e.title,e.subtitle)),'~%','~') as title,
     IF(e.channel_id <> "<undef>",e.channel_id , NULL),
@@ -167,7 +167,7 @@ sub list {
     );
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
   CHRONICLE.id as $f{'id'},
   CHRONICLE.title as $f{'title'},
   CHRONICLE.channel_id as $f{'channel'},
@@ -207,7 +207,7 @@ sub search {
     );
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
   CHRONICLE.id as $f{'id'},
   CHRONICLE.title as $f{'title'},
   CHRONICLE.channel_id as $f{'channel'},

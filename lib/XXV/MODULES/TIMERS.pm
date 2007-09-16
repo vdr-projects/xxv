@@ -306,7 +306,7 @@ sub status {
 
     my $total = 0;
     {
-        my $sth = $obj->{dbh}->prepare("select count(*) as count from TIMERS");
+        my $sth = $obj->{dbh}->prepare("SELECT SQL_CACHE  count(*) as count from TIMERS");
         if(!$sth->execute())
         {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -483,7 +483,7 @@ sub newTimer {
     if($epgid and not ref $epg) {
         my $sth = $obj->{dbh}->prepare(
 qq|
-SELECT
+SELECT SQL_CACHE 
     eventid,
     channel_id,
     description as Summary,
@@ -546,7 +546,7 @@ sub editTimer {
     if($timerid and not ref $data) {
         my $sth = $obj->{dbh}->prepare(
 qq|
-SELECT
+SELECT SQL_CACHE 
     Id, 
     ChannelID as channel_id, 
     File, 
@@ -787,7 +787,7 @@ sub deleteTimer {
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
 
-    my $sql = sprintf('SELECT Id,File,ChannelID,NextStartTime,IF(Status & 1 and NOW() between NextStartTime and NextStopTime,1,0) as Running FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
+    my $sql = sprintf('SELECT SQL_CACHE  Id,File,ChannelID,NextStartTime,IF(Status & 1 and NOW() between NextStartTime and NextStopTime,1,0) as Running FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@timers)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -850,7 +850,7 @@ sub toggleTimer {
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
 
-    my $sql = sprintf('SELECT Id,File,Status,NextStartTime, NextStopTime FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
+    my $sql = sprintf('SELECT SQL_CACHE  Id,File,Status,NextStartTime, NextStopTime FROM TIMERS where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@timers)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -894,7 +894,7 @@ sub toggleTimer {
         if(ref $console and $console->typ eq 'AJAX') {
           # { "data" : [ [ ID, ON, RUN, CONFLICT ], .... ] }
           # { "data" : [ [ 5, 1, 0, 0 ], .... ] }
-          my $sql = sprintf('select Id, Status & 1 as Active, IF(NOW() between NextStartTime and NextStopTime,1,0) as Running, Collision from TIMERS where Id in (%s) %s',
+          my $sql = sprintf('SELECT SQL_CACHE  Id, Status & 1 as Active, IF(NOW() between NextStartTime and NextStopTime,1,0) as Running, Collision from TIMERS where Id in (%s) %s',
                              join(',' => ('?') x @timers),$ref); 
           my $sth = $obj->{dbh}->prepare($sql);
           $sth->execute(@timers)
@@ -1082,7 +1082,7 @@ sub list {
     );
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     t.Id as $f{'Id'},
     t.Status as $f{'Status'},
     c.Name as $f{'Channel'},
@@ -1109,7 +1109,7 @@ WHERE
 
 UNION 
 
-SELECT
+SELECT SQL_CACHE 
     t.Id as $f{'Id'},
     t.Status as $f{'Status'},
     c.Name as $f{'Channel'},
@@ -1155,7 +1155,7 @@ sub getTimerById {
     my $tid = shift  || return error('No id defined!');
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     t.Id,
     t.Status,
     c.Name as Channel,
@@ -1189,7 +1189,7 @@ sub getRunningTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
 		my $rowname = shift || 'Id';
-    my $sql = "select $rowname from TIMERS where NOW() between NextStartTime and NextStopTime AND (Status & 1)";
+    my $sql = "SELECT SQL_CACHE  $rowname from TIMERS where NOW() between NextStartTime and NextStopTime AND (Status & 1)";
     my $erg = $obj->{dbh}->selectall_hashref($sql, $rowname);
     return $erg;
 }
@@ -1213,7 +1213,7 @@ sub getNewTimers {
 sub getOldDeactivTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $sql = "select Id from TIMERS where not (Status & 1) and UNIX_TIMESTAMP(NextStopTime) > UNIX_TIMESTAMP() + (60*60*24*28)";
+    my $sql = "SELECT SQL_CACHE  Id from TIMERS where not (Status & 1) and UNIX_TIMESTAMP(NextStopTime) > UNIX_TIMESTAMP() + (60*60*24*28)";
     my $erg = $obj->{dbh}->selectall_hashref($sql, 'Id');
 
     foreach my $t (reverse sort {$a <=> $b} keys %$erg) {
@@ -1229,7 +1229,7 @@ sub getCheckTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $sql = qq|
-SELECT t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
+SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
         t.Priority as Priority, t.Lifetime as Lifetime,
         t.File as File, t.Summary as Summary,
         t.Start as TimerStart,t.Stop as TimerStop,
@@ -1302,7 +1302,7 @@ SELECT t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
 sub getEpgIds {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $sql = "select Id, Status & 1 as Status, eventid from TIMERS where eventid > 0";
+    my $sql = "SELECT SQL_CACHE  Id, Status & 1 as Status, eventid from TIMERS where eventid > 0";
     my $erg = $obj->{dbh}->selectall_hashref($sql, 'eventid');
     return $erg;
 }
@@ -1314,7 +1314,7 @@ sub getEpgDesc {
     my $tid = shift  || return error('No id defined!');
 
     my $sql = qq|
-select
+SELECT SQL_CACHE 
     description from TIMERS as t, EPG as e
 where
     e.eventid > 0 and
@@ -1335,7 +1335,7 @@ sub getOverlappingTimer {
     my $obj  = shift || return error('No object defined!');
 
     my $sql = qq|
-select
+SELECT SQL_CACHE 
     TIMERS.Id,
     TIMERS.Priority,
     TIMERS.NextStartTime,
@@ -1377,7 +1377,7 @@ sub checkOverlapping {
     my $tid           =  $data->{Id} || 0;
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     t.Id,
     t.Priority,
     c.TID
@@ -1499,7 +1499,7 @@ sub _getNextEpgId {
 
     if(scalar @file >= 2) { # title and subtitle defined
         my $sth = $obj->{dbh}->prepare(qq|
-            SELECT eventid,starttime,duration from EPG
+            SELECT SQL_CACHE  eventid,starttime,duration from EPG
             WHERE
                 channel_id = ? 
                 AND ((UNIX_TIMESTAMP(starttime) + (duration/2)) between  ?  and  ? )
@@ -1519,7 +1519,7 @@ sub _getNextEpgId {
 
     } else {
         my $sth = $obj->{dbh}->prepare(qq|
-            SELECT eventid,starttime,duration from EPG
+            SELECT SQL_CACHE  eventid,starttime,duration from EPG
             WHERE
                 channel_id = ? 
                 AND ((UNIX_TIMESTAMP(starttime) + (duration/2)) between  ?  and  ? )
@@ -1659,7 +1659,7 @@ sub getTimersByAutotimer {
 sub getRootDirs {
     my $obj = shift  || return error('No object defined!');
 		my $count = shift || 1;
-    my $sql = "select distinct SUBSTRING_INDEX(File,'~',$count) from TIMERS;";
+    my $sql = "SELECT SQL_CACHE  distinct SUBSTRING_INDEX(File,'~',$count) from TIMERS;";
     my $erg = $obj->{dbh}->selectall_arrayref($sql);
 		my @ret;
 		for(@$erg) {
@@ -1696,7 +1696,7 @@ sub suggest {
 
     if($search) {
         my $sql = qq|
-    SELECT
+    SELECT SQL_CACHE 
         File
     FROM
         TIMERS

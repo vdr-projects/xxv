@@ -442,7 +442,7 @@ sub readData {
         $obj->{dbh}->do('DELETE FROM RECORDS');
     } else {
         # read database for compare with vdr data
-        my $sql = qq|select r.eventid as eventid, r.RecordId as id, 
+        my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.RecordId as id, 
                         UNIX_TIMESTAMP(e.starttime) as starttime, 
                         e.duration as duration, r.State as state, 
                         CONCAT_WS('~',e.title,e.subtitle) as title, 
@@ -1040,7 +1040,7 @@ sub SearchEpgId {
     my $bis = int($start + $dur);
     if($subtitle && $channel && $channel ne "") {
         $sth = $obj->{dbh}->prepare(
-qq|SELECT * FROM OLDEPG WHERE 
+qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ? 
@@ -1050,7 +1050,7 @@ qq|SELECT * FROM OLDEPG WHERE
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } elsif($subtitle) {
         $sth = $obj->{dbh}->prepare(
-qq|SELECT * FROM OLDEPG WHERE 
+qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ? 
@@ -1059,7 +1059,7 @@ qq|SELECT * FROM OLDEPG WHERE
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
         $sth = $obj->{dbh}->prepare(
-qq|SELECT * FROM OLDEPG WHERE 
+qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ?|);
@@ -1101,7 +1101,7 @@ sub createOldEventId {
         addtime => time
     };
 
-    $attr->{eventid} = $obj->{dbh}->selectrow_arrayref('select max(eventid)+1 from OLDEPG')->[0];
+    $attr->{eventid} = $obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(eventid)+1 from OLDEPG')->[0];
     $attr->{eventid} = 1000000000 if(not defined $attr->{eventid} or $attr->{eventid} < 1000000000 );
 
     lg sprintf('Create event "%s" - "%s" into OLDEPG',
@@ -1142,7 +1142,7 @@ sub display {
     $stopp = "UNIX_TIMESTAMP(e.starttime) + e.duration" if($console->typ eq "HTML");
 
     my $sql = qq|
-select
+SELECT SQL_CACHE 
     r.RecordMD5 as RecordId,
     r.eventid,
     e.Duration,
@@ -1193,7 +1193,7 @@ sub play {
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
-    my $sql = qq|SELECT RecordID FROM RECORDS WHERE RecordMD5 = ?|;
+    my $sql = qq|SELECT SQL_CACHE  RecordID FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
@@ -1213,7 +1213,7 @@ sub cut {
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
-    my $sql = qq|SELECT RecordID FROM RECORDS WHERE RecordMD5 = ?|;
+    my $sql = qq|SELECT SQL_CACHE  RecordID FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
@@ -1237,7 +1237,7 @@ sub list {
     my $deep = 1;
     my $folder = scalar (my @a = split('/',$obj->{videodir})) + 1;
 
-    my $select = "e.eventid = r.eventid";
+    my $where = "e.eventid = r.eventid";
     if($text) {
         $deep   = scalar (my @c = split('~',$text));
         $folder += $deep;
@@ -1245,7 +1245,7 @@ sub list {
 
         $text =~ s/\'/\\\'/sg;
         $text =~ s/%/\\%/sg;
-        $select .= qq|
+        $where .= qq|
 AND (
       SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE '$text'
       OR
@@ -1266,7 +1266,7 @@ AND (
     $start = "UNIX_TIMESTAMP(e.starttime)" if($console->typ eq "HTML");
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     r.RecordMD5 as $f{'Id'},
     r.eventid as __EventId,
     e.title as $f{'Title'},
@@ -1283,7 +1283,7 @@ FROM
     RECORDS as r,
     OLDEPG as e
 WHERE
-    $select
+    $where 
 GROUP BY
     SUBSTRING_INDEX(r.Path, '/', IF(Length(e.subtitle)<=0, $folder + 1, $folder))
 |;
@@ -1339,7 +1339,7 @@ sub search {
     $start = "UNIX_TIMESTAMP(e.starttime)" if($console->typ eq "HTML");
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     r.RecordMD5 as $f{'Id'},
     r.eventid as __EventId,
     e.title as $f{'Title'},
@@ -1411,7 +1411,7 @@ sub delete {
     }
     my @recordings = keys %rec;
     
-    my $sql = sprintf("SELECT r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 FROM RECORDS as r,OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) ORDER BY r.RecordId desc", join(',' => ('?') x @recordings)); 
+    my $sql = sprintf("SELECT SQL_CACHE  r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 FROM RECORDS as r,OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) ORDER BY r.RecordId desc", join(',' => ('?') x @recordings)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@recordings)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1513,7 +1513,7 @@ sub redit {
     my $rec;
     if($recordid) {
         my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     CONCAT_WS('~',e.title,e.subtitle) as title,
     e.eventid as EventId,
     r.Path,
@@ -1901,7 +1901,7 @@ sub status {
     my $lastReportTime = shift;
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     r.RecordId as __Id,
     r.eventid as __EventId,
     e.title,
@@ -1937,7 +1937,7 @@ sub IdToPath {
     my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('select Path from RECORDS where RecordMD5 = ?');
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  Path from RECORDS where RecordMD5 = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -1982,7 +1982,7 @@ sub getGroupIds {
     my $deep = 1;
     my $folder = scalar (my @a = split('/',$obj->{videodir})) + 1;
 
-    my $select = "e.eventid = r.eventid";
+    my $where  = "e.eventid = r.eventid";
     if($text) {
         $deep   = scalar (my @c = split('~',$text));
         $folder += $deep;
@@ -1990,7 +1990,7 @@ sub getGroupIds {
 
         $text =~ s/\'/\\\'/sg;
         $text =~ s/%/\\%/sg;
-        $select .= qq|
+        $where  .= qq|
 AND (
       SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE '$text'
       OR
@@ -2001,13 +2001,13 @@ AND (
     }
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     r.RecordMD5
 FROM
     RECORDS as r,
     OLDEPG as e
 WHERE
-    $select
+    $where 
 GROUP BY
     SUBSTRING_INDEX(r.Path, '/', IF(Length(e.subtitle)<=0, $folder + 1, $folder))
 |;
@@ -2101,7 +2101,7 @@ sub suggest {
 
     if($search) {
         my $sql = qq|
-    SELECT
+    SELECT SQL_CACHE 
         e.title as title
     FROM
         RECORDS as r,
@@ -2112,7 +2112,7 @@ sub suggest {
     GROUP BY
         title
 UNION
-    SELECT
+    SELECT SQL_CACHE 
         e.subtitle as title
     FROM
         RECORDS as r,

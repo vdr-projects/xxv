@@ -287,7 +287,7 @@ sub status {
     my $console = shift;
     
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     COUNT(id)
 FROM
     MEDIALIB_VIDEODATA
@@ -353,7 +353,7 @@ sub copyMedia {
     my $params  = shift || 0;
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     *
 FROM
     MEDIALIB_VIDEODATA
@@ -510,7 +510,7 @@ ON
         }
     
         my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     id, imgurl, title, subtitle, year, director, SUBSTRING(plot,1,200)
 FROM
     MEDIALIB_VIDEODATA
@@ -552,7 +552,7 @@ sub editMedia {
     my $range = delete $params->{range} if defined $params->{range};
     if ( $id ) {
         my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     *
 FROM
     MEDIALIB_VIDEODATA
@@ -621,7 +621,7 @@ sub listMedia {
     }
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     id, imgurl, title, subtitle, year, director, SUBSTRING(plot,1,200)
 FROM
     MEDIALIB_VIDEODATA
@@ -660,7 +660,7 @@ sub displayMedia {
     lg("Details for mediaid:". $id);
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     *
 FROM
     MEDIALIB_VIDEODATA
@@ -719,7 +719,7 @@ sub saveMedia {
 
         if(not $params->{id}) {
             lg("Got no id from CGI");
-            $params->{id} = $obj->{dbh}->selectrow_arrayref('SELECT max(ID) FROM MEDIALIB_VIDEODATA')->[0];
+            $params->{id} = $obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(ID) FROM MEDIALIB_VIDEODATA')->[0];
             lg("ID fetched from DB: ". $params->{id});
         }
 
@@ -912,7 +912,7 @@ sub _get_actors {
     } @actors;
 
     my $sql = sprintf(qq|
-SELECT
+SELECT SQL_CACHE 
     UPPER(name) as name, imgurl
 FROM
     MEDIALIB_ACTORS
@@ -953,7 +953,7 @@ sub _get_actors_as_hash_by_name {
     my @actors = split /\n/, $input;
   
     my $sql = sprintf(qq|
-SELECT
+SELECT SQL_CACHE 
     name, imgurl
 FROM
     MEDIALIB_ACTORS
@@ -1107,7 +1107,7 @@ sub _get_videogenres_byvideoid {
     return [] unless $id;
     
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     genre_id
 FROM
     MEDIALIB_VIDEOGENRE

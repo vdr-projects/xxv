@@ -127,10 +127,10 @@ sub status {
     my $console = shift;
     my $lastReportTime = shift || 0;
 
-    my $sql = "select count(*) from CHANNELS";
+    my $sql = "SELECT SQL_CACHE  count(*) from CHANNELS";
     my $gesamt = $obj->{dbh}->selectrow_arrayref($sql)->[0];
 
-    $sql = "select count(*) from CHANNELGROUPS";
+    $sql = "SELECT SQL_CACHE  count(*) from CHANNELGROUPS";
     my $groups = $obj->{dbh}->selectrow_arrayref($sql)->[0];
 
     return {
@@ -432,7 +432,7 @@ sub list {
     my $params = shift;
 
     my $sql = qq|
-select
+SELECT SQL_CACHE 
     c.*, cg.Name as __GrpName
 from
     CHANNELS as c,
@@ -469,7 +469,7 @@ sub NameToChannel {
     my $obj = shift || return error('No object defined!');
     my $name = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('select Id from CHANNELS where UPPER(Name) = UPPER( ? )');
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  Id from CHANNELS where UPPER(Name) = UPPER( ? )');
     $sth->execute($name)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -482,7 +482,7 @@ sub PosToName {
     my $obj = shift || return error('No object defined!');
     my $pos = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('select Name from CHANNELS where POS = ?');
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  Name from CHANNELS where POS = ?');
     $sth->execute($pos)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -495,7 +495,7 @@ sub PosToChannel {
     my $obj = shift || return error('No object defined!');
     my $pos = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('select Id from CHANNELS where POS = ?');
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  Id from CHANNELS where POS = ?');
     $sth->execute($pos)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -510,7 +510,7 @@ sub ChannelGroupsArray {
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('select %s, Id from CHANNELGROUPS %s order by Id', $field, $where);
+    my $sql = sprintf('SELECT SQL_CACHE  %s, Id from CHANNELGROUPS %s order by Id', $field, $where);
     my $erg = $obj->{dbh}->selectall_arrayref($sql);
     return $erg;
 }
@@ -523,7 +523,7 @@ sub ChannelArray {
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('select %s, POS from CHANNELS %s order by POS', $field, $where);
+    my $sql = sprintf('SELECT SQL_CACHE  %s, POS from CHANNELS %s order by POS', $field, $where);
     my $erg = $obj->{dbh}->selectall_arrayref($sql);
     return $erg;
 }
@@ -536,7 +536,7 @@ sub ChannelIDArray {
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('select %s, Id from CHANNELS %s order by POS', $field, $where);
+    my $sql = sprintf('SELECT SQL_CACHE  %s, Id from CHANNELS %s order by POS', $field, $where);
     my $erg = $obj->{dbh}->selectall_arrayref($sql);
     return $erg;
 }
@@ -549,7 +549,7 @@ sub ChannelHash {
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('select * from CHANNELS %s', $where);
+    my $sql = sprintf('SELECT SQL_CACHE  * from CHANNELS %s', $where);
     my $erg = $obj->{dbh}->selectall_hashref($sql, $field);
     return $erg;
 }
@@ -560,7 +560,7 @@ sub ChannelToName {
     my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('select Name from CHANNELS where Id = ?');
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  Name from CHANNELS where Id = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -573,7 +573,7 @@ sub ChannelToPos {
     my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('select POS from CHANNELS where Id = ?');
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  POS from CHANNELS where Id = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -607,7 +607,7 @@ sub getChannelType {
 sub _LastChannel {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $sql = sprintf('select * from CHANNELS order by POS desc limit 1');
+    my $sql = sprintf('SELECT SQL_CACHE  * from CHANNELS order by POS desc limit 1');
     my $erg = $obj->{dbh}->selectrow_hashref($sql);
     return $erg;
 }
@@ -639,7 +639,7 @@ sub editChannel {
         $cid = $self->PosToChannel($cid)
             unless(index($cid, '-') > -1);
 
-        my $sth = $self->{dbh}->prepare('select POS, Name, Frequency, Parameters, Source, Srate, VPID, APID, TPID, CA, SID, NID, TID, RID from CHANNELS where Id = ?');
+        my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE  POS, Name, Frequency, Parameters, Source, Srate, VPID, APID, TPID, CA, SID, NID, TID, RID from CHANNELS where Id = ?');
             $sth->execute($cid)
             or return $console->err(sprintf(gettext("Channel '%s' does not exist in the database!"),$cid));
         $defaultData = $sth->fetchrow_hashref();
@@ -933,7 +933,7 @@ sub deleteChannel {
 
     my @channels  = reverse sort{ $a <=> $b } split(/[^0-9]/, $channelid);
 
-    my $sql = sprintf('select Id,POS,Name from CHANNELS where POS in (%s)', join(',' => ('?') x @channels)); 
+    my $sql = sprintf('SELECT SQL_CACHE  Id,POS,Name from CHANNELS where POS in (%s)', join(',' => ('?') x @channels)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@channels)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -987,7 +987,7 @@ sub _brandNewChannels {
     my $obj = shift  || return error('No object defined!');
     my $oldmaximumpos = shift || return;
 
-    my $sql = 'select * from CHANNELS where POS > ?'; 
+    my $sql = 'SELECT SQL_CACHE  * from CHANNELS where POS > ?'; 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($oldmaximumpos)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);

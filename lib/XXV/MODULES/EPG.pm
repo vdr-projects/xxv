@@ -131,7 +131,7 @@ sub status {
     my $newEntrys = 0;
 
     {
-        my $sth = $obj->{dbh}->prepare("select count(*) as count from EPG");
+        my $sth = $obj->{dbh}->prepare("SELECT SQL_CACHE  count(*) as count from EPG");
         if(!$sth->execute())
         {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -142,7 +142,7 @@ sub status {
     }
 
     {
-        my $sth = $obj->{dbh}->prepare("select count(*) as count from EPG where UNIX_TIMESTAMP(addtime) > ?");
+        my $sth = $obj->{dbh}->prepare("SELECT SQL_CACHE  count(*) as count from EPG where UNIX_TIMESTAMP(addtime) > ?");
         if(!$sth->execute($lastReportTime))
         {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -353,7 +353,7 @@ sub compareEpgData {
         if(ref $waiter);
 
       # First - read database
-      my $sql = qq|select eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio from EPG where channel_id = ? |;
+      my $sql = qq|SELECT SQL_CACHE  eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio from EPG where channel_id = ? |;
       my $sth = $obj->{dbh}->prepare($sql);
       $sth->execute($channel)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -420,7 +420,7 @@ sub deleteDoubleEPGEntrys {
     my $obj = shift || return error('No object defined!');
 
     # Delete double EPG Entrys
-    my $erg = $obj->{dbh}->selectall_arrayref('SELECT eventid FROM EPG GROUP BY starttime, channel_id having count(*) > 1');
+    my $erg = $obj->{dbh}->selectall_arrayref('SELECT SQL_CACHE  eventid FROM EPG GROUP BY starttime, channel_id having count(*) > 1');
     if(scalar @$erg > 0) {
         lg sprintf('Repair data found %d wrong events!', scalar @$erg);
         my $sth = $obj->{dbh}->prepare('DELETE FROM EPG WHERE eventid = ?');
@@ -628,7 +628,7 @@ sub search {
     my $erg = [];
     if($search) {
         my $sql = qq|
-    select
+    SELECT SQL_CACHE 
         e.eventid as Service,
         e.title as Title,
         e.subtitle as __Subtitle,
@@ -667,7 +667,7 @@ sub program {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $channel = shift || $obj->{dbh}->selectrow_arrayref("select POS from CHANNELS limit 1")->[0];
+    my $channel = shift || $obj->{dbh}->selectrow_arrayref("SELECT SQL_CACHE  POS from CHANNELS limit 1")->[0];
 
     my $mod = main::getModule('CHANNELS');
     my $tim = main::getModule('TIMERS');
@@ -682,7 +682,7 @@ sub program {
     }
 
     my $sql = qq|
-select
+SELECT SQL_CACHE 
     e.eventid as Service,
     e.title as Title,
     e.subtitle as __Subtitle,
@@ -749,7 +749,7 @@ sub display {
 
     foreach my $table (qw/EPG OLDEPG/) {
     my $sql = qq|
-select
+SELECT SQL_CACHE 
     e.eventid as $f{'Id'},
     e.title as $f{'Title'},
     e.subtitle as $f{'Subtitle'},
@@ -810,7 +810,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS NEXTEPG (
 
     # Get channelid and starttime of next broadcasting
     my $sqltemp = qq|
-INSERT INTO NEXTEPG select
+INSERT INTO NEXTEPG select 
     c.Id as channel_id,
     MIN(e.starttime) as nexttime
     FROM EPG as e, CHANNELS as c
@@ -833,7 +833,7 @@ GROUP BY c.Id
     );
     my $sql =
 qq|
-select
+SELECT SQL_CACHE 
     e.eventid as $f{'Service'},
     e.title as $f{'Title'},
     e.subtitle as __Subtitle,
@@ -908,7 +908,7 @@ sub runningNow {
     );
     my $sql =
 qq|
-select
+SELECT SQL_CACHE 
     e.eventid as $f{'Service'},
     e.title as $f{'Title'},
     e.subtitle as __Subtitle,
@@ -962,7 +962,7 @@ sub NowOnChannel {
 
     my $sql =
 qq|
-select
+SELECT SQL_CACHE 
     e.eventid as Service,
     e.title as Title,
     e.subtitle as Subtitle,
@@ -1038,7 +1038,7 @@ sub schema {
 
     my $sql =
 qq|
-select
+SELECT SQL_CACHE 
     e.eventid as Service,
     e.title as Title,
     e.subtitle as __Subtitle,
@@ -1107,7 +1107,7 @@ sub checkOnTimer {
     my $tim = main::getModule('TIMERS');
 
     my $sql = qq|
-SELECT
+SELECT SQL_CACHE 
     e.starttime as NextStartTime,
     ADDDATE(e.starttime, INTERVAL e.duration SECOND) as NextStopTime,
     LEFT(c.Source,1) as source,
@@ -1173,7 +1173,7 @@ sub getId {
 
     foreach my $table (qw/EPG OLDEPG/) {
     # EPG
-        my $sql = sprintf('select %s from %s WHERE eventid = ?',$fields, $table); 
+        my $sql = sprintf('SELECT SQL_CACHE  %s from %s WHERE eventid = ?',$fields, $table); 
         my $sth = $obj->{dbh}->prepare($sql);
            $sth->execute($id) 
                 or return error "Couldn't execute query: $sth->errstr.";
@@ -1201,7 +1201,7 @@ sub suggest {# ------------------
         }
 
         my $sql = qq|
-    SELECT
+    SELECT SQL_CACHE 
         e.title as title
     FROM
         EPG as e,
@@ -1213,7 +1213,7 @@ sub suggest {# ------------------
     GROUP BY
         title
 UNION
-    SELECT
+    SELECT SQL_CACHE 
         e.subtitle as title
     FROM
         EPG as e,
