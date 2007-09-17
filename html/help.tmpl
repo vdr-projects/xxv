@@ -71,7 +71,7 @@ var tree = new WebFXTree("XXV", "?cmd=<?% start %?>");
 
 <?% IF allow('vtxpage') %?>tree.add(new WebFXTreeItem("<?% gettext("Teletext") %?>",      "?cmd=vtxpage"));<?% END %?>
 
-<?% IF allow('mllist') %?>tree.add(new WebFXTreeItem("<?% gettext("Media Library") %?>",      "?cmd=mllist"));<?% END %?>
+<?% IF allow('mllist') %?>tree.add(new WebFXTreeItem("<?% gettext("Media library") %?>",      "?cmd=mllist"));<?% END %?>
 
 
 <?% IF allow('configedit') %?>

@@ -295,7 +295,7 @@ FROM
 
     my $erg = $obj->{dbh}->selectrow_arrayref($sql);
     return {
-        message => sprintf(gettext('Media Library has stored %d medias'), $erg->[0]),
+        message => sprintf(gettext('Media library has stored %d medias'), $erg->[0]),
     };
 
 }

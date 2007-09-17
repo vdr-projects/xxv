@@ -83,7 +83,7 @@ sub module {
                 type        => 'confirm',
             },
             previewimages => {
-                description => gettext('common directory for preview images'),
+                description => gettext('Common directory for preview images'),
                 default     => '/var/cache/xxv/preview',
                 type        => 'dir',
                 required    => gettext('This is required!'),
@@ -191,7 +191,7 @@ sub module {
                             my $epg = main::getModule('EPG')->getId($record->{eventid}, 'title, subtitle, description');
 
 
-                            my $title = sprintf(gettext("Record deleted: %s"), $epg->{title});
+                            my $title = sprintf(gettext("Recording deleted: %s"), $epg->{title});
                             my $description = "";
                                $description .= sprintf(gettext("Subtitle: %s\n"),
                                     $epg->{subtitle}) if($epg->{subtitle});
@@ -412,7 +412,7 @@ sub readData {
         ($total, $totalUnit, $free, $freeUnit, $percent)
             = $stat->[1] =~ /^250[\-|\s](\d+)(\S+)\s+(\d+)(\S+)\s+(\S+)/s;
 
-        $obj->{CapacityMessage} = sprintf(gettext("Used %s, Total %s%s, Free %s%s"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit);
+        $obj->{CapacityMessage} = sprintf(gettext("Used %s, total %s%s, free %s%s"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit);
         $obj->{CapacityPercent} = int($percent);
 
     } else {
@@ -573,9 +573,7 @@ sub readData {
 
             while(scalar @jobs > 0) {
                 my $command = shift (@jobs);
-                lg sprintf('Call cmd "%s" now',
-                        $command,
-                    );
+                lg sprintf('Call command "%s"', $command );
                 my $erg = system("nice -n 19 $command");
             }
             exit 0;
@@ -899,6 +897,17 @@ sub videoInfo {
     return $status;
 }
 
+sub qquote {
+    my $str = shift;
+    $str =~ s/(\')/\'\\\'\'/g;
+
+#    $metas = '!$`' unless($metas);
+#    $metas =~ s/\]/\\]/g;
+#    $str =~ s/([$metas])/\\$1/g;
+
+    return "'$str'";
+}
+
 # ------------------
 sub videoPreview {
 # ------------------
@@ -1000,19 +1009,17 @@ sub videoPreview {
         }
     } else {
         @files = glob("$vdir/[0-9][0-9][0-9].vdr");
-        foreach (@files) { s/(\")/\\$1/g; }
+        foreach (@files) { $_ = qquote($_); }
     }
-
-    $vdir =~ s/(\')/\\$1/g;
 
     my $scalex = 180;
     my $mversions = {
-        'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=\'%s\' -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d \'%s\' >> \'%s\' 2>&1",
-                                $obj->{previewbinary}, $outdir, $startseconds / 5, $stepseconds / 5, $scalex, $count, join("\' \'",@files), $log),
-        'MPlayer1.0pre6' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg:outdir=\'%s\' -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d \'%s\' >> \'%s\' 2>&1",
-                                $obj->{previewbinary}, $outdir, $startseconds / 5, $stepseconds / 5, $scalex, $count, join("\' \'",@files), $log),
-        'vdr2jpeg'       => sprintf("%s -r \'%s\' -f %s -x %d -o \'%s\' >> \'%s\' 2>&1",
-                                $obj->{previewbinary}, $vdir, join(" -f ", @frames), $scalex, $outdir, $log),
+      'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
+                              $obj->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join('" "',@files), qquote($log)),
+      'MPlayer1.0pre6' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg:outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
+                              $obj->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
+      'vdr2jpeg'       => sprintf("%s -r %s -f %s -x %d -o %s >> %s 2>&1",
+                              $obj->{previewbinary}, qquote($vdir), join(' -f ', @frames), $scalex, qquote($outdir), qquote($log)),
     };
     return $mversions->{$obj->{previewcommand}};
 }
@@ -1104,10 +1111,7 @@ sub createOldEventId {
     $attr->{eventid} = $obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(eventid)+1 from OLDEPG')->[0];
     $attr->{eventid} = 1000000000 if(not defined $attr->{eventid} or $attr->{eventid} < 1000000000 );
 
-    lg sprintf('Create event "%s" - "%s" into OLDEPG',
-            $title,
-            $subtitle ? $subtitle : '',
-        );
+    lg sprintf('Create event "%s" into OLDEPG', $subtitle ? $title .'~'. $subtitle : $title);
 
     my $sth = $obj->{dbh}->prepare('REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, duration, tableid, starttime, video, audio, addtime) VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),?,?,FROM_UNIXTIME(?))');
     $sth->execute(
@@ -1872,19 +1876,27 @@ sub conv {
     my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return $console->err(gettext("Couldn't find this command ID!"));
     my $path = $obj->IdToPath($recid) || return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
 
-    debug sprintf('Call command "%s" on recording "%s"%s',
-        $cmd,
-        $path,
+    my $command = sprintf("%s %s",$cmd,qquote($path));
+    debug sprintf('Call command %s%s',
+        $command,
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    my $call = "$cmd \"$path\"";
-    my $output = `$call`;
-    if( $? >> 8 > 0) {
-        $console->message(sprintf(gettext("Sorry! Call %s %s with error output: %s"), $cmd, $path, $output));
+    my $output;
+    if(open P, $command .' |') { # Kommando ausführen und stdout einlesen
+      @$output = <P>;
+      close P;
+      if( $? >> 8 > 0) {
+          unshift(@$output,sprintf(gettext("Call %s '%s', standard error output :"), $cmd, $path));
+          $console->message($output);
+      } else {
+          unshift(@$output,sprintf(gettext("Call %s '%s', standard output :"), $cmd, $path));
+          $console->message($output);
+      }
     } else {
-        $console->message(sprintf(gettext("Call %s %s with output: %s"), $cmd, $path, $output));
+          $console->err(sprintf(gettext("Sorry! Couldn't call %s '%s'! %s"), $cmd, $path, $!));
     }
+
     $console->link({
         text => gettext("Back to recording list"),
         url => "?cmd=rlist",

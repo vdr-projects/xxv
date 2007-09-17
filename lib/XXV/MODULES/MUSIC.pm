@@ -59,24 +59,24 @@ sub module {
                 required    => gettext('This is required!'),
             },
             proxy => {
-                description => gettext('Proxy URL to music server. e.g. (http://vdr/xxv) Please remember you must write the Port to icecast server in your Proxy Konfiguration!'),
+                description => gettext('Proxy URL to music server. e.g. (http://vdr/xxv) Please remember you must write the port to icecast server in your proxy configuration!'),
                 default     => '',
                 type        => 'string',
             },
             clients => {
-                description => gettext('Maximum Clients to connect at the same time.'),
+                description => gettext('Maximum clients to connect at the same time'),
                 default     => 5,
                 type        => 'integer',
                 required    => gettext('This is required!'),
             },
             coverimages => {
-                description => gettext('common directory for cover images'),
+                description => gettext('Common directory for cover images'),
                 default     => '/var/cache/xxv/cover',
                 type        => 'dir',
                 required    => gettext('This is required!'),
             },
             muggle => {
-                description => gettext('DSN for muggle Database'),
+                description => gettext('DSN for muggle database'),
                 default     => 'DBI:mysql:database=GiantDisc;host=localhost;port=3306',
                 type        => 'string',
                 check       => sub{
@@ -107,25 +107,25 @@ sub module {
                 DenyClass   => 'mlist',
             },
             mplay => {
-                description => gettext("play music file 'fid'"),
+                description => gettext("Play music file 'fid'"),
                 short       => 'mp',
                 callback    => sub{ $obj->play(@_) },
                 DenyClass   => 'stream',
             },
             mplaylist => {
-                description => gettext("get a m3u playlist for 'fid'"),
+                description => gettext("Get a m3u playlist for 'fid'"),
                 short       => 'm3',
                 callback    => sub{ $obj->playlist(@_) },
                 DenyClass   => 'stream',
             },
             mlist => {
-                description => gettext("list music 'dir'"),
+                description => gettext("Shows music 'dir'"),
                 short       => 'ml',
                 callback    => sub{ $obj->list(@_) },
                 DenyClass   => 'mlist',
             },
             msearch => {
-                description => gettext("search music 'txt'"),
+                description => gettext("Search music 'txt'"),
                 short       => 'mf',
                 callback    => sub{ $obj->search(@_) },
                 DenyClass   => 'mlist',
@@ -511,7 +511,7 @@ sub search {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $text   = shift || return $console->err(gettext("No Text to search! Please use msearch 'text'"));
+    my $text   = shift || return $console->err(gettext("No text to search! Please use msearch 'text'"));
 
     return $obj->list($watcher,$console,"search:".$text);
 }
