@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XXV 0.95\n"
 "POT-Creation-Date: 2005-01-12 18:55\n"
-"PO-Revision-Date: 2007-09-15 13:38+0100\n"
+"PO-Revision-Date: 2007-09-20 20:13+0100\n"
 "Last-Translator: Andreas Brachold <vdr07 at deltab.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -2230,8 +2230,8 @@ msgstr "Dieses Modul ist ein Mehrfachsitzung HTTPD Server."
 
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:484
-msgid "Traffic on HTTPD socket since %s: sent: %s kbytes - received: %s kbytes - connections: %d."
-msgstr "Datenverkehr des HTTPD Anschlusses seit %s: gesendet: %s kBytes - empfangen: %s kBytes - Verbindungen: %d."
+msgid "Traffic on HTTPD socket since %s: transmitted: %s - received: %s - connections: %d."
+msgstr "Datenverkehr des HTTPD Anschlusses seit %s: gesendet: %s - empfangen: %s - Verbindungen: %d."
 
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:530

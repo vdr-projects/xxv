@@ -481,7 +481,7 @@ sub status {
     my $lastReportTime = shift || 0;
 
     return {
-        message => sprintf(gettext('Traffic on HTTPD socket since %s: sent: %s kbytes - received: %s kbytes - connections: %d.'),
+        message => sprintf(gettext('Traffic on HTTPD socket since %s: transmitted: %s - received: %s - connections: %d.'),
             $obj->{STATUS}->{'starttime'}, 
             convert($obj->{STATUS}->{'sendbytes'}), 
             convert($obj->{STATUS}->{'readbytes'}),
