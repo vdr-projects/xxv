@@ -84,7 +84,7 @@ var myBar = new WebFXMenuBar;
     <?% IF allow('remote') %?>tools.add(new WebFXMenuItem("<?% gettext("Remote") %?>",        "?cmd=remote"));<?% END %?>
     <?% IF allow('vtxpage') %?>tools.add(new WebFXMenuItem("<?% gettext("Teletext") %?>",      "?cmd=vtxpage"));<?% END %?>
     <?% IF allow('report') %?>tools.add(new WebFXMenuItem("<?% gettext("Report") %?>","?cmd=report"));<?% END %?>
-    <?% IF allow('mllist') %?>tools.add(new WebFXMenuItem("<?% gettext("Media Library") %?>","?cmd=mllist"));<?% END %?>
+    <?% IF allow('mllist') %?>tools.add(new WebFXMenuItem("<?% gettext("Media library") %?>","?cmd=mllist"));<?% END %?>
     tools.add(new WebFXMenuItem("<?% gettext("Channels") %?>",  "?cmd=cl"));
 
     myBar.add(new WebFXMenuButton("<?% gettext("Tools") %?>",null,null,tools));

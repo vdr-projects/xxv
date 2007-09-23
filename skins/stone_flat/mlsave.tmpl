@@ -1,7 +1,7 @@
 <!--media save-->
 <body class="frame">
 <div id="body">
-<h1><?% gettext("Media list") %?></h1>
+<h1><?% gettext("Media library") %?></h1>
 <?% trimmed = data FILTER trim %?>
 <?% IF data.size > 1 || trimmed != "" %?>
 <table class="editortable" summary="">
@@ -29,7 +29,7 @@
 <!-- ###### Seite ###### -->
 <div id="sidebar">
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Media list",20) %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("Media library",20) %?></td></tr>
     <tr>
     <td class="sidetext">
       <a title="<?% gettext("Back") %?>" href="?cmd=mldisplay&amp;data=<?% cgi.param('data') %?>"><img src="images/back.<?% global.imagetyp %?>" alt="" /></a>&nbsp;

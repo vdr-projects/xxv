@@ -268,11 +268,11 @@
         <ul>
             <li><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=0" ><img src="images/home.<?% global.imagetyp %?>" alt="" /></a></li>
             <li class="label">
-                <?% "<strong>" IF cgi.param('__sortby') == row %?>
+                <?% "<strong>" IF cgi.param('__sortby') && cgi.param('__sortby') == row %?>
                 <a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=<?% IF cgi.param('__sortby') == row && cgi.param('__desc') == 0 %?>1<?% ELSE %?>0<?% END %?>" >
                 <?% label %?>
                 </a>
-                <?% "</strong>" IF cgi.param('__sortby') == row %?>
+                <?% "</strong>" IF cgi.param('__sortby') && cgi.param('__sortby') == row %?>
             </li>
             <li><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></li>
         </ul>
@@ -305,8 +305,8 @@
     <tr>
     <td class="sidetext">
 <?% IF allow('rdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><?% gettext("Delete recordings",20) %?></a><br />
+        <a href="javascript:DeleteSelected('<?% gettext("Do you want to delete the following recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("Do you want to delete the following recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><?% gettext("Delete recordings",20) %?></a><br />
 <?% END %?>
     </td>
     </tr>
