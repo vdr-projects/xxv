@@ -1047,7 +1047,7 @@ sub SearchEpgId {
     my $bis = int($start + $dur);
     if($subtitle && $channel && $channel ne "") {
         $sth = $obj->{dbh}->prepare(
-qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE 
+qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ? 
@@ -1055,9 +1055,18 @@ qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE
     AND channel_id = ?|);
         $sth->execute($start,$bis,$title,$subtitle,$channel)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    } elsif($channel && $channel ne "") {
+        $sth = $obj->{dbh}->prepare(
+qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
+        UNIX_TIMESTAMP(starttime) >= ? 
+    AND UNIX_TIMESTAMP(starttime)+duration <= ? 
+    AND title = ? 
+    AND channel_id = ?|);
+        $sth->execute($start,$bis,$title,$channel)
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } elsif($subtitle) {
         $sth = $obj->{dbh}->prepare(
-qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE 
+qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ? 
@@ -1066,7 +1075,7 @@ qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
         $sth = $obj->{dbh}->prepare(
-qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE 
+qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ?|);
@@ -1076,13 +1085,7 @@ qq|SELECT SQL_CACHE  * FROM OLDEPG WHERE
     return 0 if(!$sth);
 
     my $erg = $sth->fetchrow_hashref();
-    return $erg
-  		if($erg->{eventid}
-	  	  and ( # check for equal subtitle
-	  		(not $subtitle and not $erg->{subtitle})
-	  		 or (($subtitle and $erg->{subtitle}) and ($subtitle eq $erg->{subtitle}))
-	      )
-		  );
+    return $erg;
 }
 
 # ------------------
