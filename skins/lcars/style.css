@@ -89,9 +89,11 @@ width:160px;
 }
 
 div.recording {
+width:215px;
 height:120px;
 vertical-align:middle;
 text-align:center;
+display: table-cell;
 }
 
 img.epgimages {
