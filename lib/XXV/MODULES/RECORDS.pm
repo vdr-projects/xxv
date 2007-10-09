@@ -2091,6 +2091,8 @@ sub converttitle {
     my $title = shift || return error ('No title in translate!');
     my $vfat = shift || $obj->{vfat};
 
+    $title =~ s/_/ /g;
+
     if($vfat eq 'y') {
         $title =~ s/\#([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
         $title =~ s/\x03/:/g; # See backward compat.. at recordings.c
@@ -2099,7 +2101,6 @@ sub converttitle {
     $title =~ s/\x01/\'/g;
     $title =~ s/\x02/\\/g;
 
-    $title =~ s/_/ /g;
     $title =~ s/\//~/g;
 
     return $title;
