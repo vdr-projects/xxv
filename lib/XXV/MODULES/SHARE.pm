@@ -20,10 +20,11 @@ sub AUTOLOAD {
     # bis zum nächsten Refresh ...
     if($cmd eq 'setEventLevel' and exists $obj->{EventLevels} and ref $obj->{EventLevels} eq 'HASH') {
         $obj->{EventLevels}->{$_[0]}->{Level} = $_[1];
+        $_[2] += $obj->{TimeOffset} if(exists $obj->{TimeOffset});
     }
 
     if($obj->{SOAP} && $obj->{active} eq 'y') {
-        my $erg = $obj->CmdToSoap($obj->{SOAP}, $cmd, $obj->{SessionId}, @_);
+        my $erg = $obj->CmdToService($obj->{SOAP}, $cmd, $obj->{SessionId}, @_);
         return $erg;
     }
 }
@@ -51,15 +52,9 @@ sub module {
                 type        => 'confirm',
                 required    => gettext('This is required!'),
             },
-            uri => {
-                description => gettext('The uri identifies the class on the server. The url (with port) for the XXV-SOAP-Server Address.'),
-                default     => 'http://xpix.dyndns.org:81/XXV/Server',
-                type        => 'url',
-                required    => gettext('This is required!'),
-            },
-            proxy => {
-                description => gettext('The proxy identifies the CGI script that provides access to the class, Is simply the address of the server to contact that provides the methods.'),
-                default     => 'http://xpix.dyndns.org:81/',
+            service => {
+                description => gettext('URL to access popularity web service.'),
+                default     => 'http://www.deltab.de/popularity.php?wsdl',
                 type        => 'url',
                 required    => gettext('This is required!'),
             },
@@ -125,21 +120,32 @@ sub _init {
 
     main::after(sub{
 
-        $obj->{SOAP} = $obj->ConnectToSOAP($obj->{SessionId});
+        $obj->{SOAP} = $obj->ConnectToService($obj->{SessionId});
 
         unless($obj->{SOAP}) {
-            error("Couldn't connect to SOAP server %s!", $obj->{uri});
+            error("Couldn't connect to popularity web service %s!", $obj->{service});
             return 0;
         } else {
+            my $servertime = $obj->getServerTime();
+            if($servertime) {
+              my $offset = time - $servertime;
+              if($offset > 60 || $offset < -60) {
+                $obj->{TimeOffset} = $offset;
+                lg sprintf('Popularity web service has time offset %d seconds.',$offset);
+              }
+            }
+
             $obj->getSoapData();
             Event->timer(
               interval => $obj->{interval},
               prio => 6,  # -1 very hard ... 6 very low
-              cb => sub{ $obj->getSoapData() },
+              cb => sub{ 
+                $obj->getSoapData() 
+              },
             );
         }
           return 1;
-    }, "SHARE: Connect To SOAP Server ...",4) if($obj->{active} eq 'y');
+    }, "SHARE: Connect to popularity web service ...",4) if($obj->{active} eq 'y');
 
     return 1;
 }
@@ -149,10 +155,33 @@ sub getSoapData {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     return unless($obj->{SOAP} and $obj->{active} eq 'y');
-    lg 'Start interval share to get for Levels!';
-    $obj->{EventLevels} = $obj->getEventLevels();
-    lg 'Start interval share to get for TopTen!';
-    $obj->{TopTen} = $obj->getTopTen(1000);
+    lg 'Start interval to get popularity levels!';
+    my $levels = $obj->getEventLevels();
+    my $eventlevels;
+    foreach my $event (@$levels) {
+      my $id = $event->{eventid};
+      $eventlevels->{$id} = {
+        'Eventid' => $id,
+        'Level' => $event->{level}
+      }
+    }
+    $obj->{EventLevels} = $eventlevels;
+#dumper($eventlevels);
+
+    lg 'Start interval to get popularity top ten events!';
+    my $topevents = $obj->getTopTen(1000);
+    my $topten;
+    foreach my $top (@$topevents) {
+      push(@$topten, [
+        $top->{eventid},
+        $top->{level},
+        $top->{count},
+        $top->{rank}
+        ]
+      );
+    }
+#dumper($topten);
+    $obj->{TopTen} = $topten;
 }
 
 
@@ -162,42 +191,43 @@ sub generateUniqueId {
     my $obj = shift  || return error('No object defined!');
 
     my $sessionId;
-	for(my $i=0 ; $i< 16 ;)
-	{
-		my $j = chr(int(rand(127)));
+    for(my $i=0 ; $i< 16 ;)
+    {
+    	my $j = chr(int(rand(127)));
 
-		if($j =~ /[a-zA-Z0-9]/)
-		{
-			$sessionId .=$j;
-			$i++;
-		}
-	}
+    	if($j =~ /[a-zA-Z0-9]/)
+    	{
+    		$sessionId .=$j;
+    		$i++;
+    	}
+    }
     return $sessionId;
 }
 
 # ------------------
-sub ConnectToSOAP {
+sub ConnectToService {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $sid = shift  || $obj->{SessionId} || return error('No session id defined!');
-    my $uri = shift  || $obj->{uri};
-    my $prx = shift  || $obj->{proxy};
+    my $service = shift  || $obj->{service};
 
     return undef
         if($obj->{active} ne 'y');
-    
-    my $soap = SOAP::Lite
-		->uri($uri)
-		->proxy($prx, timeout => 5)
-		->on_fault(sub{});
 
+    my $version = main::getVersion;
+
+    my $client = SOAP::Lite->new;
+    $client->schema->useragent->agent(sprintf("xxv %s"),$version);
+    my $webservice = $client->service($service);
+      
     my $usrkey;
-    if($soap) {
-      $usrkey = $obj->CmdToSoap($soap,'getUsrKey',$obj->{SessionId}) or error "Couldn't get user key";
+    if($webservice) {
+      $usrkey = $obj->CmdToService($webservice,'getUsrKey',$obj->{SessionId}) 
+        or error "Couldn't get user key";
       error "Response contain wrong answer" if($usrkey ne $obj->{SessionId});
     }
 
-    return $soap
+    return $webservice
        if($usrkey eq $obj->{SessionId});
    
     return undef;
@@ -223,7 +253,7 @@ sub TopTen {
     my $console = shift || return error('No console defined!');
     my $anzahl = shift || 10;
 
-    $obj->{TopTen} = $obj->getTopTen(1000) 
+    $obj->getSoapData()
       unless($obj->{TopTen});
 
     my $data = $obj->{TopTen};
@@ -257,25 +287,18 @@ sub TopTen {
 }
 
 # ------------------
-sub CmdToSoap {
+sub CmdToService {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $soap = shift  || return error('No SOAP defined!');
+    my $service = shift  || return error('No service defined!');
     my $cmd = shift  || return error('No command defined!');
     my @arg = @_;
 
-    lg(sprintf("CmdToSoap : %s - %s",$cmd, join(", ",@arg)));
+    lg(sprintf("CmdToService : %s - %s",$cmd, join(", ",@arg)));
 
-    $obj->{CAN}->{$cmd} = $soap->can($cmd)
-        unless(exists $obj->{CAN}->{$cmd});
-
-    my $res = eval "\$soap->$cmd(\@arg)";
-    $@ ? return error('SyntaxError: $@') :
-        defined($res) && $res->fault ?
-            return error('Fault %s-%s', $res->faultcode, $res->faultstring) :
-                !$soap->transport->is_success ?
-                    return error('Transport Error: %s', $soap->transport->status) :
-                        return $res->result;
+    my $res = eval "\$service->$cmd(\@arg)";
+    $@ ? return error('SyntaxError: $@') 
+       : return $res;
 }
 
 1;

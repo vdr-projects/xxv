@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XXV 0.95\n"
 "POT-Creation-Date: 2005-01-12 18:55\n"
-"PO-Revision-Date: 2007-09-20 20:13+0100\n"
+"PO-Revision-Date: 2007-10-21 18:13+0100\n"
 "Last-Translator: Andreas Brachold <vdr07 at deltab.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #--------------------
-#: ../bin/xxvd:102 ../bin/xxvd:117 ../bin/xxvd:90 ../bin/xxvd:96 ../lib/XXV/MODULES/AUTOTIMER.pm:32 ../lib/XXV/MODULES/AUTOTIMER.pm:591 ../lib/XXV/MODULES/AUTOTIMER.pm:604 ../lib/XXV/MODULES/CHANNELS.pm:29 ../lib/XXV/MODULES/CHANNELS.pm:35 ../lib/XXV/MODULES/CHANNELS.pm:684 ../lib/XXV/MODULES/CHANNELS.pm:710 ../lib/XXV/MODULES/CHANNELS.pm:723 ../lib/XXV/MODULES/CHANNELS.pm:762 ../lib/XXV/MODULES/CHANNELS.pm:788 ../lib/XXV/MODULES/CHRONICLE.pm:28 ../lib/XXV/MODULES/EPG.pm:36 ../lib/XXV/MODULES/EPG.pm:42 ../lib/XXV/MODULES/EPG.pm:48 ../lib/XXV/MODULES/EVENTS.pm:35 ../lib/XXV/MODULES/GRAB.pm:30 ../lib/XXV/MODULES/GRAB.pm:36 ../lib/XXV/MODULES/HTTPD.pm:58 ../lib/XXV/MODULES/HTTPD.pm:64 ../lib/XXV/MODULES/HTTPD.pm:70 ../lib/XXV/MODULES/HTTPD.pm:76 ../lib/XXV/MODULES/HTTPD.pm:82 ../lib/XXV/MODULES/HTTPD.pm:89 ../lib/XXV/MODULES/INTERFACE.pm:33 ../lib/XXV/MODULES/INTERFACE.pm:39 ../lib/XXV/MODULES/INTERFACE.pm:45 ../lib/XXV/MODULES/LOGREAD.pm:32 ../lib/XXV/MODULES/LOGREAD.pm:38 ../lib/XXV/MODULES/LOGREAD.pm:44 ../lib/XXV/MODULES/LOGREAD.pm:50 ../lib/XXV/MODULES/MEDIALIB.pm:34 ../lib/XXV/MODULES/MEDIALIB.pm:40 ../lib/XXV/MODULES/MEDIALIB.pm:46 ../lib/XXV/MODULES/MEDIALIB.pm:52 ../lib/XXV/MODULES/MEDIALIB.pm:58 ../lib/XXV/MODULES/MUSIC.pm:41 ../lib/XXV/MODULES/MUSIC.pm:47 ../lib/XXV/MODULES/MUSIC.pm:53 ../lib/XXV/MODULES/MUSIC.pm:59 ../lib/XXV/MODULES/MUSIC.pm:70 ../lib/XXV/MODULES/MUSIC.pm:76 ../lib/XXV/MODULES/RECORDS.pm:1586 ../lib/XXV/MODULES/RECORDS.pm:1600 ../lib/XXV/MODULES/RECORDS.pm:1614 ../lib/XXV/MODULES/RECORDS.pm:1633 ../lib/XXV/MODULES/RECORDS.pm:37 ../lib/XXV/MODULES/RECORDS.pm:43 ../lib/XXV/MODULES/RECORDS.pm:49 ../lib/XXV/MODULES/RECORDS.pm:55 ../lib/XXV/MODULES/RECORDS.pm:61 ../lib/XXV/MODULES/RECORDS.pm:73 ../lib/XXV/MODULES/RECORDS.pm:89 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:40 ../lib/XXV/MODULES/REPORT.pm:30 ../lib/XXV/MODULES/REPORT.pm:36 ../lib/XXV/MODULES/ROBOT.pm:29 ../lib/XXV/MODULES/SHARE.pm:52 ../lib/XXV/MODULES/SHARE.pm:58 ../lib/XXV/MODULES/SHARE.pm:64 ../lib/XXV/MODULES/SHARE.pm:70 ../lib/XXV/MODULES/STATUS.pm:32 ../lib/XXV/MODULES/STATUS.pm:38 ../lib/XXV/MODULES/STATUS.pm:43 ../lib/XXV/MODULES/STATUS.pm:49 ../lib/XXV/MODULES/STREAM.pm:32 ../lib/XXV/MODULES/SVDRP.pm:30 ../lib/XXV/MODULES/SVDRP.pm:36 ../lib/XXV/MODULES/SVDRP.pm:42 ../lib/XXV/MODULES/TELNET.pm:30 ../lib/XXV/MODULES/TELNET.pm:36 ../lib/XXV/MODULES/TELNET.pm:42 ../lib/XXV/MODULES/TELNET.pm:48 ../lib/XXV/MODULES/TIMERS.pm:29 ../lib/XXV/MODULES/TIMERS.pm:598 ../lib/XXV/MODULES/TIMERS.pm:611 ../lib/XXV/MODULES/TIMERS.pm:619 ../lib/XXV/MODULES/TIMERS.pm:706 ../lib/XXV/MODULES/USER.pm:264 ../lib/XXV/MODULES/USER.pm:356 ../lib/XXV/MODULES/USER.pm:362 ../lib/XXV/MODULES/USER.pm:387 ../lib/XXV/MODULES/USER.pm:68 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:43 ../lib/XXV/MODULES/WAPD.pm:49 ../lib/XXV/MODULES/WAPD.pm:55 ../lib/XXV/MODULES/WAPD.pm:61 ../lib/XXV/MODULES/WAPD.pm:67 ../lib/XXV/MODULES/WAPD.pm:74 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:102 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:108 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:70 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:83 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:96 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:34 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:47 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:60 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:74 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:85 ../lib/XXV/OUTPUT/NEWS/RSS.pm:33 ../lib/XXV/OUTPUT/NEWS/RSS.pm:46 ../lib/XXV/OUTPUT/NEWS/VDR.pm:30 ../lib/XXV/OUTPUT/NEWS/VDR.pm:43
+#: ../bin/xxvd:102 ../bin/xxvd:117 ../bin/xxvd:90 ../bin/xxvd:96 ../lib/XXV/MODULES/AUTOTIMER.pm:32 ../lib/XXV/MODULES/AUTOTIMER.pm:591 ../lib/XXV/MODULES/AUTOTIMER.pm:604 ../lib/XXV/MODULES/CHANNELS.pm:29 ../lib/XXV/MODULES/CHANNELS.pm:35 ../lib/XXV/MODULES/CHANNELS.pm:684 ../lib/XXV/MODULES/CHANNELS.pm:710 ../lib/XXV/MODULES/CHANNELS.pm:723 ../lib/XXV/MODULES/CHANNELS.pm:762 ../lib/XXV/MODULES/CHANNELS.pm:788 ../lib/XXV/MODULES/CHRONICLE.pm:28 ../lib/XXV/MODULES/EPG.pm:36 ../lib/XXV/MODULES/EPG.pm:42 ../lib/XXV/MODULES/EPG.pm:48 ../lib/XXV/MODULES/EVENTS.pm:35 ../lib/XXV/MODULES/GRAB.pm:30 ../lib/XXV/MODULES/GRAB.pm:36 ../lib/XXV/MODULES/HTTPD.pm:58 ../lib/XXV/MODULES/HTTPD.pm:64 ../lib/XXV/MODULES/HTTPD.pm:70 ../lib/XXV/MODULES/HTTPD.pm:76 ../lib/XXV/MODULES/HTTPD.pm:82 ../lib/XXV/MODULES/HTTPD.pm:89 ../lib/XXV/MODULES/INTERFACE.pm:33 ../lib/XXV/MODULES/INTERFACE.pm:39 ../lib/XXV/MODULES/INTERFACE.pm:45 ../lib/XXV/MODULES/LOGREAD.pm:32 ../lib/XXV/MODULES/LOGREAD.pm:38 ../lib/XXV/MODULES/LOGREAD.pm:44 ../lib/XXV/MODULES/LOGREAD.pm:50 ../lib/XXV/MODULES/MEDIALIB.pm:34 ../lib/XXV/MODULES/MEDIALIB.pm:40 ../lib/XXV/MODULES/MEDIALIB.pm:46 ../lib/XXV/MODULES/MEDIALIB.pm:52 ../lib/XXV/MODULES/MEDIALIB.pm:58 ../lib/XXV/MODULES/MUSIC.pm:41 ../lib/XXV/MODULES/MUSIC.pm:47 ../lib/XXV/MODULES/MUSIC.pm:53 ../lib/XXV/MODULES/MUSIC.pm:59 ../lib/XXV/MODULES/MUSIC.pm:70 ../lib/XXV/MODULES/MUSIC.pm:76 ../lib/XXV/MODULES/RECORDS.pm:1586 ../lib/XXV/MODULES/RECORDS.pm:1600 ../lib/XXV/MODULES/RECORDS.pm:1614 ../lib/XXV/MODULES/RECORDS.pm:1633 ../lib/XXV/MODULES/RECORDS.pm:37 ../lib/XXV/MODULES/RECORDS.pm:43 ../lib/XXV/MODULES/RECORDS.pm:49 ../lib/XXV/MODULES/RECORDS.pm:55 ../lib/XXV/MODULES/RECORDS.pm:61 ../lib/XXV/MODULES/RECORDS.pm:73 ../lib/XXV/MODULES/RECORDS.pm:89 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:40 ../lib/XXV/MODULES/REPORT.pm:30 ../lib/XXV/MODULES/REPORT.pm:36 ../lib/XXV/MODULES/ROBOT.pm:29 ../lib/XXV/MODULES/SHARE.pm:53 ../lib/XXV/MODULES/SHARE.pm:59 ../lib/XXV/MODULES/SHARE.pm:65 ../lib/XXV/MODULES/STATUS.pm:32 ../lib/XXV/MODULES/STATUS.pm:38 ../lib/XXV/MODULES/STATUS.pm:43 ../lib/XXV/MODULES/STATUS.pm:49 ../lib/XXV/MODULES/STREAM.pm:32 ../lib/XXV/MODULES/SVDRP.pm:30 ../lib/XXV/MODULES/SVDRP.pm:36 ../lib/XXV/MODULES/SVDRP.pm:42 ../lib/XXV/MODULES/TELNET.pm:30 ../lib/XXV/MODULES/TELNET.pm:36 ../lib/XXV/MODULES/TELNET.pm:42 ../lib/XXV/MODULES/TELNET.pm:48 ../lib/XXV/MODULES/TIMERS.pm:29 ../lib/XXV/MODULES/TIMERS.pm:598 ../lib/XXV/MODULES/TIMERS.pm:611 ../lib/XXV/MODULES/TIMERS.pm:619 ../lib/XXV/MODULES/TIMERS.pm:706 ../lib/XXV/MODULES/USER.pm:264 ../lib/XXV/MODULES/USER.pm:356 ../lib/XXV/MODULES/USER.pm:362 ../lib/XXV/MODULES/USER.pm:387 ../lib/XXV/MODULES/USER.pm:68 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:43 ../lib/XXV/MODULES/WAPD.pm:49 ../lib/XXV/MODULES/WAPD.pm:55 ../lib/XXV/MODULES/WAPD.pm:61 ../lib/XXV/MODULES/WAPD.pm:67 ../lib/XXV/MODULES/WAPD.pm:74 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:102 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:108 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:70 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:83 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:96 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:34 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:47 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:60 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:74 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:85 ../lib/XXV/OUTPUT/NEWS/RSS.pm:33 ../lib/XXV/OUTPUT/NEWS/RSS.pm:46 ../lib/XXV/OUTPUT/NEWS/VDR.pm:30 ../lib/XXV/OUTPUT/NEWS/VDR.pm:43
 msgid "This is required!"
 msgstr "Das ist erforderlich!"
 
@@ -1400,7 +1400,7 @@ msgid "This module searches for EPG entries with user-defined text and creates n
 msgstr "Diese Modul sucht nach EPG Einträgen mit nutzerdefinierten Texten und erzeugt neue Timer."
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:29 ../lib/XXV/MODULES/CHRONICLE.pm:25 ../lib/XXV/MODULES/EVENTS.pm:32 ../lib/XXV/MODULES/HTTPD.pm:55 ../lib/XXV/MODULES/INTERFACE.pm:30 ../lib/XXV/MODULES/LOGREAD.pm:29 ../lib/XXV/MODULES/MEDIALIB.pm:31 ../lib/XXV/MODULES/MUSIC.pm:38 ../lib/XXV/MODULES/REMOTE.pm:25 ../lib/XXV/MODULES/REPORT.pm:27 ../lib/XXV/MODULES/ROBOT.pm:26 ../lib/XXV/MODULES/SHARE.pm:49 ../lib/XXV/MODULES/STATUS.pm:29 ../lib/XXV/MODULES/TELNET.pm:27 ../lib/XXV/MODULES/VTX.pm:25 ../lib/XXV/MODULES/WAPD.pm:40 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:67 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:31 ../lib/XXV/OUTPUT/NEWS/RSS.pm:30 ../lib/XXV/OUTPUT/NEWS/VDR.pm:27
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:29 ../lib/XXV/MODULES/CHRONICLE.pm:25 ../lib/XXV/MODULES/EVENTS.pm:32 ../lib/XXV/MODULES/HTTPD.pm:55 ../lib/XXV/MODULES/INTERFACE.pm:30 ../lib/XXV/MODULES/LOGREAD.pm:29 ../lib/XXV/MODULES/MEDIALIB.pm:31 ../lib/XXV/MODULES/MUSIC.pm:38 ../lib/XXV/MODULES/REMOTE.pm:25 ../lib/XXV/MODULES/REPORT.pm:27 ../lib/XXV/MODULES/ROBOT.pm:26 ../lib/XXV/MODULES/SHARE.pm:50 ../lib/XXV/MODULES/STATUS.pm:29 ../lib/XXV/MODULES/TELNET.pm:27 ../lib/XXV/MODULES/VTX.pm:25 ../lib/XXV/MODULES/WAPD.pm:40 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:67 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:31 ../lib/XXV/OUTPUT/NEWS/RSS.pm:30 ../lib/XXV/OUTPUT/NEWS/VDR.pm:27
 msgid "Activate this service"
 msgstr "Aktiviere diesen Dienst"
 
@@ -3159,27 +3159,22 @@ msgid "Start a robots 'rname'"
 msgstr "Startet eine Robot 'rname'"
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:42
+#: ../lib/XXV/MODULES/SHARE.pm:43
 msgid "This module send and read shared data from SOAP Server."
 msgstr "Dieses Modul sendet und liest gemeinsame Daten vom SOAP Server."
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:55
-msgid "The uri identifies the class on the server. The url (with port) for the XXV-SOAP-Server Address."
-msgstr ""
+#: ../lib/XXV/MODULES/SHARE.pm:56
+msgid "URL to access popularity web service."
+msgstr "URL für den Zugang zum Popularität Web Service."
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:61
-msgid "The proxy identifies the CGI script that provides access to the class, Is simply the address of the server to contact that provides the methods."
-msgstr ""
-
-#--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:67
+#: ../lib/XXV/MODULES/SHARE.pm:62
 msgid "How often shared data are to be updated (in seconds)."
 msgstr "Wie oft sollen gemeinsame Daten aktualisiert werden (in Sekunden)."
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:75
+#: ../lib/XXV/MODULES/SHARE.pm:70
 msgid "Display the TopTen list of timers."
 msgstr "Zeigt die Liste der besten zehn Timer an."
 
