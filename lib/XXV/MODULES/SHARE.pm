@@ -134,7 +134,12 @@ sub _init {
                 lg sprintf('Popularity web service has time offset %d seconds.',$offset);
               }
             }
+        }
+        return 1;
+    }, "SHARE: Connect to popularity web service ...",4) if($obj->{active} eq 'y');
 
+    main::after(sub{
+        if($obj->{SOAP}) {
             $obj->getSoapData();
             Event->timer(
               interval => $obj->{interval},
@@ -145,7 +150,7 @@ sub _init {
             );
         }
           return 1;
-    }, "SHARE: Connect to popularity web service ...",4) if($obj->{active} eq 'y');
+    }, "SHARE: Update data with popularity web service ...",48) if($obj->{active} eq 'y');
 
     return 1;
 }
