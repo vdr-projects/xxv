@@ -20,12 +20,18 @@
         <?% END %?>
         </a>
     </td>
-    <?% ELSIF c == 3; # Channel Field %?>
-		<?% cf = reentities(field) %?>
+    <?% ELSIF c == 3; # Subtitle Field %?>
+
+    <?% ELSIF c == 4; # Channel field %?>
+    <?% chid_enc = reentities(field) %?>
+    <?% channel = param.channels.$chid_enc.POS %?>
+    <?% sender = param.channels.$chid_enc.Name %?>
     <td>
-    <a href='?cmd=program&data=<?% param.channels.$cf.POS %?>'><?% param.channels.$cf.Name %?></a>
+    <a href='?cmd=program&data=<?% channel %?>'><?% sender %?></a>
     </td>
-    <?% ELSIF c == 5; # Rank Field %?>
+    <?% ELSIF c == 5; # Desc Field %?>
+
+    <?% ELSIF c == 7; # Rank Field %?>
     <td>
     <?% field | format('%d') %?>
     </td>

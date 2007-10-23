@@ -31,9 +31,9 @@
         <?% END %?>
         </tr>
         <?% FOREACH zeile = data %?>
-            <?% c = 0 %?>
+        <?% c=0;id=zeile.0;title=zeile.1;subtitle=zeile.2;description=zeile.3;channel_id=zeile.4;start=zeile.5;video=zeile.6;audio=zeile.7;rank=zeile.8;level=zeile.9;count=zeile.10 %?>
         <tr class="<?% myclass %?>"<?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
-        <?% INCLUDE 'bloecke/event_row.tmpl' fielddata=[zeile.0,zeile.1,zeile.2,date.format(zeile.5,"%x %X",locale),zeile.3] %?>
+        <?% INCLUDE 'bloecke/event_row.tmpl' fielddata=[id,title,subtitle,channel_id,description,date.format(start, "%x %X", locale),rank] %?>
         </tr>
         <?% oldday = day %?>
         <?% END %?>
