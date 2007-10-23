@@ -219,10 +219,10 @@ sub ConnectToService {
     return undef
         if($obj->{active} ne 'y');
 
-    my $version = main::getVersion;
+    my $version = main::getVersion();
 
     my $client = SOAP::Lite->new;
-    $client->schema->useragent->agent(sprintf("xxv %s"),$version);
+    $client->schema->useragent->agent(sprintf("xxv %s",$version));
     my $webservice = $client->service($service);
       
     my $usrkey;
