@@ -3170,8 +3170,8 @@ msgstr "URL für den Zugang zum Popularität Web Service."
 
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:62
-msgid "How often shared data are to be updated (in seconds)."
-msgstr "Wie oft sollen gemeinsame Daten aktualisiert werden (in Sekunden)."
+msgid "How often shared data are to be updated (in hours)."
+msgstr "Wie oft sollen gemeinsame Daten aktualisiert werden (in Stunden)."
 
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:70

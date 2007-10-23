@@ -58,9 +58,9 @@ sub module {
                 type        => 'url',
                 required    => gettext('This is required!'),
             },
-            interval => {
-                description => gettext('How often shared data are to be updated (in seconds).'),
-                default     => 3600,
+            update => {
+                description => gettext('How often shared data are to be updated (in hours).'),
+                default     => 24,
                 type        => 'integer',
                 required    => gettext('This is required!'),
             },
@@ -142,7 +142,7 @@ sub _init {
         if($obj->{SOAP}) {
             $obj->getSoapData();
             Event->timer(
-              interval => $obj->{interval},
+              interval => $obj->{update} * 3600,
               prio => 6,  # -1 very hard ... 6 very low
               cb => sub{ 
                 $obj->getSoapData() 
