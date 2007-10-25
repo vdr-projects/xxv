@@ -1182,12 +1182,13 @@ sub getId {
         return $erg
             if($erg);
     }
-    debug("Event %d not exist!", $id);
+    lg("Event %d does not exist!", $id);
     return {};
 }
 
 # ------------------
-sub suggest {# ------------------
+sub suggest {
+# ------------------
     my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
