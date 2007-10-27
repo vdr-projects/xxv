@@ -144,11 +144,13 @@ sub printout {
         if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip});
     }
 
-    $obj->{handle}->print($obj->{output_header});
-    $obj->{sendbytes}+= length($obj->{output_header});
     if($content) {
-      $obj->{handle}->print($content);
+      $obj->{handle}->print($obj->{output_header},$content);
+      $obj->{sendbytes}+= length($obj->{output_header});
       $obj->{sendbytes}+= length($content);
+    } else {
+      $obj->{handle}->print($obj->{output_header});
+      $obj->{sendbytes}+= length($obj->{output_header});
     }
 
     undef $obj->{output};
