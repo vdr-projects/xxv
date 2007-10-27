@@ -1534,9 +1534,11 @@ WHERE
 	AND ( r.RecordMD5 = ? )
 |;
         my $sth = $obj->{dbh}->prepare($sql);
-        $sth->execute($recordid)
-            or return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
-        $rec = $sth->fetchrow_hashref();
+        if($sth->execute($recordid)) {
+          $rec = $sth->fetchrow_hashref()
+        }
+        return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid))
+          unless($rec);
     }
 
     my $file = sprintf("%s/info.vdr", $rec->{Path});

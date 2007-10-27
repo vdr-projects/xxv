@@ -329,14 +329,19 @@ sub printout {
     my $nopack = shift || $obj->{nopack} || 0;
 
     if($obj->{output} && $obj->{handle}) {
-      my $content = $obj->{output};
+      my $content;     
+      if($obj->{browser}->{Method} ne 'HEAD') {
+        $content = $obj->{output};
 
-      $content = Compress::Zlib::memGzip($content)
-          if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip});
-
-      $obj->{handle}->print($obj->{output_header}, $content);
+        $content = Compress::Zlib::memGzip($content)
+            if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip});
+      }
+      $obj->{handle}->print($obj->{output_header});
       $obj->{sendbytes}+= length($obj->{output_header});
-      $obj->{sendbytes}+= length($content);
+      if($content) {
+        $obj->{handle}->print($content);
+        $obj->{sendbytes}+= length($content);
+      }
       $obj->{handle}->close();
     }
     undef $obj->{output};
@@ -655,22 +660,25 @@ sub datei {
           local $SIG{'__DIE__'};
 
           my $hdr = $obj->header($typ, \%args);
-
-          my $r = 0;
-          if(sysopen( FH, $file, O_RDONLY|O_BINARY )) {  
+          if($obj->{browser}->{Method} eq 'HEAD') {
             $handle->print($hdr);
-
-            my $bytes;
-            my $data;
-            do {
-              $bytes = sysread( FH, $data, 4096 );
-              if($bytes) {
-                $r = $handle->send($data);
-              }
-            } while $r && $bytes > 0;
-            close(FH);
           } else {
-            error sprintf("Could not open file '%s'! : %s", $file,$!);
+            my $r = 0;
+            if(sysopen( FH, $file, O_RDONLY|O_BINARY )) {  
+              $handle->print($hdr);
+
+              my $bytes;
+              my $data;
+              do {
+                $bytes = sysread( FH, $data, 4096 );
+                if($bytes) {
+                  $r = $handle->send($data);
+                }
+              } while $r && $bytes > 0;
+              close(FH);
+            } else {
+              error sprintf("Could not open file '%s'! : %s", $file,$!);
+            }
           }
           $handle->close();
         };

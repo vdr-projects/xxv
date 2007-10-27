@@ -130,19 +130,26 @@ sub printout {
     my $obj = shift  || return error('No object defined!');
     my $nopack = shift || $obj->{nopack} || 0;
 
-
-    my $content .= ($obj->{outtype} eq 'xml' 
+    my $content;
+    if($obj->{browser}->{Method} ne 'HEAD') {
+      $content = ($obj->{outtype} eq 'xml' 
     								? $obj->{xml}->XMLout($obj->{output}) 
     								: 
     									( $obj->{outtype} eq 'json' 
 	    									? $obj->{json}->objToJson ($obj->{output}, {pretty => 1, indent => 2})
 	    									: $obj->{output}->{DATA})
 									);
-		# Kompress
-    $content = Compress::Zlib::memGzip($content)
+	  	# compress data
+      $content = Compress::Zlib::memGzip($content)
         if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip});
+    }
 
-    $obj->{handle}->print($obj->{output_header}, $content);
+    $obj->{handle}->print($obj->{output_header});
+    $obj->{sendbytes}+= length($obj->{output_header});
+    if($content) {
+      $obj->{handle}->print($content);
+      $obj->{sendbytes}+= length($content);
+    }
 
     undef $obj->{output};
     undef $obj->{output_header};

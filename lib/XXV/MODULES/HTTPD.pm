@@ -322,10 +322,11 @@ sub communicator
       if($data->{Query});
 		$data->{Referer} =~ s/%([a-f0-9][a-f0-9])/pack("C", hex($1))/ieg
       if($data->{Referer});
-    # Log like Apache Format ip, resolved hostname, user, request, status, bytes, referer, useragent
-    lg sprintf('%s - %s "%s%s" %s %s "%s" "%s"',
+    # Log like Apache Format ip, resolved hostname, user, method request, status, bytes, referer, useragent
+    lg sprintf('%s - %s "%s %s%s" %s %s "%s" "%s"',
           $ip,
           $data->{username} ? $data->{username} : "-",
+          $data->{Method},
           $data->{Request} ? $data->{Request} : "",
           $data->{Query} ? "?" . $data->{Query} : "",
           $console->{'header'},
@@ -400,8 +401,9 @@ sub parseRequest {
       }
    
 	$data->{Request} =~ s/%([a-f0-9][a-f0-9])/pack("C", hex($1))/ieg
-    if($data->{Request});
-   if($data->{Method} eq 'GET') {
+  if($data->{Request});
+    if($data->{Method} eq 'GET' 
+      or $data->{Method} eq 'HEAD') {
       #dumper($data);
       return $data;
   } elsif($data->{Method} eq 'POST') {
