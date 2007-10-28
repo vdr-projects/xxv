@@ -52,9 +52,9 @@ sub module {
                 type        => 'confirm',
                 required    => gettext('This is required!'),
             },
-            service => {
+            rating => {
                 description => gettext('URL to access popularity web service.'),
-                default     => 'http://www.deltab.de/popularity.php?wsdl',
+                default     => 'http://www.deltab.de/t10.php?wsdl',
                 type        => 'url',
                 required    => gettext('This is required!'),
             },
@@ -120,10 +120,10 @@ sub _init {
 
     main::after(sub{
 
-        $obj->{SOAP} = $obj->ConnectToService($obj->{SessionId});
+        $obj->{SOAP} = $obj->ConnectToService($obj->{SessionId},$obj->{rating});
 
         unless($obj->{SOAP}) {
-            error("Couldn't connect to popularity web service %s!", $obj->{service});
+            error("Couldn't connect to popularity web service %s!", $obj->{rating});
             return 0;
         } else {
             my $servertime = $obj->getServerTime();
@@ -164,10 +164,10 @@ sub getSoapData {
     my $levels = $obj->getEventLevels();
     my $eventlevels;
     foreach my $event (@$levels) {
-      my $id = $event->{eventid};
+      my $id = $event->{e}; # eventid
       $eventlevels->{$id} = {
         'Eventid' => $id,
-        'Level' => $event->{level}
+        'Level' => $event->{l} #level
       }
     }
     $obj->{EventLevels} = $eventlevels;
@@ -178,10 +178,10 @@ sub getSoapData {
     my $topten;
     foreach my $top (@$topevents) {
       push(@$topten, [
-        $top->{eventid},
-        $top->{level},
-        $top->{count},
-        $top->{rank}
+        $top->{e}, # eventid
+        $top->{l}, # level
+        $top->{c}, # count
+        $top->{r}  # rank
         ]
       );
     }
@@ -214,7 +214,7 @@ sub ConnectToService {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $sid = shift  || $obj->{SessionId} || return error('No session id defined!');
-    my $service = shift  || $obj->{service};
+    my $service = shift;
 
     return undef
         if($obj->{active} ne 'y');
