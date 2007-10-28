@@ -335,8 +335,8 @@ function getTopTen($k,$l) {
       return 0;
     }
 
-    if((int)$l <= 0) {
-      $l = 10;
+    if((int)$l <= 1) {
+      $l = 1;
     }
     if((int)$l >= 1000) {
       $l = 1000;
@@ -344,7 +344,7 @@ function getTopTen($k,$l) {
 
     $query = "SELECT id, AVG(level) as l, COUNT(*) as c, AVG(level)*COUNT(*) as r"
 			. " FROM #__popularity"
-			. " GROUP BY id ORDER by rank DESC LIMIT " . (int) $l
+			. " GROUP BY id ORDER by r DESC LIMIT " . (int) $l
 			;
 		$database->setQuery( $query );
 		$rows = $database->loadObjectList();
