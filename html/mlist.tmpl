@@ -36,17 +36,24 @@
 
 
 <b>
+<?% IF allow('mplay') %?>
 <a href="#" onClick="Play('<?% gettext("Nothing selected!") %?>',document.musicform,'<?% param.proxy %?>')">
 [<?% gettext("Play selected songs") %?>]
 </a>
+<?% END %?>
+<?% IF allow('mrefresh') %?>
 <a href="?cmd=mrefresh">[<?% gettext("Update Music Database") %?>]</a>
+<?% END %?>
+<?% IF allow('mcovers') %?>
 <a href="?cmd=mcovers&data=force">[<?% gettext("Get new Covers") %?>]</a>
+<?% END %?>
 </b>
+<?% IF allow('mplay') %?>
 <br>
 <a href="#" onClick="selAll(document.musicform, 1)">[<?% gettext("Select all") %?>]</a>
 <a href="#" onClick="selAll(document.musicform, 0)">[<?% gettext("Unselect all") %?>]</a>
 <a href="#" onClick="reverse(document.musicform)">[<?% gettext("Reverse select") %?>]</a>
-
+<?% END %?>
 <p>
 <table border="0" width="95%">
 <?% IF data.size %?>
@@ -85,7 +92,9 @@
                 <?% NEXT IF fields.$c.match('^__') %?>
                 <?% IF c == 0; # Id Field %?>
                 <td>
+<?% IF allow('mplay') %?>
                     <input name='<?% albummark %?>' type="checkbox" value="<?% url(field) %?>">
+<?% END %?>
                 </td>
                 <?% ELSIF c == 1 || c == 2; # Artist/Album Field %?>
                     <?% typ = (c == 1 ? 'artist' : 'album') %?>

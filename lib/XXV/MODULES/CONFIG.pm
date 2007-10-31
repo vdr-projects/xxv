@@ -20,27 +20,30 @@ sub module {
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
-        Level       => 'admin',
         Commands => {
             configedit => {
                 description => gettext("Edit configuration 'section'"),
                 short       => 'ce',
                 callback    => sub{ $obj->edit(@_) },
+                Level       => 'admin',
             },
             configwrite => {
                 description => gettext('Saves the configuration.'),
                 short       => 'cw',
                 callback    => sub{ $obj->write(@_) },
+                Level       => 'admin',
             },
             configget => {
                 description => gettext("Get configuration from 'modname'"),
                 short       => 'cg',
                 callback    => sub{ $obj->get(@_) },
+                Level       => 'admin',
             },
             reconfigure => {
                 description => gettext('Edit all processes'),
                 short       => 'cr',
                 callback    => sub{ $obj->reconfigure(@_) },
+                Level       => 'admin',
             },
             help => {
                 description => gettext("This will display all commands or description of module 'name'."),
@@ -58,7 +61,7 @@ sub module {
                     Module::Reload->check;
                     $c->message(gettext("Modules loaded."));
                 },
-              Level   => 'admin'
+                Level   => 'admin'
             },
         },
     };
