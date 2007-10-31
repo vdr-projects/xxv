@@ -107,7 +107,7 @@
     		        </td>
                     <?% ELSIF c == 2; # Channel Field %?>
                     <td nowrap>
-                        <a href="?cmd=program&amp;data=<?% field %?>" title="<?% gettext("Jump to program:") %?> <?% zeile.2 %?>"><div class="<?% myclass %?>"><?% zeile.2 %?></div></a>
+                        <a href="?cmd=program&amp;data=<?% zeile.3 %?>" title="<?% gettext("Jump to program:") %?> <?% field %?>"><div class="<?% myclass %?>"><?% field %?></div></a>
                     </td>
                     <?% ELSIF c == 7; # Title %?>
                     <td>
