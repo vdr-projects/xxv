@@ -64,10 +64,10 @@
                     <?% IF zeile.2.length > 0  %?>
                     <br><small><?% zeile.2 %?></small>
                     <?% END %?>
+                    </a>
                     <?% IF zeile.6.length > 0 %?>
                     <br><small><em><?% chop(zeile.6,80) | replace('<br />',' ') %?></em></small>
                     <?% END %?>
-                    </a>
                 </td>
                 <?% ELSIF c == 3; # Subtitle Field %?>
                 <?% ELSIF c == 6; # Day Field %?>

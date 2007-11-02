@@ -78,7 +78,7 @@ var webFXTreeConfig = {
 	tIcon           : 'images/T.png',
 	tMinusIcon      : 'images/Tminus.png',
 	tPlusIcon       : 'images/Tplus.png',
-	blankIcon       : 'images/blank.png',
+	blankIcon       : 'images/trans.gif',
 	defaultText     : 'Tree Item',
 	defaultAction   : 'javascript:void(0);',
 	defaultBehavior : 'classic',

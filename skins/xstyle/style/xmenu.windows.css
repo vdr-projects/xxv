@@ -44,9 +44,9 @@
 	width:				expression(constExpression(ieBox ? "100%" : "auto"));	/* should be ignored by mz and op */
 	text-decoration:	none;
 	color:				MenuText;
-	XXXheight:			18px;
+	/*XXXheight:			18px;*/
 	height:				expression(constExpression("13px"));
-	vertical-align:		center;
+	vertical-align:		middle;
 	padding:			2px;
 	padding-left:		3px;
 	padding-right:		3px;
@@ -72,7 +72,7 @@
 	float:			right;
 	border:			0;
 	width:			3px;
-	XXXheight:			16px;
+	/*XXXheight:			16px;*/
 	margin-top:		3px;
 	margin-right:	3px;
 }

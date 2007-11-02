@@ -287,9 +287,7 @@ caption
 #TOOLTIP {
   position:absolute; 
   width: 400px; 
-  top: 0px; 
-  left: 0px; 
-  z-index:5; 
+  z-index:15; 
   visibility:hidden;
 }
 
