@@ -197,8 +197,6 @@ a.vtx:link, a.vtx:visited, a.vtx:hover, a.vtx:active{
 #TOOLTIP {
   position:absolute; 
   width: 400px; 
-  top: 0px; 
-  left: 0px; 
   z-index:5; 
   visibility:hidden;
 }
