@@ -7,7 +7,7 @@
 <?%
     USE date( );
     zeitformat = gettext("%A the %D at %H:%M o'clock");
-    IF cgi.param('data') > 2400;
+    IF cgi.param('data') && cgi.param('data') > 2400;
         t = date.format(cgi.param('data'), '%H:%M');
         day = date.format(cgi.param('data'), zeitformat, locale) ;
     ELSIF cgi.param('data') && param.zeit;
@@ -78,7 +78,7 @@
                 <td><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% stop %?><?% IF param.timers.${id} && param.timers.${id}.Status %?></b><?% END %?></td>
                 <?% UNLESS duration > 100 OR duration <= 0 %?>
                 <td width="100" valign='bottom'><nobr>
-                    <?% per = (100 - duration) + 0.999 | format('%d'); per = (per > 100 ? 100 : per)  %?>
+                    <?% per = (100 - duration) + 0.999 div 1; per = (per > 100 ? 100 : per)  %?>
                     <?% INCLUDE 'bloecke/percentbar.tmpl' barwidth=100 percent=per color_switch=1 %?>
                 </td>
                 <?% END %?>
