@@ -368,12 +368,18 @@ color:#000;
 font-size:11px;
 }
 
+div.remotehead,
 div.fieldhead {
 white-space:nowrap;
 overflow:hidden;
-width:190px;
+width:170px;
 height:20px;
 float:left;
+}
+
+div.remotehead {
+width:150px;
+font-size:14px;
 }
 
 td.fieldhead {
@@ -609,7 +615,7 @@ background-color:transparent;
 }
 
 .deactive {
-color:#c5a154;
+color:#a4977a;
 }
 
 .active {
@@ -623,7 +629,7 @@ font-weight:700;
 }
 
 .problem {
-color:#bab800;
+color:#b96011;
 }
 
 .error {

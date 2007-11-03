@@ -335,22 +335,26 @@ padding:0;
 }
 
 table.fieldtable {
-background:url(images/dark180.gif) repeat-y;
-width:180px;
+background:url(images/darkfield.gif) repeat-y;
+width:190px;
 }
 
+div.remotehead,
 div.fieldhead {
 white-space:nowrap;
 overflow:hidden;
-width:174px;
+width:184px;
 height:18px;
 float:left;
-display:inline;
+}
+
+div.remotehead {
+width:130px;
 }
 
 td.fieldhead {
 vertical-align:middle;
-background:url(images/head180.gif) no-repeat;
+background:url(images/headfield.gif) no-repeat;
 height:20px;
 color:#000;
 font-size:11px;
@@ -361,7 +365,7 @@ padding-right:2px;
 
 td.fieldtext {
 vertical-align:top;
-background:url(images/dark180.gif) repeat-y;
+background:url(images/darkfield.gif) repeat-y;
 color:#000;
 font-size:11px;
 padding:2px;
@@ -369,7 +373,7 @@ padding:2px;
 
 td.fieldbottom {
 vertical-align:bottom;
-background:url(images/down180.gif) no-repeat;
+background:url(images/downfield.gif) no-repeat;
 height:1px;
 }
 

@@ -328,12 +328,17 @@ background:url(images/darkfield.gif) repeat-y;
 width:190px;
 }
 
+div.remotehead,
 div.fieldhead {
 white-space:nowrap;
 overflow:hidden;
 width:184px;
 height:18px;
 float:left;
+}
+
+div.remotehead {
+width:130px;
 }
 
 td.fieldhead {

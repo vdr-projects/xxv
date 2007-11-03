@@ -341,12 +341,17 @@ color:#FFF;
 font-size:11px;
 }
 
+div.remotehead,
 div.fieldhead {
 white-space:nowrap;
 overflow:hidden;
 width:184px;
 height:20px;
 float:left;
+}
+
+div.remotehead {
+width:150px;
 }
 
 td.fieldhead {
