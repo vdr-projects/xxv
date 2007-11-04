@@ -38,6 +38,21 @@ function popupwindow(url,width,height,reloadonclose){
         parent_url = "";
 }
 
+var lastKeypress = null;
+function popupkeypress(e) {
+  var KeyID = (window.event) ? event.keyCode : e.keyCode;
+  if(KeyID == 27) { //ESC
+    parent.parent_url = null;
+    closeit();
+  } 
+}
+
+function initcloseit(){
+    lastKeypress = parent.document.onkeypress;
+    parent.document.onkeypress = popupkeypress;
+    document.onkeypress = popupkeypress;
+}
+
 function closeit(){
     parent.document.getElementById("hilfsframe").style.display = "none";
     parent.document.getElementById("cframe").src="about:blank";
@@ -46,6 +61,11 @@ function closeit(){
       if(ie5&&!opera) //Avoid use cache
         url += "&random=" + (Math.random() * Date.parse(new Date()));
       parent.window.location.href = url;
+    }
+
+    if(lastKeypress) {
+      parent.document.onkeypress = lastKeypress;
+      lastKeypress = null;
     }
 }
 

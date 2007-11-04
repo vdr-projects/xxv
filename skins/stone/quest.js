@@ -93,7 +93,7 @@ function questclose(doit) {
     questfn = null;
   }
   document.onkeypress = lastKeypress;
-  lastKeypress = null
+  lastKeypress = null;
   ttp_enable(1);
 }
 
