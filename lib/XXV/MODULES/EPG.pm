@@ -723,7 +723,13 @@ sub display {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $eventid = shift || return $console->err(gettext("No ID defined to display this program! Please use display 'eid'!"));
+    my $eventid = shift;
+
+    unless($eventid) {
+        $console->{call} = 'message'; #reset default widget, avoid own widget
+        $console->err(gettext("No ID defined to display this program! Please use display 'eid'!"));
+        return;
+    }
 
     my %f = (
         'Id' => umlaute(gettext('Service')),
@@ -778,8 +784,11 @@ where
       if(scalar @{$erg} != 0 );
     }
 
-    return $console->err(sprintf(gettext("No data to display for event '%d'!"),$eventid))
-      if(scalar @{$erg} == 0 );
+    if(scalar @{$erg} == 0 ) {
+        $console->{call} = 'message'; #reset default widget, avoid own widget
+        $console->err(sprintf(gettext("Event '%d' does not exist in the database!"),$eventid));
+        return;
+    }
 
     unshift(@$erg, $fields);
 

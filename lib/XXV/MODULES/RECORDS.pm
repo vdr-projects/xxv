@@ -1140,7 +1140,13 @@ sub display {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $recordid = shift || return $console->err(gettext("No recording defined for display! Please use rdisplay 'rid'"));
+    my $recordid = shift;
+
+    unless($recordid) {
+        $console->{call} = 'message'; #reset default widget, avoid own widget
+        $console->err(gettext("No recording defined for display! Please use rdisplay 'rid'"));
+        return;
+    }
 
     my $start = "e.starttime";
     my $stopp = "FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration)";
@@ -1171,25 +1177,29 @@ where
     and RecordMD5 = ?
 |;
 
+    my $rec;
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($recordid)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $erg = $sth->fetchrow_hashref();
+    if(!$sth->execute($recordid)
+      || !($rec = $sth->fetchrow_hashref())) {
+        $console->{call} = 'message';
+        $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+        return;
+    }
 
     $obj->_loadreccmds;
 
     my $param = {
-        previews => $obj->getPreviewFiles($erg->{eventid}),
+        previews => $obj->getPreviewFiles($rec->{eventid}),
         reccmds => [@{$obj->{reccmds}}],
     };
 
     my $cmod = main::getModule('CHANNELS');
-    $erg->{Channel} = $cmod->ChannelToName($erg->{channel_id})
-        if($erg->{channel_id} && $erg->{channel_id} ne "<undef>");
-    delete $erg->{channel_id};
+    $rec->{Channel} = $cmod->ChannelToName($rec->{channel_id})
+        if($rec->{channel_id} && $rec->{channel_id} ne "<undef>");
+    delete $rec->{channel_id};
 
-    $console->table($erg, $param);
+    $console->table($rec, $param);
 }
 
 # ------------------
@@ -1534,11 +1544,10 @@ WHERE
 	AND ( r.RecordMD5 = ? )
 |;
         my $sth = $obj->{dbh}->prepare($sql);
-        if($sth->execute($recordid)) {
-          $rec = $sth->fetchrow_hashref()
+        if(!$sth->execute($recordid)
+          || !($rec = $sth->fetchrow_hashref())) {
+          return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
         }
-        return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid))
-          unless($rec);
     }
 
     my $file = sprintf("%s/info.vdr", $rec->{Path});
