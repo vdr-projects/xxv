@@ -1,11 +1,7 @@
-1.0 (stable):
+1.0:
 --------------------------------------------------------------------------------
 * Neue Features seit Version 0.80
 
-    * contrib/chronicle-remove-duplicate.pl Skript zum Entfernen von 
-      doppelte Einträge. (z.B. nach dem Update von mysql 4.0 auf 5.0)
-    * main: Reihenfolge des Systemstart reorganisiert
-    * Suchfunktion um 'Suggest' via Ajax Feature erweitert
     * Erhöhung der Abfragegeschwindigkeit der mysql-Abfragen per sql_cache
     * REQUEST[187] Sucheabfragen erweitert mit Logik Operatoren (AND, OR, AND NOT)
     * REQUEST[259] Anzeige der EPG-Beschreibung als Tooltip (per AJAX)
@@ -14,6 +10,10 @@
       Netzwerkanschlüssen.
     * Skins: Datumsaugabe abhängig von den aktiven Ländereinstellungen ausgeben.
     * Anzeige der Modulrevison in Log
+    * contrib/chronicle-remove-duplicate.pl Skript zum Entfernen von 
+      doppelte Einträge. (z.B. nach dem Update von mysql 4.0 auf 5.0)
+    * main: Reihenfolge des Systemstart reorganisiert
+    * Suchfunktion um 'Suggest' via Ajax Feature erweitert
 
     AUTOTIMER 
         * REQUEST[223] Datenbank basierte DONE Liste für Serienaufnahmen.

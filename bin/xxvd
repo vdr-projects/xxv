@@ -45,7 +45,7 @@ $|++;
 
 my $REV = &getRev() || (split(/ /, '$Revision$'))[1];
 my $MODULES;
-my $VERSION = '0.95';
+my $VERSION = '1.0';
 my $VDRVERSION = 0;
 my $CLEANUP;
 my $DBCACHE = {};

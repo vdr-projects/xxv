@@ -51,11 +51,11 @@ http://www.linuxtv.org/vdrwiki/index.php/Xxv
 Legal stuff
 -----------
 
-   (c) Copyright 2004-2005  Frank Herrmann / Berlin.
+   (c) Copyright 2004-2007  Frank Herrmann / Berlin.
    All rights reserved.
 
    Written by Frank Herrmann <xpix at xpix dot de> and
-              Andreas Brachold <vdr04 at deltab dot de>.
+              Andreas Brachold <anbr at users.berlios.de>.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
