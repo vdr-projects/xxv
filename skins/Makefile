@@ -3,7 +3,7 @@
 #
 # $Id$
 
-VERSION = 0.95
+VERSION = 1.0
 
 ARCHIVE = skins
 PACKAGE = xxv-$(ARCHIVE)-$(VERSION)

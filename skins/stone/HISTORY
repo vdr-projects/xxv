@@ -1,3 +1,5 @@
+1.0
+
 Neue Feature :
 
 * In Datei "skin.cfg" entfällt der Parameter "global.cfgTableColumn", 
@@ -24,7 +26,7 @@ Neue Feature :
 * Suchfunktion  Suggest - Vorschläge während der Eingabe via AJAX
 * rdisplay      Anzeige der Vorschaubilder als Bildliste
 * alist         Verlinkung der durch den Autotimer hinzufügten Timer
-* *delete       Sicherheitsabfrage im per DHTML - Design in Skinstil
+* delete        Sicherheitsabfrage im per DHTML - Design in Skinstil
 * Navigationselemente : an fixierte Position (weniger Scrollen, erfolgt CSS Compl. Browser)
 
 Fixes :
