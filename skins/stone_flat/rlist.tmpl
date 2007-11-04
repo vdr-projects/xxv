@@ -145,14 +145,13 @@
                 <?% foldertitle %?>
                 </font>
   		    <?% END %?>
-                <br />
                 <font class="subtitle">
           <?% IF folder <= 1 %?>
-                  <?% subtitle %?>
+                  <?% IF subtitle && subtitle.length > 0 %?>&nbsp;-&nbsp;<?% subtitle %?><?% END %?>
                   <?% IF global.hideDescription != 1 && description.length > 0 %?><br />
                       </font><font class="description"><?% chop(description,100,5) %?><?% END %?>
   		    <?% ELSE %?>
-                    <?% folder %?><?% IF new %?>&nbsp;(<?% new %?>)<?% END %?>&nbsp;<?% gettext("more recordings") %?> ...
+                    &nbsp;-&nbsp;<?% folder %?><?% IF new %?>&nbsp;(<?% new %?>)<?% END %?>&nbsp;<?% gettext("more recordings") %?> ...
   		    <?% END %?>
                 </font>
             </a>
