@@ -558,8 +558,13 @@ sub readData {
     $obj->{CapacityTotal} = $totalDuration;
     $obj->{CapacityPercent}  = (100.0 / $total) * ($total - $free)
         if($total && $totalUnit eq $freeUnit);
-    $obj->{CapacityFree} = ($totalDuration * 100.0 / $obj->{CapacityPercent})
-                             - $obj->{CapacityTotal};
+
+    # use store capacity and recordings length to calc free capacity
+    if($totalDuration > 3600) {
+      $obj->{CapacityFree} = ($totalDuration * 100.0 / $obj->{CapacityPercent}) - $totalDuration;
+    } else {
+      $obj->{CapacityFree} = $free * 3600 / 2000; # use 2GB at one hour 
+    }
 
     # Previews im fork erzeugen
     if(scalar @{$obj->{JOBS}}) {
