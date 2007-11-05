@@ -272,6 +272,9 @@ sub init {
 # ------------------
     my $modules = shift || return error('No modul path defined!');
     my @mods = glob($modules.'/*.pm');
+    unless(scalar @mods) {
+      panic(sprintf("None usable modules found at '%s'",$modules));
+    }
 
     foreach my $module (reverse @mods) {
         my $moduleName = 'XXV::MODULES::'.(split('\.',(split('/', $module))[-1]))[0];
@@ -420,9 +423,13 @@ sub getModules {
 # ------------------
 sub getModule {
 # ------------------
-    my $name = shift || return error('No database parameter defined!');
+    my $name = shift || return error('No requested modul defined!');
 
     my ($modname) = grep(/${name}$/, keys %$MODULES);
+    unless ($modname) {
+      error(sprintf "Requested modul '%s' is'nt loaded!",$name);
+      return undef;
+    }
 
     return $MODULES->{$modname};
 }
@@ -525,6 +532,7 @@ sub docu {
     my $name  = shift || 0;
 
     my $HTTPD = getModule("HTTPD");
+    return unless($HTTPD);
     my $htmlRootDir = sprintf('%s/%s', $HTTPD->{paths}->{HTMLDIR}, $HTTPD->{HtmlRoot});
 
     # create Template object

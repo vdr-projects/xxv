@@ -1313,7 +1313,11 @@ sub _placeholder {
                 $title =~ s/%([\w_-]+)%/$at_details{lc($1)}/sieg;
 				$file = $title;
         } else { # Classic mode DIR~TITLE~SUBTILE
-			$file = sprintf('%s~%s~%s', $at->{Dir}, $data->{Title},$data->{Subtitle});
+          if($data->{Subtitle}) {
+            $file = sprintf('%s~%s~%s', $at->{Dir}, $data->{Title},$data->{Subtitle});
+          } else {
+            $file = sprintf('%s~%s', $at->{Dir}, $data->{Title});
+          }
         }
 	  } elsif($data->{Subtitle}) {
 		  $file = sprintf('%s~%s', $data->{Title},$data->{Subtitle});
