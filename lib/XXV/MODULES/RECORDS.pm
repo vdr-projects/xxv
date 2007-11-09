@@ -564,7 +564,11 @@ sub readData {
     error sprintf("Unsupported unit '%s' to calc free capacity",$freeUnit) unless($freeUnit eq 'MB');
     # use store capacity and recordings length to calc free capacity
     $obj->{CapacityTotal} = $totalDuration;
-    $obj->{CapacityFree} = ($free * $totalDuration) / $totalSpace;
+    if($totalSpace > 1) {
+      $obj->{CapacityFree} = ($free * $totalDuration) / $totalSpace;
+    } else {
+      $obj->{CapacityFree} = $free * 3600 / 2000; # use 2GB at one hour as base
+    }
     $obj->{CapacityPercent}  = ($totalSpace * 100 / ($free + $totalSpace))
       unless($obj->{CapacityPercent});
 
