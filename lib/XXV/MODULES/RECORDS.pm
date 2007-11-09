@@ -503,8 +503,10 @@ sub readData {
                   }
                   # Update duration at database entry
                   $db_data->{$h}->{duration} = $duration;
+                  $db_data->{$h}->{FileSize} = $obj->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * 25));
 
                   $obj->_updateEvent($db_data->{$h});
+                  $obj->_updateFileSize($db_data->{$h});
 
                   $updatedState++;
               }
@@ -518,7 +520,7 @@ sub readData {
           delete $db_data->{$h};
 
         } else {
-          $waiter->next(++$l,undef, sprintf(gettext("Analyze recording '%s'"), 
+              $waiter->next(++$l,undef, sprintf(gettext("Analyze recording '%s'"), 
                                                      $event->{title}))
               if(ref $waiter);
 
@@ -725,6 +727,16 @@ sub _updateState {
 }
 
 # ------------------
+sub _updateFileSize {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $attr = shift || return error ('No data to replace!');
+
+    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=FROM_UNIXTIME(?) where RecordMD5=?');
+    return $sth->execute($attr->{FileSize},time,$attr->{RecordMD5});
+}
+
+# ------------------
 sub analyze {
 # ------------------
     my $obj = shift || return error('No object defined!');
@@ -847,25 +859,7 @@ sub videoInfo {
         $status->{Lifetime} = $lifetime;
 
         $status->{duration} = $obj->_recordinglength($path);
-
-
-        # Calc used disc space (MB)
-        my $sizeMB;
-        my $mb = (1024 * 1024);
-        my $size = 0;
-        $status->{FileSize} = 0;
-        foreach my $f (@files) {
-          $size += stat($f)->size;
-          if($size > $mb) {
-            $sizeMB = int($size / $mb);
-            $size -= $sizeMB * $mb;
-            $status->{FileSize} += $sizeMB;
-          }
-        }
-        if($size > 0) {
-          $sizeMB = int($size / $mb);
-          $status->{FileSize} += $sizeMB;
-        }
+        $status->{FileSize} = $obj->_recordingCapacity(\@files,($status->{duration} * 8 * 25));
 
         # Schnittmarken ermitteln
         my $marks = sprintf("%s/marks.vdr", $path);
@@ -1093,6 +1087,7 @@ qq|SELECT SQL_CACHE * FROM OLDEPG WHERE
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND title = ? 
+    AND subtitle IS NULL
     AND channel_id = ?|);
         $sth->execute($start,$bis,$title,$channel)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1110,7 +1105,8 @@ qq|SELECT SQL_CACHE * FROM OLDEPG WHERE
 qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
-    AND title = ?|);
+    AND title = ?
+    AND subtitle IS NULL|);
         $sth->execute($start,$bis,$title)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     }
@@ -2109,8 +2105,8 @@ sub translate {
 # return value as integer 
 sub _recordinglength {
 # ------------------
-    my $obj = shift || return 0, error('No object defined!');
-    my $path = shift || return 0, error ('Missing path from recording!' );
+    my $obj = shift || return error('No object defined!');
+    my $path = shift || return error ('Missing path from recording!' );
 
     my $f = sprintf("%s/index.vdr", $path);
     my $r = sprintf("%s/001.vdr", $path);
@@ -2125,6 +2121,50 @@ sub _recordinglength {
         error sprintf("Couldn't read : '%s'", $f);
     }
     return 0;
+}
+
+# ------------------
+# Size of recording in MB,
+# return value as integer 
+sub _recordingsize {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $path = shift || return error('Missing path from recording!');
+    my $size = shift || 0; # Filesize offset e.g. from index.vdr
+
+    my @files = glob("$path/[0-9][0-9][0-9].vdr");
+    return $obj->_recordingCapacity(\@files,$size);
+}
+
+# ------------------
+# Size of recording in MB,
+# return value as integer 
+sub _recordingCapacity {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $files = shift || return error('Missing files from recording!');
+    my $size = shift || 0; # Filesize offset e.g. from index.vdr
+
+    # Calc used disc space (MB)
+    my $sizeMB;
+    my $mb = (1024 * 1024);
+    my $FileSize = 0; 
+
+    # Incl. length of each xxx.vdr
+    foreach my $f (@{$files}) {
+      if($size > $mb) {
+        $sizeMB = int($size / $mb);
+        $size -= $sizeMB * $mb;
+        $FileSize += $sizeMB;
+      }
+      $size += stat($f)->size;
+    }
+    if($size > 0) {
+      $sizeMB = int($size / $mb);
+      $FileSize += $sizeMB;
+    }
+
+    return $FileSize;
 }
 
 # ------------------

@@ -331,18 +331,22 @@ sub printout {
     if($obj->{output} && $obj->{handle}) {
       my $content;     
       if($obj->{browser}->{Method} ne 'HEAD') {
-        $content = $obj->{output};
-
-        $content = Compress::Zlib::memGzip($content)
-            if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip});
+        if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip}) {
+          $content = Compress::Zlib::memGzip($obj->{output});
+        } else {
+          $content = $obj->{output};
+        }
       }
-      if($content) {
+      if($obj->{output_header} && $content) {
         $obj->{handle}->print($obj->{output_header},$content);
         $obj->{sendbytes}+= length($obj->{output_header});
         $obj->{sendbytes}+= length($content);
-      } else {
+      } elsif($obj->{output_header}) {
         $obj->{handle}->print($obj->{output_header});
         $obj->{sendbytes}+= length($obj->{output_header});
+      } elsif($content) {
+        $obj->{handle}->print($content);
+        $obj->{sendbytes}+= length($content);
       }
       $obj->{handle}->close();
     }
