@@ -7,16 +7,44 @@
 <?% an = gettext('On') %?>
 <?% enableform = ( allow('ttoggle') || allow('tdelete') ) && data.size > 1 %?>
 <?% ######################################################################## %?>
+<?% total = 0 %?>
 <?% BLOCK summe %?>
 			<?% IF aktiv == 1; # Errechnen der Differenzen
-					minuten = minuten + (duration div 60);
+					total = total + duration;
 			END %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK printsumme %?>
-    <?% IF minuten > 0 %?>
-    					<p class="description" style="padding: 0; margin-right: 10px; text-align:right;"><?% minuten div 60 %?>:<?% minuten mod 60 FILTER format('%02d')%?></p>
-			<?% END %?>
+<p class="description" style="padding: 0; margin-right: 10px; text-align:right;">
+<?% IF total > 0;
+    sec  = total mod 60;
+    min  = total div 60 mod 60;
+    hour = total div 3600;
+%?>
+<?% IF hour > 0 %?><?% hour FILTER format('%02d') %?>:<?% END %?><?% min FILTER format('%02d') %?>
+<?% END %?>
+</p>
+<?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK totalsumme %?>
+<p class="description" style="padding: 0; margin-right: 10px; text-align:right;">
+<?% IF total > 0;
+    sec  = total mod 60;
+    min  = total div 60 mod 60;
+    hour = total div 3600;
+%?>
+<?% gettext("total time") %?> : 
+<?% IF hour > 0 %?><?% hour FILTER format('%02d') %?>:<?% END %?><?% min FILTER format('%02d') %?><br />
+<?% END %?>
+<?% IF param.capacity;
+        secf  = param.capacity mod 60;
+        minf  = param.capacity div 60 mod 60;
+        hourf = param.capacity div 3600;
+%?>
+<?% gettext("available capacity") %?> : 
+<?% IF hourf > 0 %?><?% hourf FILTER format('%02d') %?>:<?% END %?><?% minf FILTER format('%02d') %?>
+<?% END %?>
+</p>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
@@ -48,7 +76,7 @@
 <?% ######################################################################## %?>
 <?% BLOCK StateImage %?>
             <?% IF aktiv %?>
-              <?% IF param.capacity && param.capacity div 60 <= minuten %?>
+              <?% IF param.capacity && param.capacity <= total %?>
               <img id="toggle<?% id %?>" src="images/warning.<?% global.imagetyp %?>" alt="" title="<?% gettext("Not enough space to record this timer!") %?>" />
               <?% ELSE %?>
               <img id="toggle<?% id %?>" src="images/on.<?% global.imagetyp %?>" alt="" title="<?% an %?>" />
@@ -132,7 +160,6 @@
 <?% fields = data.shift %?>
 <h1><?% gettext("Planned recordings") %?> - <?% date.format(data.first.9, "%A, %x", locale) %?></h1>
 <form name="tlist" action="">
-		<?% minuten = 0 %?>
 		<?% FOREACH zeile = data %?>
 			<?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
 			<?%- id=zeile.0;
@@ -162,7 +189,7 @@
 			<?% old = day %?>
 		<?% END %?>
   <div class="areaclose"></div>
-	<?% PROCESS printsumme %?>
+	<?% PROCESS totalsumme %?>
 </form>
 <?% END %?>
 </div>

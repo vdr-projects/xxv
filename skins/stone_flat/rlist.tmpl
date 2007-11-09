@@ -42,14 +42,14 @@
     hour = total div 3600;
 %?>
 <?% gettext("total time") %?> : 
-<?% IF hour > 0 %?><?% hour FILTER format('%02d') %?>:<?% END %?><?% min FILTER format('%02d') %?>:<?% sec FILTER format('%02d')%?>
+<?% IF hour > 0 %?><?% hour FILTER format('%02d') %?>:<?% END %?><?% min FILTER format('%02d') %?>:<?% sec FILTER format('%02d')%?><br />
 <?% END %?>
 <?% IF param.free;
         secf  = param.free mod 60;
         minf  = param.free div 60 mod 60;
         hourf = param.free div 3600;
 %?>
-<br /><?% gettext("available capacity") %?> : 
+<?% gettext("available capacity") %?> : 
 <?% IF hourf > 0 %?><?% hourf FILTER format('%02d') %?>:<?% END %?><?% minf FILTER format('%02d') %?>:<?% secf FILTER format('%02d')%?>
 <?% END %?>
 </p>
