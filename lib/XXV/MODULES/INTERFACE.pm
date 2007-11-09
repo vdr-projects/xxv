@@ -98,7 +98,7 @@ sub init {
             )
             -> dispatch_to('SOAPService');
 
-        debug("Install the SOAP server at %s", $daemon->url);
+        debug sprintf("Install the soap server at %s", $daemon->url);
         my ($sock, $httpd) = $daemon->getDaemon();
 
         Event->io(

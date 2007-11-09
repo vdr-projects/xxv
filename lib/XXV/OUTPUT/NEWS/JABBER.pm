@@ -184,7 +184,7 @@ sub jconnect {
 
     my ($user, $server) = split('\@', $obj->{user});
 
-    debug ("Connecting to jabber server: %s ...", $server);
+    debug sprintf("Connecting to jabber server: %s ...", $server);
 
     my @res = $jcon->Connect(
         hostname    =>  $server,
@@ -192,7 +192,7 @@ sub jconnect {
     return
         unless($obj->xmpp_check_result("Connect",\@res,$jcon));
 
-    debug ("Authentificat with User:%s ...", $user);
+    debug sprintf("Authentificat with User:%s ...", $user);
 
     @res = $jcon->AuthSend(
       'hostname'=>$server,
@@ -285,12 +285,12 @@ sub xmpp_check_result {
 
     # result can be true or 'ok'
     if ((@$res == 1 && $$res[0]) || $$res[0] eq 'ok') {
-	    return debug "%s: %s", $txt, $$res[0];
+	    return debug sprintf("%s: %s", $txt, $$res[0]);
     # otherwise, there is some error
     } else {
 	    my $errmsg = $cnx->GetErrorCode() || '?';
         $cnx->Disconnect();
-	    return error("Error %s: %s [%s]", $txt, join (': ',@$res), $errmsg);
+	    return error sprintf("Error %s: %s [%s]", $txt, join (': ',@$res), $errmsg);
     }
 }
 

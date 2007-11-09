@@ -399,7 +399,7 @@ sub compareEpgData {
         }
       }
     } 
-    debug 'Finish .. %d events created, %d events replaced, %d events deleted', $changedData, $updatedData, $deleteData;
+    debug sprintf('Finish .. %d events created, %d events replaced, %d events deleted', $changedData, $updatedData, $deleteData);
 
     return ($changedData + $updatedData + $deleteData);
 }
@@ -486,7 +486,6 @@ sub readEpgData {
     my $channelname;
     my $event;
 
-    #debug 'Read %d lines in EPG Database from %d', scalar @$vdata,$offset;
     for(;$count < scalar (@$vdata);$count++) {
       my $line = @{$vdata}[$count];
 
@@ -531,7 +530,7 @@ sub readEpgData {
       # Next channel 
       if($mark eq 'C') {
         if($channel) {
-          debug 'Missing channel endtag c at line %d',$count;
+          debug sprintf('Missing channel endtag c at line %d',$count);
           return ($dataHash,$channel,$channelname,$count) if(scalar keys %$dataHash);
         }
         undef $event->{channel};
@@ -567,7 +566,6 @@ sub readEpgData {
         $event->{vpstime} = $data;
       }
     }
-#   debug 'Finish Read %d lines in EPG Database at %d', scalar @$vdata,$count;
     return ($dataHash,$channel,$channelname,$count);
 }
 
@@ -1191,7 +1189,7 @@ sub getId {
         return $erg
             if($erg);
     }
-    lg("Event %d does not exist!", $id);
+    lg sprintf("Event %d does not exist!", $id);
     return {};
 }
 
@@ -1203,7 +1201,7 @@ sub suggest {
     my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
-
+  
     if($search) {
         my $ch = '';
         if($params->{channel}) {

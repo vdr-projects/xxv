@@ -127,7 +127,7 @@ sub lg {
 # ------------------
 sub event {
 # ------------------
-    my $msg = sprintf(shift, @_);
+    my $msg = shift;
 
     my ($package, $filename, $line, $subroutine) = caller(3);
 
@@ -141,7 +141,7 @@ sub event {
 # ------------------
 sub debug {
 # ------------------
-    my $msg = sprintf(shift, @_);
+    my $msg = shift;
 
     &lg('ERR:250 ' . $msg, 2, 2);
 
@@ -151,7 +151,7 @@ sub debug {
 # ------------------
 sub error {
 # ------------------
-    my $msg = sprintf(shift, @_);
+    my $msg = shift;
 
     &lg('ERR:501 ' . $msg, 1, 2);
 
@@ -161,7 +161,7 @@ sub error {
 # ------------------
 sub panic {
 # ------------------
-    my $msg = sprintf(shift, @_);
+    my $msg = shift;
 
     &lg('ERR:550 ' . $msg, 1, 2);
 
@@ -601,7 +601,7 @@ sub touch {
     lg sprintf("Call touch file '%s'", $file );
     utime ($now, $now, $file)
         || open (TMP, ">>$file")
-        || error ("Couldn't touch '%s' : %s",$file,$!);
+        || error sprintf("Couldn't touch '%s' : %s",$file,$!);
 }
 
 1;

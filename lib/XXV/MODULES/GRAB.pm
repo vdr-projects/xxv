@@ -179,7 +179,7 @@ sub grab {
     } else {
 
         if(-e $file) {
-          unlink($file) || error("Couldn't remove '%s' : %s",$file,$!);
+          unlink($file) || error sprintf("Couldn't remove '%s' : %s",$file,$!);
         }
         # the command
         my $cmd = sprintf('grab %s jpeg %d %d %d',

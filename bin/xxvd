@@ -392,10 +392,10 @@ sub getDbh {
             });
 
     if($dbh) {
-      debug('Connect to database: %s successful.', $dsn);
+      debug sprintf('Connect to database: %s successful.', $dsn);
       $dbh->{'mysql_auto_reconnect'} = 1;
     } else {
-        panic("Could not connect to database: %s :", $dsn, $DBI::errstr);
+        panic sprintf("Could not connect to database: %s :", $dsn, $DBI::errstr);
         unlink $PATHS->{PIDFILE};
         &toCleanUp();
         exit(1);
@@ -427,7 +427,7 @@ sub getModule {
 
     my ($modname) = grep(/${name}$/, keys %$MODULES);
     unless ($modname) {
-      error(sprintf "Requested modul '%s' is'nt loaded!",$name);
+      error sprintf("Requested modul '%s' is'nt loaded!",$name);
       return undef;
     }
 
@@ -718,7 +718,7 @@ sub init_signal_handler {
     $SIG{HUP} = sub{
         lg "Reconfiguration ... ";
         $Config = Config::Tiny->read( $pat->{CFGFILE} )
-            or return error('Problem to read the %s: %s', $pat->{CFGFILE}, $CFGOBJ->errstr);
+            or return error sprintf('Problem to read file %s: %s', $pat->{CFGFILE}, $CFGOBJ->errstr);
         my $configModule = getModule('CONFIG')
             or return error("Couldn't load the config modul!");
         $configModule->reconfigure;

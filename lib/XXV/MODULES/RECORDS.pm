@@ -257,19 +257,20 @@ sub _init {
     }
 
     # remove old table, if updated rows
-    tableUpdated($obj->{dbh},'RECORDS',10,1);
+    tableUpdated($obj->{dbh},'RECORDS',11,1);
 
     # Look for table or create this table
     my $version = main::getVersion;
     $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS RECORDS (
           eventid bigint unsigned NOT NULL,
-          RecordId int(11) unsigned not NULL,
+          RecordId int unsigned not NULL,
           RecordMD5 varchar(32) NOT NULL,
           Path text NOT NULL,
           Prio tinyint NOT NULL,
           Lifetime tinyint NOT NULL,
           State tinyint NOT NULL,
+          FileSize int unsigned default '0', 
           Marks text,
           Type enum('TV', 'RADIO', 'UNKNOWN') default 'TV',
           addtime timestamp,
@@ -406,6 +407,7 @@ sub readData {
     my $stat = $obj->{svdrp}->command('stat disk');
     my ($total, $totalUnit, $free, $freeUnit, $percent);    
     my $totalDuration = 0;
+    my $totalSpace = 0;
 
     if($stat->[1] and $stat->[1] =~ /^250/s) {
         #250 473807MB 98028MB 79%
@@ -450,6 +452,7 @@ sub readData {
                         UNIX_TIMESTAMP(e.addtime) as addtime,
                         r.Path as path,
                         r.Type as type,
+                        r.FileSize,
                         r.Marks as marks,
                         r.RecordMD5
                  from RECORDS as r,OLDEPG as e 
@@ -507,6 +510,7 @@ sub readData {
               }
           } 
           $totalDuration += $db_data->{$h}->{duration};
+          $totalSpace += $db_data->{$h}->{FileSize};
           
           push(@merkIds,$db_data->{$h}->{eventid});
 
@@ -527,6 +531,7 @@ sub readData {
           my $anahash = $obj->analyze($event);
           if(ref $anahash eq 'HASH') {
               $totalDuration += $anahash->{Duration};
+              $totalSpace += $anahash->{FileSize};
 
               if($obj->insert($anahash)) {
                   push(@merkIds,$anahash->{eventid});
@@ -555,16 +560,13 @@ sub readData {
     debug sprintf 'Finish .. %d recordings inserted, %d recordings updated, %d recordings removed',
            $insertedData, $updatedState, $db_data ? scalar keys %$db_data : 0;
 
-    $obj->{CapacityTotal} = $totalDuration;
-    $obj->{CapacityPercent}  = (100.0 / $total) * ($total - $free)
-        if($total && $totalUnit eq $freeUnit);
 
+    error sprintf("Unsupported unit '%s' to calc free capacity",$freeUnit) unless($freeUnit eq 'MB');
     # use store capacity and recordings length to calc free capacity
-    if($totalDuration > 3600) {
-      $obj->{CapacityFree} = ($totalDuration * 100.0 / $obj->{CapacityPercent}) - $totalDuration;
-    } else {
-      $obj->{CapacityFree} = $free * 3600 / 2000; # use 2GB at one hour 
-    }
+    $obj->{CapacityTotal} = $totalDuration;
+    $obj->{CapacityFree} = ($free * $totalDuration) / $totalSpace;
+    $obj->{CapacityPercent}  = ($totalSpace * 100 / ($free + $totalSpace))
+      unless($obj->{CapacityPercent});
 
     # Previews im fork erzeugen
     if(scalar @{$obj->{JOBS}}) {
@@ -672,8 +674,8 @@ sub insert {
     my $sth = $obj->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
-        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, Marks, Type )
-     VALUES (?,?,md5(?),?,?,?,?,?,?)
+        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type )
+     VALUES (?,?,md5(?),?,?,?,?,?,?,?)
     |);
 
     $attr->{Marks} = ""
@@ -687,6 +689,7 @@ sub insert {
         $attr->{Prio},
         $attr->{Lifetime},
         $attr->{State},
+        $attr->{FileSize},
         $attr->{Marks},
         $attr->{Type},
     );
@@ -780,7 +783,8 @@ sub analyze {
         Lifetime  => $info->{Lifetime},
         eventid => $event->{eventid},
         Type  => $info->{type} || 'UNKNOWN',
-        State => $recattr->{state}
+        State => $recattr->{state},
+        FileSize => $info->{FileSize}
     };
     $ret->{Marks} = join(',', @{$info->{marks}})
         if(ref $info->{marks} eq 'ARRAY');
@@ -839,6 +843,25 @@ sub videoInfo {
         $status->{Lifetime} = $lifetime;
 
         $status->{duration} = $obj->_recordinglength($path);
+
+
+        # Calc used disc space (MB)
+        my $sizeMB;
+        my $mb = (1024 * 1024);
+        my $size = 0;
+        $status->{FileSize} = 0;
+        foreach my $f (@files) {
+          $size += stat($f)->size;
+          if($size > $mb) {
+            $sizeMB = int($size / $mb);
+            $size -= $sizeMB * $mb;
+            $status->{FileSize} += $sizeMB;
+          }
+        }
+        if($size > 0) {
+          $sizeMB = int($size / $mb);
+          $status->{FileSize} += $sizeMB;
+        }
 
         # Schnittmarken ermitteln
         my $marks = sprintf("%s/marks.vdr", $path);

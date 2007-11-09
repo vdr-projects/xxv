@@ -123,7 +123,7 @@ sub _init {
         $obj->{SOAP} = $obj->ConnectToService($obj->{SessionId},$obj->{rating});
 
         unless($obj->{SOAP}) {
-            error("Couldn't connect to popularity web service %s!", $obj->{rating});
+            error sprintf("Couldn't connect to popularity web service %s!", $obj->{rating});
             return 0;
         } else {
             my $servertime = $obj->getServerTime();

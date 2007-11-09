@@ -465,7 +465,7 @@ sub saveTimer {
                 ], $pos);
     }
 
-    event('Save timer "%s" with id: "%d"', $data->{File}, $pos);
+    event sprintf('Save timer "%s" with id: "%d"', $data->{File}, $pos);
 
     return $erg;
 }
@@ -1014,7 +1014,7 @@ sub readData {
     if($oldTimers) {
         my $timers = $obj->getNewTimers($oldTimers);
         foreach my $timerdata (@$timers) {
-            event('New timer "%s" with id: "%d"', $timerdata->{File}, $timerdata->{Id});
+            event sprintf('New timer "%s" with id: "%d"', $timerdata->{File}, $timerdata->{Id});
         }
         $obj->updated() if(scalar @$timers);
     }

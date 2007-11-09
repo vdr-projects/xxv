@@ -142,7 +142,7 @@ sub init {
         );
 
         unless($mod) {
-            error('Problem to load Module %s!',$moduleName);
+            error sprintf('Problem to load modul %s!',$moduleName);
             next;
         }
 
@@ -150,11 +150,11 @@ sub init {
 
         main::addModule($moduleName, $obj->{NEWSMODS}->{$moduleName});
 
-        debug sprintf("Load NEWS Module %s(%s)\n",
+        debug sprintf("Load news modul %s(%s)\n",
             $moduleName,
             (ref $obj->{NEWSMODS}->{$moduleName})
                 ? $obj->{NEWSMODS}->{$moduleName}->{MOD}->{Version}
-                : 'Problem!');
+                : 'failed!');
     }
 
     return 1;
@@ -281,7 +281,7 @@ sub scala {
     if($typ and exists $obj->{SCALA}->{$typ}) {
         return $obj->{SCALA}->{$typ};
     } else {
-        return error("Level %s does not exist! Please use %s", $typ, join(',', keys %{$obj->{SCALA}}));
+        return error sprintf("Level %s does not exist! Please use %s", $typ, join(',', keys %{$obj->{SCALA}}));
     }
 }
 

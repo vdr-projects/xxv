@@ -218,7 +218,7 @@ sub send {
         subject => "News from your XXV System!" ,
         msg     => $content,
         msgid   => $obj->{COUNT},
-    ) || return error('Problem to send Mail: %s', $Mail::SendEasy::ER);
+    ) || return error sprintf('Problem to send mail: %s', $Mail::SendEasy::ER);
 
     $obj->{LastReportTime} = time;
 

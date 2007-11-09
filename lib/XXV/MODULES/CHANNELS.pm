@@ -599,7 +599,7 @@ sub getChannelType {
         }
       }
     }
-    error("Unknown channel! Couldn't identify type of channel with id: %s", $id);
+    error sprintf("Unknown channel! Couldn't identify type of channel with id: %s", $id);
     return 'UNKNOWN';
 }
 

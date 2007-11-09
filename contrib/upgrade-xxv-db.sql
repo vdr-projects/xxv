@@ -241,6 +241,7 @@ CREATE TABLE `RECORDS` (
   `Prio` tinyint(4) NOT NULL,
   `Lifetime` tinyint(4) NOT NULL,
   `State` tinyint(4) NOT NULL,
+  `FileSize` int(11) unsigned default '0',
   `Marks` text,
   `Type` enum('TV','RADIO','UNKNOWN') default 'TV',
   `addtime` timestamp NOT NULL,

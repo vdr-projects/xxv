@@ -805,7 +805,7 @@ sub checkCmdSyntax {
         foreach my $cmdName (sort keys %{$modCfg->{Commands}}) {
             my $short = $modCfg->{Commands}->{$cmdName}->{short} || $cmdName;
             if(exists $shorts->{$short} ) {
-                return error("[ERROR] In %s::%s double short name %s, also in %s!",
+                return error sprintf("[ERROR] In %s::%s double short name %s, also in %s!",
                     $modName, $cmdName, $short, $shorts->{$short});
             } else {
                 $shorts->{$short} = $modName.'::'.$cmdName;

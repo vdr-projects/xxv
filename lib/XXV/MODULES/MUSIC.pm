@@ -772,7 +772,7 @@ sub stream {
             $file = $obj->{path} . "/" . $file
                 if($obj->{mdbh});
 
-            debug('Stream file "%s" to client: %s',
+            debug sprintf('Stream file "%s" to client: %s',
                 $file,$client);
             my $erg = $obj->{ICE}->stream($file,0,$client)
                 || last;
@@ -1103,7 +1103,7 @@ sub ConnectToMuggleDB {
         if($mdbh) {
             $mdbh->{InactiveDestroy} = 1;
             $mdbh->{mysql_auto_reconnect} = 1;
-            debug('Connect to database: %s successful.', $dsn);
+            debug sprintf('Connect to database: %s successful.', $dsn);
             return $mdbh;
         } else {
             debug('GiantDisc database not found! Use standard music database!');
