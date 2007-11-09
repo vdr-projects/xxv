@@ -287,11 +287,11 @@ sub init {
             -dbh    => $DBH,
             -paths  => $PATHS,
         );
-        debug sprintf("Load modul %s(%s)\n",
+        debug sprintf("Load modul %s(%s)",
             $moduleName,
             (ref $MODULES->{$moduleName})
                 ? $MODULES->{$moduleName}->{MOD}->{Version}
-                : 'Problem!');
+                : 'failed');
 
     }
     &after();
@@ -659,11 +659,10 @@ sub init_logging {
 
     # This will add a callback for log output
     $Tools::LOG = sub{
+        my $errcode = shift;
         my $msg = shift;
-
-        my ($errcode, $txt) = $msg =~ /ERR:(\d{3})\s+(.*)/si;
-        $errcode = 201 if(!$errcode);
-        chomp($txt);
+        chomp($msg);
+        $errcode = 200 if(!$errcode);
 
         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
             localtime(time);
@@ -671,7 +670,7 @@ sub init_logging {
             $year+1900, $mon+1,$mday,  $hour, $min, $sec );
 
         open(LOGGER, ">>", $loggerfile) or return;
-        print LOGGER sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $txt);
+        print LOGGER sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $msg);
         close LOGGER;
     };
 }

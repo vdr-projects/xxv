@@ -97,31 +97,42 @@ sub stackTrace {
 }
 
 # ------------------
-sub lg {
+sub _msg {
 # ------------------
+    my $errcode = shift;
     my $msg = shift;
     my $lev = shift || 5;
-    my $deep = shift || 1;
 
-    return 1 if($VERBOSE < $lev);
-
-    $msg = 'ERR:202 ' . $msg
-        unless($msg =~ /^ERR:\d{3}/);
+    return if($VERBOSE < $lev);
 
     if($VERBOSE > 5 or $DUMPSTACK) {
         my ($stack, $evalon) = &stackTrace;
         $msg .= $stack if($evalon != 1);
     }
 
-    my ($package, $filename, $line, $subroutine) = caller($deep);
+    my ($package, $filename, $line, $subroutine) = caller(2);
 
     my  $module = '';
         $module = (split('::', $package))[-1]
             if($package);
 
-    &{$LOG}($module . ': ' . $msg);
+    &{$LOG}($errcode, $module . ': ' . $msg);
+}
 
-    return 1;
+# ------------------
+sub lg {
+# ------------------
+    my $msg = shift;
+    &_msg(200,$msg, 5);
+    return undef;
+}
+
+# ------------------
+sub debug {
+# ------------------
+    my $msg = shift;
+    &_msg(250,$msg, 3);
+    return undef;
 }
 
 # ------------------
@@ -129,23 +140,11 @@ sub event {
 # ------------------
     my $msg = shift;
 
-    my ($package, $filename, $line, $subroutine) = caller(3);
-
-    &lg('EVT:270 ' . $msg, 3, 2);
-
+    my ($package, $filename, $line, $subroutine) = caller(1);
     &{$LOGCALLB}($module, $subroutine, $msg);
 
-    return 1;
-}
-
-# ------------------
-sub debug {
-# ------------------
-    my $msg = shift;
-
-    &lg('ERR:250 ' . $msg, 2, 2);
-
-    return 1;
+    &_msg(270,$msg, 2);
+    return undef;
 }
 
 # ------------------
@@ -153,7 +152,7 @@ sub error {
 # ------------------
     my $msg = shift;
 
-    &lg('ERR:501 ' . $msg, 1, 2);
+    &_msg(501,$msg, 1);
 
     return undef;
 }
@@ -163,7 +162,7 @@ sub panic {
 # ------------------
     my $msg = shift;
 
-    &lg('ERR:550 ' . $msg, 1, 2);
+    &_msg(550,$msg, 0);
 
     return undef;
 }
