@@ -193,16 +193,19 @@ if($version) {
 
 # Check PID ..
 if(! $killer and -e $PATHS->{PIDFILE}) {
-    printf "Sorry, but xxvd is running with PID %s !\n", load_file($PATHS->{PIDFILE});
+    my $oldpid = load_file($PATHS->{PIDFILE});
+    printf "Sorry, but xxvd is running with PID %s !\nIf'nt a process running remove '%s' !\n", $oldpid, $PATHS->{PIDFILE} ;
     exit(1);
 } elsif($killer and ! -e $PATHS->{PIDFILE}) {
     printf "PID File %s does not exist!\n", $PATHS->{PIDFILE};
-    &quit;
+    exit(1);
 } elsif($killer and -e $PATHS->{PIDFILE}) {
     my $oldpid = load_file($PATHS->{PIDFILE});
-    &killfam(9, $oldpid);
-    printf "xxvd with pid %s killed\n", $oldpid;
-    &quit;
+
+    printf "xxvd with pid %s killed", $oldpid
+        if(kill('USR1', $oldpid));
+    print "\n";
+    exit(0);
 }
 
 # Go fork for deamon modus
@@ -230,20 +233,12 @@ unless($Config){
 # Install logging
 &init_logging($PATHS);
 
-# First log message
-debug qq|--------------------------------------------------|;
-
-debug sprintf(qq|---- XXVD System %20s started ----|, &getVersion);
-debug qq|--------------------------------------------------|;
-debug sprintf('Verbose Level is set to %d', $verbose);
-
 my $cfgUsrFile = &getUsrConfigFile();
 if($cfgUsrFile ne $cfgFile) {
     debug sprintf('Maybe 1st start, used configuration : read from file "%s" write to file "%s"', $cfgFile, $cfgUsrFile);
 } else {
     debug sprintf('Use configuration file "%s"', $cfgUsrFile);
 }
-
 
 # Check templateModul
 &init_template($TEMPLMOD);
@@ -261,9 +256,13 @@ my $DBH = &init_db_connect($Config) || die;
 
 my $starttime = time - $START;
 
-Event::loop();
+while(Event::loop(1)) {};
 
 # THE MAIN PROGRAM --------------------------------- END
+
+&quit(1);
+
+# END
 
 # ----- SUBS ----
 
@@ -396,9 +395,7 @@ sub getDbh {
       $dbh->{'mysql_auto_reconnect'} = 1;
     } else {
         panic sprintf("Could not connect to database: %s :", $dsn, $DBI::errstr);
-        unlink $PATHS->{PIDFILE};
-        &toCleanUp();
-        exit(1);
+        &quit(1);
     }
 
     return $dbh;
@@ -519,9 +516,20 @@ sub getUsrConfigFile {
 # ------------------
 sub quit {
 # ------------------
-    unlink $PATHS->{PIDFILE};
+    my $ret = shift || 0;
+
+    debug qq|--------------------------------------------------|;
+    debug sprintf(qq|----- XXVD System %15s ended : %2s -----|, &getVersion,$ret);
+    debug qq|--------------------------------------------------|;
+
     &toCleanUp();
-    exit(0);
+    unlink $PATHS->{PIDFILE} if -e $PATHS->{PIDFILE};
+
+    $SIG{'TERM'}=sub {};
+    # remove any depends process like preview encoder for recordings
+    &killfam('TERM',$$);
+
+    exit($ret);
 }
 
 # ------------------
@@ -673,6 +681,12 @@ sub init_logging {
         print LOGGER sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $msg);
         close LOGGER;
     };
+
+    # First log message
+    debug qq|--------------------------------------------------|;
+    debug sprintf(qq|---- XXVD System %15s started      ----|, &getVersion);
+    debug qq|--------------------------------------------------|;
+    debug sprintf('Verbose Level is set to %d', $verbose);
 }
 
 # ------------------
@@ -712,8 +726,13 @@ sub init_signal_handler {
     # Signal stuff
     $SIG{__WARN__}  = sub{ error @_; };
     $SIG{__DIE__}   = sub{ panic @_; };
-    $SIG{INT}  = \&quit;
-    $SIG{TERM} = \&quit;
+    $SIG{USR1} = sub{
+      &quit(0);
+    };
+    $SIG{TERM} = sub{
+      &quit(1);
+    };
+
     $SIG{HUP} = sub{
         lg "Reconfiguration ... ";
         $Config = Config::Tiny->read( $pat->{CFGFILE} )
@@ -722,9 +741,7 @@ sub init_signal_handler {
             or return error("Couldn't load the config modul!");
         $configModule->reconfigure;
     };
-
 }
-
 # ------------------
 sub init_db_connect {
 # ------------------
