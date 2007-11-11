@@ -32,32 +32,35 @@ if [ ! -e /usr/bin/vdr2jpeg ] ; then
 fi
 
 echo 'install PerlModules'
-apt-get install libdbi-perl \
-                libevent-perl \
-                libgd-gd2-noxpm-perl \
-                libgd-graph-perl \
-                libgd-graph3d-perl \
-                libgd-text-perl \
-                libhtml-parser-perl \
-                libhtml-tagset-perl \
-                libhtml-template-perl \
-                libhtml-tree-perl \
-                liblocale-gettext-perl \
-                libnet-telnet-perl \
-                libterm-readkey-perl \
-                liburi-perl \
-                libwww-perl \
-                liblog-log4perl-perl \
-                libxml-simple-perl \
-                libproc-process-perl \
-                libio-zlib-perl \
-                libnet-xmpp-perl \
-                libterm-readline-gnu-perl \
-		            libxml-rss-perl \
-            		libsoap-lite-perl \
-                libnet-amazon-perl \
-                libjson-perl \
-                libnet-telnet-perl
+
+apt-get install \
+  perl \
+  perl-base \
+  perl-modules \
+  libcgi-perl \
+  libio-zlib-perl \
+  libconfig-tiny-perl \
+  libdate-manip-perl \
+  libdbd-mysql-perl \
+  libdbi-perl \
+  libmd5-perl \
+  libdigest-hmac-perl \
+  libevent-perl \
+  libgd-gd2-noxpm-perl libgd-graph-perl libgd-graph3d-perl libgd-text-perl \
+  txt2html \
+  libhtml-tree-perl \
+  libjson-perl 
+  libwww-perl \
+  liblocale-gettext-perl \
+  libmp3-info-perl \
+  libnet-amazon-perl \
+  libnet-telnet-perl \
+  libnet-xmpp-perl \
+  libsoap-lite-perl \
+  libhtml-template-perl \
+  liburi-perl \
+  libxml-rss-perl \
+  libxml-simple-perl
 
 echo 'start mysql server'
 /etc/init.d/mysql start

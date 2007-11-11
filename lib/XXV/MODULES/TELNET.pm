@@ -15,7 +15,6 @@ sub module {
         Name => 'TELNET',
         Prereq => {
             'IO::Socket::INET'  => 'Object interface for AF_INET domain sockets ',
-            'Module::Reload'    => 'Reload %INC files when updated on disk ',
         },
         Description => gettext('This module is a multisession telnet server.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -196,7 +195,7 @@ sub init {
                 );
 
                 # welcome
-                $client->print(sprintf(gettext("Welcome to xxv system version: %s.\r\nThis is session %s.\r\n"),$obj->{MOD}->{Version},$channel));
+                $client->print(sprintf(gettext("Welcome to xxv system version: %s.\r\nThis is session %s.\r\n"),main::getVersion(),$channel));
 
                 my $userMod = main::getModule('USER');
                 unless(exists $console->{USER} or $userMod->{active} ne 'y') {

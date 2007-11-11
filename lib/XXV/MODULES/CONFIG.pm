@@ -13,7 +13,7 @@ sub module {
     my $args = {
         Name => 'CONFIG',
         Prereq => {
-            # 'Perl::Module' => 'Description',
+            'Module::Reload'    => 'Reload %INC files when updated on disk ',
         },
         Description => gettext('This module edits, writes and saves the configuration.'),
         Version => (split(/ /, '$Revision$'))[1],

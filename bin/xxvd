@@ -35,8 +35,6 @@ my $PATHS = {
 # -------------------------------
 
 use Tools;
-use File::Find;
-use File::Basename;
 use POSIX qw(locale_h);
 use Cwd 'abs_path';
 use Locale::gettext;
@@ -151,12 +149,11 @@ my @PARAMETER = @ARGV;
 # General ist'n spezi
 $MODULES->{'XXV::MODULES::General'}->{MOD} = &module;
 
-# Try to use the Requirments
+# Try to eval requirements
 map {
     eval "use $_";
     warn("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
 } keys %{$MODULES->{'XXV::MODULES::General'}->{MOD}->{Prereq}};
-
 
 # Options
 GetOptions (
@@ -518,16 +515,17 @@ sub quit {
 # ------------------
     my $ret = shift || 0;
 
-    debug qq|--------------------------------------------------|;
-    debug sprintf(qq|----- XXVD System %15s ended : %2s -----|, &getVersion,$ret);
-    debug qq|--------------------------------------------------|;
+    unlink $PATHS->{PIDFILE} if -e $PATHS->{PIDFILE};
 
     &toCleanUp();
-    unlink $PATHS->{PIDFILE} if -e $PATHS->{PIDFILE};
 
     $SIG{'TERM'}=sub {};
     # remove any depends process like preview encoder for recordings
     &killfam('TERM',$$);
+
+    debug qq|--------------------------------------------------|;
+    debug sprintf(qq|----- XXVD System %15s ended : %2s -----|, &getVersion,$ret);
+    debug qq|--------------------------------------------------|;
 
     exit($ret);
 }

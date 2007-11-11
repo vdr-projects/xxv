@@ -16,7 +16,7 @@ sub module {
     my $args = {
         Name => 'Wml',
         Prereq => {
-            'Template'  => 'Front-end module to the Template Toolkit ',
+            'Template'  => 'Front-end module to the Template Toolkit',
         },
         Description => gettext('This receives and sends WAP messages.'),
         Version => (split(/ /, '$Revision$'))[1],

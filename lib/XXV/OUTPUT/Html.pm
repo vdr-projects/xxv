@@ -2,16 +2,13 @@ package XXV::OUTPUT::Html;
 
 use strict;
 
-#use Template;
 use vars qw($AUTOLOAD);
 use Locale::gettext;
 use Tools;
 use XXV::OUTPUT::HTML::WAIT;
 use File::Path;
 use File::Basename;
-use Pod::Html;
 use Fcntl;
-#use Thread;
 
 $SIG{CHLD} = 'IGNORE';
 
@@ -23,6 +20,9 @@ sub module {
     my $args = {
         Name => 'Html',
         Prereq => {
+            'Pod::Html'  => 'Module to convert pod files to HTML ',
+#           'Template'  => 'Front-end module to the Template Toolkit',
+#           'Compress::Zlib'  => 'Interface to zlib compression library',
             'HTML::TextToHTML' => 'convert plain text file to HTML. ',
         },
         Description => gettext('This receives and sends HTML messages.'),

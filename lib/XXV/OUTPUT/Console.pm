@@ -4,13 +4,11 @@ BEGIN{
     $ENV{PERL_RL} = 'Perl'
 };
 
-use Locale::gettext;
-use Term::ReadLine;
-
 use strict;
 
+use Locale::gettext;
+use Term::ReadLine;
 use Tools;
-use Pod::Text;
 use vars qw($AUTOLOAD);
 
 # This module method must exist for XXV
@@ -21,8 +19,9 @@ sub module {
     my $args = {
         Name => 'Telnet',
         Prereq => {
-            'XML::Simple' => 'Easy API to maintain XML (esp config files)',
+            'Pod::Text' => 'Convert POD data to formatted ASCII text ',
             'Text::ASCIITable' => 'Create a nice formatted table using ASCII characters.',
+#           'Term::ReadLine' => 'Perl interface to various readline packages.',
             'Term::ReadLine::Perl' => 'a quick implementation of the minimal interface to Readline',
         },
         Description => gettext('This receives and sends ASCII messages'),

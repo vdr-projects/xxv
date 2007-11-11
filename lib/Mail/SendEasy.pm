@@ -110,7 +110,7 @@ sub send {
   {
     my @from = &_check_emails( $mail{from} ) ; return( undef ) if $ER ;
     if ($#from > 0) { $ER = "More than one From: " . join(" ; ", @from) ; return( undef ) ;}
-    $mail{from} = @from[0] ;
+    $mail{from} = $from[0] ;
 
     my @to = &_check_emails( $mail{to} ) ; return( undef ) if $ER ;
     $mail{to} = \@to ;
@@ -122,12 +122,12 @@ sub send {
 
     if ( defined $mail{reply} ) {
       my @reply = &_check_emails( $mail{reply} ) ; return( undef ) if $ER ;
-      $mail{reply} = @reply[0] ; delete $mail{reply} if $mail{reply} eq '' ;
+      $mail{reply} = $reply[0] ; delete $mail{reply} if $mail{reply} eq '' ;
     }
 
     if ( defined $mail{error} ) {
       my @error = &_check_emails( $mail{error} ) ; return( undef ) if $ER ;
-      $mail{error} = @error[0] ; delete $mail{error} if $mail{error} eq '' ;
+      $mail{error} = $error[0] ; delete $mail{error} if $mail{error} eq '' ;
     }
   }
 

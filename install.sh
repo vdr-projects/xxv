@@ -122,66 +122,38 @@ function checkPerlModule()
 
 function perlModules()
 {
-	checkPerlModule Test::Simple	          
-#--------------------
-	checkPerlModule DBI		                  
-	checkPerlModule DBD::mysql	            
-#--------------------
-	checkPerlModule Event		                
-	checkPerlModule MIME::Base64	          
-	checkPerlModule Time::HiRes	            
-	checkPerlModule Locale::gettext
+	checkPerlModule CGI
+	checkPerlModule Compress::Zlib
 	checkPerlModule Config::Tiny
-	checkPerlModule Net::Telnet
-#--------------------
-	checkPerlModule URI
-	checkPerlModule URI::file
-	checkPerlModule URI::URL
-	checkPerlModule Compress::Zlib          
-	checkPerlModule HTML::Tagset
-	checkPerlModule HTML::Parser 
-	checkPerlModule HTML::Form
-  checkPerlModule HTTP::Status
-  checkPerlModule HTTP::Daemon
-  checkPerlModule HTTP::Request
-  checkPerlModule LWP::UserAgent
-  checkPerlModule LWP
-	checkPerlModule WWW::Mechanize          
-#--------------------
-	checkPerlModule Data::Random
-	checkPerlModule WWW::Mechanize::FormFiller   
-#--------------------
-	checkPerlModule GD     
-#--------------------
-	checkPerlModule Digest::SHA1
-	checkPerlModule Digest::HMAC_MD5
+	checkPerlModule Data::Dumper
+	checkPerlModule Date::Manip
+	checkPerlModule DBD::mysql
+	checkPerlModule DBI
 	checkPerlModule Digest::MD5
-	checkPerlModule Net::IP
-	checkPerlModule Net::DNS
-	checkPerlModule XML::Parser
-	checkPerlModule XML::RSS
-	checkPerlModule Math::BigInt::FastCalc
-  checkPerlModule JSON
-#--------------------
-	checkPerlModule Authen::SASL
-	checkPerlModule XML::Stream
+	checkPerlModule Digest::HMAC_MD5
+	checkPerlModule Event
+	checkPerlModule GD
+	checkPerlModule Getopt::Long
+	checkPerlModule HTML::TextToHTML
+	checkPerlModule HTML::TreeBuilder
+	checkPerlModule JSON
+	checkPerlModule LWP::Simple
+	checkPerlModule LWP::UserAgent
+	checkPerlModule Locale::gettext
+	checkPerlModule MIME::Base64
+	checkPerlModule MP3::Info
+	checkPerlModule Net::Amazon
+	checkPerlModule Net::Amazon::Request::Artist
+	checkPerlModule Net::Telnet
 	checkPerlModule Net::XMPP
-#--------------------
-	checkPerlModule Proc::Killfam           
-	checkPerlModule Proc::ProcessTable
-#--------------------
-	checkPerlModule Term::ReadLine::Gnu  
-#--------------------
-	checkPerlModule Template 
-#-SHARE--------------
-	checkPerlModule SOAP::Lite 
-#-MUSIC--------------
-	checkPerlModule MP3::Icecast 
-	checkPerlModule MP3::Info 
-	checkPerlModule CGI 
-	checkPerlModule LWP::Simple 
-	checkPerlModule Net::Amazon 
-	checkPerlModule Net::Amazon::Request::Artist 
+	checkPerlModule SOAP::Lite
+	checkPerlModule SOAP::Transport::HTTP
+	checkPerlModule Template
+	checkPerlModule Time::Local
+	checkPerlModule Time::HiRes
+	checkPerlModule URI::Escape
+	checkPerlModule XML::RSS
+	checkPerlModule XML::Simple
 }
 
 function makeDir()
