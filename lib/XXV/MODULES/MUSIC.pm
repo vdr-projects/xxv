@@ -279,10 +279,10 @@ sub _init {
         },
     );
 
-    # Look for table or create this table
-    my $version = main::getVersion;
-
     unless($obj->{mdbh}) {
+        # Look for table or create this table
+        my $version = main::getVersion;
+
         # don't remove old table, if updated rows => warn only
         tableUpdated($obj->{dbh},'MUSIC',12,0);
 
@@ -772,8 +772,7 @@ sub stream {
             $file = $obj->{path} . "/" . $file
                 if($obj->{mdbh});
 
-            debug sprintf('Stream file "%s" to client: %s',
-                $file,$client);
+            debug sprintf('Stream file "%s"',$file);
             my $erg = $obj->{ICE}->stream($file,0,$client)
                 || last;
         }
@@ -809,24 +808,23 @@ sub parseRequest {
     		}
     	}
 
-lg sprintf(qq|
------------------------------------------
-New Request from User: %s at Host: %s!
-Query: %s
------------------------------------------
-|, $data->{username}, $data->{HOST}, $data->{Query});
+    # Log like Apache Format ip, resolved hostname, user, method request, status, bytes, referer, useragent
+    lg sprintf('%s - %s "%s %s%s" %s %s "%s" "%s"',
+          getip($hdl),
+          $data->{username} ? $data->{username} : "-",
+          "GET", #$data->{Method},
+          $data->{Request} ? $data->{Request} : "",
+          $data->{Query} ? "?" . $data->{Query} : "",
+          "-", #$console->{'header'},
+          "-", #$console->{'sendbytes'},
+          $data->{Referer} ? $data->{Referer} : "-",
+          "-" #$data->{http_useragent} ? $data->{http_useragent} : ""
+        );
 
-        return $data;
+    return $data;
 	} else {
-
-error sprintf(qq|
------------------------------------------
-Unknown Request :
-%s
------------------------------------------
-|, join("\n", @$Req));
-
-		return;
+    error sprintf(" Unknown Request : %s", join("\n", @$Req));
+    return undef;
 	}
 }
 
