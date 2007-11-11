@@ -44,6 +44,7 @@ Net::Amazon
 Net::Amazon::Request::Artist
 Net::Telnet
 Net::XMPP
+Proc::Killfam
 Proc::ProcessTable 
 SOAP::Lite
 SOAP::Transport::HTTP

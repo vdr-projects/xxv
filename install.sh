@@ -146,6 +146,7 @@ function perlModules()
 	checkPerlModule Net::Amazon::Request::Artist
 	checkPerlModule Net::Telnet
 	checkPerlModule Net::XMPP
+	checkPerlModule Proc::Killfam
 	checkPerlModule Proc::ProcessTable
 	checkPerlModule SOAP::Lite
 	checkPerlModule SOAP::Transport::HTTP
