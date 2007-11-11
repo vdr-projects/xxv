@@ -286,7 +286,7 @@
     </tr>
   </table>
 <?% END %?>
-<?% IF param.sortable.defined %?>
+<?% IF param.sortable.defined && data.size > 1 %?>
     <?% cmd = cgi.param('cmd') %?>
         <?% IF cgi.param('data') %?>
             <?% daten = url( cgi.param('data') ) %?>

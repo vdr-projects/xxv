@@ -14,7 +14,7 @@
         nav_ranges = 1
 %?>
 
-<form method="post" action="?cmd=mlresearch" name='library'>
+<form method="post" action="?cmd=mlsave" name="library">
 <input type="hidden" name="data" value="<?% IF data.id %?><?% data.id %?><?% ELSE %?><?% param.id %?><?% END %?>" />
 <input type="hidden" name="__range" value="<?% param.range %?>" />
 <table border="100%">
@@ -24,7 +24,7 @@
         </td>
         <td colspan="3">
             <input type="text" name="__title" id="title" value="<?% data.title || param.title %?>" size="50" maxlength="255" />
-            &nbsp;<input type="submit" name="__search" value="<?% gettext('Search at') %?>"  onfocus="document.library.cmd.value='mlresearch'" onblur="document.library.cmd.value='mlsave'" />&nbsp;&nbsp;
+            &nbsp;<input type="submit" name="__search" value="<?% gettext('Search at') %?>"  onfocus="document.library.action='?cmd=mlresearch'" onblur="document.library.action='?cmd=mlsave'" />&nbsp;&nbsp;
             <input type="radio" name="__source" value="dvdpalace" checked>&nbsp;
             <a href="http://www.dvd-palace.de" target="_blank">DVD-Palace (DE)</a>
             <!--<img width="100" height="28" src="images/dvdpalace.gif" border="0" alt="www.dvd-palace.de"/ align="bottom">-->
@@ -198,7 +198,7 @@
     </tr>
     <tr>
         <td colspan="4">
-            <input type='submit' name="__save" value='<?% gettext('Save') %?>' onfocus="document.library.cmd.value='mlsave'" onblur="document.library.cmd.value='mlresearch'"/>&nbsp;
+            <input type='submit' name="__save" value='<?% gettext('Save') %?>' onfocus="document.library.action='?cmd=mlsave'" onblur="document.library.action='?cmd=mlresearch'"/>&nbsp;
         </td>
     </tr>
 </table>

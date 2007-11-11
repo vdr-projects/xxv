@@ -5,7 +5,7 @@
 
 <h1><?% IF data.id %?><?% gettext("Edit media") %?><?% ELSE %?><?% gettext("Create new media") %?><?% END %?></h1>
 
-<form method="post" action="?cmd=mlresearch" name='library'>
+<form method="post" action="?cmd=mlsave" name="library">
 <input type="hidden" name="data" value="<?% IF data.id %?><?% data.id %?><?% ELSE %?><?% param.id %?><?% END %?>" />
 <input type="hidden" name="__range" value="<?% param.range %?>" />
     <table class="largetable" summary="">
@@ -25,7 +25,7 @@
         </td>
         <td colspan="3">
             <input type="text" name="__title" id="title" value="<?% data.title || param.title %?>" style="width:50%;"  maxlength="255" />
-            &nbsp;<input type="submit" name="__search" value="<?% gettext('Search at') %?>"  onfocus="document.library.cmd.value='mlresearch'" onblur="document.library.cmd.value='mlsave'" />&nbsp;&nbsp;
+            &nbsp;<input type="submit" name="__search" value="<?% gettext('Search at') %?>"  onfocus="document.library.action='?cmd=mlresearch'" onblur="document.library.action='?cmd=mlsave'" />&nbsp;&nbsp;
             <input type="radio" name="__source" value="dvdpalace" checked="checked" />&nbsp;
             <a href="http://www.dvd-palace.de" target="_blank">DVD-Palace (DE)</a>
         </td>
@@ -189,7 +189,7 @@
     <tr>
           <td colspan="4" align="right">
             <input type="reset" value="<?% gettext("Reset") %?>" />&nbsp;
-            <input type="submit" name="__save" value="<?% gettext('Apply') %?>"  onblur="document.library.cmd.value='mlresearch'" onfocus="document.library.cmd.value='mlsave'" />&nbsp;&nbsp;
+            <input type="submit" name="__save" value="<?% gettext('Apply') %?>"  onblur="document.library.action='?cmd=mlresearch'" onfocus="document.library.action='?cmd=mlsave'" />&nbsp;&nbsp;
         </td>
     </tr>
 </table>
