@@ -65,6 +65,7 @@ sub module {
             'DBI'                   => 'Database independent interface for Perl ',
             'DBD::mysql'            => 'MySQL driver for the Perl5 Database Interface (DBI)',
             'Proc::Killfam'         => 'kill a list of pids, and all their sub-children',
+#           'Proc::ProcessTable'    => 'Perl interface to the unix process table',
         },
         Description => gettext('This is the main program xxvd.'),
         Version => $VERSION,

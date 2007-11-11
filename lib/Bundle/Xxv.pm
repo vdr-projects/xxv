@@ -44,6 +44,7 @@ Net::Amazon
 Net::Amazon::Request::Artist
 Net::Telnet
 Net::XMPP
+Proc::ProcessTable 
 SOAP::Lite
 SOAP::Transport::HTTP
 Template

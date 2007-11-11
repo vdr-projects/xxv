@@ -56,7 +56,9 @@ apt-get install \
   libnet-amazon-perl \
   libnet-telnet-perl \
   libnet-xmpp-perl \
+  libproc-process-perl \
   libsoap-lite-perl \
+  libtemplate-perl \
   libhtml-template-perl \
   liburi-perl \
   libxml-rss-perl \
