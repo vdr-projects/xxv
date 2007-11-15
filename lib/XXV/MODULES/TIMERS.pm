@@ -488,7 +488,10 @@ SELECT SQL_CACHE
     channel_id,
     description as Summary,
     CONCAT_WS('~', title, subtitle) as File,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%d') as Day,
+    IF(? = 'y' and vpstime,
+      DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '%d'),
+      DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%d'))
+      as Day,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%H%i') as Start,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration + ? ), '%H%i') as Stop,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '%H%i') as VpsStart,
@@ -498,7 +501,7 @@ FROM
 WHERE
     eventid = ?
 |);
-        $sth->execute($obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, $epgid)
+        $sth->execute($obj->{usevpstime}, $obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, $epgid)
             or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),$epgid));
         $epg = $sth->fetchrow_hashref();
     }
