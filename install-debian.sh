@@ -6,25 +6,15 @@
 
 XXVSOURCE=`pwd`
 
-lastchar()
-{
-    # return the last character of a string in $rval
-    if [ -z "$1" ]; then
-        # empty string
-        rval=""
-        return
-    fi
-    # wc puts some space behind the output this is why we need sed:
-    numofchar=`echo -n "$1" | wc -c | sed 's/ //g' `
-    # now cut out the last char
-    rval=`echo -n "$1" | cut -b $numofchar`
-}
+if [ ! -e /usr/share/man/man1 ] ; then
+  echo 'Install Manpage'
+  cp doc/xxvd.1 /usr/share/man/man1
+fi 
 
-echo 'Install Manpage'
-cp doc/xxvd.1 /usr/share/man/man1
-
-echo 'Logrotate'
-cp etc/logrotate.d/xxvd /etc/logrotate.d/xxvd
+if [ ! -e /etc/logrotate.d/xxvd ] ; then
+  echo 'Logrotate'
+  cp etc/logrotate.d/xxvd /etc/logrotate.d/xxvd
+fi 
 
 if [ ! -e /usr/bin/vdr2jpeg ] ; then
   echo 'install vdr2jpeg'
@@ -70,18 +60,23 @@ echo 'start mysql server'
 echo 'create Database'
 cat contrib/create-database.sql | mysql -u root
 
-echo 'DB connectstring write in config'
-echo '[General]' >> ~/.xxvd.cfg
-echo 'DSN=DBI:mysql:database=xxv;host=localhost;port=3306' >> ~/.xxvd.cfg
-echo 'PWD=xxv' >> ~/.xxvd.cfg
-echo 'USR=xxv' >> ~/.xxvd.cfg
+if [ ! -e "~/.xxvd.cfg" ]; then
+  echo 'DB connectstring write in config'
+  echo '[General]' >> ~/.xxvd.cfg
+  echo 'DSN=DBI:mysql:database=xxv;host=localhost;port=3306' >> ~/.xxvd.cfg
+  echo 'PWD=xxv' >> ~/.xxvd.cfg
+  echo 'USR=xxv' >> ~/.xxvd.cfg
+fi
 
-echo 'create Startscript'
-sed -e 's/FOLDER=\".+?\"/FOLDER=\"$XXVSOURCE\"/' etc/xxvd > /etc/init.d/xxvd
-chmod 775 /etc/init.d/xxvd
-RVV=`runlevel`
-lastchar "$RVV"
-ln -s /etc/init.d/xxvd "/etc/rc$rval.d/S90xxvd"
+if [ ! -e "/etc/init.d/xxvd" ]; then
+  echo 'create Startscript'
+  sed -e 's/FOLDER=\".+?\"/FOLDER=\"$XXVSOURCE\"/' etc/xxvd > /etc/init.d/xxvd
+  chmod a+x /etc/init.d/xxvd
+  RVV=`runlevel | cut -d " " -f 2`
+  if [ ! -e "/etc/rc$RVV.d/S90xxvd" ]; then
+    ln -s /etc/init.d/xxvd "/etc/rc$RVV.d/S90xxvd"
+  fi
+fi
 
 echo 'Start XXV'
 /etc/init.d/xxvd restart

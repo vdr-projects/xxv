@@ -66,7 +66,7 @@ LANGS="de"
 
 PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/bin
 
-function usage()
+usage()
 {
 	echo ""
 	echo "usage: $(basename $0) [-h] [-p] [-u]"
@@ -79,7 +79,7 @@ function usage()
 	exit 0
 }
 
-function killRunning()
+killRunning()
 {
 	local KILLED=0
 	ps a | grep xxvd | grep perl | grep -v grep | while read PID UNWANTED
@@ -92,7 +92,7 @@ function killRunning()
 }
 
 # $1 - the Perl module to check for.
-function checkPerlModule()
+checkPerlModule()
 {
 	[ -z "$1" ] && return 1
 
@@ -120,7 +120,7 @@ function checkPerlModule()
 	fi
 }
 
-function perlModules()
+perlModules()
 {
 	checkPerlModule CGI
 	checkPerlModule Compress::Zlib
@@ -158,7 +158,7 @@ function perlModules()
 	checkPerlModule XML::Simple
 }
 
-function makeDir()
+makeDir()
 {
 	[ -z "$1" ] && return 1
 	local DIR=$1
@@ -184,7 +184,7 @@ function makeDir()
 	return 0
 }
 
-function doInstall()
+doInstall()
 {
 	echo ""
 	echo "********* Installing xxv *************"
@@ -346,7 +346,7 @@ flush privileges;"
 	exit 0
 }
 
-function doUninstall()
+doUninstall()
 {
 	echo ""
 	echo "********* Uninstalling xxv *************"
