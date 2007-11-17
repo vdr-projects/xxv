@@ -45,8 +45,8 @@ extern "C" {
 #endif
 }
 
-static int frame_width = 160;
-static int frame_height = 120;
+static int frame_width = 0;
+static int frame_height = 0;
 static float frame_aspect_ratio = 0;
 static enum PixelFormat frame_pix_fmt = PIX_FMT_YUV420P;
 static int frame_rate = 25;
@@ -691,7 +691,7 @@ static bool av_encode(AVFormatContext **output_files,
                             codec->width,
                             codec->height,
                             codec->pix_fmt,
-                            SWS_BICUBIC, NULL, NULL, NULL);
+                            SWS_FAST_BILINEAR, NULL, NULL, NULL);
                     if (ost->img_resample_ctx == NULL) {
                         fprintf(stderr, "Cannot get resampling context\n");
                         return false;
@@ -1302,8 +1302,14 @@ bool decode (const char* szMPVfile, /* const tPackedList & packed, */
     nb_input_files = 0;
     nb_output_files = 0;
 
+    frame_width = 0;
+    frame_height = 0;
+    frame_aspect_ratio = 0;
+    frame_pix_fmt = PIX_FMT_YUV420P;
+    frame_rate = 25;
+    frame_rate_base = 1;
+    keep_aspect_ratio = 1;
 
-   
     /* parse options */
     if(!opt_input_file(szMPVfile))
         return false;

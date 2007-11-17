@@ -91,11 +91,14 @@ PRGNAME = vdr2jpeg
 VERSION = $(shell grep 'static const char \*VERSION *=' vdr2jpeg.cpp | awk '{ print $$6 }' | sed -e 's/[";]//g')
 ARCHIVE = $(PRGNAME)-$(VERSION)
 DEFINES += -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS
-FILES = README LIESMICH HISTORY COPYING Makefile vdr2jpeg.cpp ffm.cpp ffm.h
+FILES = README LIESMICH HISTORY COPYING Makefile \
+        gop.cpp gop.h vdr2jpeg.cpp ffm.cpp ffm.h \
+        tools.cpp tools.h
 DEBIAN = debian/changelog debian/control debian/dirs debian/rules debian/compat \
 				 debian/copyright debian/docs debian/README.Debian debian/watch
 DEBPATCH = debian/patches/00list debian/patches/01_changed_api.dpatch
-OBJS = vdr2jpeg.o ffm.o
+OBJS = tools.o gop.o ffm.o
+VDR2JPEGOBJS = vdr2jpeg.o
 
 
 #-------------------------------------------------------------------------
@@ -108,24 +111,24 @@ OBJS = vdr2jpeg.o ffm.o
 #-------------------------------------------------------------------------
 # Main Targets
 
-all:    $(PRGNAME)
+all:    vdr2jpeg
 .PHONY: all
 
-$(PRGNAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) $(FFOBJS) $(LIBS) -o $(PRGNAME)
+vdr2jpeg: $(VDR2JPEGOBJS) $(OBJS)
+	$(CXX) $(CXXFLAGS) $(VDR2JPEGOBJS) $(OBJS) $(FFOBJS) $(LIBS) -o vdr2jpeg
 ifndef DEBUG
 	$(STRIP) $@	
 endif
 
-install: $(PRGNAME)
+install: all
 	install -d $(INSTALLDIR)
-	install -m 755 -o root -g root -s $(PRGNAME) $(INSTALLDIR)
+	install -m 755 -o root -g root -s vdr2jpeg $(INSTALLDIR)
 
 uninstall:
-	rm -f $(INSTALLDIR)/$(PRGNAME)
+	rm -f $(INSTALLDIR)/vdr2jpeg
 
 clean:
-	@-rm -f $(PRGNAME) a.out *.o *.tgz core* *~
+	@-rm -f vdr2jpeg a.out *.o *.tgz core* *~
 
 distclean:  clean
 	@-rm -f *.jpg *.mpv
