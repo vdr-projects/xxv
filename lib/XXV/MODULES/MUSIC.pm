@@ -511,9 +511,14 @@ sub search {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $text   = shift || return $console->err(gettext("No text to search! Please use msearch 'text'"));
+    my $text   = shift;
 
-    return $obj->list($watcher,$console,"search:".$text);
+    unless($text) {
+      error("No text to search defined! Please use msearch 'text'");
+      return $obj->list($watcher,$console);
+    } else {
+      return $obj->list($watcher,$console,"search:".$text);
+    }
 }
 
 # ------------------
