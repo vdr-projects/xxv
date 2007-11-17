@@ -237,8 +237,7 @@ sub _init {
            return 0;
         }
 
-        my $erg = $obj->readData();
-        return 1;
+        return $obj->readData();
     }, "CHANNELS: Read and register channels ...", 5);
     return 1;
 }
@@ -342,9 +341,9 @@ sub readData {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
-    my $file = $obj->{file} || return 1, error ('No Channels File');
+    my $file = $obj->{file} || return error ('No Channels File');
 
-    return 1, panic ("Couldn't find channels.conf as file $file!") if( ! -e $file);
+    return panic ("Couldn't find channels.conf as file $file!") if( ! -e $file);
 
     # only if file modification from last read time
     my $mtime = (stat($file)->mtime);
