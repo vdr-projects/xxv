@@ -375,13 +375,15 @@ sub autotimer {
         my $m = 0;
         foreach my $Id (sort keys %$events) {
             $events->{$Id}->{Activ} = 'y';
-            $events->{$Id}->{VPS} = ($events->{$Id}->{VpsStart} && $a->{VPS} eq 'y') ? 'y' : '';
+            $events->{$Id}->{VPS} = '';
             $events->{$Id}->{Priority} = $a->{Priority};
             $events->{$Id}->{Lifetime} = $a->{Lifetime};
 
             $events->{$Id}->{File} = $obj->_placeholder($events->{$Id}, $a);
 
-            if($events->{$Id}->{VPS} eq 'y') {
+            if($events->{$Id}->{VpsStart} and $a->{VPS}) {
+              $events->{$Id}->{VPS} = 'y';
+ 	            $events->{$Id}->{Day} = $events->{$Id}->{VpsDay};
  	            $events->{$Id}->{Start} = $events->{$Id}->{VpsStart};
  	            $events->{$Id}->{Stop} = $events->{$Id}->{VpsStop};
             }
@@ -1121,6 +1123,7 @@ SELECT SQL_CACHE
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - $prev ), '%d') as Day,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - $prev ), '%H%i') as Start,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration + $after ), '%H%i') as Stop,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime)), '%d') as VpsDay,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime)), '%H%i') as VpsStart,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime) + e.duration), '%H%i') as VpsStop
 FROM

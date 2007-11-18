@@ -479,31 +479,28 @@ sub newTimer {
     my $epgid   = shift || 0;
     my $epg     = shift || 0;
 
-
+    my $dayFormat = $obj->{newTimerFormat}?"%Y-%m-%d":"%d";
     if($epgid and not ref $epg) {
-        my $sth = $obj->{dbh}->prepare(
-qq|
+      my $sql = qq|
 SELECT SQL_CACHE 
     eventid,
     channel_id,
     description as Summary,
     CONCAT_WS('~', title, subtitle) as File,
-    IF(? = 'y' and vpstime,
-      DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '%d'),
-      DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%d'))
-      as Day,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '$dayFormat') as Day,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%H%i') as Start,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration + ? ), '%H%i') as Stop,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '$dayFormat') as VpsDay,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '%H%i') as VpsStart,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime) + duration), '%H%i') as VpsStop
 FROM
     EPG
 WHERE
-    eventid = ?
-|);
-        $sth->execute($obj->{usevpstime}, $obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, $epgid)
-            or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),$epgid));
-        $epg = $sth->fetchrow_hashref();
+    eventid = ?|;
+      my $sth = $obj->{dbh}->prepare($sql);
+      $sth->execute($obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, $epgid)
+        or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),$epgid));
+      $epg = $sth->fetchrow_hashref();
     }
     if(not ref $epg) {
 		my $t = time;
@@ -511,7 +508,7 @@ WHERE
             channel_id => '',
             File => '',
             Summary => '',
-            Day => $obj->{newTimerFormat}?my_strftime("%Y-%m-%d",$t):my_strftime("%d",$t),
+            Day => my_strftime($dayFormat,$t),
             Start => my_strftime("%H%M",$t),
             Stop => my_strftime("%H%M",$t)
     	};
@@ -529,6 +526,7 @@ WHERE
     }
     if($epg->{VpsStart} && $obj->{usevpstime} eq 'y') {
         $epg->{Status} |= 4;
+        $epg->{Day} = $epg->{VpsDay};
         $epg->{Start} = $epg->{VpsStart};
         $epg->{Stop} = $epg->{VpsStop};
     }
@@ -1254,6 +1252,7 @@ SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
 |;
     my $erg = $obj->{dbh}->selectall_hashref($sql, 'Id');
 
+    my $dayFormat = $obj->{newTimerFormat}?"%Y-%m-%d":"%d";
     foreach my $t (keys %$erg) {
         my %tt;
 
@@ -1280,7 +1279,7 @@ SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
             ChannelID => $erg->{$t}->{ChannelID},
             File      => $erg->{$t}->{File},
             Summary   => $erg->{$t}->{Summary},
-            Day       => $obj->{newTimerFormat}?my_strftime("%Y-%m-%d",$start):my_strftime("%d",$start),
+            Day       => my_strftime($dayFormat,$start),
             Start     => my_strftime("%H%M",$start),
             Stop      => my_strftime("%H%M",$stop),
             Priority  => $erg->{$t}->{Priority},
