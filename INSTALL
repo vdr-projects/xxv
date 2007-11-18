@@ -1,0 +1,95 @@
+
+
+After download xxv package, it's must unpacked. Please replace {VERSION} with 
+your active release number and $SOURCEDIR with your prefered directory used by 
+unpacking.
+
+#> cd $SOURCEDIR
+#> tar xvzf xxv-{VERSION}.tgz
+#> cd xxv-{VERSION}
+
+Install mysql ------------------------------------------------------------------
+
+If MySQL is not yet installed, install it from prebuilded packages or build 
+it from source.
+
+http://www.mysql.com/
+http://dev.mysql.com/doc/refman/5.0/en/installing-source.html
+
+Lets install.sh do the work ----------------------------------------------------
+
+If you don't have prebuilded perl package for your system.  XXV help with a 
+installation script $SOURCEDIR/install.sh. ( On Debian use ./install-debian.sh )
+
+#> cd $SOURCEDIR/xxv-{VERSION}/
+#> ./install.sh
+
+It's will be install xxv and depends perl modules inside /usr/local/... and 
+create configuration, database and runlevel scripts. 
+
+Manual build and install depends perl modules ----------------------------------
+
+For alternative way is installation with a little helper "Bundle::Xxv". 
+It's enable the build of depends perl modules with online installation via cpan.
+http://www.cpan.org/
+
+#> cd $SOURCEDIR/xxv-{VERSION}/lib
+#> mkdir -p ~/.cpan/Bundle
+#> cp Bundle/Xxv.pm ~/.cpan/Bundle
+#> perl -MCPAN -e 'install Bundle::Xxv'
+
+Copy some files ----------------------------------------------------------------
+
+Install the man-page, which can be viewed later with man xxvd.
+
+#> cd $SOURCEDIR/xxv-{VERSION}/
+#> cp doc/xxvd.1 /usr/share/man/man1
+
+Enable rotation of logging files -----------------------------------------------
+
+And don't forgot to activate the rotate of the log files.
+
+#> cd $SOURCEDIR/xxv-{VERSION}/
+#> cp etc/logrotate.d/xxvd /etc/logrotate.d/xxvd
+
+Adjust and install configuration file ------------------------------------------
+
+There is a example of configuration file, used by xxvd. Adjust now database 
+connection and the mysql account, see below at database creation for details.
+
+#> cd $SOURCEDIR/xxv-{VERSION}/
+#> nano etc/xxvd.cfg.example
+#> cp etc/xxvd.cfg.example /etc/xxvd.cfg
+
+And as last step adjust your settings, like installation folder, location of 
+configuration file and copy this runlevel script.
+
+#> cd $SOURCEDIR/xxv-{VERSION}/
+#> nano etc/xxvd
+#> cp etc/xxvd /etc/init.d/xxvd
+
+Create initial database --------------------------------------------------------
+
+Use the provided script, to create the xxv database. Adapt before username and
+its password on 'contrib/create-database.sql', for a xxv used mysql account, 
+with your personal preferences.
+
+#> cd $SOURCEDIR/xxv-{VERSION}/
+#> cat contrib/create-database.sql | mysql -u root
+
+Same can do alternatively in follow individually steps:
+
+#> mysql -u root -e "create database xxv;"
+#> mysql -u root -e "grant all privileges on xxv.* to username@localhost IDENTIFIED BY 'password';"
+#> mysql -u root -e "flush privileges;"
+
+Now register the database connection and the mysql account in /etc/xxvd.cfg:
+
+[General]
+DSN=DBI:mysql:database=xxv;host=localhost;port=3306
+PWD=password
+USR=username
+
+
+
+

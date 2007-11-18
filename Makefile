@@ -4,7 +4,7 @@
 # $Id$
 
 XXV = xxv
-VERSION = 1.0
+VERSION = 1.0.1
 
 ### The name of the distribution archive:
 
@@ -15,7 +15,7 @@ TMPDIR = /tmp
 ### The subdirectories:
 
 ### Targets:
-INCLUDE = bin contrib doc etc html share lib locale wml README.txt Makefile install.sh
+INCLUDE = bin contrib doc etc html share lib locale wml README INSTALL Makefile install.sh
 EXCLUDE = "*~" "*.bak" "*.org" "*.diff" "xxvd.pid" "$(XXV)-*.tgz"
 
 
@@ -49,15 +49,13 @@ removefiles:
 	|| exit 1;\
 	done
 
-compatiblesqldump:
-	@sed -e "s/ DEFAULT CHARSET=latin1//g" contrib/upgrade-xxv-db.sql > $(TMPDIR)/$(ARCHIVE)/contrib/upgrade-xxv-db.sql
-
 updateversion:
 	@sed -e "s/__VERSION__/$(VERSION)/g" bin/xxvd > $(TMPDIR)/$(ARCHIVE)/bin/xxvd
 
+DBTABLES = $(shell cat ./contrib/update-xxv | grep tables= | cut -d '=' -f 2 | sed -e s/\'//g;)
 updatesql:
-    @echo Please type the DB-Password for root:
-	@mysqldump -p -n -d --add-drop-table -p -u root xxv 1> ./contrib/upgrade-xxv-db.sql
+	@echo Please type the DB-Password for root:
+	@mysqldump -p -n -d --add-drop-table --compatible=mysql40,no_table_options -p -u root xxv $(DBTABLES) -r ./contrib/upgrade-xxv-db.sql
 
 setpermission:
 	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;
@@ -74,7 +72,6 @@ dist: tmpfolder\
     copyfiles\
     removefiles\
     updateversion\
-    compatiblesqldump\
     setpermission
 	@chown root.root -R $(TMPDIR)/$(ARCHIVE)/*
 	@tar czf $(PACKAGE).tgz --exclude=.svn -C $(TMPDIR) $(ARCHIVE)

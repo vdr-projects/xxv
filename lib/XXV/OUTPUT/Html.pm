@@ -752,17 +752,28 @@ sub txtfile {
     my $filename = shift || return error ('No file defined!');
     my $param = shift || {};
 
-    my $txtfile = sprintf('%s/%s.txt', $obj->{paths}->{DOCPATH}, $filename);
-    my $gzfile  = sprintf('%s/%s.txt.gz', $obj->{paths}->{DOCPATH}, $filename);
-
-    $txtfile = main::getModule('HTTPD')->unzip($gzfile)
-        if(! -r $txtfile and -r $gzfile);
+    my $txtfile = sprintf('%s/%s', $obj->{paths}->{DOCPATH}, $filename);
+    if(! -r $txtfile) {
+      $txtfile = sprintf('%s/%s.txt', $obj->{paths}->{DOCPATH}, $filename);
+      if(! -r $txtfile) {
+        my $gzfile  = sprintf('%s/%s.gz', $obj->{paths}->{DOCPATH}, $filename);
+        if(! -r $gzfile) {
+          $gzfile  = sprintf('%s/%s.txt.gz', $obj->{paths}->{DOCPATH}, $filename);
+          if(! -r $gzfile) {
+            my $e = $!;
+            error sprintf("Could not open file '%s/%s[.txt .gz txt.gz]! : %s", $obj->{paths}->{DOCPATH}, $filename, $e);
+            return $obj->err(sprintf(gettext("Could not open file '%s'! : %s"), $filename, $e));
+          }
+        }
+        $txtfile = main::getModule('HTTPD')->unzip($gzfile);
+      }
+    }
 
     my $topic = gettext("File");
 
     if($param->{'format'} eq 'txt') {
         my $txt = load_file($txtfile);
-        return $obj->message($txt, {tags => {first => "$topic: $filename.txt"}});
+        return $obj->message($txt, {tags => {first => "$topic: $filename"}});
     }
 
     my $u = main::getModule('USER');
@@ -776,7 +787,7 @@ sub txtfile {
     );
     my $html = load_file($htmlfile);
     $html = $1 if($html =~ /\<body.*?\>(.+?)\<\/body\>/si);
-    $obj->message($html, {tags => {first => "<h1>$topic: $filename.txt</h1>"}});
+    $obj->message($html, {tags => {first => "<h1>$topic: $filename</h1>"}});
 }
 
 # ------------------

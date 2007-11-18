@@ -198,7 +198,7 @@ doInstall()
  
 	makeDir "$LIBDIR" 1 && cp -r lib/* "$LIBDIR" || exit 1
 	makeDir "$SHAREDIR" 1 && cp -r share/* "$SHAREDIR" || exit 1
-	makeDir "$DOCDIR" 1 && cp doc/CHANGELOG.txt  doc/COPYING.txt  doc/docu.tmpl  doc/LIESMICH.txt  doc/NEWS.txt  doc/README.txt  doc/TODO.txt  doc/TUTORIAL.txt.gz "$DOCDIR" || exit 1
+	makeDir "$DOCDIR" 1 && cp INSTALL doc/COPYING doc/CHANGELOG doc/docu.tmpl doc/LIESMICH doc/NEWS doc/README doc/TUTORIAL.txt.gz "$DOCDIR" || exit 1
 	makeDir "$CONTRIBDIR" 1 && cp -r contrib/* "$CONTRIBDIR" || exit 1
 	makeDir "$SKINDIR" 1 && cp -r html wml "$SKINDIR" || exit 1
     (cd "$SKINDIR";ln -s html default) || exit 1

@@ -1,6 +1,0 @@
-Featurerequest (ToDo DevVersion >= 1.0):
-
-* Zeitintensive Aufgaben sollten vorher den sysload prüfen (blafasel)
-* Echtes Telnetinterface mit history usw. (xpix)
-
-
