@@ -143,6 +143,15 @@ CREATE TABLE `USER` (
   `MaxPriority` tinyint(2) default '0',
   PRIMARY KEY  (`Id`)
 );
+
+--
+-- Table structure for table `VERSION`
+--
+
+DROP TABLE IF EXISTS `VERSION`;
+CREATE TABLE `VERSION` (
+  `Version` tinyint(4) NOT NULL default '0'
+);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -150,4 +159,4 @@ CREATE TABLE `USER` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2007-11-17 17:21:22
+-- Dump completed on 2007-11-24 11:40:15

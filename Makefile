@@ -55,7 +55,7 @@ updateversion:
 DBTABLES = $(shell cat ./contrib/update-xxv | grep tables= | cut -d '=' -f 2 | sed -e s/\'//g;)
 updatesql:
 	@echo Please type the DB-Password for root:
-	@mysqldump -p -n -d --add-drop-table --compatible=mysql40,no_table_options -p -u root xxv $(DBTABLES) -r ./contrib/upgrade-xxv-db.sql
+	@mysqldump -p -n -d --add-drop-table --compatible=mysql40,no_table_options -p -u root xxv $(DBTABLES) VERSION -r ./contrib/upgrade-xxv-db.sql
 
 setpermission:
 	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;
