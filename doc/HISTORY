@@ -1,3 +1,187 @@
+1.0:
+--------------------------------------------------------------------------------
+    * Erhöhung der Abfragegeschwindigkeit der mysql-Abfragen per sql_cache
+    * REQUEST[187] Sucheabfragen erweitert mit Logik Operatoren (AND, OR, AND NOT)
+    * REQUEST[259] Anzeige der EPG-Beschreibung als Tooltip (per AJAX)
+    * REQUEST[242] IP-Adresse für Server bindbar gemacht. 
+      Neuer Parameter 'Interface' - Default : 0.0.0.0 Server lauscht an allen 
+      Netzwerkanschlüssen.
+    * Skins: Datumsaugabe abhängig von den aktiven Ländereinstellungen ausgeben.
+    * Anzeige der Modulrevison in Log
+    * contrib/chronicle-remove-duplicate.pl Skript zum Entfernen von 
+      doppelte Einträge. (z.B. nach dem Update von mysql 4.0 auf 5.0)
+    * main: Reihenfolge des Systemstart reorganisiert
+    * Suchfunktion um 'Suggest' via Ajax Feature erweitert
+
+    AUTOTIMER 
+        * REQUEST[223] Datenbank basierte DONE Liste für Serienaufnahmen.
+          + Done y/n durch seperate Auswahl für timer/recordings/chronicle ersetzt
+        * REQUEST[241] VDRADMIN-Import/Export als "sicherheitsrelevantes" Feature 
+          in eigenen Skript ausgelagert './contrib/at-vdradmin2xxv.pl'
+        * REQUEST[206] Suchen nach Cast, Category usw in Autotimer
+        * Kein eigenständiger einstellbarer Prüfintervall mehr, 
+          nur wenn sich die EPG Daten ändern, wird automatisch auf AT geprüft
+        * Statusumschaltung beim atoggle per AJAX ermöglicht
+        * Aufbau von Suchabfrage optimiert
+    CHRONICLE
+        * Update von Datenbank werden nicht mehr per zyklischen Timer,
+          nur noch wenn sich Aufnahmedaten geändert haben.
+  	EPG
+        * REQUEST[205] Bei Konflikten wird jetzt im title angezeigt, 
+          mit welchen Timer dieser im Konflikt steht.
+      	* REQUEST[218] Epg Daten werden jetzt über den SVDRP Socket gelesen 
+          und werden mit DB verglichen und nur bei Bedarf ersetzt
+        * erestart - Manuelles Update des EPG mit Fortschrittsbalken
+        * schema für Direktanwahl mit Uhrzeit im HH:MM Format aufrufbar
+      	* schema: Laufende Timer werden farblich angezeigt
+    * HTTPD
+        * Default HTML-Template Dir. wenn eine Templatefunktion im gewählten Skin 
+          nicht gefunden wird, wird automatisch der Defaultskin benutzt.
+        * Formulardaten per POST-Request verarbeiten
+        * Bandbreitenreduzierung - Bessere Unterstützung des Browsercache
+        * Ajax.pm : Support JSON Format
+        * Ausgabe der Versionsnummer im Statusheader der HTML Response
+        * Wait.pm: Anzeige der Restzeit, bei Fortschrittsbalken
+    MUSIC
+        * REQUEST[235] Cover werden ebenfalls aus den MP3 Ordner verwenden.
+        * Neues Kommando(mgetfile) für direktes Abspielen/-Streamen der Datei.
+    RECORDS
+        * Aktualisieren der Aufnahmen extrem beschleunigt, 
+          nur geänderte Aufnahmen werden neu eingelesen 
+          bzw. nur der Status in DB aktualisiert.
+        * REQUEST[251] Verwalten der Aufnahmen mit eindeutiger ID 
+        * rdisplay : Starten des Schnittprozess im VDR
+        * REQUEST[182] Aufnahmen können jetzt auch rekursiv gelöscht werden.
+        * redit/info.vdr nicht mehr in in Rohform bearbeiten, sondern separate 
+          Eingabefelder für die jeweiligen Einträge (Beschreibung, Kanal ...)
+        * REQUEST[196] Anzeige der Startzeit der Aufnahmen
+        * REQUEST[244] Lesbares Datumsformat für Datenbankfelder
+        * Anzeige Beschreibung per Tooltip ermöglicht
+        * Erstellung von Vorschaubilder mittels vdr2jpeg berücksichtigt Schnittmarken
+        * display/rdisplay: REQUEST[229] Link zu Titelsuche mit imdb/ofdb.
+    REMOTE
+        * Monitor ausblendbar (Über Einstellungen vor einstellbar)
+    SHARE 
+        * Neuer Webservice über WSDL Backend, mit gleicher Funktionialtät
+    SVDRP 
+        * Komplett überarbeitet, um mittels Timeout, 
+          ein Blockieren der Kommunikation zum VDR zu verhindern. 
+    TIMERS
+        * Option "Timer justieren, wenn EPG Eintrag verändert wurde" per Setup 
+          deaktivierbar gemacht
+        * REQUEST[181] Es wird eine Warnung angezeigt wenn der Festplattenplatz 
+          nicht ausreicht um den Event aufzunehmen.
+        * Anzeige Beschreibung per Tooltip ermöglicht
+        * Statusumschaltung beim ttoggle per AJAX ermöglicht
+    USER
+        * Medienbibliothek in USER Verwaltung per deny:media selektiv sperrbar.
+        * REQUEST[194] Zusätzliche Benutzereinschränkung, 
+          per Stream[Livestream],Remote[Umschalten]
+    VTX
+        * In der VTX-Seite vorhandene URL (www...) sind jetzt als 
+          wählbaren Web-Verweisen hinterlegt.
+        * Übergabe der Parameter zum Widget zu den anderen Modulen angeglichen
+
+
+--------------------------------------------------------------------------------
+Fixes
+
+    * Überprüftung der Datenbanktabellen robuster gemacht (Defekte Tabellen ohne "Userdaten" werden gelöscht)
+    * Initialisierung der Module abbrechen wenn keine Verbindung zur Datenbank existiert.
+    * Default Intervalle vergrößert um Systemlast zu reduzieren
+    * Generell/restart: BUG[201] Neustart - nur verfügbar wenn XXV als root läuft 
+    * docu.tmpl: Datum aktualisiert
+    * main: Die Meldung 'Successfully connect to' kann auch, wenn keine Verbindung
+      zur Datenbank aufgenommen werden konnte.
+    * Warnmeldungen behoben "Use of uninitialized value in sprintf at ..." 
+       + bei Logging bei --verbose=5 ohne aktiven User,  
+       + docu.tmpl
+    * Suche per ( ) ? schlug fehl
+
+    AUTOTIMER
+        * BUG[231] Parameter prevminutes und afterminutes ließen sich nicht auf 0 stellen
+          Tipp: Werden die Fehler leer gelassen, wird der Defaultwert der Timer verwendet.
+        * Optimierung der Abfrage
+          + Globales Exclude der Kanäle nur noch nutzen, wenn der jeweilige Autotimer
+            keinen Kanal zur Suche verwendet.
+          + Auf Auswahl des Wochentags nur prüfen, wenn nicht die gesamte Woche aktiv ist
+    CHANNELS
+        * Fehlermeldung beim Auswahl der bekannten CA im Log verhindert.
+        * Bei DVB-C(PVR) mit Transponderfrequenz unter 100MHz wurde ChannelID falsch generiert.
+        * In Datenbank wird jetzt original Transponderfrequenz gespeichert
+    CHRONICLE
+        * BUG[252] Can't locate object method "status" via package
+    EPG
+        * Zugriff auch auf inaktive Timer über die zugehörigen EPG Einträge ermöglicht,
+          bisher wurde ein neuer Timer angeboten.
+        * Abgelaufene EPG Einträge standen nicht mehr für "display" zur Verfügung.
+        * BUG[217] erestart - redirect produzierte Fehlermeldung ERROR : I don't understand the command '<undef>'
+  	    * BUG[218] EPG Events die nicht mehr vom vdr erwähnt wurden, werden jetzt gelöscht
+        * BUG[249] Speicherbedarf beim Einlesen der EPG Daten reduziert
+        * next: zeigte VPS Zeiten nicht an.
+        * schema: Navigation zwischen den Programmgruppen sprang ein Tag in die Zukunft.
+    HTTPD
+        * Hardcodiertes Protokoll für AJAX Request entfernt
+        * pureperl entfernt und durch checkvalue ersetzt.
+        * Probleme mit Dateinamen die ein '-' enthielten. 
+        * Logging aller relevanten Informationen in eine Zeile zusammengefasst.
+        * Nur das erste Widget hatte Daten per HTML Encodierung (Timer mit Quote (") waren nicht möglich)
+        * Sonderzeichen werden jetzt rekursiv im Daten- sowie Parameterhash korrekt ersetzt.
+        * Verarbeitung von entities für templates umgestellt.
+          !!! Achtung, da jetzt grundsätzlich alle Daten mit entities bearbeitet werden
+          !!! müssen alle entities aus den Skins raus.
+        * HTML/widget/string: 'readonly'-Daten nicht mehr als Formulardaten senden
+        * Bug[207] Einstellungen > CONFIG - Abschnitt CONFIG existiert nicht in der Konfiguration 
+        * wait: ServerPush nicht bei MSIE ausgeben.
+    MUSIC
+        * Obwohl Modul inaktiv wurde Datenbankverbindung und Socket geöffnet
+        * Symbolische Linkschleifen (Link-Loops) führten in MP3::Icecast::add_directory 
+             zu einer Endlosschleife (berichtet von Karsten Müller)
+        * BUG[253] Fehlerausgabe bei Inaktivität des Moduls verhindern
+        * BUG[266] Streaming im Classic Mode funktionierte nicht mehr.
+        * getcovers redseliger gemacht.
+        * im 'Muggle' Mode
+          + mlist:       Anzeige des Genre des Titel fehlte
+          + mrefresh:    Titel wurden nur hinzugefügt, veraltete aber nie aus der DB entfernt.
+          + mlist:       Suche nach Genre jetzt kompatibel zur Definition nach GiantDisc 
+                       (Pop (md) findet auch Subgenre Acoustic (mda), Synth Pop (mdb) ...)
+        * (classic): Datenbankfeld für Jahreszahl und Bitrate zu klein.
+    LOG
+        * Bei verbose=5 wurde falsches Modul, als aufrufendes Modul angezeigt
+        * BUG[272] Nach logrotate wurden keine neue Logdatei erstellt.
+    RECORDS
+        * BUG[209] Meldung 'Kann x Aufnahmen nicht zuordnen' informativer gemacht
+        * Nur Aufnahmen in Verzeichnissen mit '*.rec' einlesen (ignorieren von gelöschten Aufnahmen '*.del')
+        * Aufnahme mit gleichen Titel und aufeinander folgendem Zeitraum, wurden als nur eine Aufnahme angezeigt
+        * Redundante Datenfelder entfernt
+        * Manche Sonderzeichen führten zu Problemen mit der Vorschaubilderstellung
+        * Nicht alle Schnittpunkte der marks.vdr wurde eingelesen
+        * Vorschaubilder werden aus der gesamten Aufnahme erstellt
+    REPORT
+        * BUG[267] News::Mail - Daten unvollständig
+    SHARE
+        * BUG[221] Meldung "syntax error at /usr/lib/perl5/XML/Parser.pm"
+        * topten: Ausgabe des Startzeitpunkt im Lokalen Datumsformat
+        * alist/topten: BUG[210] Kanäle wurden nicht angezeigt.
+    STATUS
+        * BUG[248] SCSI-Festplatten wurden nicht in der Hardwareliste angezeigt.
+        * Dateisysteme mit "/" im Name des Device wurden graphisch nicht angezeigt 
+    STREAM
+        * BUG[193] Playlisten für Videoaufnahmen in EXTM3U Format (Frank Enderle)
+        * BUG[246] Aufbau des Pfad für Windowsfreigaben, die über einen Laufwerksbuchstaben gebunden sind.
+        * Playlist mit Dateinamen und Dateiendung *.m3u senden.
+    TELNET
+        * Modul kann ist jetzt voll optional
+    TIMERS
+        * Optimierung - Timer justieren, wenn EPG Eintrag verändert wurde
+        * Optimierung - Zuordnung EPG Eintrag, zum Timer
+        *  BUG[237] Link zum Bearbeiten von Autotimer aus Timerliste hatte falsche ID
+    USER
+        * Logout nur Anzeigen wenn USER::active
+        * Username nur Anzeigen, wenn USER::active und NoAuth nicht zutrifft.
+        * Keine Mehrfachanzeige des Logindialogs, bei Abbruch des Loginvorganges 
+          erscheint sofort eine Meldung "Zugang verboten"
+
 0.80 (stable):
 --------------------------------------------------------------------------------
 * Fixes:
