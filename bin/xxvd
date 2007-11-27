@@ -43,8 +43,9 @@ $|++;
 
 my $REV = &getRev() || (split(/ /, '$Revision$'))[1];
 my $MODULES;
-my $VERSION = '1.0.1';
+my $VERSION = '1.1';
 my $VDRVERSION = 0;
+my $DBVERSION = 0;
 my $CLEANUP;
 my $DBCACHE = {};
 my $AFTER = [0 ... 50];
@@ -421,8 +422,8 @@ sub getModule {
     my $name = shift || return error('No requested modul defined!');
 
     my ($modname) = grep(/${name}$/, keys %$MODULES);
-    unless ($modname) {
-      error sprintf("Requested modul '%s' is'nt loaded!",$name);
+    unless ($modname && $MODULES->{$modname}) {
+      panic sprintf("Requested modul '%s' is'nt loaded!",$name);
       return undef;
     }
 
@@ -471,21 +472,6 @@ sub getVdrVersion {
 
     return $ver;
 }
-
-# ------------------
-sub getDBVersion {
-# ------------------
-    my $dbh = shift || return error('No database handle defined!');
-
-    # Keine Versionstabelle?
-    unless(tableExists($dbh, 'VERSION')) {
-        $dbh->do("create table `VERSION` ( `Version` tinyint (4)  DEFAULT '0' NOT NULL );");
-        $dbh->do(sprintf("insert into  `VERSION` ( `Version` ) values ( '%s' );", &getActualDbVersion()));
-    }
-    my $row = $dbh->selectrow_hashref('select * from VERSION');
-    return $row->{Version};
-}
-
 
 # ------------------
 sub getConfigFile {
@@ -606,31 +592,14 @@ sub restart {
 }
 
 # ------------------
-sub getActualDbVersion {
+sub getDBVersion {
 # ------------------
+    return $DBVERSION if($DBVERSION);
+
     my $cmd       = sprintf('%s/update-xxv', $PATHS->{CONTRIB});
-    my ($aver) = (`$cmd -v`)[-1] =~ /\'(\d+)\'/;
-    return $aver;
-}
-
-# ------------------
-sub checkDB {
-# ------------------
-    my $dbh = shift || return error('No database handle defined!');
-    my $dbversion = &getDBVersion($dbh);
-    my $aver = &getActualDbVersion();
-
-    unless($dbversion == $aver) {
-        return undef, sprintf(gettext(q|
-------- !PROBLEM! ----------
-Upps, your Version from DB(%d) doesn't match
-with the wished version from xxv-software-packet(%d).
-Please go to contribdir 'cd %s' and start
-'./update-xxv' to upgrade your xxv database!
-------- !PROBLEM! ----------
-|), $dbversion, $aver, $PATHS->{CONTRIB});#'
-    }
-    return $dbversion;
+    my ($ver) = (`$cmd -v`)[-1] =~ /\'(\d+)\'/;
+    $DBVERSION = $ver;
+    return $DBVERSION;
 }
 
 # ------------------
@@ -752,10 +721,6 @@ sub init_db_connect {
         $cfg->{General}->{USR},
         $cfg->{General}->{PWD},
         ) or return error "Couldn't connect to database";
-
-    # Test on compare Version from DB and Sourcepaket
-    my ($dbok, $dberr) = &checkDB($dbh);
-    error($dberr) unless($dbok);
 
     # Set DBH for Toolsmodule
     $Tools::DBH = $dbh;

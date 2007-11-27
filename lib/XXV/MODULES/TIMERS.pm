@@ -360,14 +360,19 @@ sub _init {
 # ------------------
     my $obj = shift || return error('No object defined!');
 
-    return 0, panic("Session to database is'nt connected")
-      unless($obj->{dbh});
+    unless($obj->{dbh}) {
+      panic("Session to database is'nt connected");
+      return 0;
+    }
 
-    # remove old table, if updated rows
-    tableUpdated($obj->{dbh},'TIMERS',19,1);
+    my $version = 26; # Must be increment if rows of table changed
+    # this tables hasen't handmade user data,
+    # therefore old table could dropped if updated rows
+    if(!tableUpdated($obj->{dbh},'TIMERS',$version,1)) {
+        return 0;
+    }
 
     # Look for table or create this table
-    my $version = main::getVersion;
     $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS TIMERS (
           Id int(11) unsigned NOT NULL,
@@ -465,7 +470,7 @@ sub saveTimer {
                 ], $pos);
     }
 
-    event sprintf('Save timer "%s" with id: "%d"', $data->{File}, $pos);
+    event sprintf('Save timer "%s" with id: "%d"', $data->{File}, $pos || 0);
 
     return $erg;
 }
@@ -1064,35 +1069,48 @@ sub list {
     my $console = shift || return error('No console defined!');
     my $text    = shift || '';
 
-	my $in = '';
-	if($text and $text =~ /^[0-9,_ ]+$/ ) {
-        my @timers  = split(/[^0-9]/, $text);
-        $in = sprintf("and t.Id in ( %s )",join(',',@timers));
-	} elsif($text) {
-        $in = sprintf('and ( %s )', buildsearch("t.File,t.Summary",$text));
-	}
+	  my $term;
+	  my $search1 = '';
+	  my $search2 = '';
+	  if($text and $text =~ /^[0-9,_ ]+$/ ) {
+      my @timers  = split(/[^0-9]/, $text);
+      $search1 = sprintf(" AND t.Id in (%s)",join(',' => ('?') x @timers));
+      foreach(@timers) { push(@{$term},$_); }
+      $search2 = sprintf(" AND t.Id in (%s)",join(',' => ('?') x @timers));
+      foreach(@timers) { push(@{$term},$_); }
+
+	  } elsif($text) {
+      my $query1 = buildsearch("t.File,e.description",$text);
+      $search1 = sprintf('AND ( %s )', $query1->{query});
+      foreach(@{$query1->{term}}) { push(@{$term},$_); }
+
+      my $query2 = buildsearch("t.File",$text);
+      $search2 = sprintf('AND ( %s )', $query2->{query});
+      foreach(@{$query2->{term}}) { push(@{$term},$_); }
+	  }
+
     my %f = (
-        'Id' => umlaute(gettext('Sv')),
-        'Status' => umlaute(gettext('Status')),
-        'Day' => umlaute(gettext('Day')),
-        'Channel' => umlaute(gettext('Channel')),
-        'Start' => umlaute(gettext('Start')),
-        'Stop' => umlaute(gettext('Stop')),
-        'Title' => umlaute(gettext('Title')),
-        'Priority' => umlaute(gettext('Priority')),
+        'Id' => gettext('Service'),
+        'Status' => gettext('Status'),
+        'Day' => gettext('Day'),
+        'Channel' => gettext('Channel'),
+        'Start' => gettext('Start'),
+        'Stop' => gettext('Stop'),
+        'Title' => gettext('Title'),
+        'Priority' => gettext('Priority')
     );
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    t.Id as $f{'Id'},
-    t.Status as $f{'Status'},
-    c.Name as $f{'Channel'},
+    t.Id as \'$f{'Id'}\',
+    t.Status as \'$f{'Status'}\',
+    c.Name as \'$f{'Channel'}\',
     c.Pos as __Pos,
-    t.Day as $f{'Day'},
-    DATE_FORMAT(t.NextStartTime, '%H:%i') as $f{'Start'},
-    DATE_FORMAT(t.NextStopTime, '%H:%i') as $f{'Stop'},
-    t.File as $f{'Title'},
-    t.Priority as $f{'Priority'},
+    t.Day as \'$f{'Day'}\',
+    DATE_FORMAT(t.NextStartTime, '%H:%i') as \'$f{'Start'}\',
+    DATE_FORMAT(t.NextStopTime, '%H:%i') as \'$f{'Stop'}\',
+    t.File as \'$f{'Title'}\',
+    t.Priority as \'$f{'Priority'}\',
     UNIX_TIMESTAMP(t.NextStartTime) as __Day,
     t.Collision as __Collision,
     t.eventid as __eventid,
@@ -1106,20 +1124,20 @@ FROM
 WHERE
     t.ChannelID = c.Id
     and (t.eventid = e.eventid)
-    $in
+    $search1
 
 UNION 
 
 SELECT SQL_CACHE 
-    t.Id as $f{'Id'},
-    t.Status as $f{'Status'},
-    c.Name as $f{'Channel'},
+    t.Id as \'$f{'Id'}\',
+    t.Status as \'$f{'Status'}\',
+    c.Name as \'$f{'Channel'}\',
     c.Pos as __Pos,
-    t.Day as $f{'Day'},
-    DATE_FORMAT(t.NextStartTime, '%H:%i') as $f{'Start'},
-    DATE_FORMAT(t.NextStopTime, '%H:%i') as $f{'Stop'},
-    t.File as $f{'Title'},
-    t.Priority as $f{'Priority'},
+    t.Day as \'$f{'Day'}\',
+    DATE_FORMAT(t.NextStartTime, '%H:%i') as \'$f{'Start'}\',
+    DATE_FORMAT(t.NextStopTime, '%H:%i') as \'$f{'Stop'}\',
+    t.File as \'$f{'Title'}\',
+    t.Priority as \'$f{'Priority'}\',
     UNIX_TIMESTAMP(t.NextStartTime) as __Day,
     t.Collision as __Collision,
     t.eventid as __eventid,
@@ -1132,7 +1150,7 @@ FROM
 WHERE
     t.ChannelID = c.Id
     and (t.eventid = 0)
-    $in
+    $search2
 
 ORDER BY
     __Day
@@ -1140,8 +1158,12 @@ ORDER BY
 
     my $fields = fields($obj->{dbh}, $sql);
 
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute(@{$term})
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
+
     $console->table($erg, {
         runningTimer => $obj->getRunningTimer,
         cards => $obj->{DVBCards},

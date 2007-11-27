@@ -280,11 +280,18 @@ sub _init {
     );
 
     unless($obj->{mdbh}) {
-        # Look for table or create this table
-        my $version = main::getVersion;
 
-        # don't remove old table, if updated rows => warn only
-        tableUpdated($obj->{dbh},'MUSIC',12,0);
+        unless($obj->{dbh}) {
+          panic("Session to database is'nt connected");
+          return 0;
+        }
+
+        my $version = 26; # Must be increment if rows of table changed
+        # this tables hasen't handmade user data,
+        # therefore old table could dropped if updated rows
+        if(!tableUpdated($obj->{dbh},'MUSIC',$version,1)) {
+          return 0;
+        }
 
         $obj->{dbh}->do(qq|
           CREATE TABLE IF NOT EXISTS MUSIC (
@@ -527,7 +534,7 @@ sub list {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $search  = shift;
+    my $param  = shift;
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
     return 0
@@ -537,17 +544,17 @@ sub list {
     $obj->{GENRES} = $dbh->selectall_hashref('SELECT SQL_CACHE  * from genre', 'id')
         if($obj->{mdbh} && !$obj->{GENRES});
 
-    if($obj->{mdbh} && ! $search) {
+    if($obj->{mdbh} && ! $param) {
         my $eg = $dbh->selectrow_arrayref('SELECT SQL_CACHE  title from album limit 1')
             || return $console->err($obj->{mdbh}->errstr);
-        $search = sprintf('album:%s', $eg->[0]);
-    } elsif(! $search) {
+        $param = sprintf('album:%s', $eg->[0]);
+    } elsif(! $param) {
         my $eg = $dbh->selectrow_arrayref('SELECT SQL_CACHE  ALBUM from MUSIC limit 1')
             || return $console->err($dbh->errstr);
-        $search = sprintf('album:%s', $eg->[0]);
+        $param = sprintf('album:%s', $eg->[0]);
     }
 
-    my @field = split(':',$search);
+    my @field = split(':',$param);
     my $typ = $field[0];
 
     # Muggleübersetzer ;)
@@ -574,29 +581,36 @@ sub list {
         $t = ($obj->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
     }
 
-    my $where;
+    my $search = '';
+    my $term;
     if($typ eq 'search') {
         if($obj->{mdbh}) {
-            $where = buildsearch("album.artist,tracks.artist,album.title,tracks.title,album.covertxt",$text);
+            my $query = buildsearch("album.artist,tracks.artist,album.title,tracks.title,album.covertxt",$text);
+            $search = $query->{query};
+            foreach(@{$query->{term}}) { push(@{$term},$_); }
+            foreach(@{$query->{term}}) { push(@{$term},$_); } #double for UNION
         } else {
-            $where = buildsearch("ALBUM,ARTIST,TITLE,COMMENT",$text);
+            my $query = buildsearch("ALBUM,ARTIST,TITLE,COMMENT",$text);
+            $search = $query->{query};
+            foreach(@{$query->{term}}) { push(@{$term},$_); }
         }
     } elsif($typ eq 'genre' && $obj->{mdbh}) {
-        $text =~ s/\'/\\'/sg;#'
-        $where = sprintf("%s LIKE '%s%%'", $t, $text);
+        $search = sprintf("%s LIKE ?", $t);  #?%
+        push(@{$term},$text.'%');
     } else {
-        $text =~ s/\'/\\'/sg;#'
-        $where = sprintf("%s LIKE '%%%s%%'", $t, $text);
+        $search = sprintf("%s RLIKE ?", $t); #%?%
+        push(@{$term},$text);
+        push(@{$term},$text) if($obj->{mdbh});
     }
 
     my %f = (
-        'Id' => umlaute(gettext('Sv')),
-        'Artist' => umlaute(gettext('Artist')),
-        'Album' => umlaute(gettext('Album')),
-        'Title' => umlaute(gettext('Title')),
-        'Tracknum' => umlaute(gettext('Tracknum')),
-        'Year' => umlaute(gettext('Year')),
-        'Length' => umlaute(gettext('Length')),
+        'Id' => gettext('Service'),
+        'Artist' => gettext('Artist'),
+        'Album' => gettext('Album'),
+        'Title' => gettext('Title'),
+        'Tracknum' => gettext('Number of track'),
+        'Year' => gettext('Year'),
+        'Length' => gettext('Length')
     );
 
     my $sql;
@@ -604,13 +618,13 @@ sub list {
 
         $sql = qq|
         SELECT SQL_CACHE 
-        	tracks.id as $f{'Id'},
-        	tracks.artist as $f{'Artist'},
-        	album.title as $f{'Album'},
-        	tracks.title as $f{'Title'},
-        	tracks.tracknb as $f{'Tracknum'},
-        	tracks.year as $f{'Year'},
-          IF(tracks.length >= 3600,SEC_TO_TIME(tracks.length),DATE_FORMAT(FROM_UNIXTIME(tracks.length), '%i:%s')) as $f{'Length'},
+        	tracks.id as \'$f{'Id'}\',
+        	tracks.artist as \'$f{'Artist'}\',
+        	album.title as \'$f{'Album'}\',
+        	tracks.title as \'$f{'Title'}\',
+        	tracks.tracknb as \'$f{'Tracknum'}\',
+        	tracks.year as \'$f{'Year'}\',
+          IF(tracks.length >= 3600,SEC_TO_TIME(tracks.length),DATE_FORMAT(FROM_UNIXTIME(tracks.length), '%i:%s')) as \'$f{'Length'}\',
           genre.genre as __GENRE,
         	album.covertxt as __COMMENT
         FROM
@@ -618,20 +632,20 @@ sub list {
         WHERE
             tracks.sourceid = album.cddbid and
             tracks.genre1 = genre.id and
-        	  ( $where )
+        	  $search
         |;
 
         $sql .= qq|
 
      UNION
         SELECT SQL_CACHE 
-        	tracks.id as $f{'Id'},
-        	tracks.artist as $f{'Artist'},
-        	album.title as $f{'Album'},
-        	tracks.title as $f{'Title'},
-        	tracks.tracknb as $f{'Tracknum'},
-        	tracks.year as $f{'Year'},
-          IF(tracks.length >= 3600,SEC_TO_TIME(tracks.length),DATE_FORMAT(FROM_UNIXTIME(tracks.length), '%i:%s')) as $f{'Length'},
+        	tracks.id as \'$f{'Id'}\',
+        	tracks.artist as \'$f{'Artist'}\',
+        	album.title as \'$f{'Album'}\',
+        	tracks.title as \'$f{'Title'}\',
+        	tracks.tracknb as \'$f{'Tracknum'}\',
+        	tracks.year as \'$f{'Year'}\',
+          IF(tracks.length >= 3600,SEC_TO_TIME(tracks.length),DATE_FORMAT(FROM_UNIXTIME(tracks.length), '%i:%s')) as \'$f{'Length'}\',
           "" as __GENRE,
         	album.covertxt as __COMMENT
         FROM
@@ -639,41 +653,46 @@ sub list {
         WHERE
             tracks.sourceid = album.cddbid and
             tracks.genre1 = 'NULL' and
-        	  ( $where )
+        	  $search
+
         | if($typ ne 'genre');
 
 
         $sql .= qq|
         ORDER BY
-                $f{'Album'},
-                $f{'Tracknum'}
+                \'$f{'Album'}\',
+                \'$f{'Tracknum'}\'
         |;
 
     } else {
 
         $sql = qq|
         SELECT SQL_CACHE 
-        	ID as $f{'Id'},
-        	ARTIST as $f{'Artist'},
-        	ALBUM as $f{'Album'},
-        	TITLE as $f{'Title'},
-        	TRACKNUM as $f{'Tracknum'},
-        	YEAR as $f{'Year'},
-            IF(SECS >= 3600,SEC_TO_TIME(SECS),DATE_FORMAT(FROM_UNIXTIME(SECS), '%i:%s')) as $f{'Length'},
+        	ID as \'$f{'Id'}\',
+        	ARTIST as \'$f{'Artist'}\',
+        	ALBUM as \'$f{'Album'}\',
+        	TITLE as \'$f{'Title'}\',
+        	TRACKNUM as \'$f{'Tracknum'}\',
+        	YEAR as \'$f{'Year'}\',
+            IF(SECS >= 3600,SEC_TO_TIME(SECS),DATE_FORMAT(FROM_UNIXTIME(SECS), '%i:%s')) as \'$f{'Length'}\',
         	GENRE as __GENRE,
         	COMMENT as __COMMENT
         FROM
         	MUSIC
         WHERE
-        	( $where )
+          1 AND
+        	$search
         ORDER BY
         	FILE
         |;
     }
 
     my $fields = fields($dbh, $sql);
-    my $erg = $dbh->selectall_arrayref($sql);
 
+    my $sth = $dbh->prepare($sql);
+    $sth->execute(@{$term})
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
     my $params = {

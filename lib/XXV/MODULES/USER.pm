@@ -186,14 +186,18 @@ sub _init {
 # ------------------
     my $obj = shift || return error('No object defined!');
 
-    return 0, panic("Session to database is'nt connected")
-      unless($obj->{dbh});
+    unless($obj->{dbh}) {
+      panic("Session to database is'nt connected");
+      return 0;
+    }
 
+    my $version = main::getDBVersion();
     # don't remove old table, if updated rows => warn only
-    tableUpdated($obj->{dbh},'USER',9,0);
+    if(!tableUpdated($obj->{dbh},'USER',$version,0)) {
+        return 0;
+    }
 
     # Look for table or create this table
-    my $version = main::getVersion;
     my $erg = $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS USER (
           Id int(11) unsigned auto_increment NOT NULL,
@@ -518,20 +522,20 @@ sub list {
     my $console = shift || return error('No console defined!');
 
     my %f = (
-        'Id' => umlaute(gettext('Service')),
-        'Name' => umlaute(gettext('Name')),
-        'Level' => umlaute(gettext('Level')),
-        'Prefs' => umlaute(gettext('Preferences')),
-        'UserPrefs' => umlaute(gettext('UserPreferences')),
+        'Id' => gettext('Service'),
+        'Name' => gettext('Name'),
+        'Level' => gettext('Level'),
+        'Prefs' => gettext('Preferences'),
+        'UserPrefs' => gettext('User preferences')
     );
 
     my $sql = qq|
 SELECT SQL_CACHE  
-  Id as $f{Id}, 
-  Name as $f{Name}, 
-  Level as $f{Level}, 
-  Prefs as $f{Prefs}, 
-  UserPrefs as $f{UserPrefs} 
+  Id as \'$f{Id}\', 
+  Name as \'$f{Name}\', 
+  Level as \'$f{Level}\', 
+  Prefs as \'$f{Prefs}\', 
+  UserPrefs as \'$f{UserPrefs}\' 
 from 
   USER
     |;

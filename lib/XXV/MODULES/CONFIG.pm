@@ -108,7 +108,8 @@ sub menu {
     my $mods = main::getModules;
     foreach my $module (sort keys %{$mods}) {
         my $name = $mods->{$module}->{MOD}->{Name};
-        next unless(exists $obj->{config}->{$name});
+        error(sprintf("Missing real modul name %s",$module)) unless($name);
+        next unless($name && exists $obj->{config}->{$name});
 
         $ret->{links}->{$name} = {
                 text => $name,
@@ -331,8 +332,12 @@ sub usage {
     # Search for command and display the Description
     foreach my $modName (sort keys %{$mods}) {
         my $modCfg = $mods->{$modName}->{MOD};
-        push(@realModName, $mods->{$modName}->{MOD}->{Name});
-        next if($modulename and uc($modulename) ne $modCfg->{Name});
+
+        my $name = $modCfg->{Name};
+        error(sprintf("Missing real modul name %s",$modName)) unless($name);
+        push(@realModName, $name) if($name);
+
+        next if($modulename and uc($modulename) ne $name);
         foreach my $cmdName (sort keys %{$modCfg->{Commands}}) {
             push(@$ret,
                 [

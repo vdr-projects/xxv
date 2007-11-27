@@ -22,6 +22,7 @@ sub module {
         Name => 'RECORDS',
         Prereq => {
             'Time::Local' => 'efficiently compute time from local and GMT time ',
+            'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm'
         },
         Description => gettext('This module manages recordings.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -256,11 +257,14 @@ sub _init {
       return 0;
     }
 
-    # remove old table, if updated rows
-    tableUpdated($obj->{dbh},'RECORDS',11,1);
+    my $version = 26; # Must be increment if rows of table changed
+    # this tables hasen't handmade user data,
+    # therefore old table could dropped if updated rows
+    if(!tableUpdated($obj->{dbh},'RECORDS',$version,1)) {
+        return 0;
+    }
 
     # Look for table or create this table
-    my $version = main::getVersion;
     $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS RECORDS (
           eventid bigint unsigned NOT NULL,
@@ -387,7 +391,8 @@ sub readData {
     my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
-    my $forceUpdate = shift;
+    # Read manual or Once at day, make full scan
+    my $forceUpdate = shift || ($obj->{countReading} % ( $obj->{fullreading} * 3600 / $obj->{interval} ) == 0);
 
     # Read recording over SVDRP
     my $lstr = $obj->{svdrp}->command('lstr');
@@ -424,7 +429,7 @@ sub readData {
 
     }
 
-    my @merkIds;
+    my @merkMD5;
     my $insertedData = 0;
     my $updatedState = 0;
     my $l = 0;
@@ -439,8 +444,7 @@ sub readData {
     $obj->{FILES} = undef;
 
     my $db_data;
-    if($forceUpdate || $obj->{countReading} % ( $obj->{fullreading} * 3600 / $obj->{interval} ) == 0) {
-        # Once at day, make full scan
+    if($forceUpdate) {
         $obj->{dbh}->do('DELETE FROM RECORDS');
     } else {
         # read database for compare with vdr data
@@ -497,7 +501,7 @@ sub readData {
                     $db_data->{$h}->{addtime} = time;
 
                     # Make Preview and remove older Preview images
-                    my $command = $obj->videoPreview( $db_data->{$h}->{eventid}, $db_data->{$h}, 1);
+                    my $command = $obj->videoPreview( $db_data->{$h}, 1);
                     push(@{$obj->{JOBS}}, $command)
                       if($command && not grep(/\Q$command/g,@{$obj->{JOBS}}));
                   }
@@ -514,7 +518,7 @@ sub readData {
           $totalDuration += $db_data->{$h}->{duration};
           $totalSpace += $db_data->{$h}->{FileSize};
           
-          push(@merkIds,$db_data->{$h}->{eventid});
+          push(@merkMD5,$db_data->{$h}->{RecordMD5});
 
           # delete updated rows from hash
           delete $db_data->{$h};
@@ -536,7 +540,7 @@ sub readData {
               $totalSpace += $anahash->{FileSize};
 
               if($obj->insert($anahash)) {
-                  push(@merkIds,$anahash->{eventid});
+                  push(@merkMD5,$anahash->{RecordMD5});
                   $insertedData++;
               } else {
                   push(@{$err},$anahash->{title});
@@ -558,9 +562,10 @@ sub readData {
         $sth->execute(@todel)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       }
-    
+
+    my $removedData = $db_data ? scalar keys %$db_data : 0;
     debug sprintf 'Finish .. %d recordings inserted, %d recordings updated, %d recordings removed',
-           $insertedData, $updatedState, $db_data ? scalar keys %$db_data : 0;
+           $insertedData, $updatedState, $removedData;
 
 
     error sprintf("Unsupported unit '%s' to calc free capacity",$freeUnit) unless($freeUnit eq 'MB');
@@ -595,19 +600,25 @@ sub readData {
 
     # alte PreviewDirs loeschen
     foreach my $dir (glob(sprintf('%s/*_shot', $obj->{previewimages}))) {
-        my $oldEventNumber = (split('/', $dir))[-1];
-        unless(grep(sprintf('%lu_shot',$_) eq $oldEventNumber, @merkIds)) {
+        my $basedir = basename($dir);
+        unless(grep(sprintf('%s_shot',$_) eq $basedir, @merkMD5)) {
+            lg sprintf("Remove old preview files : '%s'",$dir);
             deleteDir($dir);
         }
     }
 
-    # Delete all old EPG entrys without the RecordIds which old as one day.
-    if(scalar @merkIds) {
-        my $sql = sprintf('DELETE FROM OLDEPG where (UNIX_TIMESTAMP(starttime) + duration) < (UNIX_TIMESTAMP() - 86400) and eventid not in (%s)', join(',' => ('?') x @merkIds)); 
-        my $sth = $obj->{dbh}->prepare($sql);
-        $sth->execute(@merkIds)
-            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    }
+    # Delete all old EPG entrys
+    if($forceUpdate || $removedData) {
+        my $sqldeleteEvents = qq|
+DELETE FROM OLDEPG 
+  WHERE 
+  (UNIX_TIMESTAMP(starttime) + duration) < (UNIX_TIMESTAMP() - 86400) 
+  and eventid not in 
+      ( SELECT eventid FROM RECORDS )
+|;
+      $obj->{dbh}->do($sqldeleteEvents)
+        or error sprintf("Couldn't execute query: %s, %s.",$sqldeleteEvents, $DBI::errstr);
+   }
 
    $obj->updated() if($insertedData);
 
@@ -617,9 +628,9 @@ sub readData {
     if(ref $console) {
         $console->start() if(ref $waiter);
         if(scalar @{$err} == 0) {
-            $console->message(sprintf(gettext("Write %d recordings to the database."), scalar @merkIds));
+            $console->message(sprintf(gettext("Write %d recordings to the database."), scalar @merkMD5));
         } else {
-            unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Couldn't assign %d recordings."), scalar @merkIds , scalar @{$err}));
+            unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Couldn't assign %d recordings."), scalar @merkMD5 , scalar @{$err}));
             lg join("\n", @$err);
             $console->err($err);
         }
@@ -681,7 +692,7 @@ sub insert {
     qq|
      REPLACE INTO RECORDS
         (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type )
-     VALUES (?,?,md5(?),?,?,?,?,?,?,?)
+     VALUES (?,?,?,?,?,?,?,?,?,?)
     |);
 
     $attr->{Marks} = ""
@@ -690,7 +701,7 @@ sub insert {
     return $sth->execute(
         $attr->{eventid},
         $attr->{RecordId},
-        $attr->{Path},
+        $attr->{RecordMD5},
         $attr->{Path},
         $attr->{Prio},
         $attr->{Lifetime},
@@ -785,11 +796,12 @@ sub analyze {
     }
 
     # Make Preview
-    my $command = $obj->videoPreview( $event->{eventid}, $info );
+    my $command = $obj->videoPreview( $info );
     push(@{$obj->{JOBS}}, $command)
         if($command && not grep(/\Q$command/g,@{$obj->{JOBS}}));
 
     my $ret = {
+        RecordMD5 => $info->{RecordMD5},
         title => $recattr->{title},
         RecordId => $recattr->{id},
         Duration => $info->{duration},
@@ -918,6 +930,7 @@ sub videoInfo {
         }
 
         $status->{path} = $path;
+        $status->{RecordMD5} = md5_hex($path);
     }
 
     return $status;
@@ -938,9 +951,8 @@ sub qquote {
 sub videoPreview {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $eventid   = shift || return error('No eventid defined!');
     my $info    = shift || return error ('No information defined!');
-    my $rebuild    = shift || 0;
+    my $rebuild = shift || 0;
 
     if ($obj->{previewcommand} eq 'Nothing') {
         return 0;
@@ -958,7 +970,7 @@ sub videoPreview {
 
     # Save dir
     my $count = $obj->{previewcount};
-    my $outdir = sprintf('%s/%lu_shot', $obj->{previewimages}, $eventid);
+    my $outdir = sprintf('%s/%s_shot', $obj->{previewimages}, $info->{RecordMD5});
 
     # Stop here if enough files present
     my @images = glob("$outdir/*.jpg");
@@ -967,13 +979,10 @@ sub videoPreview {
 
     deleteDir($outdir) if(scalar @images && $rebuild);
 
-    # or stop if two log's present, use two logs avoid to early run on current live recording
-    my $log = sprintf('%s/preview_1st.log', $outdir);
+    # or stop if log's present
+    my $log = sprintf('%s/preview.log', $outdir);
     if(-e $log) {
-      $log = sprintf('%s/preview_2nd.log', $outdir);
-      if(-e $log) {
         return 0;
-      }
     }
 
     # Mplayer
@@ -1218,7 +1227,7 @@ where
     $obj->_loadreccmds;
 
     my $param = {
-        previews => $obj->getPreviewFiles($rec->{eventid}),
+        previews => $obj->getPreviewFiles($rec->{RecordId}),
         reccmds => [@{$obj->{reccmds}}],
     };
 
@@ -1301,10 +1310,10 @@ AND (
     }
 
     my %f = (
-        'Id' => umlaute(gettext('Service')),
-        'Title' => umlaute(gettext('Title')),
-        'Subtitle' => umlaute(gettext('Subtitle')),
-        'Duration' => umlaute(gettext('Duration')),
+        'Id' => gettext('Service'),
+        'Title' => gettext('Title'),
+        'Subtitle' => gettext('Subtitle'),
+        'Duration' => gettext('Duration')
     );
 
     my $start = "e.starttime";
@@ -1312,11 +1321,11 @@ AND (
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as $f{'Id'},
+    r.RecordMD5 as \'$f{'Id'}\',
     r.eventid as __EventId,
-    e.title as $f{'Title'},
-    e.subtitle as $f{'Subtitle'},
-    SUM(e.duration) as $f{'Duration'},
+    e.title as \'$f{'Title'}\',
+    e.subtitle as \'$f{'Subtitle'}\',
+    SUM(e.duration) as \'$f{'Duration'}\',
     $start as __RecordStart,
     SUM(State) as __New,
     r.Type as __Type,
@@ -1371,13 +1380,15 @@ sub search {
     my $text    = shift || return $obj->list($watcher,$console);
     my $params  = shift;
 
-    my $search = buildsearch("e.title,e.subtitle,e.description",$text);
+    my $query = buildsearch("e.title,e.subtitle,e.description",$text);
+    my $search = $query->{query};
+    my $term = $query->{term};
 
     my %f = (
-        'Id' => umlaute(gettext('Service')),
-        'Title' => umlaute(gettext('Title')),
-        'Subtitle' => umlaute(gettext('Subtitle')),
-        'Duration' => umlaute(gettext('Duration')),
+        'Id' => gettext('Service'),
+        'Title' => gettext('Title'),
+        'Subtitle' => gettext('Subtitle'),
+        'Duration' => gettext('Duration')
     );
 
     my $start = "e.starttime";
@@ -1385,11 +1396,11 @@ sub search {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as $f{'Id'},
+    r.RecordMD5 as \'$f{'Id'}\',
     r.eventid as __EventId,
-    e.title as $f{'Title'},
-    e.subtitle as $f{'Subtitle'},
-    e.duration as $f{'Duration'},
+    e.title as \'$f{'Title'}\',
+    e.subtitle as \'$f{'Subtitle'}\',
+    e.duration as \'$f{'Duration'}\',
     $start as __RecordStart ,
     r.State as __New,
     r.Type as __Type,
@@ -1416,7 +1427,10 @@ WHERE
     else {
         $sql .= " asc"; }
 
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute(@{$term})
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
     my $param = {
@@ -2002,10 +2016,10 @@ sub IdToPath {
 sub getPreviewFiles {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $id = shift || return error('No eventid defined!');
+    my $md5 = shift || return error('No eventid defined!');
 
     # look for pictures
-    my $outdir = sprintf('%s/%lu_shot', $obj->{previewimages}, $id);
+    my $outdir = sprintf('%s/%s_shot', $obj->{previewimages}, $md5);
     if(my @previews = glob("$outdir/[0-9]*.jpg")) {
         splice(@previews,$obj->{previewcount},scalar(@previews))
             if(scalar(@previews) > $obj->{previewcount});

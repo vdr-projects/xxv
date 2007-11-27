@@ -22,8 +22,8 @@ our $LOGCALLB   = sub{ };
 our $DBH        = {};
 
 @EXPORT = qw(&datum &stackTrace &lg &event &debug &error &panic &rep2str &dumper &getFromSocket &fields
- &load_file &save_file &tableExists &tableUpdated &buildsearch &deleteDir &getip &convert &int &entities &reentities &bench
- &fmttime &getDataByTable &getDataById &getDataBySearch &getDataByFields &umlaute &touch);
+ &load_file &save_file &tableUpdated &buildsearch &deleteDir &getip &convert &int &entities &reentities &bench
+ &fmttime &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch);
 
 
 # ------------------
@@ -229,7 +229,7 @@ sub tableExists {
     my $dbh = shift || return error('No database handle defined!');
     my $name = shift || return error('No table defined!');
 
-    my $erg = $dbh->selectall_arrayref('show tables');
+    my $erg = $dbh->selectall_arrayref("show tables LIKE '$name'");
     for(@$erg) {
         return 1 if($name eq $_->[0]);
     }
@@ -237,17 +237,31 @@ sub tableExists {
 }
 
 # ------------------
+sub tableStatus {
+# ------------------
+    my $dbh = shift || return error('No database handle defined!');
+    my $table = shift || return error('No table defined!');
+    my $row = shift || return error('No row defined!');
+
+    my $erg = $dbh->selectrow_hashref("SHOW TABLE STATUS LIKE '$table'");
+    if($erg and exists $erg->{$row}) {
+			return $erg->{$row};
+    }
+		return 0;
+}
+
+# ------------------
 sub tableUpdated {
 # ------------------
     my $dbh = shift || return error('No database handle defined!');
     my $table = shift || return error('No table defined!');
-    my $rows = shift || return error('No rows defined!');
+    my $dbversion = shift || return error('No version of database defined!');
     my $drop = shift || 0;
 
     # remove old Version, if updated
     if(tableExists($dbh, $table)) {
-        my $fields = fields($dbh, 'select * from '.$table);
-        if(!$fields || scalar @$fields != $rows) {
+        my $tableversion = tableStatus($dbh, $table,'Comment');
+        if(!$tableversion || $tableversion ne $dbversion) {
             if($drop) {
               lg sprintf('Remove old version from database table %s',$table);
               $dbh->do(sprintf('drop table %s',$table))
@@ -256,13 +270,13 @@ sub tableUpdated {
               panic sprintf(
 q|------- !PROBLEM! ----------
 Upps, you have a incompatible or corrupted database.
-Table %s has %d. It's expected %d rows.
+Table %s has version '%s'. It's expected version '%s'.
 Please check database e.g. with mysqlcheck --all-databases --fast --silent
 or use the script contrib/upgrade-xxv.sh to upgrade the database!
 ----------------------------|#'
                     ,$table
-                    ,$fields ? scalar @$fields : 0
-                    ,$rows);
+                    ,$tableversion ? $tableversion : 0
+                    ,$dbversion);
               return 0;
             }
         }
@@ -316,26 +330,33 @@ sub _buildsearchcomma {
 #--------------------------------------------------------
     my ($queryField, $Search) = @_;
 
+    my $term;
     my $out;
     foreach my $su (split(/\s*,\s*/, $Search)) {
-#   $su =~ s/\./\\\\\./sg;
-    $su =~ s/\'/\\\\\'/sg;
-    $su =~ s/\"/\./sg;
-    $su =~ s/\+/\\\\\+/sg;
-    $su =~ s/\?/\\\\\?/sg;
-    $su =~ s/\(/\\\\\(/sg;
-    $su =~ s/\)/\\\\\)/sg;
+    $su =~ s/\./\\\./sg;
+#   $su =~ s/\'/\\\'/sg;
+#   $su =~ s/\"/\./sg;
+    $su =~ s/\*/\\\*/sg;
+    $su =~ s/\+/\\\+/sg;
+    $su =~ s/\?/\\\?/sg;
+    $su =~ s/\(/\\\(/sg;
+    $su =~ s/\)/\\\)/sg;
 
     $out .= ' AND ' if($out);
     if($su =~ s/^\-+//) {
-        $out .= qq| ($queryField NOT RLIKE "$su")|;
+        $out .= qq| ($queryField NOT RLIKE ?)|;
+        push(@$term,$su);
     } else {
         $su =~ s/^\&+//; #remove for backward compatibility
-        $out .= qq| ($queryField RLIKE "$su")|;
+        $out .= qq| ($queryField RLIKE ?)|;
+        push(@$term,$su);
     }
   }
 # dumper($out);
-	return $out;
+  return {
+    query => $out,
+    term => $term    
+  };
 }
 
 #--------------------------------------------------------
@@ -344,6 +365,7 @@ sub _buildsearchlogical {
   my ($queryField, $Search) = @_;
 
   my $out;
+  my $term;
   my $op = 1;
   $out = " (";
   foreach my $su (split(/( AND NOT | OR | AND )/, $Search)) {
@@ -360,22 +382,26 @@ sub _buildsearchlogical {
       } else {
         $out .= " AND" unless($op);
       
-#       $su =~ s/\./\\\\\./sg;
-        $su =~ s/\'/\\\\\'/sg;
-        $su =~ s/\"/\./sg;
-        $su =~ s/\+/\\\\\+/sg;
-        $su =~ s/\?/\\\\\?/sg;
-        $su =~ s/\(/\\\\\(/sg;
-        $su =~ s/\)/\\\\\)/sg;
+        $su =~ s/\./\\\./sg;
+#       $su =~ s/\'/\\\'/sg;
+#       $su =~ s/\"/\./sg;
+        $su =~ s/\*/\\\*/sg;
+        $su =~ s/\+/\\\+/sg;
+        $su =~ s/\?/\\\?/sg;
+        $su =~ s/\(/\\\(/sg;
+        $su =~ s/\)/\\\)/sg;
 
-        $out .= qq| ($queryField RLIKE "$su")|;
-
+        $out .= qq| ($queryField RLIKE ?)|;
+        push(@$term,$su);
         $op = 0;
       }
   }
   $out .= " )";
 # dumper($out);
-  return $out;
+  return {
+    query => $out,
+    term => $term    
+  };
 }
 
 
@@ -384,7 +410,7 @@ sub buildsearch {
 #--------------------------------------------------------
     my ($InFields, $Search) = @_;
     my @fields = split(/\s*,\s*/, $InFields);
-    my $queryField = scalar(@fields) > 1 ? qq|CONCAT_WS("~",$InFields)| : qq|$InFields|;
+    my $queryField = scalar(@fields) > 1 ? qq|CONCAT_WS(" ",$InFields)| : qq|$InFields|;
 
     if( grep(/ AND /, $Search) 
         or grep(/ OR /, $Search) 
@@ -566,28 +592,6 @@ sub bench {
     } else {
         $BENCH->{$tag} = scalar gettimeofday - $BENCH->{$tag};
     }
-}
-
-# ------------------
-sub umlaute {
-# ------------------
-    my $s = shift || return "";
-
-    my %uml = (
-        'Ä' => 'Ae',
-        'Ö' => 'Oe',
-        'Ü' => 'Ue',
-        'ä' => 'ae',
-        'ö' => 'oe',
-        'ü' => 'ue',
-        'ß' => 'sz'
-    );
-
-    my @uml = join("|", keys(%uml));
-
-    $s =~ s/(@uml)/$uml{$1}/eg;
-
-    return $s;
 }
 
 # ------------------

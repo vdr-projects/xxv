@@ -197,18 +197,29 @@ sub _init {
 # ------------------
     my $obj = shift || return error('No object defined!');
 
-    return 0, panic("Session to database is'nt connected")
-      unless($obj->{dbh});
+    unless($obj->{dbh}) {
+      panic("Session to database is'nt connected");
+      return 0;
+    }
+
+    my $version = 26; # Must be increment if rows of table changed
+    # this tables hasen't handmade user data,
+    # therefore old table could dropped if updated rows
 
     # Look for table or create this table
-    foreach my $table (qw/EPG OLDEPG/) {
+    foreach my $table (qw/EPG OLDEPG TEMPEPG/) {
 
-      # remove old table, if updated rows
-      tableUpdated($obj->{dbh},$table,14,1);
+      # remove old table, if updated version
+      if(!tableUpdated($obj->{dbh},$table,$version,1)) {
+        return 0;
+      }
 
-      my $version = main::getVersion;
+      # Create TEMPEPG as temporary table, 
+      # which only used inside AUTOTIMER and dropped at shutdown
+      my $temp = $table eq 'TEMPEPG' ? 'TEMPORARY' : '';
+
       $obj->{dbh}->do(qq|
-          CREATE TABLE IF NOT EXISTS $table (
+          CREATE $temp TABLE IF NOT EXISTS $table (
               eventid bigint unsigned NOT NULL default '0',
               title text NOT NULL default '',
               subtitle text default '',
@@ -592,40 +603,35 @@ sub search {
         }
     }
 
+    my $erg = [];
+    if($search) {
+
     # Channelsearch
     if($params->{channel}) {
-        $search .= ' AND '
-            if($search);
-        $search .= sprintf('c.POS = %lu ', $params->{channel});
+        $search->{query} .= ' AND c.POS = ?';
+        push(@{$search->{term}},$params->{channel});
     }
 
     # Videoformat search
     if($params->{Videoformat} && $params->{Videoformat} eq 'widescreen') {
-        $search .= ' AND '
-            if($search);
-        $search .= 'e.video like "%%16:9%%" ';
+        $search->{query} .= ' AND e.video like "%%16:9%%"';
     }
 
     # Audioformat search
     # XXX: Leider kann man an den Audioeintrag nicht richtig erkennnen
     # hab erst zu spät erkannt das diese Info aus dem tvm2vdr kommen ;(
 #    if($params->{Audioformat} eq 'dts') {
-#        $search .= ' AND '
-#            if($search);
-#        $search .= 'e.audio like "%%Digital%%" ';
+#        $search->{query} .= ' AND e.audio like "%%Digital%%"';
 #    }
 
     # MinLength search
     if($params->{MinLength}) {
-        $search .= ' AND '
-            if($search);
-        $search .= sprintf('e.duration >= %d ', ($params->{MinLength}*60));
+        $search->{query} .= ' AND e.duration >= ?';
+        push(@{$search->{term}},($params->{MinLength}*60));
     }
 
 
-    my $erg = [];
-    if($search) {
-        my $sql = qq|
+    my $sql = qq|
     SELECT SQL_CACHE 
         e.eventid as Service,
         e.title as Title,
@@ -642,14 +648,16 @@ sub search {
         CHANNELS as c
     where
         e.channel_id = c.Id
-        AND ( $search )
+        AND ( $search->{query} )
     order by
         starttime
         |;
-    #dumper($sql);
         my $fields = fields($obj->{dbh}, $sql);
+        my $sth = $obj->{dbh}->prepare($sql);
+        $sth->execute(@{$search->{term}})
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        $erg = $sth->fetchall_arrayref();
 
-        $erg = $obj->{dbh}->selectall_arrayref($sql);
         unshift(@$erg, $fields);
     }
     $console->table($erg, {
@@ -730,14 +738,14 @@ sub display {
     }
 
     my %f = (
-        'Id' => umlaute(gettext('Service')),
-        'Title' => umlaute(gettext('Title')),
-        'Subtitle' => umlaute(gettext('Subtitle')),
-        'Channel' => umlaute(gettext('Channel')),
-        'Start' => umlaute(gettext('Start')),
-        'Stop' => umlaute(gettext('Stop')),
-        'Description' => umlaute(gettext('Description')),
-        'Percent' => umlaute(gettext('Percent')),
+        'Id' => gettext('Service'),
+        'Title' => gettext('Title'),
+        'Subtitle' => gettext('Subtitle'),
+        'Channel' => gettext('Channel'),
+        'Start' => gettext('Start'),
+        'Stop' => gettext('Stop'),
+        'Description' => gettext('Description'),
+        'Percent' => gettext('Percent')
     );
 
     my $fields;
@@ -754,15 +762,15 @@ sub display {
     foreach my $table (qw/EPG OLDEPG/) {
     my $sql = qq|
 SELECT SQL_CACHE 
-    e.eventid as $f{'Id'},
-    e.title as $f{'Title'},
-    e.subtitle as $f{'Subtitle'},
-    $start as $f{'Start'},
-    $stopp as $f{'Stop'},
-    c.Name as $f{'Channel'},
-    e.description as $f{'Description'},
+    e.eventid as \'$f{'Id'}\',
+    e.title as \'$f{'Title'}\',
+    e.subtitle as \'$f{'Subtitle'}\',
+    $start as \'$f{'Start'}\',
+    $stopp as \'$f{'Stop'}\',
+    c.Name as \'$f{'Channel'}\',
+    e.description as \'$f{'Description'}\',
     e.image as __Image,
-    (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/duration*100 as $f{'Percent'},
+    (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/duration*100 as \'$f{'Percent'}\',
     e.video as __Video,
     e.audio as __Audio,
     IF(e.vpstime!=0,$vps,'') as __VPS
@@ -832,23 +840,23 @@ GROUP BY c.Id
         or return error sprintf("Couldn't execute query: %s.",$sthtemp->errstr);
 
     my %f = (
-        'Service' => umlaute(gettext('Service')),
-        'Title' => umlaute(gettext('Title')),
-        'Channel' => umlaute(gettext('Channel')),
-        'Start' => umlaute(gettext('Start')),
-        'Stop' => umlaute(gettext('Stop'))
+        'Service' => gettext('Service'),
+        'Title' => gettext('Title'),
+        'Channel' => gettext('Channel'),
+        'Start' => gettext('Start'),
+        'Stop' => gettext('Stop')
     );
     my $sql =
 qq|
 SELECT SQL_CACHE 
-    e.eventid as $f{'Service'},
-    e.title as $f{'Title'},
+    e.eventid as \'$f{'Service'}\',
+    e.title as \'$f{'Title'}\',
     e.subtitle as __Subtitle,
-    c.Name as $f{'Channel'},
+    c.Name as \'$f{'Channel'}\',
     c.POS as __POS,
     g.Name as __Channelgroup,
-    DATE_FORMAT(e.starttime, "%H:%i") as $f{'Start'},
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as $f{'Stop'},
+    DATE_FORMAT(e.starttime, "%H:%i") as \'$f{'Start'}\',
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
     e.description as __Description,
     999 as __Percent,
     IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __VPS
@@ -906,26 +914,26 @@ sub runningNow {
     $zeit++;
 
     my %f = (
-        'Service' => umlaute(gettext('Service')),
-        'Title' => umlaute(gettext('Title')),
-        'Channel' => umlaute(gettext('Channel')),
-        'Start' => umlaute(gettext('Start')),
-        'Stop' => umlaute(gettext('Stop')),
-        'Percent' => umlaute(gettext('Percent')),
+        'Service' => gettext('Service'),
+        'Title' => gettext('Title'),
+        'Channel' => gettext('Channel'),
+        'Start' => gettext('Start'),
+        'Stop' => gettext('Stop'),
+        'Percent' => gettext('Percent')
     );
     my $sql =
 qq|
 SELECT SQL_CACHE 
-    e.eventid as $f{'Service'},
-    e.title as $f{'Title'},
+    e.eventid as \'$f{'Service'}\',
+    e.title as \'$f{'Title'}\',
     e.subtitle as __Subtitle,
-    c.Name as $f{'Channel'},
+    c.Name as \'$f{'Channel'}\',
     c.POS as __POS,
     g.Name as __Channelgroup,
-    DATE_FORMAT(e.starttime, "%H:%i") as $f{'Start'},
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as $f{'Stop'},
+    DATE_FORMAT(e.starttime, "%H:%i") as \'$f{'Start'}\',
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
     e.description as __Description,
-    (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as $f{'Percent'},
+    (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as \'$f{'Percent'}\',
     IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __VPS
 FROM
     EPG as e, CHANNELS as c, CHANNELGROUPS as g

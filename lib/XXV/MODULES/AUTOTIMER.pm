@@ -250,14 +250,18 @@ sub _init {
 # ------------------
     my $obj = shift || return error('No object defined!');
 
-    return 0, panic("Session to database is'nt connected")
-      unless($obj->{dbh});
+    unless($obj->{dbh}) {
+      panic("Session to database is'nt connected");
+      return 0;
+    }
 
+    my $version = main::getDBVersion();
     # don't remove old table, if updated rows => warn only
-    tableUpdated($obj->{dbh},'AUTOTIMER',19,0);
+    if(!tableUpdated($obj->{dbh},'AUTOTIMER',$version,0)) {
+      return 0;
+    }
 
     # Look for table or create this table
-    my $version = main::getVersion;
     $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS AUTOTIMER (
           Id int(11) unsigned auto_increment NOT NULL,
@@ -337,6 +341,33 @@ sub autotimer {
 
     my $vdrVersion = main::getVdrVersion();
 
+    # Search only for event there added since last runtime.
+    # and search not with TEMPEPG at manual running
+    my $addtime = ((not ref $console) && ($obj->{addtime})) ? $obj->{addtime} : 0;
+    $obj->{addtime} = time unless($autotimerid);
+
+    &bench('AUTOTIMER');
+    if($addtime) {
+
+      # Remove old data
+      $obj->{dbh}->do('DELETE FROM TEMPEPG');
+
+      # Copy only new events from EPG to TEMPEPG, to speed up search
+      my $sql = qq|INSERT INTO TEMPEPG SELECT e.* FROM EPG as e, CHANNELS as c
+                   WHERE e.addtime >= FROM_UNIXTIME(?)|;
+
+      # Exclude unwanted channels
+      if($obj->{exclude}) {
+          $sql .= sprintf(' AND ( e.channel_id = c.Id ) AND NOT (c.%s)', 
+                  $obj->{exclude});
+      }
+
+      my $sth = $obj->{dbh}->prepare($sql)
+        or return error sprintf("Couldn't prepare query: %s.",$sql);
+      $sth->execute($addtime)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    }
+
     # Get Timersmodule
     my $timermod = main::getModule('TIMERS');
     foreach my $id (sort keys %$att) {
@@ -351,7 +382,7 @@ sub autotimer {
         }
 
         # Build SQL Command and run it ....
-        my $events = $obj->_eventsearch($a, $timermod) || next;
+        my $events = $obj->_eventsearch($a, $timermod, $addtime ) || next;
 
         # Only search for one at?
         if(ref $console && $autotimerid) {
@@ -473,6 +504,11 @@ sub autotimer {
             }
         }
     }
+
+    &bench('AUTOTIMER');
+    my $seconds = &bench()->{'AUTOTIMER'};
+    lg sprintf("Runtime %s seconds", $seconds);
+    
 
     $waiter->next(undef,undef,gettext('Read new timers into database.'))
       if(ref $waiter);
@@ -986,39 +1022,43 @@ sub list {
     my $text      = shift || '';
     my $params  = shift;
 
-    my $where = '';
-    if($text =~ /^.*?/) {
-        if($text =~ /^[0-9]+?/) {
-            $where = "WHERE Id = '$text'";
-        } elsif($text) {
-    		$where = 'WHERE '.buildsearch("Search,Dir",$text);
-        }
-    }
+	  my $term;
+	  my $search = '';
+	  if($text and $text =~ /^[0-9,_ ]+$/ ) {
+      my @timers  = split(/[^0-9]/, $text);
+      $search = sprintf(" WHERE Id in (%s)",join(',' => ('?') x @timers));
+      foreach(@timers) { push(@{$term},$_); }
+
+	  } elsif($text) {
+      my $query = buildsearch("Search,Dir",$text);
+      $search = sprintf('WHERE %s', $query->{query});
+      foreach(@{$query->{term}}) { push(@{$term},$_); }
+	  }
 
     my %f = (
-        'Id' => umlaute(gettext('Service')),
-        'Act' => umlaute(gettext('Act')),
-        'Search' => umlaute(gettext('Search')),
-        'Channels' => umlaute(gettext('Channels')),
-        'Start' => umlaute(gettext('Start')),
-        'Stop' => umlaute(gettext('Stop')),
-        'Dir' => umlaute(gettext('Dir')),
-        'Min' => umlaute(gettext('Min')),
+        'Id' => gettext('Service'),
+        'Activ' => gettext('Activ'),
+        'Search' => gettext('Search'),
+        'Channels' => gettext('Channels'),
+        'Start' => gettext('Start'),
+        'Stop' => gettext('Stop'),
+        'Dir' => gettext('Directory'),
+        'Min' => gettext('Minimum length'),
     );
 
     my $sql = qq|
     SELECT SQL_CACHE 
-      Id as $f{'Id'},
-      Activ as $f{'Act'},
-      Search as $f{'Search'},
-      Channels as $f{'Channels'},
-      Dir as $f{'Dir'},
-      Start as $f{'Start'},
-      Stop as $f{'Stop'},
-      MinLength as $f{'Min'}
+      Id as \'$f{'Id'}\',
+      Activ as \'$f{'Activ'}\',
+      Search as \'$f{'Search'}\',
+      Channels as \'$f{'Channels'}\',
+      Dir as \'$f{'Dir'}\',
+      Start as \'$f{'Start'}\',
+      Stop as \'$f{'Stop'}\',
+      MinLength as \'$f{'Min'}\'
     FROM
       AUTOTIMER
-    $where
+    $search
     |;
 
     my $fields = fields($obj->{dbh}, $sql);
@@ -1032,7 +1072,10 @@ sub list {
     else {
         $sql .= " asc"; }
 
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute(@{$term})
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
     my $channels = main::getModule('CHANNELS')->ChannelHash('Id');
@@ -1054,51 +1097,61 @@ sub _eventsearch {
     my $obj = shift  || return error('No object defined!');
     my $a   = shift  || return error('No data defined!');
     my $timermod = shift  || main::getModule('TIMERS') || return error ("Couldn't access modul TIMERS!");
+    my $addtime = shift;
 
 		# Searchstrings to Paragraphs Changed
 		$a->{Search} =~ s/\:/\:\.\*/
 			if($a->{InFields} =~ /description/);
 
-    my $search = buildsearch($a->{InFields}, $a->{Search});
+    my $query = buildsearch($a->{InFields}, $a->{Search});
+    my $search = $query->{query};
+    my $term = $query->{term};
 
     # Start and Stop
     if($a->{Start} and $a->{Stop}) {
         if($a->{Start} > $a->{Stop}) {
-            $search .= "\n AND ((DATE_FORMAT(e.starttime, '%H%i') > $a->{Start} AND DATE_FORMAT(e.starttime, '%H%i') < 2359) OR (DATE_FORMAT(e.starttime, '%H%i') >= 0 and DATE_FORMAT(e.starttime, '%H%i') < $a->{Stop}))";
+            $search .= "\n AND ((DATE_FORMAT(e.starttime, '%H%i') > ? AND DATE_FORMAT(e.starttime, '%H%i') < 2359) OR (DATE_FORMAT(e.starttime, '%H%i') >= 0 and DATE_FORMAT(e.starttime, '%H%i') < ?))";
         } else {
-            $search .= "\n AND (DATE_FORMAT(e.starttime, '%H%i') > $a->{Start} AND DATE_FORMAT(e.starttime, '%H%i') < $a->{Stop})";
+            $search .= "\n AND (DATE_FORMAT(e.starttime, '%H%i') > ? AND DATE_FORMAT(e.starttime, '%H%i') < ?)";
         }
+        push(@{$term},$a->{Start});
+        push(@{$term},$a->{Stop});    
     }
 
     # Min Length
     if(exists $a->{MinLength} and $a->{MinLength}) {
-        $search .= sprintf(" AND e.duration >= %d ", $a->{MinLength} * 60);
+        $search .= " AND e.duration >= ?";
+        push(@{$term},$a->{MinLength} * 60);    
     }
 
     # Channels
     if($a->{Channels} and my @channelids = split(',', $a->{Channels})) {
-        @channelids = map {$_ = "'$_'"} @channelids;
-        $search = sprintf(' %s  AND channel_id in (%s)', $search, join(',', @channelids));
+        $search .= sprintf(" AND channel_id in (%s)",join(',' => ('?') x @channelids));
+        foreach(@channelids) {
+          push(@{$term},$_);
+        }
     }
 
     # Weekdays
     if($a->{Weekdays} and my @weekdays = split(',', $a->{Weekdays})) {
         if(scalar @weekdays != 7 and scalar @weekdays != 0) {
-          @weekdays = map {$_ = "'$_'"} @weekdays;
-          $search = sprintf(' %s AND DATE_FORMAT(e.starttime, \'%%a\') in (%s)', $search, join(',', @weekdays));
+          $search .= sprintf(" AND DATE_FORMAT(e.starttime, \'%%a\') in (%s)",join(',' => ('?') x @weekdays));
+          foreach(@weekdays) {
+            push(@{$term},$_);
+          }
         }
     }
 
     # Exclude channels, ifn't already lookup for channels
-    if($obj->{exclude} && not $a->{Channels}) {
-        $search = sprintf(' %s  AND NOT (c.%s)', $search, $obj->{exclude});
+    if($obj->{exclude} && not $a->{Channels} && not $addtime) {
+        $search .= sprintf(' AND NOT (c.%s)', $obj->{exclude});
     }
 
 	# Custom time range
 	my $after = 0;
 	my $prev = 0;
 #	if($a->{VPS} ne 'y') {
-		if(defined $a->{prevminutes}) {
+	  if(defined $a->{prevminutes}) {
 			$prev = $a->{prevminutes} * 60;
 		} else {
 			$prev = $timermod->{prevminutes} * 60;
@@ -1110,6 +1163,8 @@ sub _eventsearch {
 		}
 #	}
 
+    my $table = $addtime ? 'TEMPEPG' : 'EPG';
+
     # Search for events
     my $sql = qq|
 SELECT SQL_CACHE 
@@ -1120,23 +1175,25 @@ SELECT SQL_CACHE
     e.title as Title,
     e.subtitle as Subtitle,
     e.description as Summary,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - $prev ), '%d') as Day,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - $prev ), '%H%i') as Start,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration + $after ), '%H%i') as Stop,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - ? ), '%d') as Day,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - ? ), '%H%i') as Start,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration + ? ), '%H%i') as Stop,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime)), '%d') as VpsDay,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime)), '%H%i') as VpsStart,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime) + e.duration), '%H%i') as VpsStop
 FROM
-    EPG as e,
+    $table as e,
     CHANNELS as c
 WHERE
     ( $search )
     AND ( e.channel_id = c.Id )|;
 
 #dumper $sql;
-    my $data = $obj->{dbh}->selectall_hashref($sql, 'eventid');
 
-    return $data;
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute($prev,$prev,$after,@{$term})
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    return $sth->fetchall_hashref('eventid');
 }
 
 # ------------------

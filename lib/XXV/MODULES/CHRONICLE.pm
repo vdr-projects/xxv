@@ -92,14 +92,19 @@ sub _init {
     my $self = shift || return error('No object defined!');
 
     if($self->{active} eq 'y') {
-      return 0, panic("Session to database is'nt connected")
-        unless($self->{dbh});
 
+      unless($self->{dbh}) {
+        panic("Session to database is'nt connected");
+        return 0;
+      }
+
+      my $version = main::getDBVersion();
       # don't remove old table, if updated rows => warn only
-      tableUpdated($self->{dbh},'CHRONICLE',6,0);
+      if(!tableUpdated($self->{dbh},'CHRONICLE',$version,0)) {
+        return 0;
+      }
 
       # Look for table or create this table
-      my $version = main::getVersion;
       $self->{dbh}->do(qq|
         CREATE TABLE IF NOT EXISTS CHRONICLE (
             id int unsigned auto_increment not NULL,
@@ -157,23 +162,23 @@ sub list {
     my $console = shift || return error('No console defined!');
 
     my %f = (
-        'id' => umlaute(gettext('Service')),
-        'title' => umlaute(gettext('Title')),
-        'subtitle' => umlaute(gettext('Subtitle')),
-        'channel' => umlaute(gettext('Channel')),
-        'day' => umlaute(gettext('Day')),
-        'start' => umlaute(gettext('Start')),
-        'stop' => umlaute(gettext('Stop'))
+        'id' => gettext('Service'),
+        'title' => gettext('Title'),
+        'subtitle' => gettext('Subtitle'),
+        'channel' => gettext('Channel'),
+        'day' => gettext('Day'),
+        'start' => gettext('Start'),
+        'stop' => gettext('Stop')
     );
 
     my $sql = qq|
 SELECT SQL_CACHE 
-  CHRONICLE.id as $f{'id'},
-  CHRONICLE.title as $f{'title'},
-  CHRONICLE.channel_id as $f{'channel'},
-  DATE_FORMAT(CHRONICLE.starttime, '%d.%m.%Y') as $f{'day'},
-  DATE_FORMAT(CHRONICLE.starttime, '%H:%i') as $f{'start'},
-  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(CHRONICLE.starttime) + CHRONICLE.duration), '%H:%i') as $f{'stop'}
+  CHRONICLE.id as \'$f{'id'}\',
+  CHRONICLE.title as \'$f{'title'}\',
+  CHRONICLE.channel_id as \'$f{'channel'}\',
+  DATE_FORMAT(CHRONICLE.starttime, '%d.%m.%Y') as \'$f{'day'}\',
+  DATE_FORMAT(CHRONICLE.starttime, '%H:%i') as \'$f{'start'}\',
+  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(CHRONICLE.starttime) + CHRONICLE.duration), '%H:%i') as \'$f{'stop'}\'
 FROM CHRONICLE
 ORDER BY CHRONICLE.starttime
 |;
@@ -197,23 +202,23 @@ sub search {
     $quest =~ s/\+/\\\\\+/sg;
 
     my %f = (
-        'id' => umlaute(gettext('Service')),
-        'title' => umlaute(gettext('Title')),
-        'subtitle' => umlaute(gettext('Subtitle')),
-        'channel' => umlaute(gettext('Channel')),
-        'day' => umlaute(gettext('Day')),
-        'start' => umlaute(gettext('Start')),
-        'stop' => umlaute(gettext('Stop'))
+        'id' => gettext('Service'),
+        'title' => gettext('Title'),
+        'subtitle' => gettext('Subtitle'),
+        'channel' => gettext('Channel'),
+        'day' => gettext('Day'),
+        'start' => gettext('Start'),
+        'stop' => gettext('Stop')
     );
 
     my $sql = qq|
 SELECT SQL_CACHE 
-  CHRONICLE.id as $f{'id'},
-  CHRONICLE.title as $f{'title'},
-  CHRONICLE.channel_id as $f{'channel'},
-  DATE_FORMAT(CHRONICLE.starttime, '%d.%m.%Y') as $f{'day'},
-  DATE_FORMAT(CHRONICLE.starttime, '%H:%i') as $f{'start'},
-  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(CHRONICLE.starttime) + CHRONICLE.duration), '%H:%i') as $f{'stop'}
+  CHRONICLE.id as \'$f{'id'}\',
+  CHRONICLE.title as \'$f{'title'}\',
+  CHRONICLE.channel_id as \'$f{'channel'}\',
+  DATE_FORMAT(CHRONICLE.starttime, '%d.%m.%Y') as \'$f{'day'}\',
+  DATE_FORMAT(CHRONICLE.starttime, '%H:%i') as \'$f{'start'}\',
+  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(CHRONICLE.starttime) + CHRONICLE.duration), '%H:%i') as \'$f{'stop'}\'
 FROM CHRONICLE
 WHERE CHRONICLE.title RLIKE ?
 ORDER BY CHRONICLE.starttime

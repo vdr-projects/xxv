@@ -190,15 +190,20 @@ sub _init {
 # ------------------
     my $obj = shift || return error('No object defined!');
 
-    return 0, panic("Session to database is'nt connected")
-      unless($obj->{dbh});
+    unless($obj->{dbh}) {
+      panic("Session to database is'nt connected");
+      return 0;
+    }
 
-    # remove old table, if updated rows
-    tableUpdated($obj->{dbh},'CHANNELS',16,1);
-    tableUpdated($obj->{dbh},'CHANNELGROUPS',3,1);
+    my $version = 26; # Must be increment if rows of table changed
+    # this tables hasen't handmade user data,
+    # therefore old table could dropped if updated rows
+    if(!tableUpdated($obj->{dbh},'CHANNELS',$version,1)
+      || !tableUpdated($obj->{dbh},'CHANNELGROUPS',$version,1)) {
+        return 0;
+    }
 
     # Look for table or create this table
-    my $version = main::getVersion;
     $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS CHANNELS (
           Id varchar(100) NOT NULL,

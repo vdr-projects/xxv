@@ -193,16 +193,20 @@ sub _init {
 # ------------------
     my $obj = shift || return error('No object defined!');
 
-    return 0, panic("Session to database is'nt connected")
-      unless($obj->{dbh});
+    unless($obj->{dbh}) {
+      panic("Session to database is'nt connected");
+      return 0;
+    }
 
+    my $version = main::getDBVersion();
     # don't remove old table, if updated rows => warn only
-    tableUpdated($obj->{dbh},'MEDIALIB_ACTORS',4,0);
-    tableUpdated($obj->{dbh},'MEDIALIB_VIDEODATA',33,0);
-    tableUpdated($obj->{dbh},'MEDIALIB_VIDEOGENRE',2,0);
+    if(!tableUpdated($obj->{dbh},'MEDIALIB_ACTORS',$version,0)
+       ||!tableUpdated($obj->{dbh},'MEDIALIB_VIDEODATA',$version,0)
+       ||!tableUpdated($obj->{dbh},'MEDIALIB_VIDEOGENRE',$version,0)) {
+      return 0;
+    }
 
     # Look for tables or create this tables
-    my $version = main::getVersion;
     $obj->{dbh}->do(qq|
         CREATE TABLE IF NOT EXISTS MEDIALIB_ACTORS (
           name varchar(255) NOT NULL default '',
