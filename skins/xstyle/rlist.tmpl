@@ -19,7 +19,7 @@
 <?% END %?>
 
 <?% BLOCK image %?>
-    <?% files = param.getPreview(eventid) %?>
+    <?% files = param.getPreview(id) %?>
     <?% IF type == 'RADIO' %?>
 	<img src="images/radio.png" width="200" title="<?% gettext('Radio recording') %?>" />
     <?% ELSE %?>

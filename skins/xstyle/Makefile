@@ -4,7 +4,7 @@
 # $Id$
 
 SKIN = xstyle
-VERSION = 0.95
+VERSION = 1.1
 
 ### The name of the distribution archive:
 

@@ -4,7 +4,7 @@
 # $Id$
 
 SKIN = $(shell basename `pwd`)
-VERSION = 1.0
+VERSION = 1.1
 
 ### The name of the distribution archive:
 

@@ -72,7 +72,7 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK image %?>
-	<?%- files = param.getPreview(eventid);
+	<?%- files = param.getPreview(id);
          IF type == 'RADIO';
             mylist = [ "images/audio", global.imagetyp ];
             preview = mylist.join('.') ;
