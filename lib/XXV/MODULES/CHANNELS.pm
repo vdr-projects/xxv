@@ -879,7 +879,7 @@ sub editChannel {
         sleep(1);
         $self->readData($watcher,$console);
 
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
+        $console->redirect({url => '?cmd=clist', wait => 1})
             if($console->typ eq 'HTML');
     }
 }
@@ -976,7 +976,7 @@ sub deleteChannel {
 
         $self->readData($watcher,$console);
 
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+        $console->redirect({url => '?cmd=clist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     } else {
         $console->err(gettext("No channel defined for deletion!"));

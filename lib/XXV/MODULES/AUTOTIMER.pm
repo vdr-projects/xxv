@@ -904,10 +904,8 @@ You can also fine tune your search :
             );
         $obj->autotimer($watcher, $console, $data->{Id});
 
-        $console->link({
-            text => gettext("Back to previous page."),
-            url => $console->{browser}->{Referer},
-        }) if($console->typ eq 'HTML');
+        $console->redirect({url => '?cmd=alist', wait => 1})
+          if($console->typ eq 'HTML');
 
     }
     return 1;
@@ -939,7 +937,7 @@ sub autotimerDelete {
         join(',', @timers),
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
-    $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+    $console->redirect({url => '?cmd=alist', wait => 1})
         if($console->typ eq 'HTML');
 }
 
@@ -999,7 +997,7 @@ sub autotimerToggle {
         push(@$erg,[$timer,($status eq 'n' ? 0 : 1),0,0]);
     }
 
-    $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
+    $console->redirect({url => '?cmd=alist', wait => 1})
         if($console->typ eq 'HTML');
 
     if($console->typ eq 'AJAX') {

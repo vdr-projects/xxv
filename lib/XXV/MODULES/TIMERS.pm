@@ -777,7 +777,7 @@ WHERE
                 $console->err($erg);
         }
         $obj->readData($watcher,$console);
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
+        $console->redirect({url => '?cmd=tlist', wait => 1})
             if($console->typ eq 'HTML');
     }
 }
@@ -837,7 +837,7 @@ sub deleteTimer {
 
         $obj->readData($watcher,$console);
 
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+        $console->redirect({url => '?cmd=tlist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     } else {
         $console->err(gettext("No timer to delete!"));
@@ -894,7 +894,7 @@ sub toggleTimer {
 
         $obj->readData($watcher, $console);
 
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+        $console->redirect({url => '?cmd=tlist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
 
         if(ref $console and $console->typ eq 'AJAX') {
@@ -1034,7 +1034,7 @@ sub readData {
     $console->message(sprintf(gettext("%d timer written to database."), $c), {overlapping => $overlapping})
         if(ref $console and $console->typ ne 'AJAX');
 
-    $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+    $console->redirect({url => '?cmd=tlist', wait => 1})
         if(ref $console and $console->typ eq 'HTML');
 
     return 1;

@@ -309,7 +309,7 @@ sub startReadEpgData {
         $console->start() if(ref $waiter);
         $console->message(sprintf(gettext("%d events in database updated."), $updated));
 
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
+        $console->redirect({url => '?cmd=now', wait => 1})
             if($console->typ eq 'HTML');
     }
 }

@@ -270,7 +270,7 @@ sub switch {
 
     $console->msg($erg, $svdrp->err)
         if(ref $console);
-    $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+    $console->redirect({url => sprintf('?cmd=program&amp;data=%s',$channel), wait => 1})
         if(ref $console and $console->typ eq 'HTML');
 
 

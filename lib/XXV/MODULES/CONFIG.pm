@@ -186,7 +186,7 @@ sub edit {
             );
 
         $console->message(sprintf(gettext("Section: '%s' saving ... please wait."), $sector));
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
+        $console->redirect({url => sprintf('?cmd=configedit&amp;data=%s',$sector), wait => 1})
             if($console->typ eq 'HTML');
     }
 }
@@ -206,7 +206,7 @@ sub write {
     $console->message(sprintf gettext("Configuration written to '%s'."), $configfile)
         if(ref $console);
 
-    $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+    $console->redirect({url => '?cmd=configedit', wait => 2})
         if(ref $console and $console->typ eq 'HTML');
 }
 

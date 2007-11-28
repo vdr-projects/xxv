@@ -1853,6 +1853,7 @@ WHERE
             $ChangeRecordingData = 1;
             $dropEPGEntry = 1;
             $touchVDR = 1;
+            $rec->{Path} = $newPath;
         }
 
         if($dropEPGEntry) { # Delete EpgOld Entrys
@@ -1881,7 +1882,7 @@ WHERE
         }
         $obj->readData($watcher,$console,$waiter);
 
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 1})
+        $console->redirect({url => sprintf('?cmd=rdisplay&amp;data=%s',md5_hex($rec->{Path})), wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     }
 

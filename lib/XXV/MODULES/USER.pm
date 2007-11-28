@@ -481,7 +481,7 @@ sub edit {
             );
 
         $console->message(gettext('User account saved!'));
-        $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
+        $console->redirect({url => '?cmd=ulist', wait => 1})
             if($console->typ eq 'HTML');
     }
     return 1;
@@ -508,7 +508,7 @@ sub delete {
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    $console->redirect({url => $console->{browser}->{Referer}, wait => 2})
+    $console->redirect({url => '?cmd=ulist', wait => 1})
         if($console->typ eq 'HTML');
 
 }
