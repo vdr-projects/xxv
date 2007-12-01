@@ -19,15 +19,15 @@
                  Stunden = c div 3600;
                  Minuten = c div 60 mod 60;
             -%?>
-        <td bgcolor="white" width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) | format('%d') %?>" align='right'>
-            <font size='1'><?% Stunden | format('%02d') %?>:<?% Minuten | format('%02d') %?></font>
+        <td bgcolor="white" width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) div 1 %?>" align='right'>
+            <font size='1'><?% Stunden div 1 | format('%02d') %?>:<?% Minuten div 1 | format('%02d') %?></font>
         </td>
         <?% END %?>
     </tr>
     <tr>
         <?% c = 0 %?>
         <?% abstand = abstand div 3 %?>
-        <td bgcolor="white" colspan="<?% colspan %?>"><nobr><?%- WHILE c < range -%?><?%- c = c + abstand; percent = (abstand / data.Duration) * width -%?><img style="background:white" src='/images/trans.gif' width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) | format('%d') %?>" height='10'><img style="background:<?% c % 900 ? "gray" : "black" %?>" src='/images/trans.gif' width="<?% c % 3600 ? "1" : "2" %?>" height='<?% (c % 900 ? "5" : "10") %?>'><?%- END -%?></td>
+        <td bgcolor="white" colspan="<?% colspan %?>"><nobr><?%- WHILE c < range -%?><?%- c = c + abstand; percent = (abstand / data.Duration) * width -%?><img style="background:white" src='/images/trans.gif' width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) div 1 %?>" height='10'><img style="background:<?% c % 900 ? "gray" : "black" %?>" src='/images/trans.gif' width="<?% c % 3600 ? "1" : "2" %?>" height='<?% (c % 900 ? "5" : "10") %?>'><?%- END -%?></td>
     </tr>
     <tr>
         <td colspan="<?% colspan %?>"><nobr><?%- secold = 0;
@@ -42,13 +42,13 @@
                 sec = sec + m.2;
                 percent = ((sec-secold) / data.Duration) * width;
                 bgcolor = (bgcolor == 'red' ? 'white' : 'red');
-            -%?><img style="background:<?% bgcolor %?>" src='images/trans.gif' width="<?% percent | format('%d') %?>" height='10' title="<?% (b < 0 ? "0:00:00.00" : ml.$b) %?> - <?% ml.$c %?>">
+            -%?><img style="background:<?% bgcolor %?>" src='images/trans.gif' width="<?% percent div 1 %?>" height='10' title="<?% (b < 0 ? "0:00:00.00" : ml.$b) %?> - <?% ml.$c %?>">
             <?%- secold = sec;
             END;
             IF data.Duration > secold;
             bgcolor = (bgcolor == 'red' ? 'white' : 'red');
             percent = ((data.Duration - secold) / data.Duration) * width;
-            -%?><img style="background:<?% bgcolor %?>" src="images/trans.gif" width="<?% percent | format('%d') %?>" height="10" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% data.Duration div 3600 | format('%d') %?>:<?% data.Duration div 60 mod 60 | format('%02d') %?>:<?% data.Duration mod 60 | format('%02d') %?>" />
+            -%?><img style="background:<?% bgcolor %?>" src="images/trans.gif" width="<?% percent div 1 %?>" height="10" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% data.Duration div 3600 %?>:<?% data.Duration div 60 mod 60 div 1 | format('%02d') %?>:<?% data.Duration mod 60 div 1 | format('%02d') %?>" />
             <?% END %?>
         </td>
     </tr>
@@ -60,7 +60,7 @@
     <?% Stunden = d div 3600 %?>
     <?% Minuten = d div 60 mod 60 %?>
     <?% Sekunden =  d mod 60 %?>
-    <?% gettext('Duration') %?> : <?% Stunden | format('%d') %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?>
+    <?% gettext('Duration') %?> : <?% Stunden div 1 %?>:<?% Minuten div 1 | format('%02d') %?>:<?% Sekunden div 1 | format('%02d') %?>
 <?% END %?>
 <?% END %?>
 
