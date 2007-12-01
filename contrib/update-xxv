@@ -171,14 +171,14 @@ getVersion()
     maxver=0;
     showInfo 'Retrieving current version'
     for table in $tables ; do
-        tableversion=`eval mysql $mysqlParams -f -B -s $database -e \
+        comment=`eval mysql $mysqlParams -f -B -s $database -e \
           "\"SHOW TABLE STATUS LIKE '$table';\"" 2>/dev/null | cut -f 18`
-        if [ -n "$tableversion" -a "$tableversion" -eq "$tableversion" ] ; then
-          if [ "$tableversion" -lt "$minver" ] ; then
-            minver="$tableversion"
+        if echo $comment | egrep -q '^[0-9]+$' ; then
+          if [ "$comment" -lt "$minver" ] ; then
+            minver="$comment"
           fi
-          if [ "$tableversion" -gt "$maxver" ] ; then
-            maxver="$tableversion"
+          if [ "$comment" -gt "$maxver" ] ; then
+            maxver="$comment"
           fi
         else
             minver="0"
