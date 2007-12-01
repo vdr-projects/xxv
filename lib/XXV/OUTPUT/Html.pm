@@ -255,11 +255,8 @@ sub parseTemplateFile {
           	return $s ? '...' : '';
           }
         },
-        url     => sub{
-            	my $s = shift; # string
-              $s = reentities($s);
-              $s  =~ s/([^a-z0-9A-Z])/sprintf('%%%X', ord($1))/seg;
-              return $s;
+        url => sub{
+            return url(reentities($_[0]));
         },
 
         # translate string, usage : gettext(foo,truncate) or gettext(foo)

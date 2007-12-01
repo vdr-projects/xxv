@@ -97,7 +97,7 @@
           <tr>
             <td>
     <?% IF enableform %?>
-                    <input type="checkbox" value="<?% id %?>" name="<?% title %?>" />
+                    <input type="checkbox" value="<?% id %?>" name="<?% fulltitle %?>" />
     <?% END %?>
                     <?% PROCESS time t=start %?><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?% gettext("Duration") %?>: <?% PROCESS dur d=duration %?>
@@ -200,7 +200,7 @@
             <td>
                 <?% IF c == 0 %?>
     <?% IF enableform %?>
-                    <input type="checkbox" value="<?% id %?>" name="<?% title %?>" />
+                    <input type="checkbox" value="<?% id %?>" name="<?% fulltitle %?>" />
     <?% END %?>
                     <?% PROCESS time t=start %?>
                 <?% ELSIF c == 4 %?>

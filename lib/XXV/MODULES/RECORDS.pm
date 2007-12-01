@@ -507,7 +507,7 @@ sub readData {
                   }
                   # Update duration at database entry
                   $db_data->{$h}->{duration} = $duration;
-                  $db_data->{$h}->{FileSize} = $obj->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * 25));
+                  $db_data->{$h}->{FileSize} = $obj->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * $obj->{framerate}));
 
                   $obj->_updateEvent($db_data->{$h});
                   $obj->_updateFileSize($db_data->{$h});
@@ -861,18 +861,12 @@ sub videoInfo {
     	#Splitt 2005-01-16.04:35.88.99.rec
     	my ($year, $month, $day, $hour, $minute, $prio, $lifetime)
              = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\.rec/si;
-#    	if($year && $month && $day && $hour && $minute && $year >= 1970 && $year < 2038 ) {
-#    		@{$status->{mtime}} = localtime(timelocal(0,int($minute),int($hour),$day,$month-1,$year-1900));
-#    	} else {
-#            my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
-#        	    $atime,$mtime,$ctime,$blksize,$blocks) = stat $file;
-#    		@{$status->{mtime}} = localtime $mtime;
-#    	}
+
         $status->{Prio} = $prio;
         $status->{Lifetime} = $lifetime;
 
         $status->{duration} = $obj->_recordinglength($path);
-        $status->{FileSize} = $obj->_recordingCapacity(\@files,($status->{duration} * 8 * 25));
+        $status->{FileSize} = $obj->_recordingCapacity(\@files,($status->{duration} * 8 * $obj->{framerate}));
 
         # Schnittmarken ermitteln
         my $marks = sprintf("%s/marks.vdr", $path);
@@ -1051,7 +1045,7 @@ sub videoPreview {
     my $scalex = 180;
     my $mversions = {
       'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
-                              $obj->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join('" "',@files), qquote($log)),
+                              $obj->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
       'MPlayer1.0pre6' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg:outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
                               $obj->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
       'vdr2jpeg'       => sprintf("%s -r %s -f %s -x %d -o %s >> %s 2>&1",
@@ -1258,7 +1252,7 @@ sub play {
 
     my $cmd = sprintf('PLAY %d begin', $rec->{RecordID});
     if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
-      $console->redirect({url => sprintf('?cmd=rdisplay&amp;data=%s',$rec->{RecordMD5}), wait => 1})
+      $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
       return 1;
     }
@@ -1283,7 +1277,7 @@ sub cut {
 
     my $cmd = sprintf('EDIT %d', $rec->{RecordID});
     if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
-      $console->redirect({url => sprintf('?cmd=rdisplay&amp;data=%s',$rec->{RecordMD5}), wait => 1})
+      $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
       return 1;
     }
@@ -1553,7 +1547,7 @@ sub delete {
           my @t = split('~', $todelete[0]);
           if(scalar @t > 1) { # Remove subtitle
             delete $t[-1];
-            $console->redirect({url => sprintf('?cmd=rlist&amp;data=%s',join('~',@t)), wait => 1});
+            $console->redirect({url => sprintf('?cmd=rlist&data=%s',url(join('~',@t))), wait => 1});
           } else {
             $console->redirect({url => '?cmd=rlist', wait => 1});
           }
@@ -1690,7 +1684,7 @@ WHERE
             def     => $mod->ChannelToPos($channel),
             choices => sub {
                 my $erg = $mod->ChannelArray('Name');
-                unshift(@$erg, gettext("Undefined"));                          
+                unshift(@$erg, [gettext("Undefined"),undef]);                          
                 return $erg;
             },
             msg   => gettext('Channel'),
@@ -1901,7 +1895,7 @@ WHERE
         }
         $obj->readData($watcher,$console,$waiter);
 
-        $console->redirect({url => sprintf('?cmd=rdisplay&amp;data=%s',md5_hex($rec->{Path})), wait => 1})
+        $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',md5_hex($rec->{Path})), wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     }
 
@@ -2150,7 +2144,7 @@ sub _recordinglength {
 
     if(-r $f) {
         my $bytes = stat($f)->size;
-        return int(($bytes / 8) / 25);
+        return int(($bytes / 8) / $obj->{framerate});
     } else {
         error sprintf("Couldn't read : '%s'", $f);
     }

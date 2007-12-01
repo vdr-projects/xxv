@@ -21,9 +21,10 @@ our $BENCH      = {};
 our $LOGCALLB   = sub{ };
 our $DBH        = {};
 
-@EXPORT = qw(&datum &stackTrace &lg &event &debug &error &panic &rep2str &dumper &getFromSocket &fields
- &load_file &save_file &tableUpdated &buildsearch &deleteDir &getip &convert &int &entities &reentities &bench
- &fmttime &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch);
+@EXPORT = qw(&datum &stackTrace &lg &event &debug &error &panic &rep2str &dumper 
+ &getFromSocket &fields &load_file &save_file &tableUpdated &buildsearch 
+ &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
+ &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url);
 
 
 # ------------------
@@ -605,6 +606,14 @@ sub touch {
     utime ($now, $now, $file)
         || open (TMP, ">>$file")
         || error sprintf("Couldn't touch '%s' : %s",$file,$!);
+}
+
+# ------------------
+sub url{
+# ------------------
+  	my $s = shift; # string
+    $s  =~ s/([^a-z0-9A-Z])/sprintf('%%%X', ord($1))/seg;
+    return $s;
 }
 
 1;
