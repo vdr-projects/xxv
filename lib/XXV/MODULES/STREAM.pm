@@ -169,7 +169,7 @@ sub play_record {
         $console->{noFooter} = 1;
 
         my $arg;
-        $arg->{'attachment'} = sprintf("playrecord%d.m3u", $recid);
+        $arg->{'attachment'} = sprintf("%s.m3u", $recid);
         $arg->{'Content-Length'} = length($data);
 
         $console->out($data, $obj->{mimetyp}, %{$arg} );

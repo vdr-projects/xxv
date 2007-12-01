@@ -206,6 +206,9 @@ sub status {
     my $erg = $obj->command('stat disk');
     $console->msg($erg, $obj->err)
         if(ref $console);
+    return 1 
+      unless($obj->{ERROR});
+    return 0;
 }
 
 # ------------------
@@ -217,7 +220,15 @@ sub scommand {
     my $text = shift || return $console->err(gettext("No command defined! Please use scommand 'cmd'."));
 
     my $erg = $obj->command($text);
-    $console->msg($erg, $obj->err);
+
+    return 0
+      unless($erg || $obj->{ERROR});
+
+    $console->msg($erg, $obj->{ERROR});
+  
+    return 1 
+      unless($obj->{ERROR});
+    return 0;
 }
 
 

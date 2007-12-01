@@ -57,12 +57,12 @@
             <td>
                   <a href="?cmd=rlist&amp;data=<?% url( fulltitle ) %?>">
                   <b><?% foldertitle %?></b><br />
-                  <?% IF new > 0 %?>
+                  <?% IF new %?>
                   <img src="images/newfolder.png" alt="" title="<?% gettext("New recording") %?>" />
                   <?% ELSE %?>
                   <img src="images/foldericon.png" alt="" />
                   <?% END %?>
-		          &nbsp;<?% folder %?><?% IF new > 0 %?>&nbsp;(<?% new %?>)<?% END %?>&nbsp;<?% gettext("more recordings") %?>&nbsp;...
+		          &nbsp;<?% folder %?><?% IF new %?>&nbsp;(<?% new %?>)<?% END %?>&nbsp;<?% gettext("more recordings") %?>&nbsp;...
                   </a>
                   <img src="images/blank.png" height="1" width="200" alt="" />
             </td>
@@ -84,7 +84,7 @@
                   </div>
                   <div style="height:3em; overflow:hidden;">
                   <?% INCLUDE bloecke/tooltip.tmpl cmd="rdisplay" linkid=id ttp_offset=0 %?>
-                  <?% IF new > 0 %?><img src="images/new.png" alt="" title="<?% gettext("New recording") %?>" /><?% END %?>
+                  <?% IF new %?><img src="images/new.png" alt="" title="<?% gettext("New recording") %?>" /><?% END %?>
                   <b><?% (title.match('[a-z]') ? title : fulltitle) %?></b>
                   <?% IF subtitle %?>
                   <br>&nbsp;<?% subtitle %?>
@@ -181,12 +181,12 @@
             <?% IF folder > 1 %?>
             <td colspan="4">
                   <a href="?cmd=rlist&amp;data=<?% url( fulltitle ) %?>">
-                  <?% IF new > 0 %?>
+                  <?% IF new %?>
                   <img src="images/newfolder.png" alt="" title="<?% gettext("New recording") %?>" />
                   <?% ELSE %?>
                   <img src="images/foldericon.png" alt="" />
                   <?% END %?>
-                  <b><?% foldertitle.split('~').last %?></b>&nbsp;<?% folder %?><?% IF new > 0 %?>&nbsp;(<?% new %?>)<?% END %?>&nbsp;<?% gettext("more recordings") %?>&nbsp;...
+                  <b><?% foldertitle.split('~').last %?></b>&nbsp;<?% folder %?><?% IF new %?>&nbsp;(<?% new %?>)<?% END %?>&nbsp;<?% gettext("more recordings") %?>&nbsp;...
                   </a>
             </td>
             <?% ELSE %?>
@@ -207,7 +207,7 @@
                     <?% PROCESS dur d=field %?>
                 <?% ELSIF c == 2 # title %?>
                     <?% INCLUDE bloecke/tooltip.tmpl cmd="rdisplay" linkid=id ttp_offset=0 %?>
-                    <?% IF new > 0 %?><img src="images/new.png" alt="" title="<?% gettext("New recording") %?>" />&nbsp;<?% END %?>
+                    <?% IF new %?><img src="images/new.png" alt="" title="<?% gettext("New recording") %?>" />&nbsp;<?% END %?>
                     <?% var = (field.split('~').last.match('[a-z]') ? field.split('~').last : zeile.9);chop(var,30) %?>
                     </a>
                 <?% ELSE %?>

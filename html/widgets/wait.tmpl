@@ -26,7 +26,7 @@
     <?% color = (step * c) <= data.current ? "red" : "white" %?>
     <td bgcolor="<?% color %?>">&nbsp;&nbsp;&nbsp;</td>
 <?% END %?>
-    <td>&nbsp;<b><?% percent | format "%02d" %?>%</b> (<?% data.eta %?>)</td>
+    <td>&nbsp;<b><?% percent div 1 | format "%02d" %?>%</b> (<?% data.eta %?>)</td>
 </table>
 </center>
 </body>

@@ -634,11 +634,8 @@ DELETE FROM OLDEPG
             lg join("\n", @$err);
             $console->err($err);
         }
-
-        $console->redirect({url => '?cmd=rlist', wait => 1})
-            if($console->typ eq 'HTML');
     }
-    return 1;
+    return (scalar @{$err} == 0);
 }
 
 # Routine um Callbacks zu registrieren und
@@ -679,7 +676,11 @@ sub refresh {
       }
     }
 
-    return $obj->readData($watcher,$console,$waiter,1);
+    if($obj->readData($watcher,$console,$waiter,1)
+        && ref $console) {
+        $console->redirect({url => '?cmd=rlist', wait => 1})
+            if($console->typ eq 'HTML');
+    }
 }
 
 # ------------------
@@ -1247,7 +1248,7 @@ sub play {
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
-    my $sql = qq|SELECT SQL_CACHE  RecordID FROM RECORDS WHERE RecordMD5 = ?|;
+    my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
@@ -1256,7 +1257,12 @@ sub play {
     }
 
     my $cmd = sprintf('PLAY %d begin', $rec->{RecordID});
-    return $obj->{svdrp}->scommand($watcher, $console, $cmd);
+    if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
+      $console->redirect({url => sprintf('?cmd=rdisplay&amp;data=%s',$rec->{RecordMD5}), wait => 1})
+          if(ref $console and $console->typ eq 'HTML');
+      return 1;
+    }
+    return 0;
 }
 
 # ------------------
@@ -1267,7 +1273,7 @@ sub cut {
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
 
-    my $sql = qq|SELECT SQL_CACHE  RecordID FROM RECORDS WHERE RecordMD5 = ?|;
+    my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
@@ -1276,7 +1282,12 @@ sub cut {
     }
 
     my $cmd = sprintf('EDIT %d', $rec->{RecordID});
-    return $obj->{svdrp}->scommand($watcher, $console, $cmd);
+    if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
+      $console->redirect({url => sprintf('?cmd=rdisplay&amp;data=%s',$rec->{RecordMD5}), wait => 1})
+          if(ref $console and $console->typ eq 'HTML');
+      return 1;
+    }
+    return 0;
 }
 
 # ------------------
@@ -1537,8 +1548,16 @@ sub delete {
         }
         sleep(1);
 
-        $obj->readData($watcher,$console,$waiter);
-
+        if($obj->readData($watcher,$console,$waiter)
+          && ref $console && $console->typ eq 'HTML') {
+          my @t = split('~', $todelete[0]);
+          if(scalar @t > 1) { # Remove subtitle
+            delete $t[-1];
+            $console->redirect({url => sprintf('?cmd=rlist&amp;data=%s',join('~',@t)), wait => 1});
+          } else {
+            $console->redirect({url => '?cmd=rlist', wait => 1});
+          }
+        }
     } else {
         $console->err(gettext("No recording to delete!"));
     }
