@@ -132,7 +132,7 @@ sub lg {
 sub debug {
 # ------------------
     my $msg = shift;
-    &_msg(250,$msg, 3);
+    &_msg(250,$msg, 4);
     return undef;
 }
 
@@ -144,7 +144,7 @@ sub event {
     my ($package, $filename, $line, $subroutine) = caller(1);
     &{$LOGCALLB}($module, $subroutine, $msg);
 
-    &_msg(270,$msg, 2);
+    &_msg(270,$msg, 3);
     return undef;
 }
 
@@ -153,7 +153,7 @@ sub error {
 # ------------------
     my $msg = shift;
 
-    &_msg(501,$msg, 1);
+    &_msg(501,$msg, 2);
 
     return undef;
 }
@@ -163,7 +163,7 @@ sub panic {
 # ------------------
     my $msg = shift;
 
-    &_msg(550,$msg, 0);
+    &_msg(550,$msg, 1);
 
     return undef;
 }

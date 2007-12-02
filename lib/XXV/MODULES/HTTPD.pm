@@ -285,20 +285,36 @@ sub communicator
             my $request = $data->{Request};
             if($request =~ /epgimages\//) {
                 my $epgMod = main::getModule('EPG');
-                $request =~ s/.*epgimages\//$epgMod->{epgimages}\//;
-                $console->datei($request, $typ);
+                if($epgMod) {
+                  $request =~ s/.*epgimages\//$epgMod->{epgimages}\//;
+                  $console->datei($request, $typ);
+                } else {
+                  $obj->ModulNotLoaded($console,'EPG');
+                }
             } elsif($request =~ /previewimages\//) {
                 my $recMod = main::getModule('RECORDS');
-                $request =~ s/.*previewimages\//$recMod->{previewimages}\//;
-                $console->datei($request, $typ);
+                if($recMod) {
+                  $request =~ s/.*previewimages\//$recMod->{previewimages}\//;
+                  $console->datei($request, $typ);
+                } else {
+                  $obj->ModulNotLoaded($console,'RECORDS');
+                }
             } elsif($request =~ /coverimages\//) {
                 my $musicMod = main::getModule('MUSIC');
-                $request =~ s/.*coverimages\//$musicMod->{coverimages}\//;
-                $console->datei($request, $typ);
+                if($musicMod) {
+                  $request =~ s/.*coverimages\//$musicMod->{coverimages}\//;
+                  $console->datei($request, $typ);
+                } else {
+                  $obj->ModulNotLoaded($console,'MUSIC');
+                }
             } elsif($request =~ /vtximages\//) {
                 my $vtxMod = main::getModule('VTX');
-                $request =~ s/.*vtximages\//$obj->{paths}->{VTXPATH}\//;
-                $console->datei($request, $typ);
+                if($vtxMod) {
+                  $request =~ s/.*vtximages\//$obj->{paths}->{VTXPATH}\//;
+                  $console->datei($request, $typ);
+                } else {
+                  $obj->ModulNotLoaded($console,'VTX');
+                }
             } elsif($request =~ /tempimages\//) {
                 my $tmp = $userMod->userTmp;
                 $request =~ s/.*tempimages\//$tmp\//;
@@ -314,6 +330,8 @@ sub communicator
             $console->footer() unless($console->typ eq 'AJAX' or $console->{noFooter});
         }
 
+    } else {
+      $obj->ModulNotLoaded($console,'USER');
     }
     $console->printout();
 
@@ -421,6 +439,17 @@ sub parseRequest {
 	}
 
 }
+# ------------------
+sub ModulNotLoaded {
+# ------------------
+    my $obj     = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
+    my $modul = shift || return error('No modul defined!');
+
+    $console->statusmsg(500,
+          ,sprintf(gettext("Modul '%s' is'nt loaded!"),$modul),
+          ,gettext("Internal Server Error"));
+}
 
 # ------------------
 sub handleInput {
@@ -454,16 +483,18 @@ sub handleInput {
 
     # Test the command on exists, permissions and so on
     my $u = main::getModule('USER');
-    my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
-    $console->{call} = $cmdname;
-    if($cmdobj and not $shorterr) {
-        $console->{CMDSTAT} = $cmdobj->{callback}($watcher, $console, $udata, $result );
-    } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
-        $console->status403($err);
-        $console->{CMDSTAT} = undef;
+    if($u) {
+      my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
+      $console->{call} = $cmdname;
+      if($cmdobj and not $shorterr) {
+          $cmdobj->{callback}($watcher, $console, $udata, $result );
+      } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
+          $console->status403($err);
+      } else {
+          $obj->usage($watcher, $console, undef, $err);
+      } 
     } else {
-        $obj->usage($watcher, $console, undef, $err);
-        $console->{CMDSTAT} = undef;
+      $obj->ModulNotLoaded($console,'USER');
     }
 }
 
@@ -471,7 +502,18 @@ sub handleInput {
 sub usage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    return main::getModule('CONFIG')->usage(@_);
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $modulename = shift;
+    my $hint = shift;
+
+    my $m = main::getModule('CONFIG');
+    if ($m){
+      return $m->usage($watcher,$console,$modulename,$hint);
+    } else {
+      $obj->ModulNotLoaded($console,'CONFIG');
+    }
+
 }
 
 # ------------------
@@ -537,10 +579,11 @@ sub unzip {
     }
 
     $gz->gzclose();
-
-    my $tmpfile = sprintf('%s/gz_%d.tmp', main::getModule('USER')->userTmp, time);
-
-    return save_file($tmpfile, $text);
+    my $u = main::getModule('USER');
+    if($u) {
+      my $tmpfile = sprintf('%s/gz_%d.tmp', $u->userTmp, time);
+      return save_file($tmpfile, $text);
+    }
 }
 
 

@@ -280,11 +280,13 @@ sub init {
         # make an object for the module
 	    eval "use $moduleName";
         error $@ if $@;
-        $MODULES->{$moduleName} = $moduleName->new(
+        my $modul = $moduleName->new(
             -config => $Config,
             -dbh    => $DBH,
             -paths  => $PATHS,
         );
+
+        $MODULES->{$moduleName} = $modul if(ref $modul);
         debug sprintf("Load modul %s(%s)",
             $moduleName,
             (ref $MODULES->{$moduleName})
@@ -422,7 +424,9 @@ sub getModule {
     my $name = shift || return error('No requested modul defined!');
 
     my ($modname) = grep(/${name}$/, keys %$MODULES);
-    unless ($modname && $MODULES->{$modname}) {
+    unless ($modname 
+         && $MODULES->{$modname} 
+         && ref $MODULES->{$modname}) {
       panic sprintf("Requested modul '%s' is'nt loaded!",$name);
       return undef;
     }
