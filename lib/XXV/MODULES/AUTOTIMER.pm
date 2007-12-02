@@ -572,8 +572,10 @@ sub autotimerEdit {
         $epg = $sth->fetchrow_hashref();
 
             # Channels Ids in Namen umwandeln
-            my @channels = map { $_ = $mod->ChannelToPos($_) } split(/[\s|,]+/, $epg->{Channels});
-            $epg->{Channels} = \@channels;
+            if($epg->{Channels}) {
+              my @channels = map { $_ = $mod->ChannelToPos($_) } split(/[\s|,]+/, $epg->{Channels});
+              $epg->{Channels} = \@channels;
+            }
 
             # question erwartet ein Array
             my @done = split(/\s*,\s*/, $epg->{Done});
@@ -626,7 +628,6 @@ sub autotimerEdit {
             msg     => gettext('Activate this autotimer'),
         },
         'Search' => {
-            req   => gettext('This is required!'),
             msg   => 
 gettext("Search terms to search for EPG entries.
 You can also fine tune your search :
@@ -887,10 +888,6 @@ You can also fine tune your search :
     if(ref $data eq 'HASH') {
         delete $data->{Channel};
 
-        # Last chance ;)
-        return $console->err(gettext('Nothing defined for this search!'))
-            unless($data->{Search});
-
     	$obj->_insert($data);
 
     	$data->{Id} = $obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(ID) FROM AUTOTIMER')->[0]
@@ -1097,13 +1094,19 @@ sub _eventsearch {
     my $timermod = shift  || main::getModule('TIMERS') || return error ("Couldn't access modul TIMERS!");
     my $addtime = shift;
 
-		# Searchstrings to Paragraphs Changed
-		$a->{Search} =~ s/\:/\:\.\*/
-			if($a->{InFields} =~ /description/);
+    my $query;
+    my $search = '1';
+    my $term = [];
+  
+    if($a->{Search}) {
+  		# Search strings to Paragraphs Changed
+  		$a->{Search} =~ s/\:/\:\.\*/
+  			if($a->{InFields} =~ /description/);
 
-    my $query = buildsearch($a->{InFields}, $a->{Search});
-    my $search = $query->{query};
-    my $term = $query->{term};
+      $query = buildsearch($a->{InFields}, $a->{Search});
+      $search = $query->{query};
+      $term = $query->{term};
+    }
 
     # Start and Stop
     if($a->{Start} and $a->{Stop}) {
