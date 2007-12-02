@@ -137,6 +137,7 @@ perlModules()
 	checkPerlModule HTML::TextToHTML
 	checkPerlModule HTML::TreeBuilder
 	checkPerlModule JSON
+	checkPerlModule Linux::Inotify2
 	checkPerlModule LWP::Simple
 	checkPerlModule LWP::UserAgent
 	checkPerlModule Locale::gettext

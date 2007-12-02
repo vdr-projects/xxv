@@ -41,6 +41,7 @@ apt-get install \
   libhtml-tree-perl \
   libjson-perl 
   libwww-perl \
+  liblinux-inotify2-perl \
   liblocale-gettext-perl \
   libmp3-info-perl \
   libnet-amazon-perl \

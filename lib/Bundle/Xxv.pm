@@ -35,9 +35,10 @@ Getopt::Long
 HTML::TextToHTML
 HTML::TreeBuilder
 JSON
+Linux::Inotify2
+Locale::gettext
 LWP::Simple
 LWP::UserAgent
-Locale::gettext
 MIME::Base64
 MP3::Info
 Net::Amazon

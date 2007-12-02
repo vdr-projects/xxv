@@ -39,9 +39,9 @@ sub module {
                 type        => 'file',
                 required    => gettext("This is required!"),
             },
-            interval => {
-                description => gettext('How often recordings are to be updated (in seconds)'),
-                default     => 30 * 60,
+            reading => {
+                description => gettext('How often recordings are to be updated (in minutes)'),
+                default     => 180,
                 type        => 'integer',
                 required    => gettext("This is required!"),
             },
@@ -289,6 +289,7 @@ sub _init {
     $obj->{after_updated} = [];
     $obj->{countReading} = 0;
     $obj->{inotify} = undef;
+    $obj->{lastupdate} = 0;
 
     main::after(sub{
         $obj->{svdrp} = main::getModule('SVDRP');
@@ -299,6 +300,7 @@ sub _init {
 
         $obj->{inotify} = new Linux::Inotify2
           or panic "Unable to create new inotify object: $!";
+
         if($obj->{inotify}) {
           Event->io(
               fd =>$obj->{inotify}->fileno, 
@@ -306,35 +308,44 @@ sub _init {
               cb => sub { 
                   $obj->{inotify}->poll 
               });
-          $obj->{inotify}->watch ($obj->{videodir}."/.update", IN_ALL_EVENTS, #IN_UPDATE
+          $obj->{inotify}->watch($obj->{videodir}."/.update", IN_ALL_EVENTS, #IN_UPDATE
             sub {
              my $e = shift;
-               lg sprintf "events for <%s>:%d received: %x\n", $e->fullname, $e->cookie, $e->mask;
-               #lg sprintf "$e->{w}{name} was accessed\n" if $e->IN_ACCESS;
-               #lg sprintf "$e->{w}{name} was modified\n" if $e->IN_MODIFY;
-               #lg sprintf "$e->{w}{name} is no longer mounted\n" if $e->IN_UNMOUNT;
-               #lg sprintf "events for $e->{w}{name} have been lost\n" if $e->IN_Q_OVERFLOW;
-               $obj->readData() if($e->mask == 4);
-               # Update preview images
-               Event->timer(after => 300, cb => sub {
-                $_[0]->w->cancel;
-                $obj->readData();
-               });
+               lg sprintf "inotify events for <%s>:%d received: %x\n", $e->fullname, $e->cookie, $e->mask;
+               if((time - $obj->{lastupdate}) > 15 
+                   && $obj->readData()) {
+                   $obj->{lastupdate} = time;
+                   # Update preview images after five minutes
+                   Event->timer(
+                    after => 300, 
+                    cb => sub {
+                      $_[0]->w->cancel;
+                      if((time - $obj->{lastupdate}) >= 250 && $obj->readData()) {
+                          $obj->{lastupdate} = time;
+                        }
+                      }
+                   );
+               }
             }
           );
         }
 
         # Interval to read recordings and put to DB
         Event->timer(
-            interval => $obj->{interval},
+            interval => $obj->{reading} * 60,
             prio => 6,  # -1 very hard ... 6 very low
-            cb => sub{
-                $obj->readData();
+            cb => sub {
+                my $forceUpdate = ($obj->{countReading} % ( $obj->{fullreading} * 60 / $obj->{reading} ) == 0);
+                if($forceUpdate || (time - $obj->{lastupdate}) > ($obj->{reading}/2) ) {
+                  $obj->readData(undef,undef,undef,$forceUpdate);
+                  $obj->{lastupdate} = time;
+                }
                 $obj->{countReading} += 1;
             },
         );
-        $obj->readData();
+        $obj->readData(undef,undef,undef,'force');
         $obj->{countReading} += 1;
+        $obj->{lastupdate} = time;
         return 1;
     }, "RECORDS: Store recordings in database ...", 20);
 
@@ -422,7 +433,7 @@ sub readData {
     my $console = shift;
     my $waiter = shift;
     # Read manual or Once at day, make full scan
-    my $forceUpdate = shift || ($obj->{countReading} % ( $obj->{fullreading} * 3600 / $obj->{interval} ) == 0);
+    my $forceUpdate = shift;
 
     # Read recording over SVDRP
     my $lstr = $obj->{svdrp}->command('lstr');
@@ -706,7 +717,7 @@ sub refresh {
       }
     }
 
-    if($obj->readData($watcher,$console,$waiter,1)
+    if($obj->readData($watcher,$console,$waiter,'force')
         && ref $console) {
         $console->redirect({url => '?cmd=rlist', wait => 1})
             if($console->typ eq 'HTML');
