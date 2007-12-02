@@ -1578,7 +1578,7 @@ sub delete {
         } else {
 
           if(ref $console) {
-              if($console->typ eq 'HTML') {
+              if($console->typ eq 'HTML' && !$obj->{inotify}) {
                 $waiter = $console->wait($msg,0,1000,'no');
               }else {
                 $console->msg($msg);
