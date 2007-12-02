@@ -957,6 +957,7 @@ sub insert {
     # Search for event at EPG
     my $e = $obj->_getNextEpgId( {
           Id        => $data->[0],
+          Status    => $data->[1],
           ChannelID => $data->[2],
           File      => $data->[8],
           NextStartTime => $data->[10],
@@ -1269,7 +1270,11 @@ SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
         WHERE (Status & 1) 
         AND e.eventid > 0 
         AND t.eventid = e.eventid
-        AND ((e.starttime != t.eventstarttime) OR (e.duration != t.eventduration))
+        AND (
+                   (((t.Status & 4) = 0) AND e.starttime != t.eventstarttime) 
+                OR ((t.Status & 4) AND e.vpstime != t.eventstarttime) 
+                OR (e.duration != t.eventduration)
+            )
         AND SUBSTRING_INDEX( t.File , '~', 1 ) LIKE CONCAT('%', e.title ,'%')
 |;
     my $erg = $obj->{dbh}->selectall_hashref($sql, 'Id');
@@ -1520,16 +1525,16 @@ sub _getNextEpgId {
 
     my $e;
     my @file = split('~', $timer->{File});
-
+    my $timemode = ($timer->{Status} & 4) ? 'vpstime' : 'starttime';
     if(scalar @file >= 2) { # title and subtitle defined
-        my $sth = $obj->{dbh}->prepare(qq|
-            SELECT SQL_CACHE  eventid,starttime,duration from EPG
+        my $sth = $obj->{dbh}->prepare(sprintf(qq|
+            SELECT SQL_CACHE eventid,%s as starttime,duration from EPG
             WHERE
                 channel_id = ? 
-                AND ((UNIX_TIMESTAMP(starttime) + (duration/2)) between  ?  and  ? )
+                AND ((UNIX_TIMESTAMP(%s) + (duration/2)) between  ?  and  ? )
                 AND (title like ? or title like ? )
-            ORDER BY ABS(( ? )-UNIX_TIMESTAMP(starttime)) LIMIT 1
-            |);
+            ORDER BY ABS(( ? )-UNIX_TIMESTAMP(%s)) LIMIT 1
+            |,$timemode,$timemode,$timemode));
         if(!$sth->execute($timer->{ChannelID},
                       $timer->{NextStartTime},
                       $timer->{NextStopTime},
@@ -1542,14 +1547,14 @@ sub _getNextEpgId {
         $e = $sth->fetchrow_hashref();
 
     } else {
-        my $sth = $obj->{dbh}->prepare(qq|
-            SELECT SQL_CACHE  eventid,starttime,duration from EPG
+        my $sth = $obj->{dbh}->prepare(sprintf(qq|
+            SELECT SQL_CACHE eventid,%s as starttime,duration from EPG
             WHERE
                 channel_id = ? 
-                AND ((UNIX_TIMESTAMP(starttime) + (duration/2)) between  ?  and  ? )
+                AND ((UNIX_TIMESTAMP(%s) + (duration/2)) between  ?  and  ? )
                 AND (title like ? )
-            ORDER BY ABS(( ? )-UNIX_TIMESTAMP(starttime)) LIMIT 1
-            |);
+            ORDER BY ABS(( ? )-UNIX_TIMESTAMP(%s)) LIMIT 1
+            |,$timemode,$timemode,$timemode));
         if(!$sth->execute($timer->{ChannelID},
                       $timer->{NextStartTime},
                       $timer->{NextStopTime},

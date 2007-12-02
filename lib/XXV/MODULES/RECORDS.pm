@@ -298,36 +298,25 @@ sub _init {
            return 0;
         }
 
-        $obj->{inotify} = new Linux::Inotify2
-          or panic "Unable to create new inotify object: $!";
+        my $updatefile = sprintf("%s/.update",$obj->{videodir});
+        if( -r $updatefile) {
+          $obj->{inotify} = new Linux::Inotify2
+            or panic sprintf("Unable to create new inotify object: %s",$!);
 
-        if($obj->{inotify}) {
-          Event->io(
+          if($obj->{inotify}) {
+            # Bind watch to event::io
+            Event->io( 
               fd =>$obj->{inotify}->fileno, 
               poll => 'r', 
-              cb => sub { 
-                  $obj->{inotify}->poll 
-              });
-          $obj->{inotify}->watch($obj->{videodir}."/.update", IN_ALL_EVENTS, #IN_UPDATE
-            sub {
-             my $e = shift;
-               lg sprintf "inotify events for <%s>:%d received: %x\n", $e->fullname, $e->cookie, $e->mask;
-               if((time - $obj->{lastupdate}) > 15 
-                   && $obj->readData()) {
-                   $obj->{lastupdate} = time;
-                   # Update preview images after five minutes
-                   Event->timer(
-                    after => 300, 
-                    cb => sub {
-                      $_[0]->w->cancel;
-                      if((time - $obj->{lastupdate}) >= 250 && $obj->readData()) {
-                          $obj->{lastupdate} = time;
-                        }
-                      }
-                   );
-               }
-            }
-          );
+              cb => sub { $obj->{inotify}->poll }
+            );
+            # watch update file
+            $obj->{inotify}->watch(
+                $updatefile, 
+                IN_ALL_EVENTS, 
+                sub {  my $e = shift; $obj->_notify_readData($e); }
+            );
+          }
         }
 
         # Interval to read recordings and put to DB
@@ -350,6 +339,38 @@ sub _init {
     }, "RECORDS: Store recordings in database ...", 20);
 
     1;
+}
+
+# ------------------
+# Callback to reread data if /video/.update changed by VDR 
+# trigged by file notifcation from inotify
+sub _notify_readData {
+# ------------------
+  my $obj = shift || return error('No object defined!');
+  my $e = shift;
+  lg sprintf "notify events for %s:%d received: %x\n", $e->fullname, $e->cookie, $e->mask;
+
+  if((time - $obj->{lastupdate}) > 15  # Only if last update prior 15 seconds (avoid callback chill)
+     && $obj->readData()) {
+
+        $obj->{lastupdate} = time;
+
+        # Update preview images after five minutes
+        my $tmod = main::getModule('TIMERS');
+        my $after = ($tmod->{prevminutes}) * 2;
+        $after = 300 if($after <= 300);
+
+        Event->timer(
+        after => $after, 
+        cb => sub {
+          $_[0]->w->cancel;
+          if((time - $obj->{lastupdate}) >= ($after - 30) 
+              && $obj->readData()) {
+              $obj->{lastupdate} = time;
+            }
+          }
+        );
+    }
 }
 
 # ------------------

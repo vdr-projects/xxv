@@ -140,7 +140,7 @@ importDb()
     showInfo 'Restoring Data'
     for table in $tables ; do
         savFile="$exportDir/$table.sav"
-        if [ -e "$savfile" ]; then
+        if [ -e "$savFile" ]; then
           if ! eval mysql $mysqlParams -f -B $database -e \
             "\"load data infile '$savFile' into table $table;\"" ; then
               showError "Can't load table '$table'"
@@ -289,7 +289,7 @@ fi
 # backup
 if [ -n $backupTarget ] ; then
     showInfo 'Performing backup...'
-    mysqldump $mysqlParams $database | gzip >"$backupTarget.gz" 2>/dev/null
+    mysqldump $mysqlParams $database $tables | gzip >"$backupTarget.gz" 2>/dev/null
     if [ $? -ne 0 ] ; then
         showError 'Backup failed!!!'
         exit 1
