@@ -335,13 +335,13 @@ sub _buildsearchcomma {
     my $out;
     foreach my $su (split(/\s*,\s*/, $Search)) {
     $su =~ s/\./\\\./sg;
-#   $su =~ s/\'/\\\'/sg;
-#   $su =~ s/\"/\./sg;
-    $su =~ s/\*/\\\*/sg;
+#   $su =~ s/\*/\\\*/sg;
     $su =~ s/\+/\\\+/sg;
     $su =~ s/\?/\\\?/sg;
     $su =~ s/\(/\\\(/sg;
     $su =~ s/\)/\\\)/sg;
+
+    $su =~ s/\*/\.*/sg;
 
     $out .= ' AND ' if($out);
     if($su =~ s/^\-+//) {
@@ -353,7 +353,7 @@ sub _buildsearchcomma {
         push(@$term,$su);
     }
   }
-# dumper($out);
+
   return {
     query => $out,
     term => $term    
@@ -384,13 +384,13 @@ sub _buildsearchlogical {
         $out .= " AND" unless($op);
       
         $su =~ s/\./\\\./sg;
-#       $su =~ s/\'/\\\'/sg;
-#       $su =~ s/\"/\./sg;
-        $su =~ s/\*/\\\*/sg;
+#       $su =~ s/\*/\\\*/sg;
         $su =~ s/\+/\\\+/sg;
         $su =~ s/\?/\\\?/sg;
         $su =~ s/\(/\\\(/sg;
         $su =~ s/\)/\\\)/sg;
+
+        $su =~ s/\*/\.*/sg;
 
         $out .= qq| ($queryField RLIKE ?)|;
         push(@$term,$su);
@@ -398,7 +398,7 @@ sub _buildsearchlogical {
       }
   }
   $out .= " )";
-# dumper($out);
+
   return {
     query => $out,
     term => $term    

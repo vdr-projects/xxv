@@ -9,6 +9,7 @@ use File::Path;
 use File::Basename;
 use File::stat;
 use Locale::gettext;
+use Linux::Inotify2;
 
 $SIG{CHLD} = 'IGNORE';
 
@@ -22,7 +23,8 @@ sub module {
         Name => 'RECORDS',
         Prereq => {
             'Time::Local' => 'efficiently compute time from local and GMT time ',
-            'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm'
+            'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm',
+            'Linux::Inotify2' => 'scalable directory/file change notification'
         },
         Description => gettext('This module manages recordings.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -286,12 +288,40 @@ sub _init {
     $obj->{JOBS} = [];
     $obj->{after_updated} = [];
     $obj->{countReading} = 0;
+    $obj->{inotify} = undef;
 
     main::after(sub{
         $obj->{svdrp} = main::getModule('SVDRP');
         unless($obj->{svdrp}) {
            panic ("Couldn't get modul SVDRP");
            return 0;
+        }
+
+        $obj->{inotify} = new Linux::Inotify2
+          or panic "Unable to create new inotify object: $!";
+        if($obj->{inotify}) {
+          Event->io(
+              fd =>$obj->{inotify}->fileno, 
+              poll => 'r', 
+              cb => sub { 
+                  $obj->{inotify}->poll 
+              });
+          $obj->{inotify}->watch ($obj->{videodir}."/.update", IN_ALL_EVENTS, #IN_UPDATE
+            sub {
+             my $e = shift;
+               lg sprintf "events for <%s>:%d received: %x\n", $e->fullname, $e->cookie, $e->mask;
+               #lg sprintf "$e->{w}{name} was accessed\n" if $e->IN_ACCESS;
+               #lg sprintf "$e->{w}{name} was modified\n" if $e->IN_MODIFY;
+               #lg sprintf "$e->{w}{name} is no longer mounted\n" if $e->IN_UNMOUNT;
+               #lg sprintf "events for $e->{w}{name} have been lost\n" if $e->IN_Q_OVERFLOW;
+               $obj->readData() if($e->mask == 4);
+               # Update preview images
+               Event->timer(after => 300, cb => sub {
+                $_[0]->w->cancel;
+                $obj->readData();
+               });
+            }
+          );
         }
 
         # Interval to read recordings and put to DB
@@ -1461,6 +1491,7 @@ sub delete {
 
     my @rcs  = split(/_/, $record);
     my @todelete;
+    my @md5delete;
     my %rec;
         
     foreach my $item (@rcs) {
@@ -1485,7 +1516,8 @@ sub delete {
         # Make hash for better reading
         my $r = {
           Id       => $recording->[0],
-          Title    => $recording->[1]
+          Title    => $recording->[1],
+          MD5      => $recording->[2]
         };
 
         if(ref $console and $console->{TYP} eq 'CONSOLE') {
@@ -1507,6 +1539,7 @@ sub delete {
 
         $obj->{svdrp}->queue_cmds(sprintf("delr %s",$r->{Id}));
         push(@todelete,$r->{Title}); # Remember title
+        push(@md5delete,$r->{MD5}); # Remember hash
 
         # Delete recordings from request, if found in database
         my $i = 0;
@@ -1532,6 +1565,7 @@ sub delete {
         if($obj->{svdrp}->err) {
           $console->err($erg) if(ref $console);
         } else {
+
           if(ref $console) {
               if($console->typ eq 'HTML') {
                 $waiter = $console->wait($msg,0,1000,'no');
@@ -1539,11 +1573,18 @@ sub delete {
                 $console->msg($msg);
               }
           }
-        }
-        sleep(1);
 
-        if($obj->readData($watcher,$console,$waiter)
-          && ref $console && $console->typ eq 'HTML') {
+          my $dsql = sprintf("DELETE FROM RECORDS WHERE RecordMD5 IN (%s)", join(',' => ('?') x @md5delete)); 
+          my $dsth = $obj->{dbh}->prepare($dsql);
+            $sth->execute(@md5delete)
+              or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+
+        }
+
+        $obj->readData($watcher,$console,$waiter)
+          unless($obj->{inotify});
+
+        if(ref $console && $console->typ eq 'HTML') {
           my @t = split('~', $todelete[0]);
           if(scalar @t > 1) { # Remove subtitle
             delete $t[-1];
@@ -1869,6 +1910,10 @@ WHERE
             $rec->{Path} = $newPath;
         }
 
+        if($touchVDR) { #Ab 1.3.11 resync with touch /video/.update
+            touch($obj->{videodir}."/.update");
+        }
+
         if($dropEPGEntry) { # Delete EpgOld Entrys
             my $sth = $obj->{dbh}->prepare('DELETE FROM OLDEPG WHERE eventid = ?');
             $sth->execute($rec->{EventId})
@@ -1881,10 +1926,6 @@ WHERE
                 or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
         }
 
-        if($touchVDR) { #Ab 1.3.11 resync with touch /video/.update
-            touch($obj->{videodir}."/.update");
-        }
-
         my $waiter;
         if(ref $console) {
             if($console->typ eq 'HTML') {
@@ -1893,7 +1934,10 @@ WHERE
               $console->msg(gettext('Recording edited!'));
             }
         }
-        $obj->readData($watcher,$console,$waiter);
+        sleep(1);
+
+        $obj->readData($watcher,$console,$waiter)
+          unless($obj->{inotify});
 
         $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',md5_hex($rec->{Path})), wait => 1})
             if(ref $console and $console->typ eq 'HTML');
