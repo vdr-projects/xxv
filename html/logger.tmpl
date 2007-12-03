@@ -19,7 +19,7 @@
     <?% FOREACH field = fields %?>
         <?% NEXT IF field.match('^__') %?>
         <th>
-            <nobr><?% field | html %?>
+            <nobr><?% field %?>
             <?% IF param.sortable %?>
                 <a href="?cmd=<?% cgi.param('cmd') %?>&__sortby=<?% field %?>&__desc=0"><img src="images/asc.png"></a>
                 <a href="?cmd=<?% cgi.param('cmd') %?>&__sortby=<?% field %?>&__desc=1"><img src="images/desc.png"></a>
