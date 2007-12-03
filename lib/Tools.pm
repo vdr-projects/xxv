@@ -342,6 +342,10 @@ sub _buildsearchcomma {
     $su =~ s/\)/\\\)/sg;
 
     $su =~ s/\*/\.*/sg;
+    # Search strings to paragraphs like Cast:ABC  => 'Cast:[^:]*ABC';
+    if($queryField =~ /description/) {
+      $su =~ s/\:/\:\[\^\:\]\*/;
+    }
 
     $out .= ' AND ' if($out);
     if($su =~ s/^\-+//) {
@@ -391,6 +395,10 @@ sub _buildsearchlogical {
         $su =~ s/\)/\\\)/sg;
 
         $su =~ s/\*/\.*/sg;
+        # Search strings to paragraphs like Cast:ABC  => 'Cast:[^:]*ABC';
+        if($queryField =~ /description/) {
+          $su =~ s/\:/\:\[\^\:\]\*/;
+        }
 
         $out .= qq| ($queryField RLIKE ?)|;
         push(@$term,$su);

@@ -1099,10 +1099,6 @@ sub _eventsearch {
     my $term = [];
   
     if($a->{Search}) {
-  		# Search strings to Paragraphs Changed
-  		$a->{Search} =~ s/\:/\:\.\*/
-  			if($a->{InFields} =~ /description/);
-
       $query = buildsearch($a->{InFields}, $a->{Search});
       $search = $query->{query};
       $term = $query->{term};
