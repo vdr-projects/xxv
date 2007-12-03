@@ -23,7 +23,7 @@
         <tr>
         <?% FOREACH field = fields %?>
             <th style="white-space: nowrap">
-                <?% field | html %?>
+                <?% field %?>
                 <?% IF param.sortable %?>
                 <a href="?cmd=<?% cgi.param('cmd') %?>&__sortby=<?% field %?>&__desc=0"><img src="images/asc.png"></a><a href="?cmd=<?% cgi.param('cmd') %?>&__sortby=<?% field %?>&__desc=1"><img src="images/desc.png"></a>
                 <?% END %?>
