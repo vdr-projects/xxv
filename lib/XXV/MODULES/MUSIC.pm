@@ -229,7 +229,7 @@ sub _init {
         Proto     => 'tcp',
         Reuse     => 1,
         Timeout   => 3600
-    );
+    ) or return error("Couldn't create socket: $!");;
 
     my $channels;
 

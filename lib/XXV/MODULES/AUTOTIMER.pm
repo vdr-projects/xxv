@@ -4,7 +4,7 @@ use strict;
 
 use Tools;
 use Locale::gettext;
-
+use POSIX ":sys_wait_h", qw(strftime);
 
 # ------------------
 # Name:  module
@@ -388,15 +388,14 @@ sub autotimer {
         if(ref $console && $autotimerid) {
             $console->message(sprintf(gettext("Found %d entries for '%s' in EPG database."), scalar keys %$events, $a->{Search}));
             foreach my $Id (sort keys %$events) {
-              my $output = {
-                  gettext("Channel")	   => $events->{$Id}->{Channel},
-                  gettext("Title")	     => $events->{$Id}->{Title},
-                  gettext("Subtitle")	   => $events->{$Id}->{Subtitle},
-                  gettext("Day")	       => $events->{$Id}->{Day},
-                  gettext("Start")	     => fmttime($events->{$Id}->{Start}),
-                  gettext("Stop")	       => fmttime($events->{$Id}->{Stop}),
-                  gettext("Description") => $events->{$Id}->{Summary},
-              };
+              my $output = [
+                  [gettext("Title")	     , $events->{$Id}->{Title}],
+                  [gettext("Subtitle")	 , $events->{$Id}->{Subtitle}],
+                  [gettext("Channel")	   , $events->{$Id}->{Channel}],
+                  [gettext("Start")	     , strftime("%x %X", localtime($events->{$Id}->{starttime}))],
+                  [gettext("Stop")	     , strftime("%x %X", localtime($events->{$Id}->{stoptime}))],
+                  [gettext("Description"), $events->{$Id}->{Summary}],
+              ];
               $console->table($output);
             };
         }
@@ -412,56 +411,62 @@ sub autotimer {
 
             $events->{$Id}->{File} = $obj->_placeholder($events->{$Id}, $a);
 
-            if($events->{$Id}->{VpsStart} and $a->{VPS}) {
+            if($events->{$Id}->{vpsstart} and $a->{VPS}) {
               $events->{$Id}->{VPS} = 'y';
- 	            $events->{$Id}->{Day} = $events->{$Id}->{VpsDay};
- 	            $events->{$Id}->{Start} = $events->{$Id}->{VpsStart};
- 	            $events->{$Id}->{Stop} = $events->{$Id}->{VpsStop};
+ 	            $events->{$Id}->{starttime} = $events->{$Id}->{vpsstart};
+ 	            $events->{$Id}->{stoptime} = $events->{$Id}->{vpsstop};
             }
-
-            my $nexttime = $timermod->getNextTime( $events->{$Id}->{Day} , $events->{$Id}->{Start},$events->{$Id}->{Stop} )
-                  or error(sprintf("Couldn't get next time for this autotimer: %d", $events->{$Id}->{eventid}));
 
             # Add anchor for reidentify timer
             my $aidcomment = sprintf('#~AT[%d]', $id);
 
-			if($vdrVersion >= 10344){
-    	        $events->{$Id}->{Summary} = $aidcomment;
-			} else {
-	            $events->{$Id}->{Summary} .= $aidcomment;
-			}
+        		if($vdrVersion >= 10344){
+          	        $events->{$Id}->{Summary} = $aidcomment;
+        		} else {
+                    $events->{$Id}->{Summary} .= $aidcomment;
+        		}
             
-            my @parameters = ($events->{$Id}, $nexttime, $aidcomment);
-
             # Wished timer already exist with same data from autotimer ?
-            next if($obj->_timerexists(@parameters));
+            next if($obj->_timerexists($events->{$Id}, $aidcomment));
 
             # Adjust timers set by the autotimer
-            my $timerID = $obj->_timerexistsfuzzy(@parameters);
+            my $timerID = $obj->_timerexistsfuzzy($events->{$Id}, $aidcomment);
 
             if(!$timerID && $a->{Done}) {
 
                 my @done = split(',', $a->{Done});
 
                 # Ignore timer if it already with same title recorded
-                if(grep(/^chronicle$/, @done) && $obj->_chronicleexists(@parameters)) {
+                if(grep(/^chronicle$/, @done) && $obj->_chronicleexists($events->{$Id}, $aidcomment)) {
                   lg sprintf("Don't create timer from AT(%d) '%s', because found same data on chronicle", $id, $events->{$Id}->{File});
                   next;
                 }
 
                 # Ignore timer if it already with same title recorded
-                if(grep(/^recording$/, @done) && $obj->_recordexists(@parameters)){
+                if(grep(/^recording$/, @done) && $obj->_recordexists($events->{$Id}, $aidcomment)){
                   lg sprintf("Don't create timer from AT(%d) '%s', because found same data on recordings", $id, $events->{$Id}->{File});
                   next;
                 }
                 # Ignore timer if it already a timer with same title programmed, on other place
-                if(grep(/^timer$/, @done) && $obj->_timerexiststitle(@parameters)){
+                if(grep(/^timer$/, @done) && $obj->_timerexiststitle($events->{$Id}, $aidcomment)){
                   lg sprintf("Don't create timer from AT(%d) '%s', because found same data on other timers", $id, $events->{$Id}->{File});
                   next;
                 }
             }
 
             my $error = 0;
+
+            my ($bsec,$bmin,$bhour,$bmday,$bmon,$byear,$bwday,$byday,$bisdst) = localtime($events->{$Id}->{starttime});
+            my ($esec,$emin,$ehour,$emday,$emon,$eyear,$ewday,$eyday,$eisdst) = localtime($events->{$Id}->{stoptime});
+
+            if($timermod->{newTimerFormat}) {
+              $events->{$Id}->{Day} = sprintf("%04d-%02d-%02d",$byear+1900,$bmon+1,$bmday);
+            } else {
+              $events->{$Id}->{Day} = sprintf("%02d",$bmday);
+            }
+            $events->{$Id}->{Start} = sprintf("%02d%02d",$bhour,$bmin);
+            $events->{$Id}->{Stop}  = sprintf("%02d%02d",$ehour,$emin);
+
             my $erg = $timermod->saveTimer($events->{$Id}, $timerID ? $timerID : undef);
             foreach my $zeile (@$erg) {
                 if($zeile =~ /^(\d{3})\s+(.+)/) {
@@ -1168,12 +1173,10 @@ SELECT SQL_CACHE
     e.title as Title,
     e.subtitle as Subtitle,
     e.description as Summary,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - ? ), '%d') as Day,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) - ? ), '%H%i') as Start,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration + ? ), '%H%i') as Stop,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime)), '%d') as VpsDay,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime)), '%H%i') as VpsStart,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.vpstime) + e.duration), '%H%i') as VpsStop
+    (UNIX_TIMESTAMP(e.starttime) - ? ) as starttime,
+    (UNIX_TIMESTAMP(e.starttime) + e.duration + ?) as stoptime,
+    UNIX_TIMESTAMP(e.vpstime) as vpsstart,
+    (UNIX_TIMESTAMP(e.vpstime) + e.duration) as vpsstop
 FROM
     $table as e,
     CHANNELS as c
@@ -1184,7 +1187,7 @@ WHERE
 #dumper $sql;
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($prev,$prev,$after,@{$term})
+    $sth->execute($prev,$after,@{$term})
       or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     return $sth->fetchall_hashref('eventid');
 }
@@ -1194,7 +1197,7 @@ sub _timerexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
-    my ($nexttime, $aidcomment) = @_;
+    my $aidcomment = shift || return error('No data defined!');
 
     # Avoid Timer already defined (the timer with the same data again do not put on)
     my $sql = "SELECT SQL_CACHE  count(*) as cc from TIMERS where
@@ -1210,7 +1213,7 @@ sub _timerexists {
                 )";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{ChannelID},$nexttime->{start},$nexttime->{stop},
+    $sth->execute($eventdata->{ChannelID},$eventdata->{starttime},$eventdata->{stoptime},
                   $eventdata->{Priority},$eventdata->{Lifetime},
                   $eventdata->{File},$eventdata->{Summary},"%".$aidcomment)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1226,7 +1229,7 @@ sub _timerexistsfuzzy {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
-    my ($nexttime, $aidcomment) = @_;
+    my $aidcomment = shift || return error('No data defined!');
 
     # Adjust timers set by the autotimer
     my $timerID = 0;
@@ -1238,7 +1241,7 @@ sub _timerexistsfuzzy {
                 order by length(Summary) desc;";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{ChannelID},$nexttime->{start},$nexttime->{stop},
+    $sth->execute($eventdata->{ChannelID},$eventdata->{starttime},$eventdata->{stoptime},
                   "%".$aidcomment)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -1252,7 +1255,7 @@ sub _recordexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
-    my ($nexttime, $aidcomment) = @_;
+    my $aidcomment = shift || return error('No data defined!');
 
     # Ignore timer if it already with same title recorded
     my $sql = "SELECT SQL_CACHE  count(*) as cc
@@ -1274,7 +1277,7 @@ sub _chronicleexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
-    my ($nexttime, $aidcomment) = @_;
+    my $aidcomment = shift || return error('No data defined!');
 
     my $chroniclemod  = main::getModule('CHRONICLE');
     return 0
@@ -1295,7 +1298,7 @@ sub _timerexiststitle {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
-    my ($nexttime, $aidcomment) = @_;
+    my $aidcomment = shift || return error('No data defined!');
 
     my $sql = "SELECT SQL_CACHE  count(*) as cc from TIMERS where File = ?";
 

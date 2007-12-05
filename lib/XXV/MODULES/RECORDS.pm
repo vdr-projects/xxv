@@ -294,7 +294,10 @@ sub _init {
     main::after(sub{
         $obj->{svdrp} = main::getModule('SVDRP');
         unless($obj->{svdrp}) {
-           panic ("Couldn't get modul SVDRP");
+           return 0;
+        }
+        $obj->{timers} = main::getModule('TIMERS');
+        unless($obj->{timers}) {
            return 0;
         }
 
@@ -356,8 +359,7 @@ sub _notify_readData {
         $obj->{lastupdate} = time;
 
         # Update preview images after five minutes
-        my $tmod = main::getModule('TIMERS');
-        my $after = ($tmod->{prevminutes}) * 2;
+        my $after = ($obj->{timers}->{prevminutes}) * 2;
         $after = 300 if($after <= 300);
 
         Event->timer(
@@ -556,16 +558,15 @@ sub readData {
               my $duration = $obj->_recordinglength($db_data->{$h}->{path});
               if($duration != $db_data->{$h}->{duration}) {
 
+                  # set addtime only if called from EVENT::TIMER
+                  # avoid generating preview image during user actions
+                  # it's should speedup reading recordings
                   unless($console) {
-                    # set addtime only if called from EVENT::TIMER
-                    # avoid generating preview image during user actions
-                    # it's should speedup reading recordings
-                    $db_data->{$h}->{addtime} = time;
-
-                    # Make Preview and remove older Preview images
-                    my $command = $obj->videoPreview( $db_data->{$h}, 1);
-                    push(@{$obj->{JOBS}}, $command)
-                      if($command && not grep(/\Q$command/g,@{$obj->{JOBS}}));
+                      $db_data->{$h}->{addtime} = time;
+                      # Make preview and remove older Preview images
+                      my $command = $obj->videoPreview( $db_data->{$h}, 1);
+                      push(@{$obj->{JOBS}}, $command)
+                        if($command && not grep(/\Q$command/g,@{$obj->{JOBS}}));
                   }
                   # Update duration at database entry
                   $db_data->{$h}->{duration} = $duration;
@@ -1055,15 +1056,14 @@ sub videoPreview {
       }
     }
 
-    my $tmod = main::getModule('TIMERS');
-    my $startseconds = ($tmod->{prevminutes} * 60) * 2;
-    my $endseconds = ($tmod->{afterminutes} * 60) * 2;
+    my $startseconds = ($obj->{timers}->{prevminutes} * 60) * 2;
+    my $endseconds = ($obj->{timers}->{afterminutes} * 60) * 2;
     my $stepseconds = ($info->{duration} - ($startseconds + $endseconds)) / $count;
-	# reduced interval on short movies
-	if($stepseconds <= 0 or ($startseconds + ($count * $stepseconds)) > $info->{duration}) {
-		$stepseconds = $info->{duration} / ( $count + 2 ) ;
-		$startseconds = $stepseconds;
-	}
+  	# reduced interval on short movies
+  	if($stepseconds <= 0 or ($startseconds + ($count * $stepseconds)) > $info->{duration}) {
+  		$stepseconds = $info->{duration} / ( $count + 2 ) ;
+  		$startseconds = $stepseconds;
+  	}
 
     my @files;
     my @frames;
