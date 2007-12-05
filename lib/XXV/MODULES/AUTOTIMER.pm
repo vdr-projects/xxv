@@ -900,10 +900,6 @@ You can also fine tune your search :
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
         $obj->autotimer($watcher, $console, $data->{Id});
-
-        $console->redirect({url => '?cmd=alist', wait => 1})
-          if($console->typ eq 'HTML');
-
     }
     return 1;
 }
@@ -1091,7 +1087,7 @@ sub _eventsearch {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $a   = shift  || return error('No data defined!');
-    my $timermod = shift  || main::getModule('TIMERS') || return error ("Couldn't access modul TIMERS!");
+    my $timermod = shift || return error('No timer modul defined!');
     my $addtime = shift;
 
     my $query;
@@ -1280,9 +1276,9 @@ sub _chronicleexists {
     my $eventdata = shift  || return error('No data defined!');
     my ($nexttime, $aidcomment) = @_;
 
-    my $chroniclemod  = main::getModule('CHRONICLE') || return error ("Couldn't access modul CHRONICLE!");
+    my $chroniclemod  = main::getModule('CHRONICLE');
     return 0
-      if(not $chroniclemod or $chroniclemod->{active} ne 'y');
+      unless($chroniclemod and $chroniclemod->{active} eq 'y');
 
     my $sql = "SELECT SQL_CACHE  count(*) as cc from CHRONICLE where title = ?";
     my $sth = $obj->{dbh}->prepare($sql);
