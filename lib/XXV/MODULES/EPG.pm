@@ -214,12 +214,8 @@ sub _init {
         return 0;
       }
 
-      # Create TEMPEPG as temporary table, 
-      # which only used inside AUTOTIMER and dropped at shutdown
-      my $temp = $table eq 'TEMPEPG' ? 'TEMPORARY' : '';
-
       $obj->{dbh}->do(qq|
-          CREATE $temp TABLE IF NOT EXISTS $table (
+          CREATE TABLE IF NOT EXISTS $table (
               eventid bigint unsigned NOT NULL default '0',
               title text NOT NULL default '',
               subtitle text default '',
