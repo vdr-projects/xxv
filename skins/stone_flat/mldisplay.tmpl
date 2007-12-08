@@ -136,9 +136,15 @@ seen = f.25;
 <?% FOREACH zeile = param.actors %?>
   <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <?% actor = zeile.0;imgurl=zeile.1 %?>
-    <div style="float:left">
+    <div style="float:left;">
         <div class="actor">
-          <img class="actor" src="?cmd=mlcache&__source=<?% imgurl %?>" alt="<?% actor %?>" />
+          <a href="?cmd=mlsearch&__search&__selfields=actors&__searchitem=<?% actor %?>">
+          <?% IF imgurl %?>
+            <img class="actor" src="?cmd=mlcache&__source=<?% imgurl %?>" alt="<?% actor %?>" />
+          <?% ELSE %?>
+            <img class="actor" src="images/noactor.<?% global.imagetyp %?>" alt="<?% actor %?>" />
+          <?% END %?>
+          </a>
         </div>
         <div class="actortext">
           <?% PROCESS item topic="actors" value=actor %?>

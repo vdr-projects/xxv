@@ -100,17 +100,6 @@ img.cover {
 width:100px;
 }
 
-img.media {
-width:130px;
-}
-
-div.media {
-height:180px;
-vertical-align:middle;
-text-align:center;
-overflow:hidden;
-}
-
 img.medialist {
 width:60px;
 }
@@ -122,16 +111,35 @@ text-align:center;
 overflow:hidden;
 }
 
+img.media {
+height:180px;
+}
+
+div.media {
+width:190px;
+vertical-align:middle;
+text-align:center;
+display: table-cell;
+}
 
 img.actor {
 height:90px;
 }
 
 div.actor {
-width:130px;
+width:110px;
+vertical-align:middle;
+text-align:center;
+display: table-cell;
+}
+
+div.actortext {
+height:2em;
+width:100px;
 vertical-align:middle;
 text-align:center;
 }
+
 a img {
 border:0;
 }

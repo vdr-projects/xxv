@@ -137,7 +137,13 @@ seen = f.25;
     <tr>
       <td class="fieldtext">
         <div class="actor">
-          <img class="actor" src='?cmd=mlcache&__source=<?% imgurl %?>' alt="<?% actor %?>" />
+          <a href="?cmd=mlsearch&__search&__selfields=actors&__searchitem=<?% actor %?>">
+          <?% IF imgurl %?>
+            <img class="actor" src="?cmd=mlcache&__source=<?% imgurl %?>" alt="<?% actor %?>" />
+          <?% ELSE %?>
+            <img class="actor" src="images/noactor.<?% global.imagetyp %?>" alt="<?% actor %?>" />
+          <?% END %?>
+          </a>
         </div>
       </td>
     </tr>

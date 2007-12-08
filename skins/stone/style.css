@@ -103,14 +103,14 @@ width:110px;
 }
 
 img.media {
-width:130px;
+height:180px;
 }
 
 div.media {
-height:180px;
+width:190px;
 vertical-align:middle;
 text-align:center;
-overflow:hidden;
+display: table-cell;
 }
 
 img.actor {
@@ -118,8 +118,12 @@ height:90px;
 }
 
 div.actor {
-width:60px;
+width:190px;
+vertical-align:middle;
+text-align:center;
+display: table-cell;
 }
+
 
 a img {
 border:0;

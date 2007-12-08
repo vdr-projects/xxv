@@ -73,13 +73,20 @@
         # ------------------- Piegraph für Speicher
         FILTER null;
         name = 'memory_now';
+        MemTotal = data.MemTotal div 1024;
+        Active = data.Active div 1024;
+        Cached = data.Cached div 1024;
+        Inactive = data.Inactive div 1024;
+        MemFree = data.MemFree div 1024;
+        Buffers = data.Buffers div 1024;
+
         d2 = [
-            ["Active ${data.Active}","Cached ${data.Cached}","Inactive ${data.Inactive}","MemFree ${data.MemFree}","Buffers ${data.Buffers}"],
+            ["Active ${Active} MB","Cached ${Cached} MB","Inactive ${Inactive} MB","MemFree ${MemFree} MB","Buffers ${Buffers} MB"],
             [ data.Active, data.Cached, data.Inactive, data.MemFree, data.Buffers]
         ];
         USE my_graph = GD.Graph.pie(375, 375);
         label = gettext('Total Memory');
-        label = "${label} ${data.MemTotal}";
+        label = "${label} ${MemTotal} MB";
         my_graph.set(
                 axislabelclr => 'black',
                 pie_height => 20,
