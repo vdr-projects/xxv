@@ -303,22 +303,23 @@ sub _init {
 
         my $updatefile = sprintf("%s/.update",$obj->{videodir});
         if( -r $updatefile) {
-          $obj->{inotify} = new Linux::Inotify2
+          my $inotify = new Linux::Inotify2
             or panic sprintf("Unable to create new inotify object: %s",$!);
 
-          if($obj->{inotify}) {
+          if($inotify) {
             # Bind watch to event::io
             Event->io( 
-              fd =>$obj->{inotify}->fileno, 
+              fd => $inotify->fileno, 
               poll => 'r', 
-              cb => sub { $obj->{inotify}->poll }
+              cb => sub { $inotify->poll }
             );
             # watch update file
-            $obj->{inotify}->watch(
+            $inotify->watch(
                 $updatefile, 
                 IN_ALL_EVENTS, 
                 sub {  my $e = shift; $obj->_notify_readData($e); }
             );
+            $obj->{inotify} = 'active';
           }
         }
 
@@ -359,16 +360,18 @@ sub _notify_readData {
         $obj->{lastupdate} = time;
 
         # Update preview images after five minutes
-        my $after = ($obj->{timers}->{prevminutes}) * 2;
+        my $after = ($obj->{timers}->{prevminutes}) * 60 * 2;
         $after = 300 if($after <= 300);
 
         Event->timer(
+        interval => 60,
         after => $after, 
         cb => sub {
-          $_[0]->w->cancel;
-          if((time - $obj->{lastupdate}) >= ($after - 30) 
-              && $obj->readData()) {
-              $obj->{lastupdate} = time;
+          if((time - $obj->{lastupdate}) >= ($after - 30)) {
+              $_[0]->w->cancel;
+              if($obj->readData()) {
+                $obj->{lastupdate} = time;
+              }
             }
           }
         );

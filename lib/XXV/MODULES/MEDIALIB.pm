@@ -939,8 +939,11 @@ WHERE
     
     my $ret = [];
     foreach my $actor ( split /\n/, $input ) {
-        $erg->{uc($actor)}->{imgurl} =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-        push @$ret, [$actor, $erg->{uc($actor)}->{imgurl}];
+        if($actor) {
+          $erg->{uc($actor)}->{imgurl} =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg
+            if($erg->{uc($actor)}->{imgurl});
+          push @$ret, [$actor, $erg->{uc($actor)}->{imgurl}];
+        }
     }
     
     #print Dumper($erg, $ret);

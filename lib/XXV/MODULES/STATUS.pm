@@ -169,7 +169,7 @@ sub remember {
 
     my $longsteps = int(($obj->{history} * 60 * 60) / $obj->{interval});
 
-    $obj->watchDog($obj->mounts());
+    $obj->watchDog($obj->mounts(undef,'rawdata'));
 
     my $data = {
         timestamp  => time,
@@ -269,7 +269,7 @@ sub memory {
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
-    my $ret = $obj->meminfo();
+    my $ret = $obj->meminfo(undef,$console->typ eq 'HTML');
     my $param = {
         headingText => gettext('Memory'),
         stack => $obj->{rememberstack},
@@ -287,7 +287,7 @@ sub filesys {
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
-    my $ret = $obj->mounts();
+    my $ret = $obj->mounts(undef,$obj->{graphic} eq 'y' && $console->typ eq 'HTML');
     my $param = {
         headingText => gettext('Filesystems'),
         usage => $ret,
@@ -418,8 +418,20 @@ sub netDevs {
     my $clr = shift || 0;
     my $buffer = load_file('/proc/net/dev');
 
-    my $interfaces = [[qw/Interface RxBytes RxPackets RxErrs RxDrop TxBytes TxPackets TxErrs TxDrop/]];
-       $interfaces = [] if($clr);
+    my $interfaces = [
+      [
+        gettext("Interface"),
+        gettext("RxBytes"),
+        gettext("RxPackets"),
+        gettext("RxErrs"),
+        gettext("RxDrop"),
+        gettext("TxBytes"),
+        gettext("TxPackets"),
+        gettext("TxErrs"),
+        gettext("TxDrop")
+      ]
+    ];
+    $interfaces = [] if($clr);
 
     foreach my $line (split(/\n/, $buffer)) {
         my @data = split(/[:|\s]+/, $line);
@@ -438,6 +450,7 @@ sub netDevs {
 sub meminfo {
     my $obj = shift || return error('No object defined!');
     my $clr = shift || 0;
+    my $rawdata = shift || 0;
 
     my $ret = {};
     my $buffer = load_file "/proc/meminfo";
@@ -447,7 +460,7 @@ sub meminfo {
         $value =~ s/ kB//sig;
 
         $value = convert($value * 1024)
-            unless($clr);
+            unless($clr || $rawdata);
 
         $ret->{$name} = $value;
     }
@@ -569,7 +582,14 @@ sub ide {
     my $count = 0;
 
     my @dirList = glob ("/proc/ide/*");
-    my $ret = [[qw/Device Model Capacity Cache/]];
+    my $ret = [
+      [
+        gettext("Device"),
+        gettext("Model"),
+        gettext("Capacity"),
+        gettext("Cache")
+      ]
+    ];
     foreach my $device (@dirList) {
         next unless($device =~ /ide\/hd/);
 
@@ -681,17 +701,28 @@ sub load {
 sub mounts{
     my $obj = shift || return error('No object defined!');
     my $clr = shift || 0;
+    my $rawdata = shift || 0;
 
     my $df = `$obj->{dfBinary} -TP -x cdfs -x iso9660 -x udf`
         or return error "Couldn't execute $obj->{dfBinary} $!\n";
-    my $ret = [[qw/FS Typ Space Used Free Cap. Mount/]];
+    my $ret = [
+      [
+        gettext("Filesystem"),
+        gettext("Typ"),
+        gettext("Space"),
+        gettext("Used"),
+        gettext("Free"),
+        gettext("Capacity"),
+        gettext("Mount")
+      ]
+    ];
 
     foreach my $zeile (split('\n', $df)) {
         my @data = split('\s+', $zeile);
         next if($data[2] !~ /^\d+$/);
 
         $data[0] =~ s/[\-\s]/_/sg;
-
+        $data[5] =~ s/\%//sg if($rawdata);
         if($clr) {
             push(@$ret, $data[5]);
         } else {
@@ -754,10 +785,10 @@ sub watchDog {
 
     foreach my $m (@$mou) {
         next unless($m->[0] =~ /^\//);
-        if(int($m->[5]) >= 98 ) {
+        if($m->[5] >= 90 ) {
             my $rm = main::getModule('REPORT');
             $rm->news(
-                sprintf(gettext("PANIC! Only %s%% space left on device %s"),(100 - int($m->[5])),$m->[0]),
+                sprintf(gettext("PANIC! Only %s%% space left on device %s"),(100 - $m->[5]),$m->[0]),
                 sprintf(gettext("Device has space %s from %s used!"), $m->[3], $m->[2]),
                 'sa',
                 undef,
