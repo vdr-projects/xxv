@@ -1772,7 +1772,6 @@ WHERE
     $data = $console->question(gettext("Edit recording"), $questions, $data);
 
     if(ref $data eq 'HASH') {
-        my $touchVDR = 0;
         my $dropEPGEntry = 0;
         my $ChangeRecordingData = 0;
 
@@ -1883,7 +1882,6 @@ WHERE
                  or return $console->err(sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$newPath,$!));
 
             $rec->{Path} = $newPath;
-            $touchVDR = 1;
             $ChangeRecordingData = 1;
         }
 
@@ -1915,11 +1913,10 @@ WHERE
 
             $ChangeRecordingData = 1;
             $dropEPGEntry = 1;
-            $touchVDR = 1;
             $rec->{Path} = $newPath;
         }
 
-        if($touchVDR) { #Ab 1.3.11 resync with touch /video/.update
+        if($dropEPGEntry || $ChangeRecordingData) { 
             touch($obj->{videodir}."/.update");
         }
 
