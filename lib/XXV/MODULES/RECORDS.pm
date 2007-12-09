@@ -421,8 +421,6 @@ sub parseData {
         $event->{id} = $id;
         $event->{state} = $state eq '*' ? 1 : 0;
         $event->{starttime} = timelocal(0,$minute,$hour,$day,$month-1, $year);
-
-        $title =~ s/~ $//g; # Remove empty subtitle
         $event->{title} = $title;
 
         $hash = sprintf("%s~%s",$title,$event->{starttime});
