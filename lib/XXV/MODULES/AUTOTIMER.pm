@@ -289,15 +289,20 @@ sub _init {
 
     main::after(sub{
         my $m = main::getModule('EPG');
-        $m->updated(sub{
+        $m->updated(
+        sub{
+          my $watcher = shift;
+          my $console = shift;
+          my $waiter = shift;
+
           return 0 if($obj->{active} ne 'y');
 
           lg 'Start autotimer callback to find new events!';
-          return $obj->autotimer();
+          return $obj->_autotimerLookup($watcher,$console,$waiter);
 
-        });
+        },"AUTOTIMER: Callback to compare epg data ...");
         return 1;
-    }, "AUTOTIMER: Install callback at update epg data ...", 30);
+    }, "AUTOTIMER: Install callback to compare epg data ...", 30);
 
     return 1;
 }
@@ -315,6 +320,36 @@ sub autotimer {
     my $console = shift;
     my $autotimerid = shift;
 
+    my $waiter;
+    if(ref $console && !$autotimerid && $console->typ eq 'HTML') {
+        $waiter = $console->wait(gettext("Searching for autotimer ..."),0,1000,'no');
+    }
+
+    my ($log,$C,$M) = $obj->_autotimerLookup($watcher,$console,$waiter,$autotimerid);
+
+    # last call of waiter
+    $waiter->end() if(ref $waiter);
+
+    if(ref $console) {
+        $console->start() if(ref $waiter);
+        unshift(@{$log},sprintf(gettext("Autotimer process created %d timers and modified %d timers."), $C, $M));
+        lg join("\n", @$log);
+        $console->message($log);
+        $console->link({
+            text => gettext("Back to autotimer listing."),
+            url => "?cmd=alist",
+        }) if($console->typ eq 'HTML');
+    }
+
+    return 1;
+}
+sub _autotimerLookup {
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift;
+    my $console = shift;
+    my $waiter = shift;
+    my $autotimerid = shift;
+
     # Get Autotimer
     my $sth;
     if($autotimerid) {
@@ -328,11 +363,9 @@ sub autotimer {
     }
     my $att = $sth->fetchall_hashref('Id');
 
-    my $waiter;
-    if(ref $console && !$autotimerid && $console->typ eq 'HTML') {
-        my $zaehler = scalar keys %$att;
-        $waiter = $console->wait(gettext("Searching for autotimer ..."), 0, ++$zaehler, 'no');
-    }
+    # Adjust waiter max value now.
+    $waiter->max(scalar keys %$att)
+        if(ref $console && ref $waiter);
 
     my $l = 0; # Lines for Waiter
     my $C = 0; # Total of created and modifed timers
@@ -373,12 +406,12 @@ sub autotimer {
     foreach my $id (sort keys %$att) {
         my $a = $att->{$id};
 
-        $waiter->next(++$l, undef, sprintf(gettext("Search for autotimer with ID(%d) with search pattern '%s'"), $id, $a->{Search}))
+        $waiter->next(++$l, undef, sprintf(gettext("Search for autotimer '%s'"), $a->{Search}))
           if(ref $waiter);
 
         if(ref $console && $autotimerid) {
             $console->message(' ') if($console->{TYP} eq 'HTML');
-            $console->message(sprintf(gettext("Search for autotimer with ID(%d) with search pattern '%s'"), $id, $a->{Search}));
+            $console->message(sprintf(gettext("Search for autotimer '%s'"), $a->{Search}));
         }
 
         # Build SQL Command and run it ....
@@ -522,23 +555,8 @@ sub autotimer {
 
     $timermod->readData();
 
-    # last call of waiter
-    $waiter->end() if(ref $waiter);
-
-    if(ref $console) {
-        $console->start() if(ref $waiter);
-        unshift(@{$log},sprintf(gettext("Autotimer process created %d timers and modified %d timers."), $C, $M));
-        lg join("\n", @$log);
-        $console->message($log);
-        $console->link({
-            text => gettext("Back to autotimer listing."),
-            url => "?cmd=alist",
-        }) if($console->typ eq 'HTML');
-    }
-
-    return 1;
+    return (\@{$log},$C,$M);
 }
-
 # ------------------
 # Name:  autotimerCreate
 # Descr: Routine to display the create form for Autotimer.

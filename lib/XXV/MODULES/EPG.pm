@@ -296,7 +296,7 @@ sub startReadEpgData {
 
     $obj->deleteDoubleEPGEntrys();
 
-    $obj->updated() if($updated);
+    $obj->_updated($watcher,$console,$waiter) if($updated);
 
     # last call of waiter
     $waiter->end() if(ref $waiter);
@@ -310,25 +310,33 @@ sub startReadEpgData {
     }
 }
 
-# Routine um Callbacks zu registrieren und
-# diese nach dem Aktualisieren der EPG Daten zu starten
+# Routine um Callbacks zu registrieren die nach dem Aktualisieren der EPG Daten 
+# ausgeführt werden
 # ------------------
 sub updated {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $cb = shift || 0;
+    my $cb = shift || return error('No callback defined!');
     my $log = shift || 0;
 
-    if($cb) {
-        push(@{$obj->{after_updated}}, [$cb, $log]);
-    } else {
-        foreach my $CB (@{$obj->{after_updated}}) {
-            next unless(ref $CB eq 'ARRAY');
-            lg $CB->[1]
-                if($CB->[1]);
-            &{$CB->[0]}()
-                if(ref $CB->[0] eq 'CODE');
-        }
+    push(@{$obj->{after_updated}}, [$cb, $log]);
+}
+
+# Ausführen der Registrierten Callbacks nach dem Aktualisieren der EPG Daten
+# ------------------
+sub _updated {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift;
+    my $console = shift;
+    my $waiter = shift;
+
+    foreach my $CB (@{$obj->{after_updated}}) {
+        next unless(ref $CB eq 'ARRAY');
+        lg $CB->[1]
+            if($CB->[1]);
+        &{$CB->[0]}($watcher,$console,$waiter)
+            if(ref $CB->[0] eq 'CODE');
     }
 }
 # This Routine will compare data from epg.data

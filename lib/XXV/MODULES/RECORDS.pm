@@ -352,7 +352,7 @@ sub _notify_readData {
 # ------------------
   my $obj = shift || return error('No object defined!');
   my $e = shift;
-  lg sprintf "notify events for %s:%d received: %x\n", $e->fullname, $e->cookie, $e->mask;
+  lg sprintf "notify events for %s:%d received: %x", $e->fullname, $e->cookie, $e->mask;
 
   if((time - $obj->{lastupdate}) > 15  # Only if last update prior 15 seconds (avoid callback chill)
      && $obj->readData()) {
@@ -368,10 +368,10 @@ sub _notify_readData {
         after => $after, 
         cb => sub {
           if((time - $obj->{lastupdate}) >= ($after - 30)) {
-              $_[0]->w->cancel;
               if($obj->readData()) {
                 $obj->{lastupdate} = time;
               }
+              $_[0]->w->cancel;
             }
           }
         );
@@ -421,10 +421,12 @@ sub parseData {
         $event->{id} = $id;
         $event->{state} = $state eq '*' ? 1 : 0;
         $event->{starttime} = timelocal(0,$minute,$hour,$day,$month-1, $year);
+
+        $title =~ s/~ $//g; # Remove empty subtitle
         $event->{title} = $title;
 
         $hash = sprintf("%s~%s",$title,$event->{starttime});
-        %{$dataHash->{$hash}} = %{$event};
+        %{$dataHash->{lc($hash)}} = %{$event};
     }
     return ($dataHash);
 }
@@ -518,8 +520,8 @@ sub readData {
         my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.RecordId as id, 
                         UNIX_TIMESTAMP(e.starttime) as starttime, 
                         e.duration as duration, r.State as state, 
-                        CONCAT_WS('~',e.title,e.subtitle) as title, 
-                        CONCAT_WS('~',e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as hash,
+                        CONCAT_WS("~",e.title,e.subtitle) as title, 
+                        LOWER(CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime))) as hash,
                         UNIX_TIMESTAMP(e.addtime) as addtime,
                         r.Path as path,
                         r.Type as type,
@@ -561,6 +563,10 @@ sub readData {
               my $duration = $obj->_recordinglength($db_data->{$h}->{path});
               if($duration != $db_data->{$h}->{duration}) {
 
+                  # Update duration at database entry
+                  $db_data->{$h}->{duration} = $duration;
+                  $db_data->{$h}->{FileSize} = $obj->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * $obj->{framerate}));
+
                   # set addtime only if called from EVENT::TIMER
                   # avoid generating preview image during user actions
                   # it's should speedup reading recordings
@@ -571,10 +577,6 @@ sub readData {
                       push(@{$obj->{JOBS}}, $command)
                         if($command && not grep(/\Q$command/g,@{$obj->{JOBS}}));
                   }
-                  # Update duration at database entry
-                  $db_data->{$h}->{duration} = $duration;
-                  $db_data->{$h}->{FileSize} = $obj->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * $obj->{framerate}));
-
                   $obj->_updateEvent($db_data->{$h});
                   $obj->_updateFileSize($db_data->{$h});
 
@@ -622,7 +624,6 @@ sub readData {
         foreach my $t (keys %{$db_data}) {
             push(@todel,$db_data->{$t}->{RecordMD5});
         }
-
         my $sql = sprintf('DELETE FROM RECORDS WHERE RecordMD5 IN (%s)', join(',' => ('?') x @todel)); 
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute(@todel)
@@ -830,18 +831,7 @@ sub analyze {
       return 0;
     }
 
-    my @t = split('~', $recattr->{title});
-    my $title = $recattr->{title};
-    my $subtitle;
-    if(scalar @t > 1) { # Splitt genre~title | subtitle
-        my @p = split('/', $info->{path});
-        $subtitle = delete $t[-1]
-            if(scalar @p > 3 && $p[-2] ne '_');
-        $subtitle = undef if(defined $subtitle and $subtitle eq ' ');
-        $title = join('~',@t);
-    }
-
-    my $event = $obj->SearchEpgId( $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info->{channel} );
+    my $event = $obj->SearchEpgId( $recattr->{starttime}, $info->{duration}, $recattr->{title}, $info->{channel} );
     if($event) {
         my $id = $event->{eventid};
         $event->{addtime} = time;
@@ -855,6 +845,14 @@ sub analyze {
         # Sollte kein Event gefunden werden so muss dieser in OLDEPG mit
         # den vorhandenen Daten (lstr nummer) eingetragen werden und eine PseudoEventId (min(eventid)-1)
         # erfunden werden ;)
+        my @t = split('~', $recattr->{title});
+        my $title = $recattr->{title};
+        my $subtitle;
+        if(scalar @t > 1) { # Splitt genre~title | subtitle
+            $subtitle = delete $t[-1];
+            $title = join('~',@t);
+        }
+
         $event = $obj->createOldEventId($recattr->{id}, $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info);
         unless($event) {
           error sprintf("Couldn't create event!: '%s' !",$recattr->{id});
@@ -1135,47 +1133,25 @@ sub SearchEpgId {
     my $start = shift || return error('No start time defined!');
     my $dur = shift || return 0;
     my $title = shift || return error('No title defined!');
-    my $subtitle = shift;
     my $channel = shift;    
 
     my $sth;
     my $bis = int($start + $dur);
-    if($subtitle && $channel && $channel ne "") {
+    if($channel && $channel ne "") {
         $sth = $obj->{dbh}->prepare(
 qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
-    AND title = ? 
-    AND subtitle = ? 
-    AND channel_id = ?|);
-        $sth->execute($start,$bis,$title,$subtitle,$channel)
-            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    } elsif($channel && $channel ne "") {
-        $sth = $obj->{dbh}->prepare(
-qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
-        UNIX_TIMESTAMP(starttime) >= ? 
-    AND UNIX_TIMESTAMP(starttime)+duration <= ? 
-    AND title = ? 
-    AND subtitle IS NULL
+    AND CONCAT_WS("~",title,subtitle) = ?
     AND channel_id = ?|);
         $sth->execute($start,$bis,$title,$channel)
-            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    } elsif($subtitle) {
-        $sth = $obj->{dbh}->prepare(
-qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
-        UNIX_TIMESTAMP(starttime) >= ? 
-    AND UNIX_TIMESTAMP(starttime)+duration <= ? 
-    AND title = ? 
-    AND subtitle = ?|);
-        $sth->execute($start,$bis,$title,$subtitle)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
         $sth = $obj->{dbh}->prepare(
 qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
-    AND title = ?
-    AND subtitle IS NULL|);
+    AND CONCAT_WS("~",title,subtitle) = ?|);
         $sth->execute($start,$bis,$title)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     }
