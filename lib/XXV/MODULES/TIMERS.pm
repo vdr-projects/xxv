@@ -59,7 +59,7 @@ sub module {
                 type        => 'confirm',
             },
             usevpstime => {
-                description => gettext('Use VPS start time'),
+                description => gettext('Use Programme Delivery Control (PDC) to control start time'),
                 default     => 'n',
                 type        => 'confirm',
             },
@@ -594,7 +594,7 @@ WHERE
         'VPS' => {
             typ     => 'confirm',
             def     => (defined $timerData->{Status} and ($timerData->{Status} & 4) ? 'y' : 'n'),
-            msg     => gettext('Enable VPS for this timer'),
+            msg     => gettext('Use PDC time to control timer'),
         },
         'ChannelID' => {
             typ     => 'list',
@@ -1123,7 +1123,8 @@ FROM
     CHANNELS as c,
     EPG as e
 WHERE
-    t.ChannelID = c.Id
+    t.NextStopTime > NOW()
+    AND t.ChannelID = c.Id
     and (t.eventid = e.eventid)
     $search1
 

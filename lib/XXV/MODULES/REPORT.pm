@@ -51,6 +51,7 @@ sub module {
                 description => gettext("Display the actual news site 'typ'"),
                 short       => 'req',
                 callback    => sub{ $obj->request(@_) },
+                binary      => 'nocache'
             },
         },
     };
@@ -254,8 +255,6 @@ sub request {
 
     return $console->err(gettext("Sorry, but this module is not active!"))
         unless($obj->{NEWSMODS}->{$mod}->{active} eq 'y');
-
-    $console->{noFooter} = 1;
 
     return $console->out(
         $obj->{NEWSMODS}->{$mod}->req($params),

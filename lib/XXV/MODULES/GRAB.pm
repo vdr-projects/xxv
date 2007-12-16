@@ -81,6 +81,7 @@ sub module {
                 callback    => sub{ $obj->display(@_) },
                 Level       => 'user',
                 DenyClass   => 'remote',
+                binary      => 'nocache'
             },
         },
     };

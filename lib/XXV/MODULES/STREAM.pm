@@ -48,12 +48,14 @@ sub module {
                 short       => 'pre',
                 callback    => sub{ $obj->play_record(@_) },
                 DenyClass   => 'stream',
+                binary      => 'nocache'
             },
             livestream => {
                 description => gettext("Stream a channel 'cid'. This required the streamdev plugin!"),
                 short       => 'lst',
                 callback    => sub{ $obj->live_stream(@_) },
                 DenyClass   => 'stream',
+                binary      => 'nocache'
             },
         },
     };
@@ -114,9 +116,7 @@ sub live_stream {
         );
 
     if($channel && $console->typ eq 'HTML') {
-        $console->{nocache} = 1;
         $console->{nopack} = 1;
-        $console->{noFooter} = 1;
 
         my $data;
         $data = "#EXTM3U\r\n";
@@ -164,9 +164,7 @@ sub play_record {
     }
 
     if($data && $console->typ eq 'HTML') {
-        $console->{nocache} = 1;
         $console->{nopack} = 1;
-        $console->{noFooter} = 1;
 
         my $arg;
         $arg->{'attachment'} = sprintf("%s.m3u", $recid);

@@ -117,6 +117,7 @@ sub module {
                 short       => 'm3',
                 callback    => sub{ $obj->playlist(@_) },
                 DenyClass   => 'stream',
+                binary      => 'nocache'
             },
             mlist => {
                 description => gettext("Shows music 'dir'"),
@@ -135,12 +136,14 @@ sub module {
                 short       => 'mi',
                 callback    => sub{ $obj->coverimage(@_) },
                 DenyClass   => 'mlist',
+                binary      => 'cache'
             },
             mgetfile => {
                 description => gettext("Get music file 'fid'"),
                 short       => 'mg',
                 callback    => sub{ $obj->getfile(@_) },
                 DenyClass   => 'mlist',
+                binary      => 'cache'
             },
             msuggest => {
                 hidden      => 'yes',
@@ -453,7 +456,7 @@ sub play {
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    $console->player("?cmd=mplaylist&data=${data}&binary=1");
+    $console->player("?cmd=mplaylist&data=${data}");
 }
 
 # ------------------
@@ -498,9 +501,7 @@ sub playlist {
     }
 
     if($output && $console->typ eq 'HTML') {
-        $console->{noFooter} = 1;
         $console->{nopack} = 1;
-        $console->{nocache} = 1;
 
         my $arg;
         $arg->{'attachment'} = "playlist.m3u";
@@ -700,7 +701,6 @@ sub list {
         artists => ($obj->{mdbh} ? $obj->GroupArray('artist', 'tracks', 'id'): $obj->GroupArray('ARTIST')),
         genres =>  $obj->GenreArray(),
         getCover => sub{ return $obj->_findcoverfromcache(@_, 'relative') },
-        proxy => $obj->{proxy},
     };
 
     $console->table($erg, $params);

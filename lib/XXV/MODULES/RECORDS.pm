@@ -470,9 +470,8 @@ sub readData {
         $obj->{dbh}->do('DELETE FROM RECORDS');
 
         my $msg = gettext('No recordings available!');
-        $console->err($msg)
-            if(ref $console);
-        return error($msg);
+        con_err($console,$msg);
+        return;
     }
 
     # Get state from used harddrive (/video)
@@ -625,7 +624,7 @@ sub readData {
         my $sql = sprintf('DELETE FROM RECORDS WHERE RecordMD5 IN (%s)', join(',' => ('?') x @todel)); 
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute(@todel)
-            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+            or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
       }
 
     my $removedData = $db_data ? scalar keys %$db_data : 0;
@@ -650,7 +649,7 @@ sub readData {
         my @jobs = @{$obj->{JOBS}};
         $obj->{JOBS} = [];
 
-        defined(my $child = fork()) or return error sprintf("Couldn't fork : %s",$!);
+        defined(my $child = fork()) or return con_err($console, sprintf("Couldn't fork : %s",$!));
         if($child == 0) {
             $obj->{dbh}->{InactiveDestroy} = 1;
 
@@ -690,15 +689,12 @@ DELETE FROM OLDEPG
    # last call of waiter
    $waiter->end() if(ref $waiter);
 
-    if(ref $console) {
-        $console->start() if(ref $waiter);
-        if(scalar @{$err} == 0) {
-            $console->message(sprintf(gettext("Write %d recordings to the database."), scalar @merkMD5));
-        } else {
-            unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Couldn't assign %d recordings."), scalar @merkMD5 , scalar @{$err}));
-            lg join("\n", @$err);
-            $console->err($err);
-        }
+    $console->start() if(ref $waiter && ref $console);
+    if(scalar @{$err} == 0) {
+        $console->message(sprintf(gettext("Write %d recordings to the database."), scalar @merkMD5)) if(ref $console);
+    } else {
+        unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Couldn't assign %d recordings."), scalar @merkMD5 , scalar @{$err}));
+        con_err($console,$err);
     }
     return (scalar @{$err} == 0);
 }
@@ -733,19 +729,20 @@ sub refresh {
     my $console = shift;
 
     my $waiter;
-    if(ref $console) {
-      if($console->typ eq 'HTML') {
-        $waiter = $console->wait(gettext("Get information on recordings ..."),0,1000,'no');
-      } else {
-        $console->msg(gettext("Get information on recordings ..."));
-      }
+    if(ref $console && $console->typ eq 'HTML') {
+      $waiter = $console->wait(gettext("Get information on recordings ..."),0,1000,'no');
+    } else {
+      con_msg($console,gettext("Get information on recordings ..."));
     }
 
-    if($obj->readData($watcher,$console,$waiter,'force')
-        && ref $console) {
-        $console->redirect({url => '?cmd=rlist', wait => 1})
-            if($console->typ eq 'HTML');
+    if($obj->readData($watcher,$console,$waiter,'force')) {
+
+      $console->redirect({url => '?cmd=rlist', wait => 1})
+          if(ref $console and $console->typ eq 'HTML');
+
+      return 1;
     }
+    return 0;
 }
 
 # ------------------
@@ -1214,8 +1211,7 @@ sub display {
     my $recordid = shift;
 
     unless($recordid) {
-        $console->{call} = 'message'; #reset default widget, avoid own widget
-        $console->err(gettext("No recording defined for display! Please use rdisplay 'rid'"));
+        con_err($console,gettext("No recording defined for display! Please use rdisplay 'rid'"));
         return;
     }
 
@@ -1253,8 +1249,7 @@ where
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute($recordid)
       || !($rec = $sth->fetchrow_hashref())) {
-        $console->{call} = 'message';
-        $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+        con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
         return;
     }
 
@@ -1279,20 +1274,22 @@ sub play {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
+    my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
       || !($rec = $sth->fetchrow_hashref())) {
-        return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+        return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
     }
 
     my $cmd = sprintf('PLAY %d begin', $rec->{RecordID});
     if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
+
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
+
       return 1;
     }
     return 0;
@@ -1304,20 +1301,22 @@ sub cut {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $recordid = shift || return $console->err(gettext("No recording defined for playback! Please use rplay 'rid'."));
+    my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
       || !($rec = $sth->fetchrow_hashref())) {
-        return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+        return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
     }
 
     my $cmd = sprintf('EDIT %d', $rec->{RecordID});
     if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
+
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
+
       return 1;
     }
     return 0;
@@ -1473,7 +1472,7 @@ WHERE
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
-      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -1495,7 +1494,7 @@ sub delete {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $record  = shift || return $console->err(gettext("No recording defined for deletion! Please use rdelete 'id'."));
+    my $record  = shift || return con_err($console,gettext("No recording defined for deletion! Please use rdelete 'id'."));
     my $answer  = shift || 0;
 
     my @rcs  = split(/_/, $record);
@@ -1518,7 +1517,7 @@ sub delete {
     my $sql = sprintf("SELECT SQL_CACHE  r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 FROM RECORDS as r,OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) ORDER BY r.RecordId desc", join(',' => ('?') x @recordings)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@recordings)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $data = $sth->fetchall_arrayref(); # Query as array to hold ordering !
 
     foreach my $recording (@$data) {
@@ -1561,8 +1560,10 @@ sub delete {
         }
     }
     
-    $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"), 
-      join('\',\'',@recordings))) if(ref $console and scalar @recordings);
+    con_err($console,
+      sprintf(gettext("Recording '%s' does not exist in the database!"), 
+      join('\',\'',@recordings))) 
+          if(scalar @recordings);
 
     if($obj->{svdrp}->queue_cmds('COUNT')) {
 
@@ -1572,21 +1573,19 @@ sub delete {
 
         my $waiter;
         if($obj->{svdrp}->err) {
-          $console->err($erg) if(ref $console);
+          con_err($console,$erg);
         } else {
 
-          if(ref $console) {
-              if($console->typ eq 'HTML' && !$obj->{inotify}) {
-                $waiter = $console->wait($msg,0,1000,'no');
-              }else {
-                $console->msg($msg);
-              }
+          if(ref $console && $console->typ eq 'HTML' && !$obj->{inotify}) {
+            $waiter = $console->wait($msg,0,1000,'no');
+          }else {
+            con_msg($console,$msg);
           }
 
           my $dsql = sprintf("DELETE FROM RECORDS WHERE RecordMD5 IN (%s)", join(',' => ('?') x @md5delete)); 
           my $dsth = $obj->{dbh}->prepare($dsql);
             $sth->execute(@md5delete)
-              or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+              or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
         }
 
@@ -1603,7 +1602,7 @@ sub delete {
           }
         }
     } else {
-        $console->err(gettext("No recording to delete!"));
+        con_err($console,gettext("No recording to delete!"));
     }
 
     return 1;
@@ -1629,7 +1628,7 @@ sub redit {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $recordid  = shift || return $console->err(gettext("No recording defined for editing!"));
+    my $recordid  = shift || return con_err($console,gettext("No recording defined for editing!"));
     my $data    = shift || 0;
 
     my $rec;
@@ -1651,7 +1650,7 @@ WHERE
         my $sth = $obj->{dbh}->prepare($sql);
         if(!$sth->execute($recordid)
           || !($rec = $sth->fetchrow_hashref())) {
-          return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+          return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
         }
     }
 
@@ -1663,8 +1662,7 @@ WHERE
     my $audio;
 
     if(-r $file) {
-        my $text = load_file($file) 
-        or $console->err(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$!));
+        my $text = load_file($file) || "";
 
         foreach my $zeile (split(/[\r\n]/, $text)) {
             if($zeile =~ /^D\s+(.+)/s) {
@@ -1775,11 +1773,6 @@ WHERE
         my $dropEPGEntry = 0;
         my $ChangeRecordingData = 0;
 
-        debug sprintf('Recording "%s" has changed%s',
-            $rec->{title},
-            ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
-            );
-
         if($data->{summary} ne $desc 
           or $data->{channel} ne $channel 
           or $data->{video} ne $video
@@ -1790,8 +1783,7 @@ WHERE
             $data->{summary} =~ s/^\s+//;               # no leading white space
             $data->{summary} =~ s/\s+$//;               # no trailing white space
             if(-r $file) {
-              my $text = load_file($file) 
-                or $console->err(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$!));
+              my $text = load_file($file) || "";
               foreach my $zeile (split(/[\r\n]/, $text)) {
                     $zeile =~ s/^\s+//;
                     $zeile =~ s/\s+$//;
@@ -1854,13 +1846,13 @@ WHERE
             }
 
             save_file($file, $out)
-               or return $console->err(sprintf(gettext("Couldn't write file '%s' : %s"),$file,$!));
+               or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$file,$!));
             $dropEPGEntry = 1;
         }
 
         if($data->{marks} ne $marks) {
             save_file($marksfile, $data->{marks})
-               or return $console->err(sprintf(gettext("Couldn't write file '%s' : %s"),$marksfile,$!));
+               or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$marksfile,$!));
             $ChangeRecordingData = 1;
         }
 
@@ -1879,14 +1871,14 @@ WHERE
             my $newPath = join('.', @options);
 
             move($rec->{Path}, $newPath)
-                 or return $console->err(sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$newPath,$!));
+                 or return con_err($console,sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$newPath,$!));
 
             $rec->{Path} = $newPath;
             $ChangeRecordingData = 1;
         }
 
-	    $data->{title} =~s#~+#~#g;
-	    $data->{title} =~s#^~##g;
+	      $data->{title} =~s#~+#~#g;
+	      $data->{title} =~s#^~##g;
         $data->{title} =~s#~$##g;
 
         if($data->{title} ne $rec->{title}) {
@@ -1897,18 +1889,18 @@ WHERE
             my $parentnew = dirname($newPath);
             unless( -d $parentnew) {
                 mkpath($parentnew)
-                    or return $console->err(sprintf(gettext("Recording: '%s', couldn't mkpath: '%s' : %s"),$rec->{title},$parentnew,$!));
+                    or return con_err($console,sprintf(gettext("Recording: '%s', couldn't mkpath: '%s' : %s"),$rec->{title},$parentnew,$!));
             }
 
             move($rec->{Path},$newPath)
-                    or return $console->err(sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$data->{title},$!));
+                    or return con_err($console,sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$data->{title},$!));
 
             my $parentold = dirname($rec->{Path});
             if($obj->{videodir} ne $parentold
                 and -d $parentold
                 and is_empty_dir($parentold)) {
                 rmdir($parentold)
-                    or return $console->err(sprintf(gettext("Recording: '%s', couldn't remove '%s' : %s"),$rec->{title},$parentold,$!));
+                    or return con_err($console,sprintf(gettext("Recording: '%s', couldn't remove '%s' : %s"),$rec->{title},$parentold,$!));
             }
 
             $ChangeRecordingData = 1;
@@ -1923,28 +1915,32 @@ WHERE
         if($dropEPGEntry) { # Delete EpgOld Entrys
             my $sth = $obj->{dbh}->prepare('DELETE FROM OLDEPG WHERE eventid = ?');
             $sth->execute($rec->{EventId})
-                or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+                or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
         }
 
         if($ChangeRecordingData) { 
             my $sth = $obj->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
             $sth->execute($recordid)
-                or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+                or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
         }
 
-        my $waiter;
-        if(ref $console) {
-            if($console->typ eq 'HTML') {
-              $waiter = $console->wait(gettext('Recording edited!'),0,1000,'no');
-            }else {
-              $console->msg(gettext('Recording edited!'));
-            }
+        if($dropEPGEntry || $ChangeRecordingData) {
+          my $waiter;
+
+          if(ref $console && $console->typ eq 'HTML' && !($obj->{inotify})) {
+            $waiter = $console->wait(gettext('Recording edited!'),0,1000,'no');
+          }else {
+            con_msg($console,gettext('Recording edited!'));
+          }
+          sleep(1);
+  
+          $obj->readData($watcher,$console,$waiter)
+            unless($obj->{inotify});
+
+        } else {
+          con_msg($console,gettext("Recording was'nt changed!"));
         }
-        sleep(1);
-
-        $obj->readData($watcher,$console,$waiter)
-          unless($obj->{inotify});
-
+ 
         $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',md5_hex($rec->{Path})), wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     }
@@ -1981,20 +1977,20 @@ sub conv {
     $obj->_loadreccmds;
 
     unless(scalar @{$obj->{reccmds}}) {
-        $console->err(gettext('No reccmds.conf on your system!'));
+        con_err($console,gettext('No reccmds.conf on your system!'));
         return 1;
     }
 
     unless($data) {
-        $console->err(gettext("Please use rconvert 'cmdid_rid'"));
+        con_err($console,gettext("Please use rconvert 'cmdid_rid'"));
         unshift(@{$obj->{reccmds}}, ['Descr.', 'Command']);
         $console->table($obj->{reccmds});
         $obj->list($watcher, $console);
     }
 
     my ($cmdid, $recid) = split(/[\s_]/, $data);
-    my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return $console->err(gettext("Couldn't find this command ID!"));
-    my $path = $obj->IdToPath($recid) || return $console->err(sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
+    my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return con_err($console,gettext("Couldn't find this command ID!"));
+    my $path = $obj->IdToPath($recid) || return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
 
     my $command = sprintf("%s %s",$cmd,qquote($path));
     debug sprintf('Call command %s%s',
@@ -2014,7 +2010,7 @@ sub conv {
           $console->message($output);
       }
     } else {
-          $console->err(sprintf(gettext("Sorry! Couldn't call %s '%s'! %s"), $cmd, $path, $!));
+          con_err($console,sprintf(gettext("Sorry! Couldn't call %s '%s'! %s"), $cmd, $path, $!));
     }
 
     $console->link({

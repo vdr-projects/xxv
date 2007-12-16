@@ -113,7 +113,7 @@ function reverse(form) {
     }
 }
 
-function Play(warnmsg,form,proxy) {
+function Play(warnmsg,form) {
 // test on checked Boxes
     ok = new Array;
     x = 0;
@@ -126,10 +126,7 @@ function Play(warnmsg,form,proxy) {
         }
     }
     if(x > 0) {
-          var url = "";
-          if(proxy != "")
-            url = proxy;
-          url = url + '?cmd=mplaylist&data=' + ok.join('_') + '&binary=1';
+          var url = '?cmd=mplaylist&data=' + ok.join('_');
           location.href = url;
     } else {
         alert(warnmsg);

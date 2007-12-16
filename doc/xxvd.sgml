@@ -4,7 +4,7 @@
  [
   <!ENTITY dhfirstname "<firstname>Tobias</firstname>">
   <!ENTITY dhsurname   "<surname>Grimm</surname>">
-  <!ENTITY date        "July 14, 2007">
+  <!ENTITY date        "December 16, 2007">
   <!ENTITY dhdate      "<date>&date;</date>">
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
   <!ENTITY dhemail     "<email>tg@e-tobi.net</email>">
@@ -45,7 +45,6 @@
       <arg><option>--poddir=</option><replaceable>DIR</replaceable></arg>
       <arg><option>--htmldir=</option><replaceable>DIR</replaceable></arg>
       <arg><option>--fontdir=</option><replaceable>DIR</replaceable></arg>
-      <arg><option>--vtxdir=</option><replaceable>DIR</replaceable></arg>
       <arg><option>--newsmods=</option><replaceable>DIR</replaceable></arg>
       <arg><option>--newstmpl=</option><replaceable>DIR</replaceable></arg>
       <arg><option>--kill</option></arg>
@@ -124,12 +123,6 @@
         <term>--fontdir=<replaceable class="parameter">DIR</replaceable></term>
         <listitem>
           <para>&dhpackage; searchs usable fonts in <filename>DIR</filename>.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>--vtxdir=<replaceable class="parameter">DIR</replaceable></term>
-        <listitem>
-          <para>&dhpackage; module VTX use font images from <filename>DIR</filename>.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

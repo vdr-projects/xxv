@@ -821,7 +821,7 @@ You can also fine tune your search :
         'VPS' => {
             typ     => 'confirm',
             def     => $epg->{VPS} || 'n',
-            msg     => gettext('Activate VPS for new timers'),
+            msg     => gettext('Use PDC time to control created timer'),
         },
         'prevminutes' => {
             typ     => 'integer',
@@ -1088,7 +1088,7 @@ sub list {
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
-      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -1432,7 +1432,7 @@ sub suggest {
         |;
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute('%'.$search.'%')
-            or return error "Couldn't execute query: $sth->errstr.";
+            or return con_err($console, sprintf("Couldn't execute query: '%s'",$sth->errstr));
         my $result = $sth->fetchall_arrayref();
         $console->table($result)
             if(ref $console && $result);

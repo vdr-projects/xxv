@@ -348,7 +348,7 @@ sub readData {
     my $console = shift;
     my $file = $obj->{file} || return error ('No Channels File');
 
-    return panic ("Couldn't find channels.conf as file $file!") if( ! -e $file);
+    return con_err($console, sprintf(gettext("Couldn't find channels.conf as file '%s'!"),$file)) if( ! -e $file);
 
     # only if file modification from last read time
     my $mtime = (stat($file)->mtime);
@@ -358,7 +358,7 @@ sub readData {
     $obj->{dbh}->do('DELETE FROM CHANNELS');
     $obj->{dbh}->do('DELETE FROM CHANNELGROUPS');
 
-    my $fh = IO::File->new("< $file") or return error("Couldn't open file $file $!");
+    my $fh = IO::File->new("< $file") or return con_err($console, sprintf(gettext("Couldn't open file '%s'! : %s"),$file,$!));
     my $c = 0;
     my $nPos = 1;
     my $grp = 0;
@@ -393,8 +393,7 @@ sub readData {
     # Remember the maximum Channelposition
     $obj->{LastChannel} = $obj->_LastChannel;
 
-    $console->message(sprintf(gettext("Write %d channels into database."), $c))
-        if(ref $console);
+    con_msg($console, sprintf(gettext("Write %d channels into database."), $c));
 
     # sort list with CA numerical
     my %CA;
@@ -459,7 +458,7 @@ where
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute('%'.$id.'%')
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
@@ -645,7 +644,7 @@ sub editChannel {
 
         my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE  POS, Name, Frequency, Parameters, Source, Srate, VPID, APID, TPID, CA, SID, NID, TID, RID from CHANNELS where Id = ?');
             $sth->execute($cid)
-            or return $console->err(sprintf(gettext("Channel '%s' does not exist in the database!"),$cid));
+            or return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$cid));
         $defaultData = $sth->fetchrow_hashref();
     } elsif (ref $data eq 'HASH') {
         $defaultData = $data;
@@ -874,7 +873,7 @@ sub editChannel {
                 $data->{Name},
                 $error
                 );
-                $console->err($erg);
+                con_err($console, $erg);
         }
         sleep(1);
         $self->readData($watcher,$console);
@@ -932,7 +931,7 @@ sub deleteChannel {
     my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
-    my $channelid = shift || return $console->err(gettext("No channel defined for deletion! Please use cdelete 'pos'!"));
+    my $channelid = shift || return con_err($console, gettext("No channel defined for deletion! Please use cdelete 'pos'!"));
     my $answer  = shift || 0;
 
     my @channels  = reverse sort{ $a <=> $b } split(/[^0-9]/, $channelid);
@@ -940,12 +939,12 @@ sub deleteChannel {
     my $sql = sprintf('SELECT SQL_CACHE  Id,POS,Name from CHANNELS where POS in (%s)', join(',' => ('?') x @channels)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@channels)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $data = $sth->fetchall_hashref('POS');
 
     foreach my $pos (@channels) {
         unless(exists $data->{$pos}) {
-            $console->err(sprintf(gettext("Channel '%s' does not exist in the database!"), $pos));
+            con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"), $pos));
             next;
         }
 
@@ -979,7 +978,7 @@ sub deleteChannel {
         $console->redirect({url => '?cmd=clist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     } else {
-        $console->err(gettext("No channel defined for deletion!"));
+        con_err($console, gettext("No channel defined for deletion!"));
     }
 
     return 1;

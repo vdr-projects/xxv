@@ -24,7 +24,8 @@ our $DBH        = {};
 @EXPORT = qw(&datum &stackTrace &lg &event &debug &error &panic &rep2str &dumper 
  &getFromSocket &fields &load_file &save_file &tableUpdated &buildsearch 
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
- &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url);
+ &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url
+ &con_err &con_msg);
 
 
 # ------------------
@@ -164,6 +165,46 @@ sub panic {
     my $msg = shift;
 
     &_msg(550,$msg, 1);
+
+    return undef;
+}
+
+# ------------------
+sub con_err {
+# ------------------
+    my $console = shift;
+    my $msg = shift;
+
+    if(ref $msg eq 'ARRAY') {
+      $msg = join('\n', @$msg);
+    }
+
+    &_msg(501,$msg, 2);
+
+    if(ref $console) {
+      $console->{call} = 'message'; #reset default widget, avoid own widget
+      $console->err($msg);
+    }
+
+    return undef;
+}
+
+# ------------------
+sub con_msg {
+# ------------------
+    my $console = shift;
+    my $msg = shift;
+
+    if(ref $msg eq 'ARRAY') {
+      $msg = join('\n', @$msg);
+    }
+
+    &_msg(250,$msg, 4);
+
+    if(ref $console) {
+      $console->{call} = 'message'; #reset default widget, avoid own widget
+      $console->msg($msg);
+    }
 
     return undef;
 }

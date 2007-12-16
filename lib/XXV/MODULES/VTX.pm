@@ -56,6 +56,12 @@ sub module {
                 short       => 'vs',
                 callback    => sub{ $self->search(@_) },
             },
+            vtximage => {
+                description => gettext("Display teletext image from block graphic font 'image'"),
+                short       => 'vi',
+                callback    => sub{ $self->image(@_) },
+                binary      => 'cache'
+            },
         },
     };
     return $args;
@@ -1016,10 +1022,10 @@ sub translate {
             $result .= $h;
             if ($graph == 1 || $c == 0x5f) #Block 0x5f = 0x7f - 0x20
             {
-                my $pre = "<img class=\"vtx\" src=\"vtximages/";
+                my $pre = "<img class=\"vtx\" src=\"?cmd=vi&data=";
                 my $color = $colors[$fg];
-                my $post = ".gif\" alt=\"\" title=\"\" />&nbsp;";
-                # set <img class="vtx" class="vtx" src="vtximages/black21.gif" alt="" title="">
+                my $post = "\" alt=\"\" title=\"\" />&nbsp;";
+                # set <img class="vtx" class="vtx" src="?cmd=vi&data=black21" alt="" title="">
                 # vtx-image are locate inside skin folder
                 $result =~ s/(image)\-(.+)/$pre.$color.$2.$post/eg;
             }
@@ -1392,6 +1398,165 @@ sub search {
               if($result ne "");
     }
     return 1;
+}
+
+# ------------------
+sub image {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $data = shift || return error('No file defined!');
+
+    $console->err(gettext("Sorry, get image is'nt supported"))
+      if ($console->{TYP} ne 'HTML');
+
+    # data like black3F
+    $data =~ s/[^a-z0-9A-F]//g; # Remove unwantet character
+
+    # Split data
+    my $color = $data;
+    $color =~ s/[^a-z]//g; 
+    my $char  = $data;
+    $char =~ s/[^0-9A-F]//g; 
+
+    # Get data
+    my $binary = $obj->_imagebinarydata($color,$char);
+
+    # data lookup failed
+    return $console->status404(sprintf('%s.gif',$data),'Wrong image parameter') 
+      unless($binary);
+
+    # output data
+    my %args = ();
+    my $typ = "image/gif";
+
+    my $size = length($binary);
+    # header only if caching
+    $args{'ETag'} = sprintf('%s%s-%x',$color, $char, $size);
+    return $console->statusmsg(304,undef,undef,$typ)
+        if($console->{browser}->{'Match'}
+            && $args{'ETag'} eq $obj->{browser}->{'Match'});
+
+    $console->{nopack} = 1;
+    $args{'attachment'} = sprintf('%s%s.gif',$color, $char);
+    $args{'Content-Length'} = $size;
+    $args{'Last-Modified'} = "Sun, 16 Dec 2007 13:40:53 GMT";
+    $console->out( $binary, $typ, %args );
+}
+
+
+# ------------------
+# Build selected image from 2x6 vtx font
+# in color, char | out binary data
+sub _imagebinarydata {
+# ------------------
+  my $obj = shift || return error('No object defined!');
+  my $color = shift || return error('No color defined!');
+  my $char = shift || return error('No char defined!');
+
+  # File header
+  my $data = '47494638396108000C00F0';
+
+  # Color table
+  my $col = {
+    'black'   => '0100000000FFFFFF',
+    'blue'    => '00000000FF0000FF',
+    'cyan'    => '000000FFFF00FFFF',
+    'green'   => '0000008000008000',
+    'magenta' => '0000FF00FFFF00FF',
+    'red'     => '0000FF0000FF0000',
+    'white'   => '0000FFFFFFFFFFFF',
+    'yellow'  => '0000FFFF00FFFF00'
+  };
+
+  if($char eq '20') {
+    $data .= '0000FFFFFFFFFFFF';
+  } else {
+    return undef unless(exists $col->{$color});
+    $data .=  $col->{$color};
+  }
+  
+  $data .= '21F904';
+  if($char eq '7F') {
+    $data .= '000A0000';
+  } else {
+    $data .= '010A0001';
+  }
+  $data .= '002C0000000008000C00000';
+
+  # Pixel data
+  my $pixel = {
+    '20' => '2088C8FA9CBED0F632A003B',
+    '21' => '20D84111987CABA0E9CB4DA8BB32D003B',
+    '22' => '20E8C030987CABA0E64B4DA8BB36605003B',
+    '23' => '20C848FA98BE10FA39CB4DA5A00003B',
+    '24' => '20D8C8FA98BE0D05E7413B28B5901003B',
+    '25' => '21184111987CABA0E7C4E56332DDCBC7B5800003B',
+    '26' => '2118C030987CABA0E84CF496B28DBBCFB5D00003B',
+    '27' => '20E848FA9CBE1811E3C32CA8BB3BE05003B',
+    '28' => '20D8C8FA9CBE0801E3C323E86732A003B',
+    '29' => '21184111987CABA0E84CF496BE89DBC7B5800003B',
+    '2A' => '2118C030987CABA0E7C4E56336D62BCFB6F14003B',
+    '2B' => '20F848FA98BE1D15E74139E87B3DEBB00003B',
+    '2C' => '20C8C8FA98BE00FA39C90D99B0A003B',
+    '2D' => '21084111987CABA0E64B4DA6BA0DEBCA702003B',
+    '2E' => '20F8C030987CABA0E9CB45ACAB2DEDC14003B',
+    '2F' => '20C848FA9CBED1DA29CB4DA5900003B',
+    '30' => '20D8C8FA9CBED0D2240729E4A252A003B',
+    '31' => '21184111987CABA0E9CB45AFA9CD406E65400003B',
+    '32' => '2118C030987CABA0E64B4DA6BA6743B3D6E14003B',
+    '33' => '20E848FA98BE10FA39CB03DEB70D005003B',
+    '34' => '20F8C8FA98BE0D05E74139E670DAEFC14003B',
+    '35' => '21384111987CABA0E7C4E56336DA25B477C354901003B',
+    '36' => '2138C030987CABA0E84CF496BE84D95EF98614101003B',
+    '37' => '210848FA9CBE1811E3C323EEBF03495BE02003B',
+    '38' => '2108C8FA9CBE0801E3C32CA675D9EA69E02003B',
+    '39' => '21384111987CABA0E84CF496B28BBA9761E654A01003B',
+    '3A' => '2138C030987CABA0E7C4E56332D4C94EB885D4101003B',
+    '3B' => '20F848FA98BE1D15E7413AE670DAEB500003B',
+    '3C' => '20E8C8FA98BE00FA39CB43DEB304005003B',
+    '3D' => '21184111987CABA0E64B4DA5BA7743B3D5500003B',
+    '3E' => '2118C030987CABA0E9CB4DA1B0D7C4E765300003B',
+    '3F' => '20D848FA9CBED6F820C68D263EB2C003B',
+    '60' => '20D8C8FA9CBED6F800468D263EB2C003B',
+    '61' => '21184111987CABA0E9CB4DA1B0D7C4E765300003B',
+    '62' => '2118C030987CABA0E64B4DA5BA7743B3D5500003B',
+    '63' => '20E848FA98BE10FA39CB43DEB704005003B',
+    '64' => '20F8C8FA98BE0D05E7413AE670DAEB500003B',
+    '65' => '21384111987CABA0E7C4E56332D4C94EB885D4001003B',
+    '66' => '2138C030987CABA0E84CF496B28BBA9761E654A01003B',
+    '67' => '210848FA9CBE1811E3C32CA675D9EA69E02003B',
+    '68' => '2108C8FA9CBE0801E3C323EEBF03495BE02003B',
+    '69' => '21384111987CABA0E84CF496BE84D95EF98614001003B',
+    '6A' => '2138C030987CABA0E7C4E56336DA25B477C354901003B',
+    '6B' => '20F848FA98BE1D15E74139E670DAEFC14003B',
+    '6C' => '20E8C8FA98BE00FA39CB03DEB30D005003B',
+    '6D' => '21184111987CABA0E64B4DA6BA6743B3D6E14003B',
+    '6E' => '2118C030987CABA0E9CB45AFA9CD406E65400003B',
+    '6F' => '20D848FA9CBED1D6240729E4A252A003B',
+    '70' => '20C8C8FA9CBED0DA29CB4DA5900003B',
+    '71' => '20F84111987CABA0E9CB45ACAB2DEDC14003B',
+    '72' => '2108C030987CABA0E64B4DA6BA0DEBCA702003B',
+    '73' => '20C848FA98BE10FA39C90D99B0A003B',
+    '74' => '20F8C8FA98BE0D05E74139E87B3DEBB00003B',
+    '75' => '21184111987CABA0E7C4E56336D62BCFB6F14003B',
+    '76' => '2118C030987CABA0E84CF496BE89DBC7B5800003B',
+    '77' => '20D848FA9CBE1811E3C323E86732A003B',
+    '78' => '20E8C8FA9CBE0801E3C32CA8BB3BE05003B',
+    '79' => '21184111987CABA0E84CF496B28DBBCFB5D00003B',
+    '7A' => '2118C030987CABA0E7C4E56332DDCBC7B5800003B',
+    '7B' => '20D848FA98BE1D15E7413B28B5901003B',
+    '7C' => '20C8C8FA98BE00FA39CB4DA5A00003B',
+    '7D' => '20E84111987CABA0E64B4DA8BB36605003B',
+    '7E' => '20D8C030987CABA0E9CB4DA8BB32D003B',
+    '7F' => '208848FA9CBED0F632A003B',
+  };
+
+  return undef unless(exists $pixel->{$char});
+  $data .= $pixel->{$char};
+
+  return pack("H*",$data);
 }
 
 1;

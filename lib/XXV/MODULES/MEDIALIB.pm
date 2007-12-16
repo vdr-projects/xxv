@@ -130,6 +130,7 @@ sub module {
                 short       => 'mlca',
                 callback    => sub{ $obj->mediacache(@_) },
                 DenyClass   => 'media',
+                binary      => 'cache'
             },
             mlsave => {
                 description => gettext('Save media'),

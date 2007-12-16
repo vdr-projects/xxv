@@ -144,12 +144,12 @@ sub edit {
     $sector = uc($sector) unless($sector eq 'General');
 
     my $cfg = $obj->{config}->{$sector}
-        or return $console->err(sprintf(gettext("Sorry, but section %s does not exist in the configuration!"),$sector));
+        or return con_err($console, sprintf(gettext("Sorry, but section %s does not exist in the configuration!"),$sector));
 
     my $mod = main::getModule($sector);
 
     my $prefs = $mod->{MOD}->{Preferences}
-        or return $console->err(sprintf(gettext("Sorry, but the settings in module: %s do not exist!"),$sector));
+        or return con_err($console, sprintf(gettext("Sorry, but the settings in module: %s do not exist!"),$sector));
 
     my $questions = [];
     foreach my $name (sort { lc($a) cmp lc($b) } keys(%{$prefs})) {
@@ -180,12 +180,7 @@ sub edit {
         $obj->reconfigure();
         $obj->write();
 
-        debug sprintf('Config Section "%s" is changed and saved%s',
-            $sector,
-            ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
-            );
-
-        $console->message(sprintf(gettext("Section: '%s' saving ... please wait."), $sector));
+        con_msg($console, sprintf(gettext("Section: '%s' saving ... please wait."), $sector));
         $console->redirect({url => sprintf('?cmd=configedit&amp;data=%s',$sector), wait => 1})
             if($console->typ eq 'HTML');
     }
@@ -202,9 +197,8 @@ sub write {
     my $configfile = main::getUsrConfigFile;
 
     $obj->{config}->write( $configfile )
-        or return error( sprintf ("Couldn't write '%s': %s", $configfile , $! ));
-    $console->message(sprintf gettext("Configuration written to '%s'."), $configfile)
-        if(ref $console);
+        or return con_err($console, sprintf ("Couldn't write '%s': %s", $configfile , $! ));
+    con_msg($console, sprintf(gettext("Configuration written to '%s'."), $configfile));
 
     $console->redirect({url => '?cmd=configedit', wait => 2})
         if(ref $console and $console->typ eq 'HTML');
@@ -218,15 +212,15 @@ sub get {
     my $console = shift;
     my $modname = shift || 0;
 
-    return $console->err(gettext('Need a name of the module to display the configuration!'))
-        unless($modname and ref $console);
+    return con_err($console, gettext('Need a name of the module to display the configuration!'))
+        unless($modname);
 
     $modname = uc($modname) unless($modname eq 'General');
 
     my $cfg = $obj->{config}->{$modname};
 
-    $console->err(sprintf(gettext("Sorry, but section %s does not exist in the configuration!"),$modname))
-        if(! $cfg and ref $console);
+    con_err($console, sprintf(gettext("Sorry, but section %s does not exist in the configuration!"),$modname))
+        if(! $cfg);
 
     if(ref $console) {
         return $console->table($cfg);
@@ -260,19 +254,14 @@ sub reconfigure {
                         if(ref $check eq 'CODE') {
                             my ($ok, $err) = &$check($mod->{$parameter});
                             unless($ok || not $err) {
-                                my $message = sprintf("Config -> %s -> %s: %s %s", $moduleName, $parameter, $mod->{$parameter}, $err);
-                                if(ref $console) {
-                                    $console->err($message);
-                                } else {
-                                    error $message;
-                                }
+                              my $message = sprintf("Config -> %s -> %s: %s %s", $moduleName, $parameter, $mod->{$parameter}, $err);
+                              con_err($console, $message);
                             }
                         }
                     }
 
                 } else {
-                    $console->err(sprintf(gettext("Couldn't find %s in %s!"), $parameter, $moduleName))
-                        if(ref $console);
+                    con_err($console, sprintf(gettext("Couldn't find %s in %s!"), $parameter, $moduleName));
                 }
             }
         }
@@ -280,8 +269,7 @@ sub reconfigure {
 
     $obj->menu( $watcher, $console )
         if(ref $console and $console->{TYP} eq 'HTML');
-    $console->message(gettext('Edit successful!'))
-        if(ref $console);
+    con_msg($console, gettext('Edit successful!'));
 }
 
 # ------------------

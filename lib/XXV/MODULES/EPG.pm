@@ -303,7 +303,7 @@ sub startReadEpgData {
 
     if(ref $console) {
         $console->start() if(ref $waiter);
-        $console->message(sprintf(gettext("%d events in database updated."), $updated));
+        con_msg($console, sprintf(gettext("%d events in database updated."), $updated));
 
         $console->redirect({url => '?cmd=now', wait => 1})
             if($console->typ eq 'HTML');
@@ -646,20 +646,21 @@ sub search {
         DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as Stop,
         UNIX_TIMESTAMP(e.starttime) as Day,
         e.description,
-        IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __VPS
+        IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
     from
         EPG as e,
         CHANNELS as c
     where
         e.channel_id = c.Id
         AND ( $search->{query} )
+        AND (FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration) > NOW())
     order by
         starttime
         |;
         my $fields = fields($obj->{dbh}, $sql);
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute(@{$search->{term}})
-          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+          or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
         $erg = $sth->fetchall_arrayref();
 
         unshift(@$erg, $fields);
@@ -685,10 +686,10 @@ sub program {
     my $cid;
     if($channel =~ /^\d+$/sig) {
         $cid = $mod->PosToChannel($channel)
-            or return $console->err(sprintf(gettext("This channel '%s' does not exist in the database!"),$channel));
+            or return con_err($console, sprintf(gettext("This channel '%s' does not exist in the database!"),$channel));
     } else {
         $cid = $mod->NameToChannel($channel)
-            or return $console->err(sprintf(gettext("This channel '%s' does not exist in the database!"),$channel));
+            or return con_err($console, sprintf(gettext("This channel '%s' does not exist in the database!"),$channel));
     }
 
     my $sql = qq|
@@ -702,19 +703,20 @@ SELECT SQL_CACHE
     e.description as __Description,
     e.video as __Video,
     e.audio as __Audio,
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __VPS
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
 from
     EPG as e, CHANNELS as c
 where
-    e.channel_id = c.Id and
-    e.channel_id = ?
+    e.channel_id = c.Id
+    AND (FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration) > NOW())
+    AND e.channel_id = ?
 order by
     starttime
 |;
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($cid)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -736,8 +738,7 @@ sub display {
     my $eventid = shift;
 
     unless($eventid) {
-        $console->{call} = 'message'; #reset default widget, avoid own widget
-        $console->err(gettext("No ID defined to display this program! Please use display 'eid'!"));
+        con_err($console, gettext("No ID defined to display this program! Please use display 'eid'!"));
         return;
     }
 
@@ -777,7 +778,7 @@ SELECT SQL_CACHE
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/duration*100 as \'$f{'Percent'}\',
     e.video as __Video,
     e.audio as __Audio,
-    IF(e.vpstime!=0,$vps,'') as __VPS
+    IF(e.vpstime!=0,$vps,'') as __PDC
 from
     $table as e,CHANNELS as c
 where
@@ -787,7 +788,7 @@ where
     $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventid)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     $erg = $sth->fetchall_arrayref();
 
     last
@@ -795,8 +796,7 @@ where
     }
 
     if(scalar @{$erg} == 0 ) {
-        $console->{call} = 'message'; #reset default widget, avoid own widget
-        $console->err(sprintf(gettext("Event '%d' does not exist in the database!"),$eventid));
+        con_err($console, sprintf(gettext("Event '%d' does not exist in the database!"),$eventid));
         return;
     }
 
@@ -834,14 +834,14 @@ INSERT INTO NEXTEPG select
     MIN(e.starttime) as nexttime
     FROM EPG as e, CHANNELS as c
     WHERE e.channel_id = c.Id
-AND UNIX_TIMESTAMP(e.starttime) > UNIX_TIMESTAMP(NOW())
+AND e.starttime > NOW()
 AND c.GRP = ?
 
 GROUP BY c.Id
 |;
     my $sthtemp = $obj->{dbh}->prepare($sqltemp);
     $sthtemp->execute($cgrp)
-        or return error sprintf("Couldn't execute query: %s.",$sthtemp->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sthtemp->errstr));
 
     my %f = (
         'Service' => gettext('Service'),
@@ -863,7 +863,7 @@ SELECT SQL_CACHE
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
     e.description as __Description,
     999 as __Percent,
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __VPS
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
 FROM
     EPG as e, CHANNELS as c, NEXTEPG as n, CHANNELGROUPS as g
 WHERE
@@ -877,7 +877,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($cgrp)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -938,7 +938,7 @@ SELECT SQL_CACHE
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
     e.description as __Description,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as \'$f{'Percent'}\',
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __VPS
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
 FROM
     EPG as e, CHANNELS as c, CHANNELGROUPS as g
 WHERE
@@ -953,7 +953,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeit, $cgrp)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -976,7 +976,7 @@ sub NowOnChannel {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $channel = shift || $obj->_actualChannel || return error('No channel defined!');
+    my $channel = shift || $obj->_actualChannel || return con_err($console, gettext('No channel defined!'));
     my $zeit = time;
 
     my $sql =
@@ -993,7 +993,7 @@ SELECT SQL_CACHE
     DATE_FORMAT(e.starttime, "%H:%i") as StartTime,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as __Percent,
     e.description as Description,
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __VPS
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
 FROM
     EPG as e, CHANNELS as c
 WHERE
@@ -1008,7 +1008,7 @@ LIMIT 1
 #dumper($sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeit, $channel)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchrow_hashref();
 
     if(ref $console) {
@@ -1093,7 +1093,7 @@ ORDER BY
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeitvon,$zeitbis,$zeitvon,$zeitbis,$zeitvon,$zeitbis,$cgrp)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
 
     my $data = {};
@@ -1122,7 +1122,7 @@ sub checkOnTimer {
     my $obj = shift  || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $eid = shift  || return error('No id defined!');
+    my $eid = shift  || return con_err($console, gettext('No event id defined!'));
     my $tim = main::getModule('TIMERS');
 
     my $sql = qq|
@@ -1141,7 +1141,7 @@ WHERE
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eid)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $data = $sth->fetchrow_hashref();
     my $erg = $tim->checkOverlapping($data) || ['ok'];
     my $tmod = main::getModule('TIMERS');

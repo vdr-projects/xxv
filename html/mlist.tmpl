@@ -37,7 +37,7 @@
 
 <b>
 <?% IF allow('mplay') %?>
-<a href="#" onClick="Play('<?% gettext("Nothing selected!") %?>',document.musicform,'<?% param.proxy %?>')">
+<a href="#" onClick="Play('<?% gettext("Nothing selected!") %?>',document.musicform)">
 [<?% gettext("Play selected songs") %?>]
 </a>
 <?% END %?>
@@ -67,7 +67,7 @@
         </tr>
         <tr>
         <td colspan=<?% zeile.size %?>>
-            <img class="cover" src="?cmd=mcoverimage&amp;data=<?% zeile.0 %?>&amp;__binary=1" alt="<?% zeile.2 %?>" align="right" />&nbsp;
+            <img class="cover" src="?cmd=mcoverimage&amp;data=<?% zeile.0 %?>" alt="<?% zeile.2 %?>" align="right" />&nbsp;
             <?% albummark = "Album"+loop.count %?>
             <h1>Album: <?% zeile.2 %?>&nbsp;<font size=2><a href="#" onClick="selSwitch(document.musicform, '<?% albummark %?>')">[<?% gettext("Selection") %?> album]</a></font></h1>
             <h3>

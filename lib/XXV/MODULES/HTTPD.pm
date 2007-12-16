@@ -299,22 +299,6 @@ sub communicator
                 } else {
                   $obj->ModulNotLoaded($console,'RECORDS');
                 }
-            } elsif($request =~ /coverimages\//) {
-                my $musicMod = main::getModule('MUSIC');
-                if($musicMod) {
-                  $request =~ s/.*coverimages\//$musicMod->{coverimages}\//;
-                  $console->datei($request, $typ);
-                } else {
-                  $obj->ModulNotLoaded($console,'MUSIC');
-                }
-            } elsif($request =~ /vtximages\//) {
-                my $vtxMod = main::getModule('VTX');
-                if($vtxMod) {
-                  $request =~ s/.*vtximages\//$obj->{paths}->{VTXPATH}\//;
-                  $console->datei($request, $typ);
-                } else {
-                  $obj->ModulNotLoaded($console,'VTX');
-                }
             } elsif($request =~ /tempimages\//) {
                 my $tmp = $userMod->userTmp;
                 $request =~ s/.*tempimages\//$tmp\//;
@@ -322,12 +306,11 @@ sub communicator
             } else {
                 $console->datei(sprintf('%s%s', $htmlRootDir, $request), $typ);
             }
-        } elsif( $cgi->param('binary') ) {
-            # Send multimedia files (if param binary)
-            $obj->handleInput($watcher, $console, $cgi);
         } else {
             $obj->handleInput($watcher, $console, $cgi);
-            $console->footer() unless($console->typ eq 'AJAX' or $console->{noFooter});
+            $console->footer() 
+              unless($console->typ eq 'AJAX' 
+                  or $console->{noFooter});
         }
 
     } else {
@@ -487,6 +470,12 @@ sub handleInput {
       my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
       $console->{call} = $cmdname;
       if($cmdobj and not $shorterr) {
+
+          if($cmdobj->{binary}) {
+            $console->{NoFooter} = 1;
+            $console->{nocache} = 1 
+                if($cmdobj->{binary} eq 'nocache');
+          }
           $cmdobj->{callback}($watcher, $console, $udata, $result );
       } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
           $console->status403($err);

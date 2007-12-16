@@ -52,7 +52,7 @@
         </tr>
         <?% FOREACH zeile = data %?>
             <?% aktiv= ( zeile.1 ? zeile.1 mod 2 : 0 );
-                vps= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
+                pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
                 day = date.format(zeile.9, "%A, %x", locale);
                 IF aktiv; rest = rest - zeile.13; END;
             %?>
@@ -88,13 +88,13 @@
                         <?% an = gettext('On') %?>
     <?% IF allow('ttoggle') %?>
             			<a name='<?% zeile.0 %?>' href="javascript:tostatus('?cmd=ttoggle&amp;data=<?% zeile.0 %?>', <?% zeile.0 %?>)" title="<?% gettext("Toggle timer") %?>&nbsp;<?% aktiv ? aus : an %?>"><div class="<?% myclass %?>">[<?% aktiv ? an : aus %?>]</div></a>
-            			<?% vps ? '(VPS)' : '' %?>
+            			<?% IF pdc;'(';gettext('PDC');')';END %?>
                         <?% IF zeile.12 && allow('aedit') %?>
             			<a href="?cmd=aedit&amp;data=<?% zeile.12 %?>" title="<?% gettext("Edit autotimer") %?>"><div class="<?% myclass %?>">(AT)</div></a><br>
                         <?% END %?>
                         <?% IF rest <= 0 %?><a href="javascript:alert('<?% gettext("Not enough space to record this timer!") %?>')">(!)</a><br/><?% END %?>
     <?% ELSE %?>
-            			[<?% aktiv ? aus : an %?>]<?% vps ? '&nbsp;(VPS)' : '' %?>
+            			[<?% aktiv ? aus : an %?>]<?% IF pdc;'&nbsp;(';gettext('PDC');')';END %?>
     <?% END %?>
 
                         <?% level = getModule('SHARE').getEventLevel(zeile.11) %?>

@@ -66,10 +66,12 @@ XXV::MODULES::<?% Name %?>
 
 <?% FOREACH cmdname = Commands.keys.sort %?>
 
+<?% IF Commands.$cmdname.hidden != 'yes' %?>
 =item *  <?% cmdname %?> (<?% Commands.$cmdname.short %?>)
 
 <?% Commands.$cmdname.description %?>
 
+<?% END %?>
 <?% END %?>
 
 =back

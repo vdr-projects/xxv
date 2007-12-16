@@ -541,6 +541,15 @@ sub hidden {
 }
 
 # ------------------
+sub datei {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $data = shift || return error('No data defined!');
+
+    return $obj->message(gettext("Sorry, couldn't send files in this interface."));
+}
+
+# ------------------
 sub image {
 # ------------------
     my $obj = shift || return error('No object defined!');
