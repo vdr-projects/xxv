@@ -45,7 +45,7 @@
         </tr>
         <?% FOREACH zeile = data %?>
             <?% aktiv= ( zeile.1 ? zeile.1 mod 2 : 0 );
-                vps= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
+                pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
                 day = date.format(zeile.9, "%A, %x", locale);
                 IF aktiv; rest = rest - zeile.13; END;
             %?>
@@ -96,7 +96,7 @@
     <?% END %?>
 <!--
     <?% INCLUDE 'bloecke/stars.tmpl' eventid=zeile.11 umbruch='<br/>' %?>
-    <?% IF vps %?>
+    <?% IF pdc %?>
                             <img src='images/vps.png' /><br/>
     <?% END %?>
     <?% IF rest <= 0 %?>

@@ -107,7 +107,7 @@
 	             <?% END %?>
                  <font class="description<?% IF state != "";" ";state;END %?>">
                  <?% start %?>-<?% stop %?>
-                 <?% "(VPS)" IF vps %?>
+                 <?% IF pdc;"(";gettext("PDC");")";END %?>
                  </font>
             </td>
             <td class="fieldinline">
@@ -159,7 +159,7 @@
           duration=zeile.13;
           description=zeile.14;
           t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
-          vps= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
+          pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
 	    	  day = date.format(zeile.9, "%A, %x", locale) %?>
         <?% IF !old.defined || day != old %?>
             <?% IF old.defined  %?>

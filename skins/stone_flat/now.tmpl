@@ -60,7 +60,7 @@
 				  </a>
             </td>
             <td class="fieldinline<?% IF state != "";" ";state;END %?>" style="text-align:right">
-            <?% IF vps && vps != start %?> (<?% gettext("VPS") %?>:<?% vps %?>) <?% END %?>
+            <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% pdc %?>) <?% END %?>
             <?% start %?>&nbsp;-&nbsp;<?% stop %?>
             </td>
             <td class="fieldinline" style="white-space: nowrap"><?% PROCESS dur d=duration %?></td>
@@ -121,7 +121,7 @@
                         <tr><th width="150"></th><th></th><th width="140"></th><th width="110"></th><th width="40"></th></tr>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;description=zeile.8;duration=zeile.9;vps=zeile.10 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;description=zeile.8;duration=zeile.9;pdc=zeile.10 %?>
         <?% IF old.defined && group != old %?>
                         </table>
                         </td>

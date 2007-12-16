@@ -71,7 +71,7 @@
             <td>
 			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
                 <?% date.format(data.first.$c,"%H:%M",locale) %?>
-                <?% IF data.first.11 && data.first.11 != data.first.$c %?>&nbsp;(<?% gettext("VPS") %?>&nbsp;<?% date.format(data.first.11,"%H:%M",locale) %?>) <?% END %?>
+                <?% IF data.first.11 && data.first.11 != data.first.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(data.first.11,"%H:%M",locale) %?>) <?% END %?>
             </td>
         <?% ELSIF field == gettext('Stop') %?>
             <td>

@@ -21,7 +21,7 @@
     min  = total div 60 mod 60;
     hour = total div 3600;
 %?>
-<?% IF hour > 0 %?><?% hour FILTER format('%02d') %?>:<?% END %?><?% min FILTER format('%02d') %?>
+<?% IF hour >= 0 %?><?% hour FILTER format('%02d') %?>:<?% END %?><?% min FILTER format('%02d') %?>
 <?% END %?>
 </p>
 <?% END %?>
@@ -136,7 +136,7 @@
                     <td>
                       <font class="fieldinline<?% IF state != "";" ";state;END %?>">
                       <?% start %?>-<?% stop %?>
-                      <?% "&nbsp;(V)" IF vps %?>
+<!--                  <?% IF pdc;"(";gettext("PDC");")";END %?> -->
                       </font>
                     </td>
                     <td class="push">
@@ -177,7 +177,7 @@
           duration=zeile.13;
           description=zeile.14;
           t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
-          vps= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
+          pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
 	    	  day = date.format(zeile.9, "%A, %x", locale) %?>
 			<?% IF old.defined && day != old %?>
           <div class="areaclose"></div>

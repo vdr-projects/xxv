@@ -16,7 +16,7 @@
   d = data.last.8;
   video = data.last.9;
   audio = data.last.10;
-  vps = data.last.11;
+  pdc = data.last.11;
 %?>
 <?% ######################################################################## %?>
 <div id="body">
@@ -54,7 +54,7 @@ END %?>
 	    <?% END %?>
 			        &nbsp;&nbsp;&nbsp;<?% date.format(start,"%A, %x",locale) %?>&nbsp;
               &nbsp;&nbsp;&nbsp;<?% date.format(start,"%H:%M",locale) %?>&nbsp;-&nbsp;<?% date.format(stopp,"%H:%M",locale) %?>
-              <?% IF vps && vps != start %?>&nbsp;(<?% gettext("VPS") %?>&nbsp;<?% date.format(vps,"%H:%M",locale) %?>) <?% END %?>
+              <?% IF pdc && pdc != start %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(pdc,"%H:%M",locale) %?>) <?% END %?>
 
               &nbsp;&nbsp;&nbsp;<?% PROCESS printduration %?>
 			        &nbsp;<?% PROCESS dur %?>

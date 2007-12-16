@@ -52,7 +52,7 @@
     </td>
     <td>
         <?% start %?>&nbsp;-&nbsp;<?% stop %?>
-        <?% IF vps && vps != start %?> (<?% gettext("VPS") %?>:<?% vps %?>) <?% END %?>
+        <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% PDC %?>) <?% END %?>
     </td>
     <td class="push">
         <?% INCLUDE widgets/tooltip.inc cmd="display"  eventid=id linkid=id ttp_offset=-400 %?>
@@ -104,7 +104,7 @@
 <?% FOREACH zeile = data %?>
     <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;description=zeile.8;duration=zeile.9;vps=zeile.10 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;description=zeile.8;duration=zeile.9;pdc=zeile.10 %?>
         <?% IF old.defined && group != old %?>
     </tr>
 </table>

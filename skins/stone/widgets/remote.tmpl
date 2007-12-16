@@ -27,7 +27,7 @@ function remote(key) {
 function grab() {
     if(document.remoteform.grabinterval.value > 0) {
         Now = new Date();
-    	document.livepicture.src = '?cmd=gdisplay&binary=1&laber=' + Now.getTime();
+    	document.livepicture.src = '?cmd=gdisplay&random=' + Now.getTime();
     }
     last = Date.UTC();
 }
@@ -57,7 +57,7 @@ aktiv = window.setInterval("grab()", inter);
             <table class="areainline" summary="">
                 <tr>
                     <td class="areainline" valign="middle" align="center">
-                        <img alt="<?% date.now %?>" src="?cmd=gdisplay&amp;binary=1&amp;laber=<?% date.now %?>" width="<?% width %?>" height="<?% height %?>" name="livepicture" />
+                        <img alt="<?% date.now %?>" src="?cmd=gdisplay&amp;random=<?% date.now %?>" width="<?% width %?>" height="<?% height %?>" name="livepicture" />
                     </td>
                 </tr>
             </table>

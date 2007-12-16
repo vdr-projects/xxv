@@ -97,7 +97,7 @@
     </td>
     <td<?% IF state != "" %?> class="<?% state %?>"<?% END %?>>
         <?% start %?>-<?% stop %?>
-        <?% vps ? '&nbsp;(VPS)' : '' %?>
+        <?% IF pdc;'&nbsp;(';gettext("PDC");')';END %?>
     </td>
     <td class="push<?% IF state != "";" ";state;END %?>">
         <?% INCLUDE widgets/tooltip.inc cmd="display" linkid=eventid ttp_offset=-400 %?>
@@ -158,7 +158,7 @@
           duration=zeile.13;
           description=zeile.14;
           t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
-          vps= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
+          pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
 	    	  day = date.format(zeile.9, "%A, %x", locale) %?>
 		<?% IF old.defined && day != old %?>
   		<tr>

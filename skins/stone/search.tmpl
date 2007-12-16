@@ -66,7 +66,7 @@
                     <td class="fieldinline" style="white-space: nowrap">
                        <font class="description<?% IF state != "";" ";state;END %?>">
                        <?% start %?>&nbsp;-&nbsp;<?% stop %?>
-                       <?% IF vps && vps != start %?> (<?% gettext("VPS") %?>:<?% vps %?>) <?% END %?>
+                       <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% pdc %?>) <?% END %?>
                        </font>
                     </td>
                     <td class="fieldinline push">
@@ -91,7 +91,7 @@
 <h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% date.format(data.first.7, "%A, %x", locale) %?></h1>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;vps=zeile.9 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;pdc=zeile.9 %?>
         <?% day = date.format(zeile.7, "%A, %x", locale) %?>
         <?% IF old.defined && day != old %?>
 <div class="areaclose"></div>

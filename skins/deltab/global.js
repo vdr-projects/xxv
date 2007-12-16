@@ -122,15 +122,12 @@ function reverse(form) {
     }
 }
 
-function PlayMusic(ids,proxy) {
-    var url = "";
-    if(proxy != "")
-        url = proxy;
-    url = url + '?cmd=mplaylist&data=' + ids + '&binary=1';
+function PlayMusic(ids) {
+    var url = '?cmd=mplaylist&data=' + ids;
     location.href = url;
 }
 
-function Play(warnmsg,form,proxy) {
+function Play(warnmsg,form) {
 // test on checked Boxes
     x = 0;
     ok = new Array;
@@ -143,7 +140,7 @@ function Play(warnmsg,form,proxy) {
         }
     }
     if(x > 0) {
-        PlayMusic(ok.join('_'),proxy);
+        PlayMusic(ok.join('_'));
     } else {
         alert(warnmsg);
     }

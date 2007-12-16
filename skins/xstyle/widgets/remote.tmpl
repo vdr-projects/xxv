@@ -28,7 +28,7 @@ function switch_channel(url) {
 function grab() {
     if(document.remoteform.grabinterval.value > 0) {
         Now = new Date();
-    	document.livepicture.src = '?cmd=gdisplay&binary=1&laber=' + Now.getTime();
+    	document.livepicture.src = '?cmd=gdisplay&random=' + Now.getTime();
     }
     last = Date.UTC();
 }
@@ -58,7 +58,7 @@ aktiv = window.setInterval("grab()", inter);
 <tr>
 <?% IF monitor %?>
   <td rowspan="12">
-    <img src="?cmd=gdisplay&binary=1&laber=<?% date.now %?>" width="<?% param.width %?>" height="<?% param.height %?>" name="livepicture">
+    <img src="?cmd=gdisplay&random=<?% date.now %?>" width="<?% param.width %?>" height="<?% param.height %?>" name="livepicture">
   </td>
 <?% END %?>
   <td colspan="2" align="left"><nobr><input type="button" onclick="self.location.href='?cmd=r&monitor=<?% monitor ? 0 : 1 %?>'" name="monitor" value="<?% gettext("Monitor") %?>"></td>

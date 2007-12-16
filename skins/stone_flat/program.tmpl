@@ -45,7 +45,7 @@
       <?% PROCESS SetState %?>
         <tr<?% ' class="two"' IF z mod 2 == 0 %?>>
             <td class="fieldinline<?% IF state != "";" ";state;END %?>"><?% start %?>&nbsp;-&nbsp;<?% stop %?>
-            <?% IF vps && vps != start %?> (<?% gettext("VPS") %?>:<?% vps %?>) <?% END %?>
+            <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% pdc %?>) <?% END %?>
             </td>
             <td class="fieldinline">
                   <a id="E<?% id %?>" href="javascript:popup('display','<?% id %?>',620,670,0)" class="fieldinline">
@@ -94,7 +94,7 @@
     <?% z = 0 %?>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;description=zeile.6;video=zeile.7;audio=zeile.8;vps=zeile.9 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;description=zeile.6;video=zeile.7;audio=zeile.8;pdc=zeile.9 %?>
         <?% day = date.format(zeile.5, "%A, %x", locale) %?>
         <?% IF !old.defined || day != old %?>
             <?% IF old.defined  %?>

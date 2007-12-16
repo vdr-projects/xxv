@@ -50,12 +50,12 @@
             <?% playtime %?>
             <?% IF track != "" %?>&nbsp;(<?% track %?>)<?% END %?>
     <?% IF allow('mgetfile') %?>
-            <a title="<?% gettext("Store selected song") %?>" href="?cmd=mgetfile&amp;data=<?% id %?>&amp;__binary=1">
+            <a title="<?% gettext("Store selected song") %?>" href="?cmd=mgetfile&amp;data=<?% id %?>">
                 <img src="images/file.<?% global.imagetyp %?>" alt="" title="<?% gettext("Store selected song") %?>" />
             </a>
     <?% END %?>
     <?% IF allow('mplay') %?>
-            <a title="<?% gettext("Play selected songs") %?>" href="javascript:PlayMusic('<?% id %?>','<?% param.proxy %?>')">
+            <a title="<?% gettext("Play selected songs") %?>" href="javascript:PlayMusic('<?% id %?>')">
               <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Play selected songs") %?>" />
             </a>
     <?% END %?>
@@ -114,7 +114,7 @@
             <tr>
             <td align="right" colspan="3">
                 <a class="title" title="<?% gettext("Search") %?>" href="?cmd=ml&amp;data=album:<?% url(album) %?>">
-                   <img class="cover" src="?cmd=mcoverimage&amp;data=<?% id %?>&amp;__binary=1" alt="<?% album %?>" />
+                   <img class="cover" src="?cmd=mcoverimage&amp;data=<?% id %?>" alt="<?% album %?>" />
                 </a>
             </td>
             </tr>
@@ -201,10 +201,10 @@
         <a href="javascript:selAll(document.mlist,0)"><?% gettext("Unselect all",20) %?></a><br />
         <a href="javascript:reverse(document.mlist)"><img src="images/invers.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
         <a href="javascript:reverse(document.mlist)"><?% gettext("Reverse select",20) %?></a><br />
-        <a href="javascript:Play('<?% gettext("Nothing selected!") %?>',document.mlist,'<?% param.proxy %?>')">
+        <a href="javascript:Play('<?% gettext("Nothing selected!") %?>',document.mlist)">
             <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Play selected songs") %?>" />
         </a>&nbsp;
-        <a href="javascript:Play('<?% gettext("Nothing selected!") %?>',document.mlist,'<?% param.proxy %?>')">
+        <a href="javascript:Play('<?% gettext("Nothing selected!") %?>',document.mlist)">
             <?% gettext("Play selected songs",20)  %?>
         </a>
     </td>

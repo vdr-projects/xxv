@@ -46,7 +46,7 @@
 				  </a>
             </td>
             <td class="fieldinline<?% IF state != "";" ";state;END %?>" style="white-space: nowrap; text-align: right;">                        
-            <?% IF vps && vps != start %?> (<?% gettext("VPS") %?>:<?% vps %?>) <?% END %?>
+            <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% pdc %?>) <?% END %?>
             <?% start %?>&nbsp;-&nbsp;<?% stop %?>
             </td>
             <td class="fieldinline push">
@@ -71,7 +71,7 @@
 <?% fields = data.shift %?>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;vps=zeile.9 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;pdc=zeile.9 %?>
         <?% day = date.format(zeile.7, "%A, %x", locale) %?>
         <?% IF !old.defined || day != old %?>
             <?% IF old.defined  %?>
