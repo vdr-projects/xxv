@@ -271,6 +271,9 @@ sub communicator
         if(($data->{Request} eq '/' or $data->{Request} =~ /\.html$/) and not $data->{Query}) {
             # Send the first page (index.html)
             my $page = $data->{Request};
+            $page =~ s/\.\.\///g;
+            $page =~ s/\/\.\.//g;
+            $page =~ s/\/+/\//g;
             if($page eq '/') {
                 if(-r sprintf('%s/index.tmpl', $htmlRootDir)) {
                     $console->index;
@@ -283,6 +286,9 @@ sub communicator
         } elsif(my $typ = $mime->{lc((split('\.', $data->{Request}))[-1])}) {
             # Send multimedia files (this must registered in $mime!)
             my $request = $data->{Request};
+            $request =~ s/\.\.\///g;
+            $request =~ s/\/\.\.//g;
+            $request =~ s/\/+/\//g;
             if($request =~ /epgimages\//) {
                 my $epgMod = main::getModule('EPG');
                 if($epgMod) {
@@ -309,7 +315,7 @@ sub communicator
         } else {
             $obj->handleInput($watcher, $console, $cgi);
             $console->footer() 
-              unless($console->typ eq 'AJAX' 
+              unless($console->{TYP} eq 'AJAX' 
                   or $console->{noFooter});
         }
 
@@ -472,7 +478,7 @@ sub handleInput {
       if($cmdobj and not $shorterr) {
 
           if($cmdobj->{binary}) {
-            $console->{NoFooter} = 1;
+            $console->{noFooter} = 1;
             $console->{nocache} = 1 
                 if($cmdobj->{binary} eq 'nocache');
           }

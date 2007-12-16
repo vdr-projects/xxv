@@ -91,8 +91,6 @@ sub new {
 
     $self->{TYP} = 'AJAX';
 
-    $self->{CMDSTAT} = undef;
-
 	return $self;
 }
 
