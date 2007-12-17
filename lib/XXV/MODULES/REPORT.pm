@@ -245,7 +245,7 @@ sub request {
     # cmd=request&data=rss&ver=2 or
     # cmd=request&data=mail
     # ...
-    my $typ = shift || return error ('No Typ!' );
+    my $typ = shift || return $console->err(gettext("Sorry, but none type requested!"));
     my $params = shift || {};
 
     my ($mod) = grep(/${typ}$/i, keys %{$obj->{NEWSMODS}});

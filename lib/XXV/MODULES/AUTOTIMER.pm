@@ -136,11 +136,12 @@ sub module {
                             my $autotimer = getDataById($timer->{AutotimerId}, 'AUTOTIMER', 'Id');
                             my $title = sprintf(gettext("Autotimer('%s') found: %s"),
                                                     $autotimer->{Search}, $timer->{File});
-                            my $description = sprintf(gettext("On: %s to %s\nDescription: %s"),
+                            my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
-                                fmttime($timer->{Stop}),
-                                $desc && $desc->{description} ? $desc->{description} : ''
-                                );
+                                fmttime($timer->{Stop}));
+                            $description .= "\r\n";
+                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
+                              if($desc && $desc->{description});
 
                             main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, "interesting");
                         }

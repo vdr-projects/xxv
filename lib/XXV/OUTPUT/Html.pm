@@ -72,10 +72,10 @@ sub new {
         || return error('No handle defined!');
 
     $self->{paths} = $attr{'-paths'}
-        || return error('No Paths defined!');
+        || return error('No paths defined!');
 
     $self->{dbh} = $attr{'-dbh'}
-        || return error('No DBH defined!');
+        || return error('No dbh defined!');
 
     $self->{htmdir} = $attr{'-htmdir'}
         || return error('No htmdir given!');
@@ -84,16 +84,16 @@ sub new {
         || return error('No htmdef given!');
 
     $self->{cgi} = $attr{'-cgi'}
-        || return error('No TemplateDir given!');
+        || return error('No cgi given!');
 
     $self->{mime} = $attr{'-mime'}
-        || return error('No Mimehash given!');
+        || return error('No mime given!');
 
     $self->{browser} = $attr{'-browser'}
-        || return error('No Mimehash given!');
+        || return error('No browser given!');
 
     $self->{start} = $attr{'-start'}
-        || return error('No StartPage given!');
+        || return error('No start page given!');
 
     $self->{debug} = $attr{'-debug'}
         || 0;

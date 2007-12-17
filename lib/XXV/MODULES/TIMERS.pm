@@ -152,11 +152,12 @@ sub module {
                             return if($timer->{AutotimerId});
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
                             my $title = sprintf(gettext("New timer found: %s"),$timer->{File});
-                            my $description = sprintf(gettext("On: %s to %s\nDescription: %s"),
+                            my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
-                                fmttime($timer->{Stop}),
-                                $desc && $desc->{description} ? $desc->{description} : ''
-                                );
+                                fmttime($timer->{Stop}));
+                            $description .= "\r\n";
+                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
+                              if($desc && $desc->{description});
 
                             main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
                         }
@@ -195,11 +196,12 @@ sub module {
                             my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'Id');
                             my $title = sprintf(gettext("Timer deleted: %s"),$timer->{File});
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
-                            my $description = sprintf(gettext("On: %s to %s\nDescription: %s"),
+                            my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
-                                fmttime($timer->{Stop}),
-                                $desc && $desc->{description} ? $desc->{description} : ''
-                                );
+                                fmttime($timer->{Stop}));
+                            $description .= "\r\n";
+                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
+                              if($desc && $desc->{description});
 
                             main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
                         }
@@ -225,18 +227,25 @@ sub module {
                 },
                 Match => {
                     TimerId => qr/modt\s+(\d+)\s(on|off)/s,
-                    Type    => qr/modt\s+\d+\s+(on|off)/s,
+                    #Type    => qr/modt\s+\d+\s+(on|off)/s,
                 },
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
                             my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'Id');
-                            my $title = sprintf(gettext("Timer toggled: %s to %s"),$timer->{File},$args->{Type});
-                            my $description = sprintf(gettext("Description: %s\nOn: %s to %s"),
-                                $timer->{Summary},
+                            my $title;
+                            if($timer->{Status} & 1) {
+                              $title = sprintf(gettext("Timer activated: %s"),$timer->{File});
+                            } else {
+                              $title = sprintf(gettext("Timer deactivated: %s"),$timer->{File});
+                            }
+                            my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
+                            my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
-                                fmttime($timer->{Stop})
-                                );
+                                fmttime($timer->{Stop}));
+                            $description .= "\r\n";
+                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
+                              if($desc && $desc->{description});
 
                             main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
                         }
