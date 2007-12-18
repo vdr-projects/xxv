@@ -196,10 +196,9 @@ sub search {
     my $self = shift;
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $quest  = shift || return $console->err(gettext("No 'string' to search for! Please use chrsearch 'text'."));
+    my $text  = shift || return $console->err(gettext("No 'string' to search for! Please use chrsearch 'text'."));
 
-    $quest =~ s/\'/\./sg;
-    $quest =~ s/\+/\\\\\+/sg;
+    my $query = buildsearch("title",$text);
 
     my %f = (
         'id' => gettext('Service'),
@@ -220,12 +219,11 @@ SELECT SQL_CACHE
   DATE_FORMAT(CHRONICLE.starttime, '%H:%i') as \'$f{'start'}\',
   DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(CHRONICLE.starttime) + CHRONICLE.duration), '%H:%i') as \'$f{'stop'}\'
 FROM CHRONICLE
-WHERE CHRONICLE.title RLIKE ?
-ORDER BY CHRONICLE.starttime
 |;
+    $sql .= sprintf("WHERE %s ORDER BY CHRONICLE.starttime",$query->{query});
     my $fields = fields($self->{dbh}, $sql);
     my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute($quest)
+    $sth->execute(@{$query->{term}})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
