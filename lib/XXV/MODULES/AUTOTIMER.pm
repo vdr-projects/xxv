@@ -373,8 +373,6 @@ sub _autotimerLookup {
     my $M = 0;
     my $log;
 
-    my $vdrVersion = main::getVdrVersion();
-
     # Search only for event there added since last runtime.
     # and search not with TEMPEPG at manual running
     my $addtime = ((not ref $console) && ($obj->{addtime})) ? $obj->{addtime} : 0;
@@ -428,7 +426,7 @@ sub _autotimerLookup {
                   [gettext("Channel")	   , $events->{$Id}->{Channel}],
                   [gettext("Start")	     , strftime("%x %X", localtime($events->{$Id}->{starttime}))],
                   [gettext("Stop")	     , strftime("%x %X", localtime($events->{$Id}->{stoptime}))],
-                  [gettext("Description"), $events->{$Id}->{Summary}],
+                  [gettext("Description"), $events->{$Id}->{description}],
               ];
               $console->table($output);
             };
@@ -454,11 +452,7 @@ sub _autotimerLookup {
             # Add anchor for reidentify timer
             my $aidcomment = sprintf('#~AT[%d]', $id);
 
-        		if($vdrVersion >= 10344){
-          	        $events->{$Id}->{Summary} = $aidcomment;
-        		} else {
-                    $events->{$Id}->{Summary} .= $aidcomment;
-        		}
+        		$events->{$Id}->{aux} = $aidcomment;
             
             # Wished timer already exist with same data from autotimer ?
             next if($obj->_timerexists($events->{$Id}, $aidcomment));
@@ -1191,7 +1185,7 @@ SELECT SQL_CACHE
     c.POS as POS,
     e.title as Title,
     e.subtitle as Subtitle,
-    e.description as Summary,
+    e.description as description,
     (UNIX_TIMESTAMP(e.starttime) - ? ) as starttime,
     (UNIX_TIMESTAMP(e.starttime) + e.duration + ?) as stoptime,
     UNIX_TIMESTAMP(e.vpstime) as vpsstart,
@@ -1227,14 +1221,14 @@ sub _timerexists {
                 and Lifetime = ?
                 and (
                        ( Status & 1 = '0' )
-                    or ( File = ? and Summary = ? )
-                    or ( Summary not like ? )
+                    or ( File = ? and aux = ? )
+                    or ( aux not like ? )
                 )";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{ChannelID},$eventdata->{starttime},$eventdata->{stoptime},
                   $eventdata->{Priority},$eventdata->{Lifetime},
-                  $eventdata->{File},$eventdata->{Summary},"%".$aidcomment)
+                  $eventdata->{File},$eventdata->{aux},"%".$aidcomment)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
@@ -1256,8 +1250,8 @@ sub _timerexistsfuzzy {
                 ChannelID = ?
                 and UNIX_TIMESTAMP(NextStartTime) = ?
                 and UNIX_TIMESTAMP(NextStopTime)  = ?
-                and Summary like ?
-                order by length(Summary) desc;";
+                and aux like ?
+                order by length(aux) desc;";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{ChannelID},$eventdata->{starttime},$eventdata->{stoptime},
@@ -1376,15 +1370,15 @@ sub _placeholder {
                 $at_details{'title'}            = $data->{Title};
                 $at_details{'subtitle'}         = $data->{Subtitle} ? $data->{Subtitle} : $data->{Start};
                 $at_details{'date'}             = $data->{Day};
-                $at_details{'regie'}            = $1 if $data->{Summary} =~ m/\|Director: (.*?)\|/;
-                $at_details{'category'}         = $1 if $data->{Summary} =~ m/\|Category: (.*?)\|/;
-                $at_details{'genre'}            = $1 if $data->{Summary} =~ m/\|Genre: (.*?)\|/;
-                $at_details{'year'}             = $1 if $data->{Summary} =~ m/\|Year: (.*?)\|/;
-                $at_details{'country'}          = $1 if $data->{Summary} =~ m/\|Country: (.*?)\|/;
-                $at_details{'originaltitle'}    = $1 if $data->{Summary} =~ m/\|Originaltitle: (.*?)\|/;
-                $at_details{'fsk'}              = $1 if $data->{Summary} =~ m/\|FSK: (.*?)\|/;
-                $at_details{'episode'}          = $1 if $data->{Summary} =~ m/\|Episode: (.*?)\|/;
-                $at_details{'rating'}           = $1 if $data->{Summary} =~ m/\|Rating: (.*?)\|/;
+                $at_details{'regie'}            = $1 if $data->{description} =~ m/\|Director: (.*?)\|/;
+                $at_details{'category'}         = $1 if $data->{description} =~ m/\|Category: (.*?)\|/;
+                $at_details{'genre'}            = $1 if $data->{description} =~ m/\|Genre: (.*?)\|/;
+                $at_details{'year'}             = $1 if $data->{description} =~ m/\|Year: (.*?)\|/;
+                $at_details{'country'}          = $1 if $data->{description} =~ m/\|Country: (.*?)\|/;
+                $at_details{'originaltitle'}    = $1 if $data->{description} =~ m/\|Originaltitle: (.*?)\|/;
+                $at_details{'fsk'}              = $1 if $data->{description} =~ m/\|FSK: (.*?)\|/;
+                $at_details{'episode'}          = $1 if $data->{description} =~ m/\|Episode: (.*?)\|/;
+                $at_details{'rating'}           = $1 if $data->{description} =~ m/\|Rating: (.*?)\|/;
                 $title =~ s/%([\w_-]+)%/$at_details{lc($1)}/sieg;
 				$file = $title;
         } else { # Classic mode DIR~TITLE~SUBTILE

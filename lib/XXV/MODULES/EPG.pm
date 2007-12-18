@@ -974,8 +974,8 @@ ORDER BY
 sub NowOnChannel {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
-    my $console = shift || return error('No console defined!');
+    my $watcher = shift;
+    my $console = shift;
     my $channel = shift || $obj->_actualChannel || return con_err($console, gettext('No channel defined!'));
     my $zeit = time;
 

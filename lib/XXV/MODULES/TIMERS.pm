@@ -374,7 +374,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 26; # Must be increment if rows of table changed
+    my $version = 27; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($obj->{dbh},'TIMERS',$version,1)) {
@@ -393,7 +393,7 @@ sub _init {
           Priority tinyint(2),
           Lifetime tinyint(2),
           File text,
-          Summary text default '',
+          aux text default '',
           NextStartTime datetime,
           NextStopTime datetime,
           Collision varchar(100) default '0',
@@ -458,7 +458,7 @@ sub saveTimer {
             int($data->{Priority}),
             int($data->{Lifetime}),
             $data->{File},
-            ($data->{Summary} || '')
+            ($data->{aux} || '')
         )
     );
 
@@ -475,7 +475,7 @@ sub saveTimer {
                 int($data->{Priority}),
                 int($data->{Lifetime}),
                 $data->{File},
-	            ($data->{Summary} || '')
+	              ($data->{aux} || '')
                 ], $pos);
     }
 
@@ -499,7 +499,7 @@ sub newTimer {
 SELECT SQL_CACHE 
     eventid,
     channel_id,
-    description as Summary,
+    description,
     CONCAT_WS('~', title, subtitle) as File,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '$dayFormat') as Day,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%H%i') as Start,
@@ -521,7 +521,7 @@ WHERE
    	    $epg = {
             channel_id => '',
             File => '',
-            Summary => '',
+            description => '',
             Day => my_strftime($dayFormat,$t),
             Start => my_strftime("%H%M",$t),
             Stop => my_strftime("%H%M",$t)
@@ -534,10 +534,7 @@ WHERE
          if(not defined $epg->{Priority});
     $epg->{Lifetime} = $obj->{Lifetime}
          if(not defined $epg->{Lifetime});
-	if(main::getVdrVersion() >= 10344) {
-    	$epg->{desc} = $epg->{Summary};
-    	$epg->{Summary} = ""
-    }
+
     if($epg->{VpsStart} && $obj->{usevpstime} eq 'y') {
         $epg->{Status} |= 4;
         $epg->{Day} = $epg->{VpsDay};
@@ -565,7 +562,7 @@ SELECT SQL_CACHE
     Id, 
     ChannelID as channel_id, 
     File, 
-    Summary, 
+    aux, 
     Start, 
     Stop, 
     Day, 
@@ -584,8 +581,8 @@ WHERE
         $timerData = $data;
     }
 
-    $timerData->{Summary} =~ s/(\r|\n)//sig
-        if(defined $timerData->{Summary});
+    $timerData->{aux} =~ s/(\r|\n)//sig
+        if(defined $timerData->{aux});
 
     my $mod = main::getModule('CHANNELS');
     my $con = $console->typ eq "CONSOLE";
@@ -720,42 +717,24 @@ WHERE
             def     => $timerData->{File},
             req     => gettext("This is required!"),
         },
+        'aux' => {
+            typ     => 'hidden',
+            def   => $timerData->{aux},
+        }
     ];
 
-    my $Summary = $timerData->{Summary};
-    $Summary =~s/\#~AT\[(\d+)\]//g;
-
-	if(main::getVdrVersion() >= 10344){
-        if($timerData->{Id} || $timerData->{desc}) {
-            my $desc = $timerData->{desc} || $obj->getEpgDesc($timerData->{Id});
-            if($desc) {
-        		push(@$questions,
-        		'Description' => {
-                    msg   =>  gettext('Description'),
-                    typ     => 'string',
-                    def   => $desc,
-                    readonly => 1
-                });
-            }
-        }
-
-		push(@$questions,
-		'Summary' => {
-            typ     => 'hidden',
-            def   => $Summary,
-        });
-	} else {
-		push(@$questions,
-		'Summary' => {
-            msg   =>  gettext('Additional description'),
-            def   => $Summary,
-            check   => sub{
-                my $value = shift || return;
-                $value =~ s/(\r|\n)//sig;
-                return $value;
-            },
-        });
-	}
+    if($timerData->{Id} || $timerData->{description}) {
+      my $description = $timerData->{description} || $obj->getEpgDesc($timerData->{Id});
+      if($description) {
+	  	  push(@$questions,
+	  	    'Description' => {
+              msg   =>  gettext('Description'),
+              typ     => 'string',
+              def   => $description,
+              readonly => 1
+          });
+      }
+    }
     # Ask Questions
     my $datasave = $console->question(($timerid ? gettext('Edit timer')
                                                 : gettext('New timer')), $questions, $data);
@@ -1265,7 +1244,7 @@ sub getCheckTimer {
     my $sql = qq|
 SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
         t.Priority as Priority, t.Lifetime as Lifetime,
-        t.File as File, t.Summary as Summary,
+        t.File as File, t.aux as aux,
         t.Start as TimerStart,t.Stop as TimerStop,
 
         UNIX_TIMESTAMP(e.starttime) as starttime,
@@ -1315,7 +1294,7 @@ SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
             VPS       => (($erg->{$t}->{Status} & 4) ? 'y' : 'n'), 
             ChannelID => $erg->{$t}->{ChannelID},
             File      => $erg->{$t}->{File},
-            Summary   => $erg->{$t}->{Summary},
+            aux       => $erg->{$t}->{aux},
             Day       => my_strftime($dayFormat,$start),
             Start     => my_strftime("%H%M",$start),
             Stop      => my_strftime("%H%M",$stop),

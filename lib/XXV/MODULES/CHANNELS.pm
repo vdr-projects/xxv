@@ -672,7 +672,7 @@ sub editChannel {
         } ];
     #Change Position only on editing
     push(@{$questions},@{$newpos})
-        if($cid && main::getVdrVersion >= 10332);
+        if($cid);
 
     my $more = [
         'Name' => {

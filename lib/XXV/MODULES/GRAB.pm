@@ -35,15 +35,15 @@ sub module {
                 type        => 'integer',
                 required    => gettext('This is required!'),
             },
-            file => {
-                description => gettext('Location where the grabbed image file will be stored'),
-                default     => '/tmp/live.jpg',
-                type        => 'file',
-            },
-            imgtext => {
+            overlay => {
                 description => gettext('Text to display in the grabbed picture.'),
-                default     => "[?- i = channel.split(' ') -?][[? i.shift ?]] [? i.join(' ') ?]",
+                default     => "<< event.POS >>.<< event.Channel >>\|<< event.Title >> << event.Subtitle >>",
                 type        => 'string',
+                check   => sub{
+                    my $value = shift;
+                    $value = join('|',(split(/[\r\n]/, $value)));
+                    return $value;
+                },
             },
             vpos => {
                 description => gettext('Vertical position of displayed text, in pixels.'),
@@ -115,11 +115,11 @@ sub new {
 
     # create Template object
     $self->{tt} = Template->new(
-      START_TAG    => '\[\?',		    # Tagstyle
-      END_TAG      => '\?\]',		    # Tagstyle
+      START_TAG    => '\<\<',		        # Tagstyle
+      END_TAG      => '\>\>',		        # Tagstyle
       INTERPOLATE  => 1,                # expand "$var" in plain text
-      PRE_CHOMP    => 1,                # cleanup whitespace
-      EVAL_PERL    => 1,                # evaluate Perl code blocks
+      PRE_CHOMP    => 0,                # cleanup whitespace
+      EVAL_PERL    => 0,                # evaluate Perl code blocks
     );
 
     $self->_init or return error('Problem to initialize modul!');
@@ -149,56 +149,32 @@ sub grab {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
-    my $file    = $obj->{file};
-    my $erg;
 
-    if(main::getVdrVersion() >= 10338) {
+    # command for get inline data (JPEG BASE64 coded)
+    my $cmd = sprintf('grab - %d %d %d',
+            $obj->{imgquality},
+            $obj->{xsize},
+            $obj->{ysize},
+    );
 
-        # command for get inline data (JPEG BASE64 coded)
-        my $cmd = sprintf('grab - %d %d %d',
-                $obj->{imgquality},
-                $obj->{xsize},
-                $obj->{ysize},
-        );
-
-        my $data = $obj->{svdrp}->command($cmd);
-        my $uu = [ grep(/^216-/, @$data) ];
-        foreach (@{$uu}) { s/^216-//g; }
-
-        if(scalar @{$uu} <= 0) {
-            # None data with 216-, maybe svdrp message contain reason
-            $erg = $data;
-        } elsif(!open(F, ">$file")) {
-            # Open failed
-            $erg = sprintf("Couldn't write file %s : %s",$file,$!);
-        } else {
-            # uudecode data to file
-            binmode(F);
-            foreach (@{$uu}) { print F MIME::Base64::decode_base64($_); }
-            close F;
-        }
-    } else {
-
-        if(-e $file) {
-          unlink($file) || error sprintf("Couldn't remove '%s' : %s",$file,$!);
-        }
-        # the command
-        my $cmd = sprintf('grab %s jpeg %d %d %d',
-                $obj->{file},
-                $obj->{imgquality},
-                $obj->{xsize},
-                $obj->{ysize},
-        );
-
-        $erg = $obj->{svdrp}->command($cmd);
+    my $data = $obj->{svdrp}->command($cmd);
+    
+    my $binary;
+    foreach my $l (@{$data}) { 
+      if($l =~ /^216-/sg) { 
+        $l =~ s/^216-//g;
+        $binary .= MIME::Base64::decode_base64($l); 
+      } 
     }
-    # Make imgtext
-    $file = $obj->makeImgText($file, $obj->{imgtext})
-        if($obj->{imgtext} && -s $file);
+    $binary = $obj->_noise() unless($binary);
 
-    $console->msg($erg, $obj->{svdrp}->err)
-        if(ref $console);
-    return $file;
+    if($binary) {
+      # Make overlay on image
+      $binary = $obj->makeImgText($binary, $obj->{overlay})
+          if($obj->{overlay});
+      return $binary;
+    }
+    return undef;
 }
 
 # ------------------
@@ -208,13 +184,14 @@ sub display {
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
-    my $file = $obj->grab();
-    if(-s $file) { #  Datei existiert und hat eine Grösse von mehr als 0 Bytes
+    my $binary = $obj->grab();
+    if($binary) { #  Datei existiert und hat eine Grösse von mehr als 0 Bytes
       $console->{nocache} = 1;
-      return $console->image($file);
-    } else {
-      error("Couldn't locate file : $file, maybe grabbing was failed");
-      return 0;
+      $console->{nopack} = 1;
+      my %args = ();
+      $args{'attachment'} = 'grab.jpg';
+      $args{'Content-Length'} = length($binary);
+      return $console->out($binary, 'image/jpeg', %args );
     }
 }
 
@@ -222,49 +199,86 @@ sub display {
 sub makeImgText {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
-    my $console = shift || return error('No console defined!');
-    my $file = shift || $obj->{file} || return error ('No file to display defined!');
-    my $text = shift || $obj->{imgtext} || return error ('No text to display defined!');
+    my $binary = shift || return error ('No data to create overlay defined!');
+    my $text = shift || return error ('No text to display defined!');
 
-    my $im;
-    if(int(${GD::VERSION}) >= 2.0) {
-        $im = GD::Image->newFromJpeg($file, 1) || return error("Couldn't read $file $!");
-    } else {
-        $im = GD::Image->newFromJpeg($file) || return error("Couldn't read $file $!");
+    my $image = GD::Image->newFromJpegData($binary);
+    unless($image && $image->width > 8 && $image->height > 8) {
+      return error("Data has'nt jpeg data or jpeg data contains errors!");
     }
-    my $color   = $im->colorClosest(255,255,255);
-    my $shadow  = $im->colorClosest(0,0,0);
+    my $color   = $image->colorClosest(255,255,255);
+    my $shadow  = $image->colorClosest(0,0,0);
 
 
-    # XXX: Hier sollten noch mehr Informationen dazu kommen
-    my $channeltext = main::getModule('REMOTE')->switch();
-    my $channelpos = (split(' ', $channeltext))[0];
+    # Hier sollten noch mehr Informationen dazu kommen
     my $vars = {
-        channel => $channeltext,
-        event => main::getModule('EPG')->NowOnChannel($watcher, $console, $channelpos),
+        event => main::getModule('EPG')->NowOnChannel(undef,undef),
     };
 
     my $output = '';
     $obj->{tt}->process(\$text, $vars, \$output)
           or return error($obj->{tt}->error());
 
+
     my $font = sprintf("%s/%s",$obj->{paths}->{FONTPATH},$obj->{font});
     if($obj->{paths}->{FONTPATH} and $obj->{font} and -r $font) {
-        $im->stringFT($shadow,$font,$obj->{imgfontsize},0,11,($obj->{vpos}-1),$output);
-        $im->stringFT($color,$font,$obj->{imgfontsize},0,10,($obj->{vpos}),$output);
+      my $height = ($obj->{imgfontsize} + 2);
+      $height *= -1 if($obj->{vpos} > ($obj->{ysize} / 2));
+
+      my $offset = 0;
+      foreach my $zeile (split(/\|/, $output)) {
+        $image->stringFT($shadow,$font,$obj->{imgfontsize},0,11,($obj->{vpos}-1)+$offset,$zeile);
+        $image->stringFT($color,$font,$obj->{imgfontsize},0,10,($obj->{vpos})+$offset,$zeile);
+        $offset += $height;
+      }
     } else {
-        # Schatten
-        $im->string(&gdGiantFont,11, ($obj->{vpos}-1),$output,$shadow);
-        # Text
-        $im->string(&gdGiantFont,10, ($obj->{vpos}),$output,$color);
+      my $height = 12;
+      $height *= -1 if($obj->{vpos} > ($obj->{ysize} / 2));
+
+      my $offset = 0;
+      foreach my $zeile (split(/\|/, $output)) {
+        $image->string(&gdGiantFont,11, ($obj->{vpos}-1) + $offset,$zeile,$shadow); # Schatten
+        $image->string(&gdGiantFont,10, ($obj->{vpos}) + $offset,$zeile,$color);    # Text
+        $offset += $height;
+      }
     }
 
-    my $img_data = $im->jpeg($obj->{imgquality});
-    my @f = split('\.', $file);
-    my $newfile = ($file =~ 'text' ? $file : sprintf('%s_text.%s', @f));
-    save_file($newfile, $img_data);
-    return $newfile;
+    my $img_data = $image->jpeg($obj->{imgquality});
+    return $img_data;
+}
+
+sub _noise {
+    my $obj = shift || return error('No object defined!');
+    my $image = GD::Image->new($obj->{xsize}, $obj->{ysize},1);
+  
+    my $colors;
+    push( @{$colors}, $image->colorClosest(255,255,255));
+    push( @{$colors}, $image->colorClosest(128,128,128));
+    push( @{$colors}, $image->colorClosest(0,0,0));
+
+    $obj->_noise_rect($image,0,0,$obj->{xsize},$obj->{ysize},$colors);
+    my $img_data = $image->jpeg($obj->{imgquality});
+    return $img_data;
+}
+
+sub _noise_rect {
+    my $obj = shift || return error('No object defined!');
+    my $image = shift;
+    my $x1 = shift; my $y1 = shift;
+    my $x2 = shift; my $y2 = shift;
+    my $colors_ref = shift;
+    my $colorcount = scalar @{$colors_ref};
+
+    return if $x2 <= $x1;  # refuse to create a zero- or negative-size box
+    return if $y2 <= $y1;
+
+    for (my $x = $x1; $x < $x2; ++$x) {
+      for (my $y = $y1; $y < $y2; ++$y) {
+        $image->setPixel($x, $y,$colors_ref->[CORE::int(rand($colorcount))]);
+      }
+    }
+
+    return;
 }
 
 # ------------------

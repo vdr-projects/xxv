@@ -910,86 +910,193 @@ sub videoInfo {
       return 0;
     }
 
-    my $status = {};
+    my $status;
 
     # Dateigröße von index.vdr für Aufnahmedauer ermitteln
     if($files[0] && -e $files[0]) {
 
-        my $path = dirname($files[0]);
+      my $path = dirname($files[0]);
 
     	#Splitt 2005-01-16.04:35.88.99.rec
     	my ($year, $month, $day, $hour, $minute, $prio, $lifetime)
              = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\.rec/si;
 
-        $status->{Prio} = $prio;
-        $status->{Lifetime} = $lifetime;
+      $status->{Prio} = $prio;
+      $status->{Lifetime} = $lifetime;
 
-        $status->{duration} = $obj->_recordinglength($path);
-        $status->{FileSize} = $obj->_recordingCapacity(\@files,($status->{duration} * 8 * $obj->{framerate}));
+      $status->{duration} = $obj->_recordinglength($path);
+      $status->{FileSize} = $obj->_recordingCapacity(\@files,($status->{duration} * 8 * $obj->{framerate}));
 
-        # Schnittmarken ermitteln
-        my $marks = sprintf("%s/marks.vdr", $path);
-        if(-r $marks) {
-            my $data = load_file($marks)
-                or error sprintf("Couldn't read file '%s'",$marks);
-            if($data) {
-                foreach my $zeile (split("\n", $data)) {
-                    # 0:35:07.09 moved from [0:35:13.24 Logo start] by checkBlackFrameOnMark
-                    my ($mark) = $zeile =~ /^(\d+\:\d+\:\d+\.\d+)/sg;
-                    push(@{$status->{marks}}, $mark)
-                        if(defined $mark);
-                }
-            }
-        }
+      my $info = $obj->readinfo($path);    
+      foreach my $h (keys %{$info}) { $status->{$h} = $info->{$h}; }
+      my $marks = $obj->readmarks($path);
+      foreach my $m (keys %{$marks}) { $status->{$m} = $marks->{$m}; }
 
-        # Summary ermitteln
-        my $file = sprintf("%s/info.vdr", $path);
-           $file = sprintf("%s/summary.vdr", $path ) if(main::getVdrVersion() < 10325);
-
-        $status->{type} = 'UNKNOWN';
-        if(-r $file) {
-            my $text = load_file($file);
-
-            # Neue Vdr Version 1.3.25!
-            if(main::getVdrVersion() >= 10325) {
-                my $cmod = main::getModule('CHANNELS');
-                foreach my $zeile (split(/[\r\n]/, $text)) {
-                    if($zeile =~ /^D\s+(.+)/s) {
-                        $status->{summary} = $1;
-                        $status->{summary} =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
-                        $status->{summary} =~ s/^\s+//;               # no leading white space
-                        $status->{summary} =~ s/\s+$//;               # no trailing white space
-                    }
-                    elsif($zeile =~ /^C\s+(\S+)/s) {
-                        $status->{channel} = $1;
-                        $status->{type} = $cmod->getChannelType($status->{channel});
-                    }
-                    elsif($zeile =~ /^T\s+(.+)$/s) {
-                        $status->{title} = $1;
-                    }
-                    elsif($zeile =~ /^S\s+(.+)$/s) {
-                        $status->{subtitle} = $1;
-                    }
-                    elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
-                        $status->{video} = $1;
-                    }
-                    elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
-                        $status->{audio} .= "\n" if($status->{audio});
-                        $status->{audio} .= $1;
-                    }
-                }
-            } else {
-                $status->{summary} = $text;
-            }
-        }
-
-        $status->{path} = $path;
-        $status->{RecordMD5} = md5_hex($path);
+      $status->{path} = $path;
+      $status->{RecordMD5} = md5_hex($path);
     }
-
     return $status;
 }
 
+#-------------------------------------------------------------------------------
+# get cut marks from marks.vdr
+sub readmarks {
+    my $obj     = shift || return error('No object defined!');
+    my $path    = shift || return error ('No recording path defined!');
+
+    my $status;
+    # Schnittmarken ermitteln
+    my $marks = sprintf("%s/marks.vdr", $path);
+    if(-r $marks) {
+        my $data = load_file($marks)
+            or error sprintf("Couldn't read file '%s'",$marks);
+        if($data) {
+            foreach my $zeile (split("\n", $data)) {
+                # 0:35:07.09 moved from [0:35:13.24 Logo start] by checkBlackFrameOnMark
+                my ($mark) = $zeile =~ /^(\d+\:\d+\:\d+\.\d+)/sg;
+                push(@{$status->{marks}}, $mark)
+                    if(defined $mark);
+            }
+        }
+    }
+    return $status;
+}
+
+#-------------------------------------------------------------------------------
+# get information about recording from info.vdr
+sub readinfo {
+    my $obj     = shift || return error('No object defined!');
+    my $path    = shift || return error ('No recording path defined!');
+
+    my $info;
+    $info->{type} = 'UNKNOWN'; #TV / RADIO
+
+    # get description
+    my $file = sprintf("%s/info.vdr", $path);
+    if(-r $file) {
+        my $text = load_file($file);
+        my $cmod = main::getModule('CHANNELS');
+        foreach my $zeile (split(/[\r\n]/, $text)) {
+            if($zeile =~ /^D\s+(.+)/s) {
+                $info->{description} = $1;
+                $info->{description} =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
+                $info->{description} =~ s/^\s+//;               # no leading white space
+                $info->{description} =~ s/\s+$//;               # no trailing white space
+            }
+            elsif($zeile =~ /^C\s+(\S+)/s) {
+                $info->{channel} = $1;
+                $info->{type} = $cmod->getChannelType($info->{channel});
+            }
+            elsif($zeile =~ /^T\s+(.+)$/s) {
+                $info->{title} = $1;
+            }
+            elsif($zeile =~ /^S\s+(.+)$/s) {
+                $info->{subtitle} = $1;
+            }
+            elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
+                $info->{video} = $1;
+            }
+            elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
+                $info->{audio} .= "\n" if($info->{audio});
+                $info->{audio} .= $1;
+            }
+        }
+    }
+    return $info;
+}
+#-------------------------------------------------------------------------------
+# store information about recording into info.vdr
+sub saveinfo {
+    my $obj     = shift || return error('No object defined!');
+    my $path    = shift || return error ('No recording path defined!');
+    my $info    = shift || return error ('No information defined!');
+
+    my $out;
+    foreach my $h (keys %{$info}) {
+      $info->{$h} =~ s/\r\n/\|/g;            # pipe used from vdr as linebreak
+      $info->{$h} =~ s/\n/\|/g;              # pipe used from vdr as linebreak
+      $info->{$h} =~ s/^\s+//;               # no leading white space
+      $info->{$h} =~ s/\s+$//;               # no trailing white space
+    }
+
+    my $file = sprintf("%s/info.vdr", $path);              
+    my $text = ( -r $file ? load_file($file) : '');
+    foreach my $zeile (split(/[\r\n]/, $text)) {
+        $zeile =~ s/^\s+//;
+        $zeile =~ s/\s+$//;
+        if($zeile =~ /^T\s+(.+)/s) {
+          if(defined $info->{title} && $info->{title}) {
+            $out .= "T ".  $info->{title} . "\n";
+            undef $info->{title};
+          }
+        } 
+        elsif($zeile =~ /^S\s+(.+)/s) {
+          if(defined $info->{subtitle} && $info->{subtitle}) {
+            $out .= "S ".  $info->{subtitle} . "\n";
+            undef $info->{subtitle};
+          }
+        } 
+        elsif($zeile =~ /^D\s+(.+)/s) {
+          if(defined $info->{description} && $info->{description}) {
+            $out .= "D ".  $info->{description} . "\n";
+            undef $info->{description};
+          }
+        } 
+        elsif($zeile =~ /^C\s+(\S+)/s) {
+          if(defined $info->{channel} && $info->{channel}) {
+            $out .= "C ".  $info->{channel} . "\n" if($info->{channel});
+            undef $info->{channel};
+          }
+        }
+        elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
+          if(defined $info->{video} && $info->{video}) {
+            $out .= "X 1 ".  $info->{video} . "\n" if($info->{video});
+            undef $info->{video};
+          }
+        }
+        elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
+          if(defined $info->{audio} && $info->{audio}) {
+            foreach my $line (split(/\|/, $info->{audio})) {
+              $line =~ s/^\s+//;
+              $line =~ s/\s+$//;
+              next unless($line);
+              $out .= "X 2 ". $line  . "\n";
+            }
+            undef $info->{audio};
+          }
+        } else {
+          $out .= $zeile . "\n" if($zeile);
+        }
+    }
+
+    if(defined $info->{title} && $info->{title}) {
+      $out .= "T ".  $info->{title} . "\n";
+    }
+    if(defined $info->{subtitle} && $info->{subtitle}) {
+      $out .= "S ".  $info->{subtitle} . "\n";
+    }
+    if(defined $info->{channel} && $info->{channel}) {
+      $out .= "C ".  $info->{channel} . "\n" if($info->{channel});
+    }
+    if(defined $info->{description} && $info->{description}) {
+      $out .= "D ".  $info->{description} . "\n";
+    }
+    if(defined $info->{video} && $info->{video}) {
+      $out .= "X 1 ".  $info->{video} . "\n" if($info->{video});
+    }
+    if(defined $info->{audio} && $info->{audio}) {
+      foreach my $line (split(/\|/, $info->{audio})) {
+        $line =~ s/^\s+//;               
+        $line =~ s/\s+$//;               
+        $out .= "X 2 ". $line  . "\n" if($line);
+      }
+    }
+
+    return save_file($file, $out);
+}
+
+
+#-------------------------------------------------------------------------------
 sub qquote {
     my $str = shift;
     $str =~ s/(\')/\'\\\'\'/g;
@@ -1170,7 +1277,7 @@ sub createOldEventId {
     my $attr = {
         title => $title,
         subtitle => $subtitle,
-        description => $info->{summary} || "",
+        description => $info->{description} || "",
         channel => $info->{channel} || "<undef>",
         duration => $duration,
         starttime => $start,
@@ -1654,35 +1761,7 @@ WHERE
         }
     }
 
-    my $file = sprintf("%s/info.vdr", $rec->{Path});
-
-    my $desc;
-    my $channel;
-    my $video;
-    my $audio;
-
-    if(-r $file) {
-        my $text = load_file($file) || "";
-
-        foreach my $zeile (split(/[\r\n]/, $text)) {
-            if($zeile =~ /^D\s+(.+)/s) {
-                $desc = $1;
-                $desc =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
-                $desc =~ s/^\s+//;               # no leading white space
-                $desc =~ s/\s+$//;               # no trailing white space
-            }
-            elsif($zeile =~ /^C\s+(\S+)/s) {
-                $channel = $1;
-            }
-            elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
-                $video = $1;
-            }
-            elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
-                $audio .= "\n" if($audio);
-                $audio .= $1;
-            }
-        }
-    }
+    my $status = $obj->readinfo($rec->{Path});
 
     my $marksfile = sprintf('%s/%s', $rec->{Path}, 'marks.vdr');
     my $marks = (-r $marksfile ? load_file($marksfile) : '');
@@ -1729,7 +1808,7 @@ WHERE
         },
     		'channel' => {
             typ     => 'list',
-            def     => $mod->ChannelToPos($channel),
+            def     => $mod->ChannelToPos($status->{channel}),
             choices => sub {
                 my $erg = $mod->ChannelArray('Name');
                 unshift(@$erg, [gettext("Undefined"),undef]);                          
@@ -1748,17 +1827,17 @@ WHERE
                 }
             },
         },
-        'summary' => {
-            msg   => gettext("Summary"),
-            def   => $desc || '',
+        'description' => {
+            msg   => gettext("Description"),
+            def   => $status->{description} || '',
         },
     		'video' => {
             msg   => gettext('Video'),
-            def   => $video,
+            def   => $status->{video},
         },
     		'audio' => {
             msg   => gettext('Audio'),
-            def   => $audio,
+            def   => $status->{audio},
         },
         'marks' => {
             param => {type => 'text'},
@@ -1773,80 +1852,28 @@ WHERE
         my $dropEPGEntry = 0;
         my $ChangeRecordingData = 0;
 
-        if($data->{summary} ne $desc 
-          or $data->{channel} ne $channel 
-          or $data->{video} ne $video
-          or $data->{audio} ne $audio) {
-            my $out;
-            $data->{summary} =~ s/\r\n/\|/g;            # pipe used from vdr as linebreak
-            $data->{summary} =~ s/\n/\|/g;              # pipe used from vdr as linebreak
-            $data->{summary} =~ s/^\s+//;               # no leading white space
-            $data->{summary} =~ s/\s+$//;               # no trailing white space
-            if(-r $file) {
-              my $text = load_file($file) || "";
-              foreach my $zeile (split(/[\r\n]/, $text)) {
-                    $zeile =~ s/^\s+//;
-                    $zeile =~ s/\s+$//;
-                    if($zeile =~ /^D\s+(.+)/s) {
-                      if(defined $data->{summary} && $data->{summary}) {
-                        $out .= "D ".  $data->{summary} . "\n";
-                        undef $data->{summary};
-                      }
-                    } 
-                    elsif($zeile =~ /^C\s+(\S+)/s) {
-                      if(defined $data->{channel} && $data->{channel}) {
-                        $data->{channel} =~ s/^\s+//;
-                        $data->{channel} =~ s/\s+$//;
-                        $out .= "C ".  $data->{channel} . "\n" if($data->{channel});
-                        undef $data->{channel};
-                      }
-                    }
-                    elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
-                      if(defined $data->{video} && $data->{video}) {
-                        $data->{video} =~ s/^\s+//;
-                        $data->{video} =~ s/\s+$//;
-                        $out .= "X 1 ".  $data->{video} . "\n" if($data->{video});
-                        undef $data->{video};
-                      }
-                    }
-                    elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
-                      if(defined $data->{audio} && $data->{audio}) {
-                        foreach my $line (split(/[\r\n]/, $data->{audio})) {
-                          $line =~ s/^\s+//;
-                          $line =~ s/\s+$//;
-                          next unless($line);
-                          $out .= "X 2 ". $line  . "\n";
-                        }
-                        undef $data->{audio};
-                      }
-                    } else {
-                      $out .= $zeile . "\n" if($zeile);
-                    }
-                }
-            }
-            if(defined $data->{channel} && $data->{channel}) {
-              $data->{channel} =~ s/^\s+//;      
-              $data->{channel} =~ s/\s+$//;      
-              $out .= "C ".  $data->{channel} . "\n" if($data->{channel});
-            }
-            if(defined $data->{summary} && $data->{summary}) {
-              $out .= "D ".  $data->{summary} . "\n";
-            }
-            if(defined $data->{video} && $data->{video}) {
-              $data->{video} =~ s/^\s+//;        
-              $data->{video} =~ s/\s+$//;        
-              $out .= "X 1 ".  $data->{video} . "\n" if($data->{video});
-            }
-            if(defined $data->{audio} && $data->{audio}) {
-              foreach my $line (split(/[\r\n]/, $data->{audio})) {
-                $line =~ s/^\s+//;               
-                $line =~ s/\s+$//;               
-                $out .= "X 2 ". $line  . "\n" if($line);
-              }
+
+	      $data->{title} =~s#~+#~#g;
+	      $data->{title} =~s#^~##g;
+        $data->{title} =~s#~$##g;
+
+        if($data->{title} ne $rec->{title}
+          or $data->{description} ne $status->{description} 
+          or $data->{channel} ne $status->{channel} 
+          or $data->{video} ne $status->{video}
+          or $data->{audio} ne $status->{audio}) {
+
+            my $info;
+            foreach my $h (keys %{$data}) { $info->{$h} = $data->{$h}; }
+            my @t = split('~', $info->{title});
+            if(scalar @t > 1) { # Splitt genre~title | subtitle
+                $info->{subtitle} = delete $t[-1];
+                $info->{title} = join('~',@t);
             }
 
-            save_file($file, $out)
-               or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$file,$!));
+            $obj->saveinfo($rec->{Path},$info)
+               or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$rec->{Path} . '/info.vdr',$!));
+
             $dropEPGEntry = 1;
         }
 
@@ -1876,10 +1903,6 @@ WHERE
             $rec->{Path} = $newPath;
             $ChangeRecordingData = 1;
         }
-
-	      $data->{title} =~s#~+#~#g;
-	      $data->{title} =~s#^~##g;
-        $data->{title} =~s#~$##g;
 
         if($data->{title} ne $rec->{title}) {
 
