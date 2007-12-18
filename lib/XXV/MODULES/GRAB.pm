@@ -166,15 +166,16 @@ sub grab {
         $binary .= MIME::Base64::decode_base64($l); 
       } 
     }
-    $binary = $obj->_noise() unless($binary);
+    # create noised image as failback. 
+    $binary = $obj->_noise() 
+      unless($binary);
 
-    if($binary) {
+    if($data && $binary) {
       # Make overlay on image
       $binary = $obj->makeImgText($binary, $obj->{overlay})
           if($obj->{overlay});
-      return $binary;
     }
-    return undef;
+    return $binary;
 }
 
 # ------------------
@@ -209,10 +210,11 @@ sub makeImgText {
     my $color   = $image->colorClosest(255,255,255);
     my $shadow  = $image->colorClosest(0,0,0);
 
+    my $event = main::getModule('EPG')->NowOnChannel(undef,undef);
 
     # Hier sollten noch mehr Informationen dazu kommen
     my $vars = {
-        event => main::getModule('EPG')->NowOnChannel(undef,undef),
+        event => $event,
     };
 
     my $output = '';

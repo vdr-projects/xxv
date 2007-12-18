@@ -13,7 +13,7 @@ sub module {
     my $args = {
         Name => 'TIMERS',
         Prereq => {
-            # 'Perl::Module' => 'Description',
+            'Date::Manip' => 'date manipulation routines',
         },
         Description => gettext('This module reads timers and saves it to the database.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -407,7 +407,6 @@ sub _init {
         ) COMMENT = '$version'
     |);
 
-    $obj->{newTimerFormat} = 0;
     $obj->{after_updated} = [];
 
     main::after(sub{
@@ -493,7 +492,6 @@ sub newTimer {
     my $epgid   = shift || 0;
     my $epg     = shift || 0;
 
-    my $dayFormat = $obj->{newTimerFormat}?"%Y-%m-%d":"%d";
     if($epgid and not ref $epg) {
       my $sql = qq|
 SELECT SQL_CACHE 
@@ -501,10 +499,10 @@ SELECT SQL_CACHE
     channel_id,
     description,
     CONCAT_WS('~', title, subtitle) as File,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '$dayFormat') as Day,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%Y-%m-%d') as Day,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%H%i') as Start,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration + ? ), '%H%i') as Stop,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '$dayFormat') as VpsDay,
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '%Y-%m-%d') as VpsDay,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime)), '%H%i') as VpsStart,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime) + duration), '%H%i') as VpsStop
 FROM
@@ -522,7 +520,7 @@ WHERE
             channel_id => '',
             File => '',
             description => '',
-            Day => my_strftime($dayFormat,$t),
+            Day => my_strftime("%Y-%m-%d",$t),
             Start => my_strftime("%H%M",$t),
             Stop => my_strftime("%H%M",$t)
     	};
@@ -626,16 +624,37 @@ WHERE
         },
         'Day' => {
             typ     => $con ? 'string' : 'date',
-            def     => $timerData->{Day},
-            msg     => gettext("Enter a day (1 to 31) or weekday in format 'MTWTFSS'"),
+            def     => sub{
+                # Convert day from VDR format to locale format
+                my $value = $timerData->{Day};
+                if($value and $value =~ /^\d{4}\-\d{2}-\d{2}$/) {
+                  Date_Init("Language=English");
+                  my $d = ParseDate($value);
+                  if($d) {
+                    my $t = UnixDate($d,gettext("%Y-%m-%d"));
+                    return $t if($t);
+                  }
+                }
+                return $value;
+            },
+            msg     => gettext("Enter a day (1 to 31) or weekday in format 'MTWTFSS'."),
             req     => gettext("This is required!"),
             check   => sub{
                 my $value = shift || return;
-                if(($value =~ /^\d+$/ and int($value) <= 31 and int($value) > 0)            # 13
-                        or ($obj->{newTimerFormat} and $value =~ /^\d{4}\-\d{2}-\d{2}$/sig) # 2005-03-13
-                        or $value =~ /^\S{7}\@\d{4}\-\d{2}-\d{2}$/sig                       # MTWTFSS@2005-03-13
-                        or $value =~ /^\S{7}\@\d{2}$/sig                                    # MTWTFSS@13
-                        or $value =~ /^\S{7}$/) {                                           # MTWTFSS
+                # Convert locale format to VDR format %Y-%m-%d
+                if($value and $value !~ /^\d+$/ and $value =~ /^\d+/) {
+                  Date_Init(split(',',gettext("Language=English")));
+                  my $d = ParseDate($value);
+                  if($d) {
+                    my $t = UnixDate($d,'%Y-%m-%d');
+                    return $t if($t);
+                  }
+                }
+                if(($value =~ /^\d+$/ and int($value) <= 31 and int($value) > 0)# 13
+                        or $value =~ /^\d{4}\-\d{2}-\d{2}$/sig                  # 2005-03-13
+                        or $value =~ /^\S{7}\@\d{4}\-\d{2}-\d{2}$/sig           # MTWTFSS@2005-03-13
+                        or $value =~ /^\S{7}\@\d{2}$/sig                        # MTWTFSS@13
+                        or $value =~ /^\S{7}$/) {                               # MTWTFSS
                     return $value;
                 } else {
                     return undef, gettext('The day is incorrect or was in a wrong format!');
@@ -1268,7 +1287,6 @@ SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
 |;
     my $erg = $obj->{dbh}->selectall_hashref($sql, 'Id');
 
-    my $dayFormat = $obj->{newTimerFormat}?"%Y-%m-%d":"%d";
     foreach my $t (keys %$erg) {
         my %tt;
 
@@ -1295,7 +1313,7 @@ SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
             ChannelID => $erg->{$t}->{ChannelID},
             File      => $erg->{$t}->{File},
             aux       => $erg->{$t}->{aux},
-            Day       => my_strftime($dayFormat,$start),
+            Day       => my_strftime("%Y-%m-%d",$start),
             Start     => my_strftime("%H%M",$start),
             Stop      => my_strftime("%H%M",$stop),
             Priority  => $erg->{$t}->{Priority},
@@ -1611,7 +1629,6 @@ sub getNextTime {
 
         $stopsse = my_mktime(substr($stop, 2, 2),
                              substr($stop, 0, 2), $stop > $start ? $3 : $3 + 1, ($2 - 1), $1);
-        $obj->{newTimerFormat} = 1;
       }
       else { # vdr < 1.3.23 => 13
         $startsse = my_mktime(substr($start, 2, 2),
