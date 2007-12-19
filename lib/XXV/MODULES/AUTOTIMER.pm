@@ -522,9 +522,6 @@ sub _autotimerLookup {
                     if(ref $console && $autotimerid);
                 }
             }
-
-            # create only one timer if single event requested
-            last if(scalar @done && grep(/^timer$/, @done));
         }
         $C += $c;
         $M += $m;
