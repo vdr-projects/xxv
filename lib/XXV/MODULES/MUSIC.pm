@@ -24,8 +24,7 @@ sub module {
             'CGI'          => 'Simple Common Gateway Interface Class',
             'LWP::Simple'  => 'get, head, getprint, getstore, mirror - Procedural LWP interface',
             'Net::Amazon'  => 'Framework for accessing amazon.com via SOAP and XML/HTTP',
-            'Net::Amazon::Request::Artist' =>
-                              'Class for submitting Artist requests',
+            'Net::Amazon::Request::Artist' => 'Class for submitting Artist requests',
         },
         Description => gettext('This module managed music files.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -935,6 +934,30 @@ sub status {
 }
 
 # ------------------
+sub _storecover {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $image = shift || return 0;
+    my $target = shift;
+
+    # Avoid empty hash
+    if($image && ref $image eq 'HASH') {
+      my $hash = $image;
+      $image = undef;
+      foreach my $i (keys %$hash) {
+        $image = $hash->{$i};
+        last;
+      }
+    }
+
+    if($image) {
+      lg sprintf("Try to get cover %s", $image);
+      return 1 if(is_success(getstore($image, $target)));
+    }
+    return 0;
+}
+
+# ------------------
 sub getcovers {
 # ------------------
     my $obj = shift || return error('No object defined!');
@@ -975,7 +998,7 @@ sub getcovers {
         lg $msg;
         # Anzeige der ProcessBar
         $waiter->next($current,undef, $msg) if(ref $waiter);
-
+ 
         my $req = Net::Amazon::Request::Artist->new(
             artist  => $artist,
         );
@@ -984,17 +1007,33 @@ sub getcovers {
         $album =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g; # Replace regex groupsymbols "),(,-,?,+,*,[,],{,}"
         $album =~ s/([\/])/\./g; # Replace splash
 
-        foreach my $item ($resp->properties) {
+        $artist =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g; # Replace regex groupsymbols "),(,-,?,+,*,[,],{,}"
+        $artist =~ s/([\/])/\./g; # Replace splash
 
-            if($item->album() =~ /$album/i or
-                ($year and $item->year() and $item->year() == $year)) {
-                    my $image = $item->ImageUrlMedium()
-                              or $item->ImageUrlLarge()
-                              or $item->ImageUrlSmall();
-                    lg sprintf("Try to get cover %s.", $image);
-                    getstore($image, $target) if($image);
-                    last;
-                }
+        my $image;
+        foreach my $item ($resp->properties) {
+          my $ialbum = $item->album();
+             $ialbum =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g;
+             $ialbum =~ s/([\/])/\./g;
+          my $iartist = $item->artist();
+             $artist =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g;
+             $artist =~ s/([\/])/\./g; 
+
+          if($ialbum =~ /$album/i
+              and $iartist =~ /$artist/i) {
+
+              $image = $item->ImageUrlMedium()
+                if($item->ImageUrlMedium);
+              last if($image && $obj->_storecover($image,$target));
+
+              $image = $item->ImageUrlLarge()
+                if($item->ImageUrlLarge);
+              last if($image && $obj->_storecover($image,$target));
+
+              $image = $item->ImageUrlSmall()
+                if($item->ImageUrlSmall);
+              last if($image && $obj->_storecover($image,$target));
+          }
         }
 
         return 1;
