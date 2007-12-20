@@ -28,6 +28,16 @@ sub module {
                 default     => 'y',
                 type        => 'confirm',
                 required    => gettext('This is required!'),
+                check       => sub {
+                    my $value = shift;
+                    if($value eq 'y') {
+                      my $module = main::getModule('EVENTS');
+                      if(!$module or $module->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                      }
+                    }
+                    return $value;
+                },
             },
             interval => {
                 description => gettext('Time in hours to send the report.'),
@@ -105,17 +115,17 @@ sub new {
     my $erg = $self->init or return error('Problem to initialize modul!');
 
     # Initiat after load modules ...
-    main::after(sub{
+    main::after( sub{
         my $start = main::getStartTime;
         $self->news(
-            sprintf(gettext('Restart the xxv system at: %s!'), datum($start)),
+            sprintf(gettext('XXVD System %s started'), main::getVersion),
+            sprintf(gettext('Start time: %s'), datum($start)),
             undef,
             undef,
-            undef,
-            'important',
+            'important'
         );
         return 1;
-    }, "Send restart message to news modules ...");
+    }, "Send start message to news modules ...");
 
 	return $self;
 }
@@ -217,6 +227,7 @@ sub news {
         Url     => $url,
         Level   => $lev,
         LevelName => $levname,
+        category => $obj->translate_level($levname)
     };
 
     # Send to all activated News modules
@@ -270,11 +281,13 @@ sub scala {
     my $typ = shift  || return 10;
 
     $obj->{SCALA} = {
+        'all'           => 1,
         'harmless'      => 10,
         'interesting'    => 30,
         'veryinteresting'=> 50,
         'important'     => 70,
         'veryimportant' => 100,
+        'none'          => 200, 
     } unless(exists $obj->{SCALA});
 
     if($typ and exists $obj->{SCALA}->{$typ}) {
@@ -284,5 +297,33 @@ sub scala {
     }
 }
 
+# ------------------
+sub get_level_as_array {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+
+    return [
+            [ 1, gettext('All messages') ],        # Include all messages, dont use as category
+            [ 10, gettext('Harmless') ],
+            [ 30, gettext('Interesting') ],
+            [ 50, gettext('Very interesting') ],
+            [ 70, gettext('Important') ],
+            [ 100, gettext('Very important') ],
+            [ 200, gettext('None messages') ]      # Exclude all messages, dont use as category
+          ];
+}
+
+sub translate_level {
+    my $obj = shift  || return error('No object defined!');
+    my $level = shift  || 'harmless';
+
+    my $s = $obj->scala($level);
+
+    my $erg = $obj->get_level_as_array();
+    foreach my $w ( @$erg ) {
+        return $w->[1] if($s <= $w->[0]);
+    }
+    return gettext('Harmless');
+}
 
 1;

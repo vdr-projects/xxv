@@ -71,20 +71,37 @@ Then you must receive a message in your running jabber client.
                 check       => sub {
                     my $value = shift;
                     my $erg = $obj->init
-                        or return error('Problem to initialize news module')
+                        or return undef, gettext("Can't initialize news modul!")
                             if($value eq 'y' and not exists $obj->{JCON});
+                    if($value eq 'y') {
+                      my $emodule = main::getModule('EVENTS');
+                      if(!$emodule or $emodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                      }
+                      my $rmodule = main::getModule('REPORT');
+                      if(!$rmodule or $rmodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'REPORT');
+                      }
+                    }
                     return $value;
                 },
             },
             level => {
-                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
+                description => gettext('Category of messages that should displayed'),
                 default     => 1,
-                type        => 'integer',
+                type        => 'list',
+                choices     => sub {
+                                    my $rmodule = main::getModule('REPORT');
+                                    return undef unless($rmodule);
+                                    my $erg = $rmodule->get_level_as_array();
+                                    map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
+                                    return @$erg;
+                                 },
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
                     unless($value >= 1 and $value <= 100) {
-                        return undef, 'Sorry, but the value must be between 1 and 100';
+                        return undef, sprintf(gettext('Sorry, but value must be between %d and %d'),1,100);
                     }
                     return $value;
                 },
@@ -157,8 +174,8 @@ sub new {
     main::after(sub{
         # The Initprocess
         my $erg = $self->init
-            or return error('Problem to initialize news modul!');
-    }, "NEWS::JABBER: Start initiate the jabber modul ...")
+            or return error("Can't initialize news modul!");
+    }, "NEWS::JABBER: Start initiate news modul ...")
         if($self->{active} eq 'y');
 
 	return $self;
@@ -168,7 +185,6 @@ sub new {
 sub init {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
 
     1;
 }
@@ -180,7 +196,7 @@ sub jconnect {
 
     my $jcon = Net::XMPP::Client->new(
         debuglevel  =>  0,
-    ) || return error('Problem to create an Jabber Client');
+    ) || return error("Can't create jabber client");
 
     my ($user, $server) = split('\@', $obj->{user});
 

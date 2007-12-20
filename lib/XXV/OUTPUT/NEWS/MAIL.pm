@@ -35,20 +35,37 @@ sub module {
                 check       => sub {
                     my $value = shift;
                     my $erg = $obj->init
-                        or return error('Problem to initialize news module')
+                        or return undef, gettext("Can't initialize news modul!")
                             if($value eq 'y' and not exists $obj->{INITE});
                     return $value;
+                    if($value eq 'y') {
+                      my $emodule = main::getModule('EVENTS');
+                      if(!$emodule or $emodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                      }
+                      my $rmodule = main::getModule('REPORT');
+                      if(!$rmodule or $rmodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'REPORT');
+                      }
+                    }
                 },
             },
             level => {
-                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
+                description => gettext('Category of messages that should displayed'),
                 default     => 1,
-                type        => 'integer',
+                type        => 'list',
+                choices     => sub {
+                                    my $rmodule = main::getModule('REPORT');
+                                    return undef unless($rmodule);
+                                    my $erg = $rmodule->get_level_as_array();
+                                    map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
+                                    return @$erg;
+                                 },
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
                     unless($value >= 1 and $value <= 100) {
-                        return undef, 'Sorry, but the value must be between 1 and 100';
+                        return undef, sprintf(gettext('Sorry, but value must be between %d and %d'),1,100);
                     }
                     return $value;
                 },
@@ -75,7 +92,7 @@ sub module {
             },
             from_address => {
                 description => gettext('Mail address to describe the sender.'),
-                default     => 'xxv@vdr.de',
+                default     => 'xxv@example.com',
                 type        => 'string',
             },
             smtp => {
@@ -161,7 +178,7 @@ sub new {
 
     # The Initprocess
     my $erg = $self->init
-        or return error('Problem to initialize news modul!')
+        or return error("Can't initialize news modul!")
             if($self->{active} eq 'y');
 
     $self->{TYP} = 'text/plain';
@@ -218,11 +235,11 @@ sub send {
         subject => "News from your XXV System!" ,
         msg     => $content,
         msgid   => $obj->{COUNT},
-    ) || return error sprintf('Problem to send mail: %s', $Mail::SendEasy::ER);
+    ) || return error sprintf("Can't send mail: %s", $Mail::SendEasy::ER);
 
     $obj->{LastReportTime} = time;
 
-    lg sprintf('News Mail with nr. %d successfully send at %s', $obj->{COUNT}, scalar localtime);
+    lg sprintf('Mail %d. send successfully', $obj->{COUNT});
     $obj->{NEWSLETTER} = undef;
     1;
 }

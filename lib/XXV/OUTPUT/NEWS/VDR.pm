@@ -31,20 +31,37 @@ sub module {
                 check       => sub {
                     my $value = shift;
                     my $erg = $obj->init
-                        or return error('Problem to initialize news module')
+                        or return undef, gettext("Can't initialize news modul!")
                             if($value eq 'y' and not exists $obj->{INITE});
+                    if($value eq 'y') {
+                      my $emodule = main::getModule('EVENTS');
+                      if(!$emodule or $emodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                      }
+                      my $rmodule = main::getModule('REPORT');
+                      if(!$rmodule or $rmodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'REPORT');
+                      }
+                    }
                     return $value;
                 },
             },
             level => {
-                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
+                description => gettext('Category of messages that should displayed'),
                 default     => 1,
-                type        => 'integer',
+                type        => 'list',
+                choices     => sub {
+                                    my $rmodule = main::getModule('REPORT');
+                                    return undef unless($rmodule);
+                                    my $erg = $rmodule->get_level_as_array();
+                                    map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
+                                    return @$erg;
+                                 },
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
                     unless($value >= 1 and $value <= 100) {
-                        return undef, 'Sorry, but the value must be between 1 and 100';
+                        return undef, sprintf(gettext('Sorry, but value must be between %d and %d'),1,100);
                     }
                     return $value;
                 },
@@ -87,8 +104,8 @@ sub new {
     main::after(sub{
         # The Initprocess
         my $erg = $self->init
-            or return error('Problem to initialize news modul!');
-    }, "NEWS::VDR: Start initiate news vdr module ...")
+            or return error("Can't initialize news modul!");
+    }, "NEWS::VDR: Start initiate news modul ...")
         if($self->{active} eq 'y');
 
 	return $self;
@@ -98,9 +115,8 @@ sub new {
 sub init {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
-    $obj->{INITE} = 1;
 
+    $obj->{INITE} = 1;
     $obj->{SVDRP} = main::getModule('SVDRP');
 
     1;
@@ -112,19 +128,17 @@ sub send {
     my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error('No data defined!');
 
-    return undef, lg('This function is deactivated!')
+    return lg('This function is deactivated!')
         if($obj->{active} ne 'y');
 
-    return undef, lg('Title is not set!')
+    return lg('Title is not set!')
         unless($vars->{Title});
 
 
     my $cmd = sprintf('MESG %s', $vars->{Title});
 
     my $svdrp = $obj->{SVDRP} || return error ('No SVDRP!' );
-    $svdrp->command($cmd);
-
-    1;
+    return $svdrp->command($cmd);
 }
 
 # ------------------
@@ -134,8 +148,6 @@ sub read {
     my $vars = shift || return error('No data defined!');
 
     return $obj->send($vars);
-
-    1;
 }
 
 # ------------------
@@ -149,17 +161,18 @@ sub req {
 
     my $vars = {
         AddDate => time,
-        Title   => 'This is only a Test for the xxv news vdr module!',
-        Text    => 'This is only a Test for the xxv news vdr module!',
+        Title   => 'This is only a test from xxv news vdr modul!',
+        Text    => 'This is only a test from xxv news vdr modul!',
         Cmd     => 'request',
         Id      => 'vdr',
-        Url     => sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port}),
         Level   => 'harmless',
     };
-    $obj->read($vars);
 
-    return gettext('A message has been sent to your VDR!');
-
+    if( $obj->read($vars) ) {
+      return gettext("Message was been sent to your VDR!");
+    } else {
+      return gettext("Message chould'nt been sent to your VDR!");
+    }
 }
 
 

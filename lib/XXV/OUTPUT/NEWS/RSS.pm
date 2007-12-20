@@ -34,20 +34,37 @@ sub module {
                 check       => sub {
                     my $value = shift;
                     my $erg = $obj->init
-                        or return error('Problem to initialize news module')
+                        or return undef, gettext("Can't initialize news modul!")
                             if($value eq 'y' and not exists $obj->{INITE});
+                    if($value eq 'y') {
+                      my $emodule = main::getModule('EVENTS');
+                      if(!$emodule or $emodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                      }
+                      my $rmodule = main::getModule('REPORT');
+                      if(!$rmodule or $rmodule->{active} ne 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'REPORT');
+                      }
+                    }
                     return $value;
                 },
             },
             level => {
-                description => gettext('Minimum level of messages which can be displayed (1 ... 100)'),
+                description => gettext('Category of messages that should displayed'),
                 default     => 1,
-                type        => 'integer',
+                type        => 'list',
+                choices     => sub {
+                                    my $rmodule = main::getModule('REPORT');
+                                    return undef unless($rmodule);
+                                    my $erg = $rmodule->get_level_as_array();
+                                    map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
+                                    return @$erg;
+                                 },
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
                     unless($value >= 1 and $value <= 100) {
-                        return undef, 'Sorry, but the value must be between 1 and 100';
+                        return undef, sprintf(gettext('Sorry, but value must be between %d and %d'),1,100);
                     }
                     return $value;
                 },
@@ -90,7 +107,7 @@ sub new {
     main::after(sub{
         # The Initprocess
         my $erg = $self->init
-            or return error('Problem to initialize news modul!');
+            or return error("Can't initialize news modul!");
     }, "NEWS::RSS: Start initiate rss feed ...")
         if($self->{active} eq 'y');
 
@@ -112,7 +129,7 @@ sub init {
 sub createRSS {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $ver  = shift || 1;
+    my $ver  = shift || 2;
     my $account = sprintf("%s@%s", $ENV{USER}, main::getModule('STATUS')->name);
     my $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
 
@@ -120,7 +137,7 @@ sub createRSS {
     if($ver == 1) {
         $rss = XML::RSS->new(
             version => '1.0',
-        ) || return error('Problem to create an RSS Object');
+        ) || return error("Can't create rss 1.0 object");
 
 
         $rss->channel(
@@ -142,24 +159,25 @@ sub createRSS {
 
     } elsif($ver == 2) {
         my $lastbuild = (exists $obj->{lastBuildDate} ? $obj->{lastBuildDate} : time);
+        my $lastadd   = (exists $obj->{lastAddDate}   ? $obj->{lastAddDate} : time);
 
         $rss = XML::RSS->new(
             version => '2.0',
-        ) || return error('Problem to create an RSS Object');
+        ) || return error("Can't create rss 2.0 object");
 
         $rss->channel(
             title          => gettext("XXV RSS 2.0"),
             'link'         => $url,
             description    => gettext("Important messages from your VDR/XXV"),
             language       => setlocale(POSIX::LC_MESSAGES),
-            pubDate        => datum(time, 'rss'),
+            pubDate        => datum($lastadd, 'rss'),
             lastBuildDate  => datum($lastbuild, 'rss'),
             managingEditor => $account,
         );
     }
     $obj->{lastBuildDate} = time;
 
-    return $rss;
+    return ($ver, $rss);
 }
 
 
@@ -169,17 +187,21 @@ sub send {
     my $obj = shift  || return error('No object defined!');
     my $vars = shift || return error('No data defined!');
 
-    ++$obj->{COUNT};
+    while($obj->{STACK} && scalar @{$obj->{STACK}} > 100) {
+      shift(@{$obj->{STACK}});
+    }
 
     push(@{$obj->{STACK}}, [
+        ++$obj->{COUNT},
         entities($vars->{Title}),
         entities($vars->{Url}),
         entities($vars->{Text}),
         datum($vars->{AddDate},'int'),
-        $vars->{LevelName},
+        $vars->{category},
     ]);
+    $obj->{lastAddDate} = time;
 
-    lg sprintf('News RSS with nr. %d successfully send at %s', $obj->{COUNT}, scalar localtime);
+    lg sprintf('Insert rss item (%d)', $obj->{COUNT});
     1;
 }
 
@@ -192,14 +214,7 @@ sub read {
     return undef, lg('This function is deactivated!')
         if($obj->{active} ne 'y');
 
-
-    $vars->{count} = ++$obj->{NEWSCOUNT};
-    $vars->{host}  = $obj->{host};
-    $vars->{port}  = main::getModule('HTTPD')->{Port};
-
-    $obj->send($vars);
-
-    return 1;
+    return $obj->send($vars);
 }
 
 # ------------------
@@ -211,20 +226,31 @@ sub req {
     return gettext('The module NEWS::RSS is not active!')
         if($obj->{active} ne 'y');
 
-    my $rss = $obj->createRSS($params->{version})
-        || return error('Problem to create a RSS Object!');
+    my ($ver, $rss) = $obj->createRSS($params->{version});
+    return 0 unless($rss);
 
     foreach my $entry (@{$obj->{STACK}}) {
-        my ($title, $link, $descr, $adddate, $level) = @{$entry};
-        $rss->add_item(
-            title       => $title,
-            link        => $link,
-            description => $descr,
-    		dc => {
-    				date    => $adddate,
-     				subject => $level
-            },
-        );
+        my ($item, $title, $link, $descr, $adddate, $category) = @{$entry};
+        if($ver == 1) {
+          $rss->add_item(
+              title       => $title,
+              link        => $link,
+              description => $descr,
+      	    	dc => {
+      				  date    => $adddate,
+       				  subject => $category,
+              },
+          );
+        } else {
+          $rss->add_item(
+              title       => $title,
+              link        => $link,
+              description => $descr,
+              pubDate     => $adddate,
+              category    => $category,
+              guid        => sprintf(gettext('RSS item %d at %s'), $item, $adddate),
+          );
+        }
     }
 
     return $rss->as_string;

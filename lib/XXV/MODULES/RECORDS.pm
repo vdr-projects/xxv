@@ -178,7 +178,6 @@ sub module {
                 # "Msg=>text" = logmessage =~ /text/
                 # "Mod=>text" = modname =~ /text/
                 SearchForEvent => {
-                    Sub => 'RECORDS',
                     Msg => 'delr',
                 },
                 # Search for a Match and extract the information

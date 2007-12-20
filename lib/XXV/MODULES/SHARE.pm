@@ -51,6 +51,17 @@ sub module {
                 default     => 'n',
                 type        => 'confirm',
                 required    => gettext('This is required!'),
+                check       => sub {
+                    my $value = shift;
+                    if($value eq 'y') {
+                      my $module = main::getModule('EVENTS');
+                      unless($module or $module->{active} eq 'y') {
+                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                      }
+                    }
+                    return $value;
+                },
+
             },
             rating => {
                 description => gettext('URL to access popularity web service.'),

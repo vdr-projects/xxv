@@ -3,8 +3,7 @@ use strict;
 
 use Tools;
 use Locale::gettext;
-use File::Basename;
-use File::Find;
+
 
 # This module method must exist for XXV
 # ------------------
@@ -14,7 +13,6 @@ sub module {
     my $args = {
         Name => 'EVENTS',
         Prereq => {
-            'Data::Dumper' => 'stringified perl data structures, suitable for both printing and eval',
             'Date::Manip'  => 'date manipulation routines',
         },
         Description => gettext(

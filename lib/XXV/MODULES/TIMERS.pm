@@ -137,7 +137,6 @@ sub module {
                 # "Msg=>text" = logmessage =~ /text/
                 # "Mod=>text" = modname =~ /text/
                 SearchForEvent => {
-                    Mod => 'TIMERS',
                     Msg => 'New timer',
                 },
                 # Search for a Match and extract the information
@@ -191,7 +190,6 @@ sub module {
                 Descr => gettext('Create event entries if the user has deleted a timer.'),
                 Level => 'interesting',
                 SearchForEvent => {
-                    Mod => 'TIMERS',
                     Msg => 'delt',
                 },
                 Match => {
@@ -235,19 +233,18 @@ sub module {
                 Descr => gettext('Create event entries if the user has toggled a timer.'),
                 Level => 'interesting',
                 SearchForEvent => {
-                    Mod => 'TIMERS',
                     Msg => 'modt',
                 },
                 Match => {
                     TimerId => qr/modt\s+(\d+)\s(on|off)/s,
-                    #Type    => qr/modt\s+\d+\s+(on|off)/s,
+                    Type    => qr/modt\s+\d+\s+(on|off)/s
                 },
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
                             my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'Id');
                             my $title;
-                            if($timer->{Status} & 1) {
+                            if($args->{Type} eq 'on') {
                               $title = sprintf(gettext("Timer activated: %s"),$timer->{File});
                             } else {
                               $title = sprintf(gettext("Timer deactivated: %s"),$timer->{File});
