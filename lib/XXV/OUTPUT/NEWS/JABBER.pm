@@ -100,8 +100,13 @@ Then you must receive a message in your running jabber client.
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
-                    unless($value >= 1 and $value <= 100) {
-                        return undef, sprintf(gettext('Sorry, but value must be between %d and %d'),1,100);
+                    my $rmodule = main::getModule('REPORT');
+                    return undef unless($rmodule);
+                    my $erg = $rmodule->get_level_as_array();
+                    unless($value >= $erg->[0]->[0] and $value <= $erg->[-1]->[0]) {
+                        return undef, 
+                               sprintf(gettext('Sorry, but value must be between %d and %d'),
+                                  $erg->[0]->[0],$erg->[-1]->[0]);
                     }
                     return $value;
                 },
