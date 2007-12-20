@@ -4,7 +4,6 @@ use strict;
 
 use Tools;
 use Locale::gettext;
-use POSIX ":sys_wait_h", qw(strftime);
 
 # ------------------
 # Name:  module
@@ -16,7 +15,7 @@ sub module {
     my $args = {
         Name => 'AUTOTIMER',
         Prereq => {
-            # 'Perl::Module' => 'Description',
+            'Date::Manip' => 'date manipulation routines',
         },
         Description => gettext('This module searches for EPG entries with user-defined text and creates new timers.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -119,14 +118,14 @@ sub module {
                 # "Msg=>text" = logmessage =~ /text/
                 # "Mod=>text" = modname =~ /text/
                 SearchForEvent => {
-                    Sub => 'AUTOTIMER',
+                    Mod => 'AUTOTIMER',
                     Msg => 'Save timer',
                 },
                 # Search for a Match and extract the information
                 # of the TimerId
                 # ...
                 Match => {
-                    TimerId => qr/TimerId\:\s+\"(\d+)\"/s,
+                    TimerId => qr/id\:\s+\"(\d+)\"/s,
                 },
                 Actions => [
                     q|sub{  my $args = shift;
@@ -136,6 +135,11 @@ sub module {
                             my $autotimer = getDataById($timer->{AutotimerId}, 'AUTOTIMER', 'Id');
                             my $title = sprintf(gettext("Autotimer('%s') found: %s"),
                                                     $autotimer->{Search}, $timer->{File});
+
+                            Date_Init("Language=English");
+                            my $d = ParseDate($timer->{NextStartTime});
+                            $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
+  
                             my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}));
@@ -143,7 +147,7 @@ sub module {
                             $description .= sprintf(gettext("Description: %s"), $desc->{description} )
                               if($desc && $desc->{description});
 
-                            main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, "interesting");
+                            main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
                         }
                     |,
                 ],
@@ -427,11 +431,11 @@ sub _autotimerLookup {
                   [gettext("Channel")	   , $events->{$Id}->{Channel}],
               ];
               if($events->{$Id}->{vpsstart} and $a->{VPS}) {
-                push(@$output, [gettext("Start") , strftime("%x %X", localtime($events->{$Id}->{vpsstart}))]);
-                push(@$output, [gettext("Stop")  , strftime("%x %X", localtime($events->{$Id}->{vpsstop}))]);
+                push(@$output, [gettext("Start") , datum($events->{$Id}->{vpsstart} )]);
+                push(@$output, [gettext("Stop")  , datum($events->{$Id}->{vpsstop}  )]);
               } else {
-                push(@$output, [gettext("Start") , strftime("%x %X", localtime($events->{$Id}->{starttime}))]);
-                push(@$output, [gettext("Stop")  , strftime("%x %X", localtime($events->{$Id}->{stoptime}))]);
+                push(@$output, [gettext("Start") , datum($events->{$Id}->{starttime})]);
+                push(@$output, [gettext("Stop")  , datum($events->{$Id}->{stoptime} )]);
               }
               push(@$output,[gettext("Description"), $events->{$Id}->{description}]);
               $console->table($output);

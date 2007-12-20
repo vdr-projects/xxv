@@ -268,9 +268,9 @@ sub req {
     };
 
     if($obj->send($vars)) {
-        return sprintf('Message is send to %s at %s', $obj->{receiveUser}, datum($vars->{AddDate}, 'voll'));
+        return sprintf('Message is send to %s at %s', $obj->{receiveUser}, datum($vars->{AddDate}));
     } else {
-        return sprintf("Sorry, couldn't send message to %s at %s", $obj->{receiveUser}, datum($vars->{AddDate}, 'voll'));
+        return sprintf("Sorry, couldn't send message to %s at %s", $obj->{receiveUser}, datum($vars->{AddDate}));
     }
 }
 

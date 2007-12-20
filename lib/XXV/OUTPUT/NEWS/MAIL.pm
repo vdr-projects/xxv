@@ -235,7 +235,7 @@ sub parseHeader {
 
     my $vars = {
         msgnr => $obj->{COUNT},
-        date  => datum(time, 'voll'),
+        date  => datum(time),
         anzahl=> $obj->{NEWSCOUNT},
     };
 
@@ -256,7 +256,7 @@ sub parseFooter {
     my $vars = {
         usage => main::getModule('RECORDS')->{CapacityMessage},
         uptime  => main::getModule('STATUS')->uptime,
-        lastreport => datum($obj->{LastReportTime}, 'voll'),
+        lastreport => datum($obj->{LastReportTime}),
     };
 
     my $template = $obj->{TEMPLATES}->{'footer'};

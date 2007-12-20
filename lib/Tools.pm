@@ -13,6 +13,7 @@ $Data::Dumper::Indent = 1;
 use IO::File;
 use Socket;
 use Time::HiRes qw( gettimeofday );
+use POSIX qw(strftime);
 
 our $DUMPSTACK  = 0;
 our $VERBOSE    = 3;
@@ -44,27 +45,25 @@ sub datum {
 # ------------------
     my $zeit = shift  || time;
     my $typ  = shift  || 'voll';
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
-            localtime($zeit);
 
     if(lc($typ) eq 'voll') {
-        return sprintf('%02d:%02d:%02d %02d.%02d.%04d',
-            $hour, $min, $sec, $mday, $mon+1, $year+1900);
+        # full date depends locale e.g. 24.12.2007 12:00:00 or 12/24/2007 ...
+        return strftime("%x %X", localtime($zeit)); 
     } elsif(lc($typ) eq 'tag') {
-        return sprintf('%02d.%02d.%04d',
-            $mday, $mon+1, $year+1900);
+        # day depends locale e.g. 24.12.2007 or 12/24/2007
+        return strftime("%x", localtime($zeit));   
     } elsif (lc($typ) eq 'int') {
         # 1901-01-01T00:00+00:00
-        return sprintf('%04d-%02d-%02dT%02d:%02d+01:00',
-            $year+1900, $mon+1, $mday, $hour, $min );
+        return strftime("%Y-%m-%dT%H:%M:%S%z", localtime($zeit));
     } elsif (lc($typ) eq 'rss') {
         # 23 Aug 1999 07:00:00 GMT
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($zeit);
         my @abbr = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
         return sprintf('%02d %s %04d %02d:%02d:%02d GMT',
             $mday, $abbr[$mon], $year+1900, $hour, $min, $sec );
     } else {
-        return sprintf('%02d:%02d:%02d',
-            $hour, $min, $sec);
+        # time depends locale, most 07:00:00
+        return strftime("%X", localtime($zeit));   
     }
 }
 
@@ -143,6 +142,9 @@ sub event {
     my $msg = shift;
 
     my ($package, $filename, $line, $subroutine) = caller(1);
+    my  $module = '';
+        $module = (split('::', $package))[-1]
+            if($package);
     &{$LOGCALLB}($module, $subroutine, $msg);
 
     &_msg(270,$msg, 3);

@@ -14,7 +14,8 @@ sub module {
     my $args = {
         Name => 'EVENTS',
         Prereq => {
-            'Data::Dumper'        => 'stringified perl data structures, suitable for both printing and eval',
+            'Data::Dumper' => 'stringified perl data structures, suitable for both printing and eval',
+            'Date::Manip'  => 'date manipulation routines',
         },
         Description => gettext(
 "This module manage the events for control and watch the xxv system.

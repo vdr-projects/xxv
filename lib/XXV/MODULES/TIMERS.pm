@@ -137,6 +137,7 @@ sub module {
                 # "Msg=>text" = logmessage =~ /text/
                 # "Mod=>text" = modname =~ /text/
                 SearchForEvent => {
+                    Mod => 'TIMERS',
                     Msg => 'New timer',
                 },
                 # Search for a Match and extract the information
@@ -152,6 +153,11 @@ sub module {
                             return if($timer->{AutotimerId});
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
                             my $title = sprintf(gettext("New timer found: %s"),$timer->{File});
+
+                            Date_Init("Language=English");
+                            my $d = ParseDate($timer->{NextStartTime});
+                            $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
+  
                             my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}));
@@ -185,6 +191,7 @@ sub module {
                 Descr => gettext('Create event entries if the user has deleted a timer.'),
                 Level => 'interesting',
                 SearchForEvent => {
+                    Mod => 'TIMERS',
                     Msg => 'delt',
                 },
                 Match => {
@@ -196,6 +203,11 @@ sub module {
                             my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'Id');
                             my $title = sprintf(gettext("Timer deleted: %s"),$timer->{File});
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
+
+                            Date_Init("Language=English");
+                            my $d = ParseDate($timer->{NextStartTime});
+                            $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
+
                             my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}));
@@ -223,6 +235,7 @@ sub module {
                 Descr => gettext('Create event entries if the user has toggled a timer.'),
                 Level => 'interesting',
                 SearchForEvent => {
+                    Mod => 'TIMERS',
                     Msg => 'modt',
                 },
                 Match => {
@@ -239,6 +252,11 @@ sub module {
                             } else {
                               $title = sprintf(gettext("Timer deactivated: %s"),$timer->{File});
                             }
+
+                            Date_Init("Language=English");
+                            my $d = ParseDate($timer->{NextStartTime});
+                            $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
+  
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
                             my $description = sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},

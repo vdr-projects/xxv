@@ -108,7 +108,7 @@ sub new {
     main::after(sub{
         my $start = main::getStartTime;
         $self->news(
-            sprintf(gettext('Restart the xxv system at: %s!'), datum($start,'voll')),
+            sprintf(gettext('Restart the xxv system at: %s!'), datum($start)),
             undef,
             undef,
             undef,
