@@ -192,15 +192,19 @@ sub module {
                             my $record  = getDataById($args->{RecordId}, 'RECORDS', 'RecordId');
                             my $epg = main::getModule('EPG')->getId($record->{eventid}, 'title, subtitle, description');
 
-
                             my $title = sprintf(gettext("Recording deleted: %s"), $epg->{title});
-                            my $description = "";
-                               $description .= sprintf(gettext("Subtitle: %s\n"),
-                                    $epg->{subtitle}) if($epg->{subtitle});
-                               $description .= sprintf(gettext("Description: %s\n"),
-                                    $epg->{description})  if($epg->{description});
 
-                            main::getModule('REPORT')->news($title, $description, "display", $record->{eventid}, "important");
+                            my $description = "";
+                            if($epg->{subtitle}) {
+                               $description .= sprintf(gettext("Subtitle: %s"), $epg->{subtitle});
+                               $description .= '\r\n';
+                            }
+                            if($epg->{description}) {
+                               $description .= sprintf(gettext("Description: %s"), $epg->{description});
+                               $description .= '\r\n';
+                            }
+
+                            main::getModule('REPORT')->news($title, $description, "display", $record->{eventid}, $event->{Level});
                         }
                     |,
                 ],

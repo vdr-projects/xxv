@@ -1003,35 +1003,33 @@ sub getcovers {
             artist  => $artist,
         );
         my $resp = $obj->{Amazon}->request($req);
-
-        $album =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g; # Replace regex groupsymbols "),(,-,?,+,*,[,],{,}"
-        $album =~ s/([\/])/\./g; # Replace splash
-
-        $artist =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g; # Replace regex groupsymbols "),(,-,?,+,*,[,],{,}"
-        $artist =~ s/([\/])/\./g; # Replace splash
+        $album =~ s/[^[:alnum:]]//sig;
+        $artist =~ s/[^[:alnum:]]//sig;
 
         my $image;
         foreach my $item ($resp->properties) {
+
+          next unless($item->can('album'));
           my $ialbum = $item->album();
-             $ialbum =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g;
-             $ialbum =~ s/([\/])/\./g;
+             $ialbum =~ s/[^[:alnum:]]//sig;
+
+          next unless($item->can('artist'));
           my $iartist = $item->artist();
-             $artist =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g;
-             $artist =~ s/([\/])/\./g; 
+             $iartist =~ s/[^[:alnum:]]//sig;
 
           if($ialbum =~ /$album/i
               and $iartist =~ /$artist/i) {
 
               $image = $item->ImageUrlMedium()
-                if($item->ImageUrlMedium);
+                if($item->can('ImageUrlMedium'));
               last if($image && $obj->_storecover($image,$target));
 
               $image = $item->ImageUrlLarge()
-                if($item->ImageUrlLarge);
+                if($item->can('ImageUrlLarge'));
               last if($image && $obj->_storecover($image,$target));
 
               $image = $item->ImageUrlSmall()
-                if($item->ImageUrlSmall);
+                if($item->can('ImageUrlSmall'));
               last if($image && $obj->_storecover($image,$target));
           }
         }
