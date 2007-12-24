@@ -153,11 +153,17 @@ sub module {
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
                             my $title = sprintf(gettext("New timer found: %s"),$timer->{File});
 
+                            my $description = '';                           
+
+                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{ChannelID});
+                            $description .= sprintf(gettext("Channel: %s"), $channel);
+                            $description .= "\r\n";
+
                             Date_Init("Language=English");
                             my $d = ParseDate($timer->{NextStartTime});
                             $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
   
-                            my $description = sprintf(gettext("On: %s to %s"),
+                            $description .= sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}));
                             $description .= "\r\n";
@@ -202,11 +208,17 @@ sub module {
                             my $title = sprintf(gettext("Timer deleted: %s"),$timer->{File});
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
 
+                            my $description = '';                           
+
+                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{ChannelID});
+                            $description .= sprintf(gettext("Channel: %s"), $channel);
+                            $description .= "\r\n";
+
                             Date_Init("Language=English");
                             my $d = ParseDate($timer->{NextStartTime});
                             $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
 
-                            my $description = sprintf(gettext("On: %s to %s"),
+                            $description .= sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}));
                             $description .= "\r\n";
@@ -250,12 +262,18 @@ sub module {
                               $title = sprintf(gettext("Timer deactivated: %s"),$timer->{File});
                             }
 
+                            my $description = '';                           
+
+                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{ChannelID});
+                            $description .= sprintf(gettext("Channel: %s"), $channel);
+                            $description .= "\r\n";
+
                             Date_Init("Language=English");
                             my $d = ParseDate($timer->{NextStartTime});
                             $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
   
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
-                            my $description = sprintf(gettext("On: %s to %s"),
+                            $description .= sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}));
                             $description .= "\r\n";

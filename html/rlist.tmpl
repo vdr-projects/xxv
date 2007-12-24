@@ -124,6 +124,9 @@
 '<?% gettext("Nothing selected!") %?>','rdelete',document.rlist)">
 [<?% gettext("Delete recordings") %?>]</a>&nbsp;
 <?% END %?>
+<?% IF allow('rrecover') %?>
+    <a href="?cmd=rrecover">[<?% gettext("Recover deleted recordings") %?>]</a>&nbsp;
+<?% END %?>
 		<?% gettext("Search for recordings") %?>:
         <input type="hidden" name="cmd" value='rsearch' >
         <input type="text" name="data" size='18' <?% IF cgi.param('cmd')=='rs' || cgi.param('cmd')=='rsearch' %?>value='<?% cgi.param('data')%?>'<?% END %?>>

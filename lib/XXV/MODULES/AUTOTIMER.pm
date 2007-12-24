@@ -136,11 +136,16 @@ sub module {
                             my $title = sprintf(gettext("Autotimer('%s') found: %s"),
                                                     $autotimer->{Search}, $timer->{File});
 
+                            my $description = '';                           
+
+                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{ChannelID});
+                            $description .= sprintf(gettext("Channel: %s"), $channel);
+                            $description .= "\r\n";
+
                             Date_Init("Language=English");
                             my $d = ParseDate($timer->{NextStartTime});
                             $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
-  
-                            my $description = sprintf(gettext("On: %s to %s"),
+                            $description .= sprintf(gettext("On: %s to %s"),
                                 $timer->{NextStartTime},
                                 fmttime($timer->{Stop}));
                             $description .= "\r\n";

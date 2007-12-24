@@ -130,6 +130,13 @@ sub module {
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
+            rrecover => {
+                description => gettext("Recover deleted recordings"),
+                short       => 'rru',
+                callback    => sub{ $obj->recover(@_) },
+                Level       => 'user',
+                DenyClass   => 'redit',
+            },
             redit => {
                 description => gettext("Edit recording 'rid'"),
                 short       => 're',
@@ -1124,6 +1131,11 @@ sub videoPreview {
     if($info->{type} and $info->{type} eq 'RADIO') {
         return 0;
     }
+    # Mplayer
+    unless(-x $obj->{previewbinary}) {
+      error("Couldn't find executable file as usable preview command!");
+      return 0;
+    }
 
     # Videodir
     my $vdir = $info->{path};
@@ -1132,35 +1144,13 @@ sub videoPreview {
         return 0;
     }
 
-    # Save dir
-    my $count = $obj->{previewcount};
     my $outdir = sprintf('%s/%s_shot', $obj->{previewimages}, $info->{RecordMD5});
 
+    my $count = $obj->{previewcount};
     # Stop here if enough files present
     my @images = glob("$outdir/*.jpg");
     return 0
       if(scalar @images >= $count && !$rebuild);
-
-    deleteDir($outdir) if(scalar @images && $rebuild);
-
-    # or stop if log's present
-    my $log = sprintf('%s/preview.log', $outdir);
-    if(-e $log) {
-        return 0;
-    }
-
-    # Mplayer
-    unless(-x $obj->{previewbinary}) {
-      error("Couldn't find executable file as usable preview command!");
-      return 0;
-    }
-
-    unless(-d $outdir) {
-      if(!mkpath($outdir)) {
-        error sprintf("Couldn't make path '%s' : %s",$outdir,$!);
-        return 0;
-      }
-    }
 
     my $startseconds = ($obj->{timers}->{prevminutes} * 60) * 2;
     my $endseconds = ($obj->{timers}->{afterminutes} * 60) * 2;
@@ -1170,6 +1160,26 @@ sub videoPreview {
   		$stepseconds = $info->{duration} / ( $count + 2 ) ;
   		$startseconds = $stepseconds;
   	}
+
+    if($info->{duration} <= $count or $stepseconds <= 1) {  # dont' create to early ?
+        lg sprintf("Recording just started, create images for '%s' later.", $info->{title});
+        return 0;
+    }
+
+    deleteDir($outdir) if(scalar @images && $rebuild);
+
+    # or stop if log's present
+    my $log = sprintf('%s/preview.log', $outdir);
+    if(-e $log) {
+        return 0;
+    }
+
+    unless(-d $outdir) {
+      if(!mkpath($outdir)) {
+        error sprintf("Couldn't make path '%s' : %s",$outdir,$!);
+        return 0;
+      }
+    }
 
     my @files;
     my @frames;
@@ -2334,5 +2344,112 @@ LIMIT 25
     }
 }
 
+# ------------------
+sub recover {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $recordid  = shift || 0;
+    my $data    = shift || 0;
+
+    my $files; # Array with md5 and humanreadable title
+    my $paths; # Hash with md5 and path to recording
+    find(
+            {
+                wanted => sub{
+                    if(-r $File::Find::name) {
+                        if($File::Find::name =~ /\.del\/\d{3}.vdr$/sig) {  # Lookup for *.del/001.vdr
+                          my $path = dirname($File::Find::name);
+                          my $md5 = md5_hex($path);
+                          unless(exists $paths->{$md5}) {
+                            my $title = dirname($path);
+                            $title =~ s/^$obj->{videodir}//g;
+                            $title =~ s/^\///g;
+                            push(@{$files},[$obj->converttitle($title),$md5]);
+                            $paths->{$md5} = $path;
+                          }
+                        }
+                    } else {
+                        lg "Permissions deny, couldn't read : $File::Find::name";
+                    }
+                },
+                follow => 1,
+                follow_skip => 2,
+            },
+        $obj->{videodir}
+    );
+
+    return con_msg($console,gettext("There none recoverable recordings!"))
+      unless($files and scalar @{$files});
+
+    my $questions = [
+      'restore' => {
+        msg     => gettext('Title of recording'),
+        req     => gettext("This is required!"),
+        typ     => 'list',
+        options => 'multi',
+        def   => sub {
+            my @ret;
+            foreach my $v (@{$files}) {
+              push(@ret,$v->[1]);
+            }
+            return @ret;
+          },
+        choices => $files,
+        check   => sub{
+            my $value = shift || return undef, gettext("This is required!");
+            my @ret = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
+            return join(',', @ret);
+          }
+      },
+    ];
+
+    $data = $console->question(gettext("Recover recording"), $questions, $data);
+    if(ref $data eq 'HASH') {
+        my $ChangeRecordingData = 0;
+
+        foreach my $md5 (split(/\s*,\s*/, $data->{restore})) {
+          unless(exists $paths->{$md5}) {
+            con_err($console,gettext("Can't recover recording, maybe was this in the meantime deleted!"));
+            next;
+          }
+
+          my $path = $paths->{$md5};
+          my $newPath = $path;
+          $newPath =~ s/\.del$/\.rec/g;
+          lg sprintf("Recover recording, rename '%s' to %s",$path,$newPath);
+          if(!move($path,$newPath)) {
+            con_err($console,sprintf(gettext("Recover recording, couldn't rename '%s' to %s : %s"),$path,$newPath,$!));
+            next;
+          }
+          $ChangeRecordingData = 1;
+        }
+
+        if($ChangeRecordingData) {
+          my $waiter;
+
+          touch($obj->{videodir}."/.update");
+
+          if(ref $console && $console->typ eq 'HTML' && !($obj->{inotify})) {
+            $waiter = $console->wait(gettext('Recording recovered!'),0,1000,'no');
+          }else {
+            con_msg($console,gettext('Recording recovered!'));
+          }
+          sleep(1);
+  
+          $obj->readData($watcher,$console,$waiter)
+            unless($obj->{inotify});
+
+        } else {
+          con_msg($console,gettext("None recording was'nt recovered!"));
+        }
+ 
+        $console->redirect({url => '?cmd=rlist', wait => 1})
+            if(ref $console and $console->typ eq 'HTML');
+    }
+
+    return 1;
+}
 
 1;
