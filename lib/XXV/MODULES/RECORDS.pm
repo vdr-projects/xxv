@@ -566,7 +566,7 @@ sub readData {
           }
 
           # Update Duration and maybe preview images, if recordings added during timer run 
-          if(($db_data->{$h}->{starttime} + $db_data->{$h}->{duration} + 60) > $db_data->{$h}->{addtime}) {
+          if(($db_data->{$h}->{starttime} + $db_data->{$h}->{duration} + 7200) > $db_data->{$h}->{addtime}) {
               my $duration = $obj->_recordinglength($db_data->{$h}->{path});
               if($duration != $db_data->{$h}->{duration}) {
 
@@ -589,7 +589,8 @@ sub readData {
 
                   $updatedState++;
               }
-          } 
+          }
+
           $totalDuration += $db_data->{$h}->{duration};
           $totalSpace += $db_data->{$h}->{FileSize};
           
