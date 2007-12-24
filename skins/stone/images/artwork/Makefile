@@ -8,7 +8,8 @@ IMAGES = ../on.gif ../delete.gif ../record.gif ../off.gif ../edit.gif \
 ../home.gif ../refresh.gif ../onoff.gif ../movie.gif ../play.gif ../folder.gif \
 ../select.gif ../deselect.gif ../invers.gif ../newfolder.gif \
 ../cut.gif ../file.gif ../audio.gif  ../topten.gif ../warning.gif \
-../imdb.gif ../ofdb.gif ../info.gif ../tvm.gif ../nocover.gif ../noactor.gif
+../imdb.gif ../ofdb.gif ../info.gif ../tvm.gif ../nocover.gif ../noactor.gif \
+../recover.gif
 
 ### Targets:
 

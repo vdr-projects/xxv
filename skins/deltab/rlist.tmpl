@@ -243,6 +243,10 @@
       <a href="?cmd=rupdate"><img src="images/refresh.<?% global.imagetyp %?>" alt="Aktualisieren" title="Aktualisieren" /></a>&nbsp;
       <a href="?cmd=rupdate"><?% gettext("Update recordings",20) %?></a>
 <?% END %?>
+<?% IF allow('rrecover') %?>
+      <a title="<?% gettext("Recover deleted recordings") %?>" href="?cmd=rrecover"><img src="images/recover.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a title="<?% gettext("Recover deleted recordings") %?>" href="?cmd=rrecover"><?% gettext("Recover deleted recordings",20) %?></a>
+<?% END %?>
 <?% ELSE %?>
     <?% directorys = browse.split('~') %?>
     <?% IF directorys.size <= 1 %?>

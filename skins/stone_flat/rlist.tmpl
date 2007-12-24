@@ -232,6 +232,14 @@
     </td>
     </tr>
 <?% END %?>
+<?% IF allow('rrecover') %?>
+    <tr>
+    <td class="sidetext">
+      <a title="<?% gettext("Recover deleted recordings") %?>" href="javascript:popupcmd('rrecover',620,670,1)"><img src="images/recover.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a title="<?% gettext("Recover deleted recordings") %?>" href="javascript:popupcmd('rrecover',620,670,1)"><?% gettext("Recover deleted recordings",20) %?></a>
+    </td>
+    </tr>
+<?% END %?>
 <?% ELSE %?>
     <tr>
     <td class="sidetext">
