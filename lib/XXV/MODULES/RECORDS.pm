@@ -201,14 +201,14 @@ sub module {
 
                             my $title = sprintf(gettext("Recording deleted: %s"), $epg->{title});
 
-                            my $description = "";
+                            my $description = '';
                             if($epg->{subtitle}) {
                                $description .= sprintf(gettext("Subtitle: %s"), $epg->{subtitle});
-                               $description .= '\r\n';
+                               $description .= "\r\n";
                             }
                             if($epg->{description}) {
                                $description .= sprintf(gettext("Description: %s"), $epg->{description});
-                               $description .= '\r\n';
+                               # $description .= "\r\n";
                             }
 
                             main::getModule('REPORT')->news($title, $description, "display", $record->{eventid}, $event->{Level});

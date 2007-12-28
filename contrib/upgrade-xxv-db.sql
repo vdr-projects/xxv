@@ -127,6 +127,21 @@ CREATE TABLE `MEDIALIB_VIDEOGENRE` (
 );
 
 --
+-- Table structure for table `MOVETIMER`
+--
+
+DROP TABLE IF EXISTS `MOVETIMER`;
+CREATE TABLE `MOVETIMER` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `source` varchar(64) NOT NULL,
+  `destination` varchar(64) NOT NULL,
+  `move` enum('y','n','collision') default 'collision',
+  `original` enum('move','keep','copy') default 'move',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `source` (`source`)
+);
+
+--
 -- Table structure for table `USER`
 --
 
@@ -150,4 +165,4 @@ CREATE TABLE `USER` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2007-11-24 14:27:24
+-- Dump completed on 2007-12-28 10:05:06
