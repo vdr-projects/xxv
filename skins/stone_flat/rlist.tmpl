@@ -80,7 +80,7 @@
 <?% BLOCK RowButtons %?>
     <?% IF global.playbackmode == 0 %?>
         <?% IF allow('stream') %?>
-            <a href="javascript:popup('stream','<?% id %?>',620,670,1)">
+            <a href="javascript:popup('stream','<?% id %?>',620,670,0)">
                 <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
             </a>
         <?% END %?>
@@ -92,7 +92,7 @@
         <?% END %?>
     <?% ELSIF global.playbackmode == 2 %?>
         <?% IF allow('rplay') %?>
-            <a href="javascript:popup('rplay','<?% id %?>',620,670,1)">
+            <a href="javascript:popup('rplay','<?% id %?>',620,670,0)">
                 <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
             </a>
         <?% END %?>
@@ -235,8 +235,8 @@
 <?% IF allow('rrecover') %?>
     <tr>
     <td class="sidetext">
-      <a title="<?% gettext("Recover deleted recordings") %?>" href="javascript:popupcmd('rrecover',620,670,1)"><img src="images/recover.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-      <a title="<?% gettext("Recover deleted recordings") %?>" href="javascript:popupcmd('rrecover',620,670,1)"><?% gettext("Recover deleted recordings",20) %?></a>
+      <a title="<?% gettext("Recover deleted recordings") %?>" href="javascript:popup('rrecover',620,670,1)"><img src="images/recover.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+      <a title="<?% gettext("Recover deleted recordings") %?>" href="javascript:popup('rrecover',620,670,1)"><?% gettext("Recover deleted recordings",20) %?></a>
     </td>
     </tr>
 <?% END %?>
