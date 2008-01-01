@@ -78,13 +78,7 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
-    <?% IF global.playbackmode == 0 %?>
-        <?% IF allow('stream') %?>
-            <a href="javascript:popup('stream','<?% id %?>',620,670,0)">
-                <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
-            </a>
-        <?% END %?>
-    <?% ELSIF global.playbackmode == 1 %?>
+    <?% IF global.playbackmode == 1 %?>
         <?% IF allow('playrecord') %?>
             <a href="?cmd=playrecord&amp;data=<?% id %?>">
                 <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
@@ -93,7 +87,7 @@
     <?% ELSIF global.playbackmode == 2 %?>
         <?% IF allow('rplay') %?>
             <a href="javascript:popup('rplay','<?% id %?>',620,670,0)">
-                <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
+                <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" />
             </a>
         <?% END %?>
     <?% END %?>

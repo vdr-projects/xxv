@@ -95,13 +95,7 @@
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
     <?% INCLUDE widgets/tooltip.inc cmd="rdisplay" linkid=id ttp_offset=-400 %?>
-    <?% IF global.playbackmode == 0 %?>
-        <?% IF allow('stream') %?>
-            <a href="?cmd=stream&amp;data=<?% id %?>">
-                <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
-            </a>
-        <?% END %?>
-    <?% ELSIF global.playbackmode == 1 %?>
+    <?% IF global.playbackmode == 1 %?>
         <?% IF allow('playrecord') %?>
             <a href="?cmd=playrecord&amp;data=<?% id %?>">
                 <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
@@ -110,7 +104,7 @@
     <?% ELSIF global.playbackmode == 2 %?>
         <?% IF allow('rplay') %?>
             <a href="?cmd=rplay&amp;data=<?% id %?>">
-                <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
+                <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" />
             </a>
         <?% END %?>
     <?% END %?>
@@ -242,10 +236,12 @@
 <?% IF allow('rupdate') %?>
       <a href="?cmd=rupdate"><img src="images/refresh.<?% global.imagetyp %?>" alt="Aktualisieren" title="Aktualisieren" /></a>&nbsp;
       <a href="?cmd=rupdate"><?% gettext("Update recordings",20) %?></a>
+      <br />
 <?% END %?>
 <?% IF allow('rrecover') %?>
       <a title="<?% gettext("Recover deleted recordings") %?>" href="?cmd=rrecover"><img src="images/recover.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
       <a title="<?% gettext("Recover deleted recordings") %?>" href="?cmd=rrecover"><?% gettext("Recover deleted recordings",20) %?></a>
+      <br />
 <?% END %?>
 <?% ELSE %?>
     <?% directorys = browse.split('~') %?>

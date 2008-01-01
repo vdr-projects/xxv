@@ -1,16 +1,36 @@
 <!-- rdisplay -->
-<div id="body">
 <?% USE date %?>
 <?% title = data.Title %?>
 <?% subtitle = data.SubTitle %?>
 <?% id = data.RecordId %?>
+<?% allowplay = 1 IF allow('rplay') or allow('playrecord') %?>
+
+
+<script language="javascript" type="text/javascript">
+<!--
+  function setstart(wert) {
+    document.forms.offset.start.value = wert;
+  }  
+  function playstart(cmd,parent) {
+    var url = '?cmd='+cmd + '&data=<?% id %?>&__start=' + document.forms.offset.start.value;
+    if(parent) {
+      top.location.href = url;
+    } else {
+      location.href = url;
+    }
+  }
+-->
+</script>
+
+<div id="body">
+<?% ######################################################################## %?>
+<?% BLOCK hfs # d in Sekunden %?>
+  <?% d div 3600 %?>:<?% d div 60 mod 60 | format('%02d') %?>:<?% d mod 60 | format('%02d') %?>
+<?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK dur # d in Sekunden %?>
 <?% IF d > 1 %?>
-    <?% Stunden = d div 3600 %?>
-    <?% Minuten = d div 60 mod 60 %?>
-    <?% Sekunden =  d mod 60 %?>
-    <br />Dauer: <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?> 
+    <br /><?% gettext("Duration") %?>: <?% PROCESS hfs %?>
 <?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>
@@ -29,9 +49,17 @@
 						<table summary="">
 							<tr>
 								<td>
-									<?% FOREACH bild = files %?>
-									<img class="recorddetails" src="<?% bild %?>" alt="" />
-                  <?% IF (loop.count) mod 4 == 0 && loop.count != loop.size %?>
+									<?% FOREACH f = files %?>
+            		  <?% i = f.split('/').-1 %?>
+            		  <?% x = ( i.split('\.').0 ) / 25 %?>
+                  <?% IF allowplay %?>
+                    <a href="javascript:setstart('<?% PROCESS hfs d=x %?>')" >
+                    <?% END %?>
+                        <img class="recorddetails" src="<?% f %?>" alt="" title="<?% PROCESS hfs d=x %?>" />
+                    <?% IF allowplay %?>
+                    </a>
+                    <?% END %?>
+                  <?% IF (loop.count) mod 5 == 0 && loop.count != loop.size %?>
 								</td>
 							</tr>
 							<tr>
@@ -67,7 +95,13 @@
                 Stunden = c div 3600;
                 Minuten = c div 60 mod 60 -%?>
         <td width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) div 1 %?>" align='right'>
-            <?% Stunden | format('%02d') %?>:<?% Minuten | format('%02d') %?>
+<?% IF allowplay %?>
+              <a href="javascript:setstart('<?% PROCESS hfs d=c %?>')" >
+<?% END %?>
+                <?% Stunden %?>:<?% Minuten | format('%02d') %?>
+<?% IF allowplay %?>
+              </a>
+<?% END %?>
         </td>
         <?% END %?>
     </tr>
@@ -181,43 +215,10 @@
 <!-- ###### Seite ###### -->
 <div id="sidebar">
     <p class="section"><?% gettext("Recordings",20) %?></p>
+    <form name='offset' method='get' action="">
     <p>
         <a href="javascript:back()"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Back",20) %?>" /></a>&nbsp;
         <a href="javascript:back()"><?% gettext("Back",20) %?></a><br />
-<?% IF global.playbackmode == 0 %?>
-    <?% IF allow('stream') %?>
-        <a href="?cmd=stream&amp;data=<?% id %?>">
-            <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
-        </a>
-        &nbsp;
-        <a href="?cmd=stream&amp;data=<?% id %?>">
-            <?% gettext("Watch recording",20) %?>
-        </a>
-        <br />
-    <?% END %?>
-<?% ELSIF global.playbackmode == 1 %?>
-    <?% IF allow('playrecord') %?>
-        <a href="?cmd=playrecord&amp;data=<?% id %?>">
-            <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
-        </a>
-        &nbsp;
-        <a href="?cmd=playrecord&amp;data=<?% id %?>">
-            <?% gettext("Watch recording",20) %?>
-        </a>
-        <br />
-    <?% END %?>
-<?% ELSIF global.playbackmode == 2 %?>
-    <?% IF allow('rplay') %?>
-        <a href="?cmd=rplay&amp;data=<?% id %?>">
-            <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
-        </a>
-        &nbsp;
-        <a href="?cmd=rplay&amp;data=<?% id %?>">
-            <?% gettext("Watch recording",20) %?>
-        </a>
-        <br />
-    <?% END %?>
-<?% END %?>
 <?% IF allow( 'rcut' ) %?>
         <a href="?cmd=rcut&amp;data=<?% id %?>">
             <img src="images/cut.<?% global.imagetyp %?>" alt="" title="<?% gettext("Cut recording") %?>" />
@@ -263,6 +264,32 @@
     <a target="_blank" href="http://www.ofdb.de/view.php?page=suchergebnis&Kat=Titel&SText=<?% quest %?>">
         <?% gettext("Search with OFDb") %?>
     </a>
-    </p>
+    <br />
+    <br />
+
+    <?% IF allow('rplay') %?>
+        <a href="javascript:playstart('rplay')" >
+            <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recordingin VDR") %?>" />
+        </a>
+        &nbsp;
+        <a href="javascript:playstart('rplay')" >
+            <?% gettext("Watch recording in VDR",15) %?>
+        </a>
+        <br />
+    <?% END %?>
+    <?% IF allow('playrecord') %?>
+        <a href="javascript:playstart('playrecord')" >
+            <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
+        </a>
+        &nbsp;
+        <a href="javascript:playstart('playrecord')" >
+            <?% gettext("Watch recording",20) %?>
+        </a>
+        <br />
+    <?% END %?>
+    <?% IF allowplay %?>
+        <input type="text" name="start" value="00:00:00.0" />
+    <?% END %?>    </p>
+    </form>
 </div>
 <?% global.sidebar = 1 %?>
