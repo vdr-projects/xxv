@@ -1396,8 +1396,10 @@ sub play {
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
+    my $params  = shift;
 
-    my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
+    my $sql = qq|SELECT SQL_CACHE r.RecordID,r.RecordMD5,e.duration as duration FROM
+    RECORDS as r, OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 = ?|;
     my $sth = $obj->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
@@ -1405,7 +1407,22 @@ sub play {
         return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
     }
 
-    my $cmd = sprintf('PLAY %d begin', $rec->{RecordID});
+    my $start = 0;
+    if($params && exists $params->{start}) {
+      $start = &text2frame($params->{start});
+    }
+    if($start) {
+      if($start < 0 or ($start / 25) >= ($rec->{duration})) {
+        $start = 'begin';
+      } else {
+        $start = &frame2hms($start);
+      }
+    } else {
+      $start = 'begin';
+    }
+
+
+    my $cmd = sprintf('PLAY %d %s', $rec->{RecordID}, $start);
     if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
@@ -2020,7 +2037,11 @@ sub conv {
 
     unless($data) {
         con_err($console,gettext("Please use rconvert 'cmdid_rid'"));
-        unshift(@{$obj->{reccmds}}, ['Descr.', 'Command']);
+        unshift(@{$obj->{reccmds}}, 
+          [
+           gettext('Description'),
+           gettext('Command')
+          ]);
         $console->table($obj->{reccmds});
         $obj->list($watcher, $console);
     }
@@ -2453,4 +2474,53 @@ sub recover {
     return 1;
 }
 
+################################################################################
+# find file and offset from frame
+sub frametofile {
+    my $obj = shift || return error('No object defined!');
+    my $path = shift || return error ('Missing path from recording!' );
+    my $frame = int (shift);
+
+    use constant FRAMESTRUCTSIZE => 8;
+
+    my $f = sprintf("%s/index.vdr", $path);
+   	unless(open FH,$f) {
+      error(sprintf("Can't open file '%s': %s",$f,$!));
+      return (undef,undef);
+    }
+  	binmode FH;
+
+    my $offset = FRAMESTRUCTSIZE * $frame;
+    if($offset != sysseek(FH,$offset,0)) { #SEEK_SET
+      error(sprintf("Can't seek file '%s': %s",$f,$!));
+    	close FH;
+      return (undef,undef);
+    }
+
+    do {
+    	my $buffer;
+    	my $bytesread = sysread (FH, $buffer, FRAMESTRUCTSIZE);
+      if($bytesread != FRAMESTRUCTSIZE) {
+        error(sprintf("Can't read file '%s': %s",$f,$!));
+        return (undef,undef);
+      }
+      my ($c, $t, $n, $r) = unpack ("I C C S", $buffer);
+      if($t == 1) { # I-Frame
+      	close FH;
+        return ($n,$c); # Filenumber, Offset from file begin
+      }  
+
+      $offset -= FRAMESTRUCTSIZE;
+      if($offset != sysseek(FH,-(FRAMESTRUCTSIZE*2), 1)) { #SEEK_CUR
+        error(sprintf("Can't seek file '%s': %s",$f,$!));
+      	close FH;
+        return (undef,undef);
+      }
+      $frame -= 1;
+    } while($frame >= 0 && $offset >= 0);
+
+  	close FH;
+
+    return (undef,undef);
+}
 1;

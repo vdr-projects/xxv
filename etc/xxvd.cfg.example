@@ -11,7 +11,6 @@ stripCH=short,long;provider
 
 [CHRONICLE]
 active=y
-interval=7200
 
 [EPG]
 epgimages=/var/cache/xxv/epgimages
@@ -20,11 +19,10 @@ periods=12:00,18:00,20:20,22:00,23:00,00:00,02:00,04:00
 timeframe=2
 
 [GRAB]
-file=/tmp/live.jpg
 font=VeraBI.ttf
 imgfontsize=12
-imgquality=90
-imgtext=[?- i = channel.split(" ") -?][[? i.shift ?]] [? i.join(" ") ?]: [? event.Title ?]
+imgquality=70
+overlay=<< event.POS >>.<< event.Channel >>|<< event.Title >> << event.Subtitle >>
 vpos=20
 xsize=480
 ysize=360
@@ -37,16 +35,20 @@ USR=xxv
 initscript=/etc/init.d/xxvd
 
 [HTTPD]
-Clients=1000
+Clients=5
+Debug=n
 HtmlRoot=html
+Interface=0.0.0.0
 Port=8080
 StartPage=schema
 active=y
 
 [INTERFACE]
 Clients=5
+Interface=0.0.0.0
+LocalAddr=localhost
 Port=8082
-active=y
+active=n
 
 [LOGREAD]
 active=y
@@ -79,11 +81,11 @@ spwd=password
 susr=user
 
 [NEWS::RSS]
-active=y
+active=n
 level=1
 
 [NEWS::VDR]
-active=y
+active=n
 level=1
 
 [RECORDS]
@@ -112,8 +114,9 @@ active=y
 [STATUS]
 active=y
 dfBinary=/bin/df
-font=VeraBI.ttf
-history=1
+font=Vera.ttf
+graphic=y
+history=3
 interval=60
 wcBinary=/usr/bin/wc
 whoBinary=/usr/bin/who
@@ -125,18 +128,18 @@ netvideo=\\192.168.0.23\video
 [SVDRP]
 VdrHost=localhost
 VdrPort=2001
+timeout=60
 
 [TELNET]
 Clients=5
 Port=8081
-active=y
+active=n
 
 [TIMERS]
 DVBCards=1
 Lifetime=50
 Priority=50
 afterminutes=5
-deactive=y
 interval=1800
 prevminutes=1
 

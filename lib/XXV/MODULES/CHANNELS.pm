@@ -583,7 +583,21 @@ sub ChannelToPos {
     return $erg ? $erg->{POS} : undef;
 }
 
+# ------------------
+sub ToCID {
+# ------------------
+  my $obj = shift || return error('No object defined!');
+  my $text = shift || return undef;
 
+  if($text =~ /^\d+$/ and (my $pch = $obj->PosToChannel($text) )) {
+    return $pch;
+  } elsif((my $nch = $obj->NameToChannel($text) )) {
+    return $nch;
+  } elsif(my $name = $obj->ChannelToName($text)) {
+    return $text;
+  }
+  return undef;
+}
 # ------------------
 sub getChannelType {
 # ------------------

@@ -53,11 +53,6 @@ sub module {
                 default     => 1,
                 type        => 'integer',
             },
-            deactive => {
-                description => gettext('Delete inactive timers after end time'),
-                default     => 'n',
-                type        => 'confirm',
-            },
             usevpstime => {
                 description => gettext('Use Programme Delivery Control (PDC) to control start time'),
                 default     => 'n',
@@ -640,19 +635,14 @@ WHERE
             msg     => gettext('Which channel should recorded'),
             req     => gettext("This is required!"),
             check   => sub{
-                my $value = shift || return;
+                my $value = shift;
+                return undef, gettext("This is required!")
+                  unless($value);
 
-                if(my $name = $mod->ChannelToName($value)) {
-                    $timerData->{Channel} = $value;
-                    return $value;
-                } elsif(my $ch = $mod->PosToChannel($value) || $mod->NameToChannel($value) ) {
-                    $timerData->{Channel} = $value;
-                    return $ch;
-                } elsif( ! $mod->NameToChannel($value)) {
-                    return undef, sprintf(gettext("This channel '%s' does not exist!"),$value);
-                } else {
-                   return undef, gettext("This is required!");
-                }
+                my $ch = $mod->ToCID($value);
+                return undef, sprintf(gettext("This channel '%s' does not exist!"),$value)
+                  unless($ch);
+                return $ch;                
             },
         },
         'Day' => {
@@ -1022,10 +1012,6 @@ sub readData {
     my $watcher = shift;
     my $console = shift;
 
-    # Search for old and deactivated Timers and delete this
-    $obj->getOldDeactivTimer()
-        if($obj->{deactive} eq 'y');
-
     # Search for correct times
     $obj->getCheckTimer()
       if($obj->{adjust} eq 'y');
@@ -1272,21 +1258,6 @@ sub getNewTimers {
         }
     }
     return $ret;
-}
-
-# ------------------
-sub getOldDeactivTimer {
-# ------------------
-    my $obj = shift || return error('No object defined!');
-    my $sql = "SELECT SQL_CACHE  Id from TIMERS where not (Status & 1) and UNIX_TIMESTAMP(NextStopTime) > UNIX_TIMESTAMP() + (60*60*24*28)";
-    my $erg = $obj->{dbh}->selectall_hashref($sql, 'Id');
-
-    foreach my $t (reverse sort {$a <=> $b} keys %$erg) {
-        $obj->{svdrp}->queue_cmds("delt $t");
-    }
-    $obj->{svdrp}->queue_cmds("CALL")
-        if($obj->{svdrp}->queue_cmds("COUNT"));
-    return $erg;
 }
 
 # ------------------

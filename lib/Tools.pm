@@ -26,7 +26,7 @@ our $DBH        = {};
  &getFromSocket &fields &load_file &save_file &tableUpdated &buildsearch 
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
  &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url
- &con_err &con_msg);
+ &con_err &con_msg &text2frame &frame2hms);
 
 
 # ------------------
@@ -665,6 +665,54 @@ sub url{
   	my $s = shift; # string
     $s  =~ s/([^a-z0-9A-Z])/sprintf('%%%X', ord($1))/seg;
     return $s;
+}
+
+################################################################################
+# Convert text to frame number
+# in => frame / HH:MM:SS.FF / HH:MM:SS / MM:SS.FF / MM:SS
+# out => frame
+sub text2frame() {
+    my $s = shift;
+
+    my $start = 0;
+    if($s =~ /^\d+$/sig) {
+      $start = $s;
+    } elsif($s =~ /^\d+\:\d+\:\d+\.\d+$/sg) {
+      my ($hour,$minute,$seconds,$frames) = $s =~ /(\d+)\:(\d+)\:(\d+)\.(\d+)/s;
+      $start = ($hour * 3600) + ($minute * 60) + $seconds;
+      $start *= 25;
+      $start += $frames;
+    } elsif($s =~ /^\d+\:\d+\:\d+$/sg) {
+      my ($hour,$minute,$seconds) = $s =~ /(\d+)\:(\d+)\:(\d+)/s;
+      $start = ($hour * 3600) + ($minute * 60) + $seconds;
+      $start *= 25;
+    } elsif($s =~ /^\d+\:\d+\.\d+$/sg) {
+      my ($minute,$seconds,$frames) = $s =~ /(\d+)\:(\d+)\.(\d+)/s;
+      $start = ($minute * 60) + $seconds;
+      $start *= 25;
+      $start += $frames;
+    } elsif($s =~ /^\d+\:\d+$/sg) {
+      my ($minute,$seconds) = $s =~ /(\d+)\:(\d+)/s;
+      $start = ($minute * 60) + $seconds;
+      $start *= 25;
+    }
+    return $start;
+}
+
+################################################################################
+# Convert frame number to HMS Text
+# in => frame
+# out => HH:MM:SS.FF
+sub frame2hms() {
+    my $frames = shift;
+
+    my $frame = $frames % 25;
+    my $time = $frames / 25;
+    my $sec  = $time % 60;
+    my $min  = ($time / 60) % 60;
+    my $hour = CORE::int($time/3600);
+
+    return sprintf('%d:%02d:%02d.%02d', $hour, $min, $sec, $frame); 
 }
 
 1;

@@ -6,6 +6,7 @@ use Locale::gettext;
 use File::Basename;
 use File::Find;
 use File::Path;
+use File::Glob ':glob';
 
 $SIG{CHLD} = 'IGNORE';
 
@@ -31,8 +32,29 @@ sub module {
                 type        => 'host',
                 required    => gettext('This is required!'),
             },
+            streamtyp => {
+                description => gettext('Typ of streaming'),
+                default     => 1,
+                type        => 'list',
+                choices     => sub {
+                                    my $erg = $obj->_get_streamtyp();
+                                    map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
+                                    return @$erg;
+                                 },
+                required    => gettext('This is required!'),
+                check       => sub {
+                    my $value = int(shift) || 0;
+                    my $erg = $obj->_get_streamtyp();
+                    unless($value >= $erg->[0]->[0] and $value <= $erg->[-1]->[0]) {
+                        return undef, 
+                               sprintf(gettext('Sorry, but value must be between %d and %d'),
+                                  $erg->[0]->[0],$erg->[-1]->[0]);
+                    }
+                    return $value;
+                },
+            },
             netvideo => {
-                description => gettext('Path from remote video directory (SambaDir).'),
+                description => gettext('Base directory of remote SMB/NFS share.'),
                 default     => '\\\\vdr\\video',
                 type        => 'string',
             },
@@ -44,16 +66,16 @@ sub module {
         },
         Commands => {
             playrecord => {
-                description => gettext("Play recordings via samba or NFS."),
+                description => gettext("Stream a recordings."),
                 short       => 'pre',
-                callback    => sub{ $obj->play_record(@_) },
+                callback    => sub{ $obj->playrecord(@_) },
                 DenyClass   => 'stream',
                 binary      => 'nocache'
             },
             livestream => {
                 description => gettext("Stream a channel 'cid'. This required the streamdev plugin!"),
                 short       => 'lst',
-                callback    => sub{ $obj->live_stream(@_) },
+                callback    => sub{ $obj->livestream(@_) },
                 DenyClass   => 'stream',
                 binary      => 'nocache'
             },
@@ -103,76 +125,118 @@ sub init {
 
 
 # ------------------
-sub live_stream {
+sub livestream {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $channel = shift || return $console->err(gettext("No ChannelID to Stream! Please use livestream 'cid'"));
+    my $channel = shift || return con_err($console,gettext("No channel defined for streaming!"));
 
-    debug sprintf('Call live stream with channel "%s"%s',
-        $channel,
+    return $console->err(gettext("Can't stream files!"))
+      unless($console->can('datei'));
+
+    my $cmod = main::getModule('CHANNELS');
+
+    my $ch = $cmod->ToCID($channel);
+    return $console->err(sprintf(gettext("This channel '%s' does not exist!"),$channel))
+      unless($ch);
+
+    my $cpos = $cmod->ChannelToPos($ch);
+    debug sprintf('Live stream with channel "%s"%s',
+        $cmod->ChannelToName($ch),
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    if($channel && $console->typ eq 'HTML') {
-        $console->{nopack} = 1;
+    $console->{nopack} = 1;
 
-        my $data;
-        $data = "#EXTM3U\r\n";
-        $data .= sprintf("http://%s:3000/PES/%d", $obj->{host}, $channel);
-        $data .= "\r\n";
-         
-        my $arg;
-        $arg->{'attachment'} = sprintf("livestream%d.m3u", $channel);
-        $arg->{'Content-Length'} = length($data);
+    my $data;
+    $data = "#EXTM3U\r\n";
+    $data .= sprintf("http://%s:3000/PES/%d", $obj->{host}, $cpos);
+    $data .= "\r\n";
+     
+    my $arg;
+    $arg->{'attachment'} = sprintf("livestream-%s.m3u", $ch);
+    $arg->{'Content-Length'} = length($data);
 
-        $console->out($data, $obj->{mimetyp}, %{$arg} );
-    } else {
-      $console->err(gettext("Sorry, this stream is not supported!"));
-    }
+    return $console->out($data, $obj->{mimetyp}, %{$arg} );
 }
 
 # ------------------
-sub play_record {
+sub playrecord {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $recid   = shift || return $console->err(gettext("No RecordID to Play! Please use rplay 'rid'"));
+    my $recid   = shift || return $console->err(gettext("No recording defined for streaming!"));
+    my $params  = shift;
 
     my $rmod = main::getModule('RECORDS');
     my $videopath = $rmod->{videodir};
     my $path = $rmod->IdToPath($recid)
         or return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)));
 
-    debug sprintf('Call play record "%s"%s',
+    my @files = bsd_glob("$path/[0-9][0-9][0-9].vdr");
+
+    return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)))
+      unless scalar(@files);
+
+    my $start = 0;
+    my $offset = 0;
+    if($params && exists $params->{start}) {
+      $start = &text2frame($params->{start});
+    }
+    if($start) {
+      my ($filenumber,$fileoffset) = $rmod->frametofile($path,$start);
+      splice(@files, 0, $filenumber-1) if($filenumber && ($filenumber - 1) > 0);
+      $offset = $fileoffset if($fileoffset && ($fileoffset - 1) > 0);
+    }
+
+    debug sprintf('Play recording "%s"%s',
         $path,
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    my $data;
-    $data = "#EXTM3U\r\n";
-    foreach my $file (glob("$path/???.vdr")) {
+    if($obj->{streamtyp} != 1) {
+      return $console->err(gettext("Can't stream files!"))
+        unless($console->can('stream'));
+
+      return $console->stream(\@files, $obj->{mimetyp}, $offset);
+
+    } else {
+
+      return $console->err(gettext("Can't stream files!"))
+        unless($console->can('datei'));
+
+      my $data;
+      $data = "#EXTM3U\r\n";
+      foreach my $file (@files) {
         $file =~ s/^$videopath//si;
         $file =~ s/^[\/|\\]//si;
         my $URL = sprintf("%s/%s\r\n", $obj->{netvideo}, $file);
         $URL =~s/\//\\/g
-            if($URL =~ /^\\\\/sig              # Samba \\host/xxx/yyy => \\host\xxx\yyy
-            || $URL =~ /^[a-z]\:[\/|\\]/sig);  # Samba x:/xxx/yyy => x:\xxx\yyy
+        if($URL =~ /^\\\\/sig              # Samba \\host/xxx/yyy => \\host\xxx\yyy
+        || $URL =~ /^[a-z]\:[\/|\\]/sig);  # Samba x:/xxx/yyy => x:\xxx\yyy
         $data .= $URL;
+      }
+
+      $console->{nopack} = 1;
+
+      my $arg;
+      $arg->{'attachment'} = sprintf("%s.m3u", $recid);
+      $arg->{'Content-Length'} = length($data);
+
+      return $console->out($data, $obj->{mimetyp}, %{$arg} );
     }
+}
 
-    if($data && $console->typ eq 'HTML') {
-        $console->{nopack} = 1;
+# ------------------
+sub _get_streamtyp {
+# ------------------
+    my $obj = shift || return error('No object defined!');
 
-        my $arg;
-        $arg->{'attachment'} = sprintf("%s.m3u", $recid);
-        $arg->{'Content-Length'} = length($data);
-
-        $console->out($data, $obj->{mimetyp}, %{$arg} );
-    } else {
-      $console->err(gettext("Sorry, this stream is not supported!"));
-    }
+    return [
+            [ 1, gettext('Remote SMB/NFS share') ],
+            [ 2, gettext('HTTP Streaming') ],
+          ];
 }
 1;

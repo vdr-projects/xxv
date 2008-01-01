@@ -365,8 +365,8 @@ sub header {
         if($obj->{browser}->{accept_gzip} && ((!defined $obj->{nopack}) || $obj->{nopack} == 0) );
 
     if(defined $obj->{nocache} && $obj->{nocache}) {
-      $arg->{'Cache-Control'} = 'no-cache, must-revalidate' if(!defined $arg->{'Cache-Control'});
-      $arg->{'Pragma'} = 'no-cache' if(!defined $arg->{'Pragma'});
+      $arg->{'Cache-Control'} = 'no-cache, must-revalidate' unless(defined $arg->{'Cache-Control'});
+      $arg->{'Pragma'} = 'no-cache' unless(defined $arg->{'Pragma'});
     }
 
     $obj->{header} = 200;
@@ -610,18 +610,17 @@ sub datei {
 
     my %args = ();
 
-    return $obj->status404($file,$!)
-      if(!-r $file);
-
     my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
-       	             $atime,$mtime,$ctime,$blksize,$blocks) = stat $file;
-    return $obj->status404($file,$!)
-      if(!$blocks);
+        $atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
+    unless($blocks and ($mode & 00400)) { 
+      error sprintf("Couldn't stat file '%s' : %s",$file,$!);
+      return $obj->status404($file,$!);
+    }
 
     $typ = $obj->{mime}->{lc((split('\.', $file))[-1])}
-      if(!$typ);
+      unless($typ);
     $typ = "application/octet-stream"
-      if(!$typ);
+      unless($typ);
 
     $obj->{nopack} = 1
         if($typ =~ /image\// || $typ =~ /video\//);
@@ -642,40 +641,97 @@ sub datei {
         if($obj->{nopack});
 
     if($size > (32768 * 16)) { ## Only files bigger then 512k
+        lg sprintf("stream file : '%s' (%s)",$file,convert($size));
+        $obj->_stream([$file],$size, 0, $typ, %args);
+    } else {
+        my $data = load_file($file) || '';
+        # send data
+        $obj->out($data, $typ, %args );
+    }
+}
 
-      lg sprintf("stream file : '%s' (%s)",$file,convert($size));
+# ------------------
+sub stream {
+# ------------------
+    my $obj = shift  || return error('No object defined!');
+    my $files = shift || return error('No file defined!');
+    my $typ = shift;
+    my $offset = shift || 0;
 
-      $obj->{nopack} = 1;
-      my $handle = $obj->{handle};
+    my %args = ();
+    my $total = 0;
 
-      my $child = fork(); 
-      if ($child < 0) {
-        error("Couldn't create process for streaming : " . $!);
+    foreach my $file (@{$files}) {
+      
+      my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
+          $atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
+      unless($blocks and ($mode & 00400)) { 
+        error sprintf("Couldn't stat file '%s' : %s",$file,$!);
         return $obj->status404($file,$!);
       }
-      elsif ($child > 0) {
-        $obj->{sendbytes} += $size;
-      }
-      elsif ($child == 0) {
 
-        eval 
-        { 
-          local $SIG{'__DIE__'};
+       $total += $size;
+    }
+    $args{'Content-Length'} = ($total - $offset);
 
-          my $hdr = $obj->header($typ, \%args);
-          if($obj->{browser}->{Method} eq 'HEAD') {
-            $handle->print($hdr);
-          } else {
+    return $obj->_stream($files, $total, $offset, $typ, %args);
+}
+
+sub _stream {
+    my $obj = shift  || return error('No object defined!');
+    my $files = shift || return error('No file defined!');
+    my $size = shift;
+    my $offset = shift || 0;
+    my $typ = shift;
+    my %args = @_;
+
+    $obj->{nopack} = 1;
+    my $handle = $obj->{handle};
+
+    my $child = fork(); 
+    if ($child < 0) {
+      error("Couldn't create process for streaming : " . $!);
+      my $file = join(',',@$files);
+      return $obj->status404($file,$!);
+    }
+    elsif ($child > 0) {
+      $obj->{header} = 200;
+      $obj->{sendbytes} += $size;
+      undef $obj->{handle};
+      undef $obj->{output};
+      return 1;
+    }
+    elsif ($child == 0) {
+      eval 
+      { 
+        local $SIG{'__DIE__'};
+
+        my $hdr = $obj->header($typ, \%args);
+        if($obj->{browser}->{Method} eq 'HEAD') {
+          $handle->print($hdr);
+        } else {
+          foreach my $file (@{$files}) {
             my $r = 0;
-            if(sysopen( FH, $file, O_RDONLY|O_BINARY )) {  
-              $handle->print($hdr);
+            if(sysopen( FH, $file, O_RDONLY|O_BINARY )) {
+              binmode FH;
 
+              if($hdr) {
+                $handle->print($hdr);
+                $hdr = undef;
+
+                if($offset && $offset != sysseek(FH,$offset,0)) { #SEEK_SET
+                  error(sprintf("Can't seek file '%s': %s",$file,$!));
+                }
+              }
               my $bytes;
               my $data;
               do {
+                $r = 0;
                 $bytes = sysread( FH, $data, 4096 );
                 if($bytes) {
-                  $r = $handle->send($data);
+                  my $peer = $handle->peername;
+                  $r = $handle->send($data,0,$peer) 
+                    if($peer);
                 }
               } while $r && $bytes > 0;
               close(FH);
@@ -683,21 +739,13 @@ sub datei {
               error sprintf("Could not open file '%s'! : %s", $file,$!);
             }
           }
-          $handle->close();
-        };
-        error($@) if $@;
-        exit 0;
-      }
-
-      undef $obj->{handle};
-      undef $obj->{output};
-    } else {
-
-        my $data = load_file($file)
-            or return $obj->status404($file,$!);
-        # send data
-        $obj->out($data, $typ, %args );
+        }
+        $handle->close();
+      };
+      error($@) if $@;
+      exit 0;
     }
+    return 0;
 }
 
 # ------------------
@@ -750,13 +798,13 @@ sub txtfile {
     my $param = shift || {};
 
     my $txtfile = sprintf('%s/%s', $obj->{paths}->{DOCPATH}, $filename);
-    if(! -r $txtfile) {
+    unless( -r $txtfile) {
       $txtfile = sprintf('%s/%s.txt', $obj->{paths}->{DOCPATH}, $filename);
-      if(! -r $txtfile) {
+      unless( -r $txtfile) {
         my $gzfile  = sprintf('%s/%s.gz', $obj->{paths}->{DOCPATH}, $filename);
-        if(! -r $gzfile) {
+        unless( -r $gzfile) {
           $gzfile  = sprintf('%s/%s.txt.gz', $obj->{paths}->{DOCPATH}, $filename);
-          if(! -r $gzfile) {
+          unless( -r $gzfile) {
             my $e = $!;
             error sprintf("Could not open file '%s/%s[.txt .gz txt.gz]! : %s", $obj->{paths}->{DOCPATH}, $filename, $e);
             return $obj->err(sprintf(gettext("Could not open file '%s'! : %s"), $filename, $e));
