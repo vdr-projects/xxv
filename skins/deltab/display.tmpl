@@ -17,6 +17,7 @@
   video = data.last.9;
   audio = data.last.10;
   pdc = data.last.11;
+  channelid = data.last.12;
 %?>
 <?% ######################################################################## %?>
 <div id="body">
@@ -43,15 +44,8 @@ END %?>
 <?% ######################################################################## %?>
 
    <h1><?% title %?><?% IF subtitle != "" %?><span class="subtitle">&nbsp;~&nbsp;<?% subtitle %?></span><?% END %?></h1>
-        <div class="description" style="white-space: nowrap">    
-        <?% IF allow('switch') %?>
-        <a href="javascript:post('switch','<?% channel %?>')">
-            <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />&nbsp;
-	    <?% END %?>
-			        <?% channel %?>
-        <?% IF allow('switch') %?>
-        </a>
-	    <?% END %?>
+        <div class="description" style="white-space: nowrap">
+              <?% channel %?>
 			        &nbsp;&nbsp;&nbsp;<?% date.format(start,"%A, %x",locale) %?>&nbsp;
               &nbsp;&nbsp;&nbsp;<?% date.format(start,"%H:%M",locale) %?>&nbsp;-&nbsp;<?% date.format(stopp,"%H:%M",locale) %?>
               <?% IF pdc && pdc != start %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(pdc,"%H:%M",locale) %?>) <?% END %?>
@@ -73,8 +67,35 @@ END %?>
 <div id="sidebar">
     <p class="section"><?% gettext("Detailed program information",20) %?></p>
     <p>
-        <a href="javascript:back()"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Back") %?>" /></a>&nbsp;
-        <a href="javascript:back()"><?% gettext("Back",20) %?></a><br />
+      <a href="javascript:back()"><img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext("Back") %?>" /></a>&nbsp;
+      <a href="javascript:back()"><?% gettext("Back",20) %?></a>
+      <br />
+      <br />
+
+      <?% IF allow('switch') %?>
+      <a href="javascript:post('switch','<?% channel %?>')">
+          <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
+      </a>
+      &nbsp;
+      <a href="javascript:post('switch','<?% channel %?>')">
+          <?% gettext("Switch") %?>
+      </a>
+      <br />
+      <?% END %?>
+
+      <?% IF allow('livestream') %?>
+      <a href="?cmd=livestream&amp;data=<?% channelid %?>">
+        <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+      </a>
+      &nbsp;
+      <a href="?cmd=livestream&amp;data=<?% channelid %?>">
+        <?% gettext("Live TV web cast") %?>
+      </a>
+      <br />
+      <?% END %?>
+
+      <br />
+
     <?% IF param.timers.${id} && allow('tedit') %?>
     <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
         <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
@@ -83,6 +104,7 @@ END %?>
     <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
         <?% gettext("Edit this timer",20) %?>
     </a>
+    <br />
     <?% ELSIF allow('tnew') %?>
     <a href="?cmd=tnew&amp;data=<?% id %?>">
         <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
@@ -91,8 +113,9 @@ END %?>
     <a href="?cmd=tnew&amp;data=<?% id %?>">
         <?% gettext("To record",20) %?>
     </a>
-    <?% END %?>
     <br />
+    <br />
+    <?% END %?>
 <?% IF allow( 'search' ) %?>
     <a href="?cmd=search&amp;data=<?% url( title ) %?>">
           <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
@@ -103,6 +126,7 @@ END %?>
     </a>
     <br />
 <?% END %?>
+
     <a target="_blank" href="http://german.imdb.com/find?s=tt&amp;site=aka&amp;q=<?% title %?>">
         <img src="images/imdb.<?% global.imagetyp %?>" title="<?% gettext("Search with IMDb") %?>" alt="IMDb" />
     </a>

@@ -22,15 +22,11 @@
   	window.onload = initslide;
   }
   function setstart(wert) {
-    document.forms.offset.start.value = wert;
+    document.forms.offset.__start.value = wert;
   }  
-  function playstart(cmd,parent) {
-    var url = '?cmd='+cmd + '&data=<?% id %?>&__start=' + document.forms.offset.start.value;
-    if(parent) {
-      top.location.href = url;
-    } else {
-      location.href = url;
-    }
+  function playstart(cmd) {
+    var url = '?cmd='+cmd + '&data=<?% id %?>&__start=' + document.forms.offset.__start.value;
+    location.href = url;
   }
 -->
 </script>
@@ -48,16 +44,6 @@
     <br /><?% gettext("Duration") %?>: <?% PROCESS hfs %?>
 <?% END %?>
 <?% END %?>
-<?% ######################################################################## %?>
-      <?% IF global.playbackmode == 1 %?>
-        <?% IF allow('playrecord') %?>
-          <?% playbackcmd = 'playrecord' %?>
-        <?% END %?>
-      <?% ELSIF global.playbackmode == 2 %?>
-      <?% IF allow('rplay') %?>
-          <?% playbackcmd = 'rplay' %?>
-        <?% END %?>
-      <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK image %?>
 <?% IF files.size %?>
@@ -112,17 +98,19 @@
     <?% END %?>
     &nbsp;
     <?% IF allow('rplay') %?>
-        <a href="javascript:playstart('rplay',0)" >
+        <a href="javascript:playstart('rplay')" >
             <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" />
         </a>
     <?% END %?>
     <?% IF allow('playrecord') %?>
-        <a href="javascript:playstart('playrecord',1)" >
-            <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
+        <a href="javascript:playstart('playrecord')" >
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording as web cast") %?>" />
         </a>
     <?% END %?>
     <?% IF allowplay %?>
-        <input style="width:60px;" size="10"  type="text" name="start" value="00:00:00.0" />
+        <input type="hidden" name="cmd" value="<?% IF global.preferedlocal && allow('rplay') %?>rplay<?% ELSE %?>playrecord<?% END %?>" />
+        <input type="hidden" name="data" value="<?% id %?>" />
+        <input style="width:60px;" size="10"  type="text" name="__start" value="00:00:00.0" />
     <?% END %?>
 </div>
 </form>

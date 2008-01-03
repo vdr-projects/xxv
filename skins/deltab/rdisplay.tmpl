@@ -9,13 +9,10 @@
 <script language="javascript" type="text/javascript">
 <!--
   function setstart(wert) {
-    document.forms.offset.start.value = wert;
+    document.forms.offset.__start.value = wert;
   }  
-  function playstart(cmd,parent) {
-    var url = '?cmd='+cmd + '&data=<?% id %?>&__start=' + document.forms.offset.start.value;
-    if(parent) {
-      top.location.href = url;
-    } else {
+  function playstart(cmd) {
+    var url = '?cmd='+cmd + '&data=<?% id %?>&__start=' + document.forms.offset.__start.value;
       location.href = url;
     }
   }
@@ -269,7 +266,7 @@
 
     <?% IF allow('rplay') %?>
         <a href="javascript:playstart('rplay')" >
-            <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recordingin VDR") %?>" />
+            <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" />
         </a>
         &nbsp;
         <a href="javascript:playstart('rplay')" >
@@ -279,16 +276,18 @@
     <?% END %?>
     <?% IF allow('playrecord') %?>
         <a href="javascript:playstart('playrecord')" >
-            <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording as web cast") %?>" />
         </a>
         &nbsp;
         <a href="javascript:playstart('playrecord')" >
-            <?% gettext("Watch recording",20) %?>
+            <?% gettext("Watch recording as web cast",20) %?>
         </a>
         <br />
     <?% END %?>
     <?% IF allowplay %?>
-        <input type="text" name="start" value="00:00:00.0" />
+        <input type="hidden" name="cmd" value="<?% IF global.preferedlocal && allow('rplay') %?>rplay<?% ELSE %?>playrecord<?% END %?>" />
+        <input type="hidden" name="data" value="<?% id %?>" />
+        <input size="10"  type="text" name="__start" value="00:00:00.0" />
     <?% END %?>    </p>
     </form>
 </div>

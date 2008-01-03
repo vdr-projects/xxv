@@ -21,6 +21,7 @@
   video = data.last.9;
   audio = data.last.10;
   pdc = data.last.11;
+  channelid = data.last.12;
 %?>
 <?% ######################################################################## %?>
 <?% BLOCK dur %?>
@@ -87,11 +88,14 @@ END %?>
                 <?% IF allow('switch') %?>
                 <a href="javascript:post('switch','<?% channel %?>')">
                     <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />&nbsp;
-        	      <?% END %?>
-        			        <?% channel %?>
-                <?% IF allow('switch') %?>
                 </a>
          	      <?% END %?>
+                <?% IF allow('livestream') %?>
+                <a href="?cmd=livestream&amp;data=<?% channelid %?>">
+                  <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>&nbsp;
+                </a>
+        	      <?% END %?>
+   			        <?% channel %?>
             </div>
 			    </td>
 			    <td>

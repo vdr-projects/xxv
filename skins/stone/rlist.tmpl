@@ -76,17 +76,16 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
-    <?% IF global.playbackmode == 1 %?>
-        <?% IF allow('playrecord') %?>
-            <a href="?cmd=playrecord&amp;data=<?% id %?>">
-                <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
-            </a>
-        <?% END %?>
-    <?% ELSIF global.playbackmode == 2 %?>
-        <?% IF allow('rplay') %?>
-            <a href="javascript:popup('rplay','<?% id %?>',620,670,1)">
-                <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" />
-            </a>
+    <?% IF global.preferedlocal && allow('rplay') %?>
+            <a href="javascript:popup('rplay','<?% id %?>',620,670,0)">
+              <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" /></a>
+    <?% ELSIF allow('playrecord') %?>
+        <?% IF getModule('STREAM').widget == 'external' %?>
+          <a href="?cmd=playrecord&amp;data=<?% id %?>">
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording as web cast") %?>" /></a>
+        <?% ELSE %?>
+          <a href="javascript:popup('playrecord','<?% id %?>',620,670,0)">
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording as web cast") %?>" /></a>
         <?% END %?>
     <?% END %?>
     <?% IF allow('redit') %?>

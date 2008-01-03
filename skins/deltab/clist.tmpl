@@ -30,10 +30,10 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
-<?% IF allow('switch') %?>
-                        <a href="javascript:post('switch','<?% POS %?>')">
-                            <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
-                        </a>
+<?% IF allow('program') %?>
+                      <a href="?cmd=program&data=<?% POS %?>">
+                          <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Program guide") %?>" />
+                      </a>
 <?% END %?>
 <?% IF allow('cedit') %?>
                         <a href="?cmd=cedit&amp;data=<?% id %?>">

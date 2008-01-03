@@ -92,13 +92,22 @@
                 <?% FOREACH cpos = data.keys.nsort %?>
                 <tr<?% IF (loop.count mod 2) == 0 %?> class="two"<?% END %?>>
                     <td>
-<?% IF allow('switch') %?>
-                      <a href="javascript:post('switch','<?% data.$cpos.first.4 %?>')">
-                        <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
+                    <?% channel = data.$cpos.first.4 %?>
+                    <?% IF global.preferedlocal && allow('switch') %?>
+                      <a href="javascript:post('switch','<?% channel %?>')">
+                        <img class="push" src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
                       </a>
-<?% END %?>
+                    <?% ELSIF allow('livestream') %?>
+                      <?% IF getModule('STREAM').widget == 'external' %?>
+                        <a href="?cmd=livestream&amp;data=<?% channel %?>">
+                        <img class="push" src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+                      <?% ELSE %?>
+                        <a href="javascript:popup('livestream','<?% channel %?>',620,670,0)">
+                        <img class="push" src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+                      <?% END %?>
+                    <?% END %?>
 <?% IF allow('program') %?>
-                        <a href="?cmd=program&amp;data=<?% data.$cpos.first.4 %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% data.$cpos.first.3 %?>">
+                        <a href="?cmd=program&amp;data=<?% channel %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% data.$cpos.first.3 %?>">
 <?% END %?>
                             <?% chop(data.$cpos.first.3,15) %?>
 <?% IF allow('program') %?>

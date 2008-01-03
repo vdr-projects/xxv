@@ -211,9 +211,11 @@ aktiv = window.setInterval("grab()", inter);
                                 <tr>
                                     <td class="rcbutton"><a title="R&uuml;ckspulen" class="rcbutton" href="javascript:remote('FastRew')"><b>&lt;&lt;&lt;</b></a></td>
                                     <td>&nbsp;</td>
-                                    <td class="rcbutton"><a title="Leiser" class="rcbutton" href="javascript:remote('VolumeMinus')"><img alt="" src="images/rcvol.gif" /></a></td>
+                                    <td class="rcbutton"><a title="<?% gettext("Decrease volume") %?>" class="rcbutton" href="javascript:remote('VolumeMinus')">
+                                        <img alt="<?% gettext("Decrease volume") %?>" src="images/quiet.<?% global.imagetyp %?>" /></a></td>
                                     <td>&nbsp;</td>
-                                    <td class="rcbutton"><a title="Lauter" class="rcbutton" href="javascript:remote('VolumePlus')"><img alt="" src="images/rcvol.gif" /><img alt="" src="images/rcvol.gif" /><img alt="" src="images/rcvol.gif" /></a></td>
+                                    <td class="rcbutton"><a title="<?% gettext("Increase volume") %?>" class="rcbutton" href="javascript:remote('VolumePlus')">
+                                        <img alt="<?% gettext("Increase volume") %?>" src="images/loud.<?% global.imagetyp %?>" /></a></td>
                                     <td>&nbsp;</td>
                                     <td class="rcbutton"><a title="Vorspulen" class="rcbutton" href="javascript:remote('FastFwd')"><b>&gt;&gt;&gt;</b></a></td>
                                 </tr>

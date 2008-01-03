@@ -95,18 +95,12 @@
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
     <?% INCLUDE widgets/tooltip.inc cmd="rdisplay" linkid=id ttp_offset=-400 %?>
-    <?% IF global.playbackmode == 1 %?>
-        <?% IF allow('playrecord') %?>
-            <a href="?cmd=playrecord&amp;data=<?% id %?>">
-                <img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording") %?>" />
-            </a>
-        <?% END %?>
-    <?% ELSIF global.playbackmode == 2 %?>
-        <?% IF allow('rplay') %?>
+    <?% IF global.preferedlocal && allow('rplay') %?>
             <a href="?cmd=rplay&amp;data=<?% id %?>">
-                <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" />
-            </a>
-        <?% END %?>
+              <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording in VDR") %?>" /></a>
+    <?% ELSIF allow('playrecord') %?>
+          <a href="?cmd=playrecord&amp;data=<?% id %?>">
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording as web cast") %?>" /></a>
     <?% END %?>
     <?% IF allow('rdelete') %?>
             <a href="javascript:sure('<?% gettext("Do you really want to delete these recordings?") %?> : \'<?% escape( title ) %?>\' ?','?cmd=rdelete&amp;data=<?% id %?>')">

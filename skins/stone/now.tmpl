@@ -50,11 +50,19 @@
           <tr>
             <td class="fieldhead">
               <div class="fieldhead">
-	    <?% IF allow('switch') %?>
+    <?% IF global.preferedlocal && allow('switch') %?>
             <a href="javascript:post('switch','<?% channel %?>')">
               <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
             </a>
-	    <?% END %?>
+    <?% ELSIF allow('livestream') %?>
+        <?% IF getModule('STREAM').widget == 'external' %?>
+          <a href="?cmd=livestream&amp;data=<?% channel %?>">
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+        <?% ELSE %?>
+          <a href="javascript:popup('livestream','<?% channel %?>',620,670,0)">
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+        <?% END %?>
+    <?% END %?>
             <a href="?cmd=program&amp;data=<?% channel %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% sender %?>">
               <font class="fieldinline<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;<?% chop(sender,20) %?></font>
             </a>

@@ -2,7 +2,8 @@
 <?% # 0 = Show/1 = Hide Description on program,now,search %?>
 <?% SET global.hideDescription = 0 %?>
 <?% ######################################################################## %?>
-<?% # 1 = Stream recording with Samba/NFS %?>
-<?% # 2 = Start playback with SVDRP  %?>
-<?% SET global.playbackmode = 1 %?>
+<?% # Prefered control at now/rlist %?>
+<?% # 0 = Stream live TV / recording as webcast %?>
+<?% # 1 = Switch channel / Start playback with SVDRP  %?>
+<?% SET global.preferedlocal = 0 %?>
 

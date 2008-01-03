@@ -1,15 +1,40 @@
 <!-- remote -->
+<?% width = param.width %?>
+<?% height = param.height %?>
+
 <?% IF cgi.param('monitor').defined;monitor = cgi.param('monitor');ELSE;monitor = param.monitor;END %?>
 <?% IF ! global.bodyinc.defined; global.bodyinc = 1 %?>
 <body class="hilfsframed">
 <div>
 <?% END %?>
-<?% totalheight=300; #Frameheight %?>
-<?% width=360; #param.width %?>
-<?% height=270; #param.height %?>
+
+<?% # Select design based on width %?>
+<?% IF width > 580 %?>
+  <?% design = 'large' %?>
+  <?% designwidth = 800 %?>
+<?% ELSIF width > 380 %?>
+  <?% design = 'editor' %?>
+  <?% designwidth = 600 %?>
+<?% ELSE %?>
+  <?% design = 'area' %?>
+  <?% designwidth = 400 %?>
+<?% END %?>
 
 <script language="javascript" type="text/javascript">
 <!--
+
+<?% IF monitor %?>
+  parent.document.getElementById("hilfsframe").style.width="<?% designwidth + 250 %?>px";
+<?% ELSE %?>
+  parent.document.getElementById("hilfsframe").style.width="<?% 250 %?>px";
+<?% END %?>
+
+<?% totalheight=300 %?>
+<?% IF monitor && height > 350 %?>
+  parent.document.getElementById("hilfsframe").style.height="<?% height + 100 %?>px";
+<?% ELSE %?>
+  parent.document.getElementById("hilfsframe").style.height="<?% 450 %?>px";
+<?% END %?>
 
 var interval = 5
 var last = 0;
@@ -50,26 +75,26 @@ aktiv = window.setInterval("grab()", inter);
 <tr>
 <?% IF monitor %?>
   <td>
-    <table class="areatable" summary="">
-    <tr><td class="areahead"></td></tr>
+    <table class="<?% design %?>table" summary="">
+    <tr><td class="<?% design %?>head"></td></tr>
     <tr>
-        <td class="areatext" valign="middle" align="center">
-            <table class="areainline" summary="">
+        <td class="<?% design %?>text" valign="middle" align="center">
+            <table class="fieldinline" summary="">
                 <tr>
-                    <td class="areainline" valign="middle" align="center">
+                    <td class="fieldinline" valign="middle" align="center">
                         <img alt="<?% date.now %?>" src="?cmd=gdisplay&amp;random=<?% date.now %?>" width="<?% width %?>" height="<?% height %?>" name="livepicture" />
                     </td>
                 </tr>
             </table>
         </td>
     </tr>
-    <tr><td class="areatext" height="<?% ( totalheight -  height )%?>" align="right">
+    <tr><td class="<?% design %?>text" height="<?% ( totalheight -  height )%?>" align="right">
     <form name="remoteform" action="" onsubmit="changeInterval(document.remoteform.grabinterval.value); return false">
         <input name="grabinterval" type="text" size="2" />
         <input type="button" onclick="changeInterval(document.remoteform.grabinterval.value)" value="<?% gettext("Set") %?>" />
     </form>
     </td></tr>
-    <tr><td class="areabottom"></td></tr>
+    <tr><td class="<?% design %?>bottom"></td></tr>
     </table>
   </td>
   <td>
@@ -229,7 +254,7 @@ aktiv = window.setInterval("grab()", inter);
                                     <td class="rcbutton">
                                         <a title="<?% gettext("Stop") %?>" class="rcbutton" href="javascript:remote('Stop')">
                                             <img src="images/stop.<?% global.imagetyp %?>" alt="" title="<?% gettext("Stop") %?>" />
-                                       </a>
+                                        </a>
                                     </td>
                                 </tr>
                             </table>
@@ -242,9 +267,17 @@ aktiv = window.setInterval("grab()", inter);
                                 <tr>
                                     <td class="rcbutton"><a title="R&uuml;ckspulen" class="rcbutton" href="javascript:remote('FastRew')"><b>&lt;&lt;&lt;</b></a></td>
                                     <td>&nbsp;</td>
-                                    <td class="rcbutton"><a title="Leiser" class="rcbutton" href="javascript:remote('VolumeMinus')"><img alt="" src="images/rcvol.gif" /></a></td>
+                                    <td class="rcbutton">
+                                      <a title="<?% gettext("Decrease volume") %?>" class="rcbutton" href="javascript:remote('VolumeMinus')">
+                                        <img alt="<?% gettext("Decrease volume") %?>" src="images/quiet.<?% global.imagetyp %?>" />
+                                      </a>
+                                    </td>
                                     <td>&nbsp;</td>
-                                    <td class="rcbutton"><a title="Lauter" class="rcbutton" href="javascript:remote('VolumePlus')"><img alt="" src="images/rcvol.gif" /><img alt="" src="images/rcvol.gif" /><img alt="" src="images/rcvol.gif" /></a></td>
+                                    <td class="rcbutton">
+                                      <a title="<?% gettext("Increase volume") %?>" class="rcbutton" href="javascript:remote('VolumePlus')">
+                                        <img alt="<?% gettext("Increase volume") %?>" src="images/loud.<?% global.imagetyp %?>" />
+                                      </a>
+                                    </td>
                                     <td>&nbsp;</td>
                                     <td class="rcbutton"><a title="Vorspulen" class="rcbutton" href="javascript:remote('FastFwd')"><b>&gt;&gt;&gt;</b></a></td>
                                 </tr>

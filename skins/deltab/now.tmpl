@@ -29,11 +29,14 @@
 <?% BLOCK item %?>
     <?% PROCESS SetState %?>
     <td>
-        <?% IF allow('switch') %?>
-        <a href="javascript:post('switch','<?% channel %?>')">
-            <img class="push" src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
-        </a>
-	    <?% END %?>
+    <?% IF global.preferedlocal && allow('switch') %?>
+            <a href="javascript:post('switch','<?% channel %?>')">
+              <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
+            </a>
+    <?% ELSIF allow('livestream') %?>
+          <a href="?cmd=livestream&amp;data=<?% channel %?>">
+            <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+    <?% END %?>
         <a style="vertical-align:bottom;" href="?cmd=program&amp;data=<?% channel %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% sender %?>">
             <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;<?% sender %?></font>
         </a>

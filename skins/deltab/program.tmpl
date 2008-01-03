@@ -105,8 +105,8 @@
         <a href="javascript:post('switch','<?% cgi.param('data') %?>')"><?% gettext("Switch",20) %?></a><br />
 <?% END %?>
 <?% IF allow('livestream') %?>
-        <a href="?cmd=livestream&amp;data=<?% channelpos %?>')"><img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Livestream") %?>" /></a>&nbsp;
-        <a href="?cmd=livestream&amp;data=<?% channelpos %?>"><?% gettext("Livestream",20) %?></a>
+        <a href="?cmd=livestream&amp;data=<?% channelpos %?>')"><img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>&nbsp;
+        <a href="?cmd=livestream&amp;data=<?% channelpos %?>"><?% gettext("Live TV web cast",20) %?></a>
 <?% END %?>
     </p>
 <?% END %?>

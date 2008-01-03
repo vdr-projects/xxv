@@ -135,8 +135,17 @@
     <a href="javascript:post('switch','<?% channelpos %?>')"><?% gettext("Switch") %?></a><br />
     <?% END %?>
     <?% IF allow('livestream') %?>
-    <a href="?cmd=livestream&amp;data=<?% channelpos %?>')"><img src="images/play.<?% global.imagetyp %?>" alt="" title="<?% gettext("Livestream") %?>" /></a>&nbsp;
-    <a href="?cmd=livestream&amp;data=<?% channelpos %?>"><?% gettext("Livestream") %?></a>
+    <?% IF getModule('STREAM').widget == 'external' %?>
+      <a href="?cmd=livestream&amp;data=<?% channelpos %?>">
+        <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>&nbsp;
+      <a href="?cmd=livestream&amp;data=<?% channelpos %?>">
+        <?% gettext("Live TV web cast") %?></a>
+      <?% ELSE %?>
+      <a href="javascript:popup('livestream','<?% channelpos %?>',620,670,0)">
+        <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>&nbsp;
+      <a href="javascript:popup('livestream','<?% channelpos %?>',620,670,0)">
+        <?% gettext("Live TV web cast") %?></a>
+      <?% END %?>
     <?% END %?>
     </td>
     </tr>

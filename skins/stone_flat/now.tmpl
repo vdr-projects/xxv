@@ -45,11 +45,19 @@
       <?% PROCESS SetState %?>
         <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
             <td class="fieldinline">
-	    <?% IF allow('switch') %?>
+    <?% IF global.preferedlocal && allow('switch') %?>
             <a href="javascript:post('switch','<?% channel %?>')">
               <img class="push" src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />
             </a>
-	    <?% END %?>
+    <?% ELSIF allow('livestream') %?>
+        <?% IF getModule('STREAM').widget == 'external' %?>
+          <a href="?cmd=livestream&amp;data=<?% channel %?>">
+            <img class="push" src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+        <?% ELSE %?>
+          <a href="javascript:popup('livestream','<?% channel %?>',620,670,0)">
+            <img class="push" src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>
+        <?% END %?>
+    <?% END %?>
             <a href="?cmd=program&amp;data=<?% channel %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% sender %?>">
             <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;<?% chop(sender,20) %?></font></a>
             </td>

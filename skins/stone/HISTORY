@@ -1,3 +1,9 @@
+* In Datei "skin.cfg" entfällt der Parameter "global.playbackmode", 
+  Neu "global.preferedlocal" um als "Default" eher lokal oder Web angezeigt wird
+    now   - switch/livestream - Umschalten im VDR / Live TV Stream
+    rlist - rplay/playrecord  - Zeigen der Aufnahme im VDR / Aufnahme als Stream
+  (in display / rdisplay sind beide Optionen verfügbar)
+
 1.0
 
 Neue Feature :
