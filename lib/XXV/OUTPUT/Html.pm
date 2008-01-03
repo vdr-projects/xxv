@@ -47,7 +47,6 @@ sub AUTOLOAD {
     my $output = $obj->parseTemplate($name, $data, $params);
 
     $obj->out( $output );
-
     $obj->{call} = '';
 }
 
@@ -139,6 +138,8 @@ sub parseTemplate {
     my $output;
     unless(defined $obj->{header}) {
         $output .= $obj->parseTemplateFile("start", $data, $params);
+        # we must add footer on any template generated output
+        $obj->{inclFooter} = 1; 
     }
     $output .= $obj->parseTemplateFile($name, $data, $params,((exists $obj->{call}) ? $obj->{call} : 'nothing'));
     return $output;

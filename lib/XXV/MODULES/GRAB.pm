@@ -28,12 +28,28 @@ sub module {
                 default     => 320,
                 type        => 'integer',
                 required    => gettext('This is required!'),
+                check   => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 8 and $value < 4096) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
             },
             ysize => {
                 description => gettext('Image height'),
                 default     => 240,
                 type        => 'integer',
                 required    => gettext('This is required!'),
+                check   => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 8 and $value < 4096) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                }
             },
             overlay => {
                 description => gettext('Text to display in the grabbed picture.'),
@@ -49,6 +65,14 @@ sub module {
                 description => gettext('Vertical position of displayed text, in pixels.'),
                 default     => 10,
                 type        => 'integer',
+                check   => sub{
+                  my $value = shift || 0;
+                  if($value =~ /^\d+$/sig and $value >= 8 and $value < 4096) {
+                    return int($value);
+                  } else {
+                    return undef, gettext('Value incorrect!');
+                  }
+               }
             },
             font => {
                 description => gettext('TrueType font to draw overlay text'),
@@ -60,11 +84,27 @@ sub module {
                 description => gettext('Font size to draw image text (only for ttf font!).'),
                 default     => 10,
                 type        => 'integer',
+                check   => sub{
+                  my $value = shift || 0;
+                  if($value =~ /^\d+$/sig and $value >= 1 and $value < 100) {
+                      return int($value);
+                  } else {
+                      return undef, gettext('Value incorrect!');
+                  }
+               }
             },
             imgquality => {
                 description => gettext('Quality from image in percent.'),
                 default     => 80,
                 type        => 'integer',
+                check   => sub{
+                  my $value = shift || 0;
+                  if($value =~ /^\d+$/sig and $value >= 1 and $value < 100) {
+                    return int($value);
+                  } else {
+                    return undef, gettext('Value incorrect!');
+                  }
+               }
             },
         },
         Commands => {

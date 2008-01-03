@@ -317,14 +317,12 @@ sub communicator
             }
         } else {
             $obj->handleInput($watcher, $console, $cgi);
-            $console->footer() 
-              unless($console->{TYP} eq 'AJAX' 
-                  or $console->{noFooter});
         }
 
     } else {
       $obj->ModulNotLoaded($console,'USER');
     }
+    $console->footer() if($console->{inclFooter});
     $console->printout();
 
     # make entry more readable
@@ -481,7 +479,6 @@ sub handleInput {
       if($cmdobj and not $shorterr) {
 
           if($cmdobj->{binary}) {
-            $console->{noFooter} = 1;
             $console->{nocache} = 1 
                 if($cmdobj->{binary} eq 'nocache');
           }

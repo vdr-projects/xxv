@@ -778,7 +778,8 @@ SELECT SQL_CACHE
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/duration*100 as \'$f{'Percent'}\',
     e.video as __Video,
     e.audio as __Audio,
-    IF(e.vpstime!=0,$vps,'') as __PDC
+    IF(e.vpstime!=0,$vps,'') as __PDC,
+    e.channel_id as __channel_id
 from
     $table as e,CHANNELS as c
 where

@@ -32,36 +32,64 @@ sub module {
                 type        => 'host',
                 required    => gettext('This is required!'),
             },
-            streamtyp => {
+            method => {
                 description => gettext('Typ of streaming'),
-                default     => 1,
+                default     => 'http',
                 type        => 'list',
-                choices     => sub {
-                                    my $erg = $obj->_get_streamtyp();
-                                    map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
-                                    return @$erg;
-                                 },
+                choices     => [
+                    [ gettext('HTTP Streaming'),      'http' ],
+                    [ gettext('Remote SMB/NFS share'),'smb' ],
+                ],
                 required    => gettext('This is required!'),
-                check       => sub {
-                    my $value = int(shift) || 0;
-                    my $erg = $obj->_get_streamtyp();
-                    unless($value >= $erg->[0]->[0] and $value <= $erg->[-1]->[0]) {
-                        return undef, 
-                               sprintf(gettext('Sorry, but value must be between %d and %d'),
-                                  $erg->[0]->[0],$erg->[-1]->[0]);
-                    }
-                    return $value;
-                },
+            },
+            mimetyp => {
+                description => gettext('Used mime type to deliver video streams'),
+                default     => 'video/x-mpegurl',
+                type        => 'string',
             },
             netvideo => {
                 description => gettext('Base directory of remote SMB/NFS share.'),
                 default     => '\\\\vdr\\video',
                 type        => 'string',
             },
-            mimetyp => {
-                description => gettext('Used mime type to deliver video streams'),
-                default     => 'video/x-mpegurl',
-                type        => 'string',
+            widget => {
+                description => gettext('Used stream widget'),
+                type        => 'list',
+                default     => 'vlc',
+                choices     => [
+                    [gettext("Other external player"), 'external'],
+                    [gettext('Embed media player'),    'media'],
+                    [gettext('Embed vlc player'),      'vlc'],
+                ],
+                required    => gettext("This is required!"),
+            },
+            width => {
+                description => gettext('Stream widget width'),
+                default     => 720,
+                type        => 'integer',
+                required    => gettext('This is required!'),
+                check   => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 8 and $value < 4096) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
+            },
+            height => {
+                description => gettext('Stream widget height'),
+                default     => 576,
+                type        => 'integer',
+                required    => gettext('This is required!'),
+                check   => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 8 and $value < 4096) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
             },
         },
         Commands => {
@@ -131,6 +159,7 @@ sub livestream {
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $channel = shift || return con_err($console,gettext("No channel defined for streaming!"));
+    my $params  = shift;
 
     return $console->err(gettext("Can't stream files!"))
       unless($console->can('datei'));
@@ -140,6 +169,18 @@ sub livestream {
     my $ch = $cmod->ToCID($channel);
     return $console->err(sprintf(gettext("This channel '%s' does not exist!"),$channel))
       unless($ch);
+
+    if($obj->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
+      my $data = sprintf("?cmd=livestream&__player=1&data=%s",$ch);
+
+      my $param = {
+          title => $cmod->ChannelToName($ch),
+          widget => $obj->{widget},
+          width  => $obj->{width},
+          height => $obj->{height},
+      };
+      return $console->player($data, $param);
+    }
 
     my $cpos = $cmod->ChannelToPos($ch);
     debug sprintf('Live stream with channel "%s"%s',
@@ -171,20 +212,39 @@ sub playrecord {
     my $params  = shift;
 
     my $rmod = main::getModule('RECORDS');
-    my $videopath = $rmod->{videodir};
-    my $path = $rmod->IdToPath($recid)
+    my $result = $rmod->IdToData($recid)
         or return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)));
-
-    my @files = bsd_glob("$path/[0-9][0-9][0-9].vdr");
-
-    return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)))
-      unless scalar(@files);
 
     my $start = 0;
     my $offset = 0;
     if($params && exists $params->{start}) {
       $start = &text2frame($params->{start});
     }
+
+    if($obj->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
+      my $data = sprintf("?cmd=playrecord&__player=1&data=%s",$recid);
+      $data .= sprintf("&__start=%d", $start) if($start);
+
+      my $param = {
+          title => $result->{title},
+          widget => $obj->{widget},
+          width  => $obj->{width},
+          height => $obj->{height},
+      };
+      $param->{title} .= '~' . $result->{subtitle} if($result->{subtitle});
+
+      return $console->player($data, $param);
+    }
+
+    return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)))
+      unless $result->{Path};
+
+    my $path = $result->{Path};
+    my @files = bsd_glob("$path/[0-9][0-9][0-9].vdr");
+
+    return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)))
+      unless scalar(@files);
+
     if($start) {
       my ($filenumber,$fileoffset) = $rmod->frametofile($path,$start);
       splice(@files, 0, $filenumber-1) if($filenumber && ($filenumber - 1) > 0);
@@ -196,7 +256,7 @@ sub playrecord {
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    if($obj->{streamtyp} != 1) {
+    if($obj->{method} eq 'http') {
       return $console->err(gettext("Can't stream files!"))
         unless($console->can('stream'));
 
@@ -206,6 +266,8 @@ sub playrecord {
 
       return $console->err(gettext("Can't stream files!"))
         unless($console->can('datei'));
+
+      my $videopath = $rmod->{videodir};
 
       my $data;
       $data = "#EXTM3U\r\n";
@@ -229,14 +291,4 @@ sub playrecord {
     }
 }
 
-# ------------------
-sub _get_streamtyp {
-# ------------------
-    my $obj = shift || return error('No object defined!');
-
-    return [
-            [ 1, gettext('Remote SMB/NFS share') ],
-            [ 2, gettext('HTTP Streaming') ],
-          ];
-}
 1;

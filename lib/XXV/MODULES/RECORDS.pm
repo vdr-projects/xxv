@@ -2118,12 +2118,25 @@ ORDER BY
 
 
 # ------------------
+sub IdToData {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $id = shift || return undef;
+
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE * from RECORDS as r, OLDEPG as e where e.eventid = r.eventid and RecordMD5 = ?');
+    $sth->execute($id)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchrow_hashref();
+    return $erg;
+}
+  
+# ------------------
 sub IdToPath {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  Path from RECORDS where RecordMD5 = ?');
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE Path from RECORDS where RecordMD5 = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();

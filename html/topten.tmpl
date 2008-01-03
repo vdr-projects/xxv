@@ -14,17 +14,6 @@
 <table>
 <tr>
 
-<!--
-<div id="navcontainer">
-<ul id="navlist">
-    <li><a href="#" onclick="suche('<?% gettext('Search string:') %?>', '?cmd=search&__channel=<?% channelpos %?>&data=', '<?% cgi.param('search') %?>')">
-        <?% gettext("Search on Channel") %?></a></li>
-    <li><a href='?cmd=switch&amp;data=<?% channelpos %?>'><?% gettext('Switch') %?></a></li>
-    <li><a href='?cmd=livestream&amp;data=<?% channelpos %?>' type='audio/x-mpegurl'><?% gettext('Livestream') %?></a></li>
-</ul>
-</div>
--->
-
 <table border="0" width="95%">
 <?% IF data.size %?>
     <?% fields = data.shift %?>

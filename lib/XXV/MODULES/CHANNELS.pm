@@ -1014,12 +1014,12 @@ sub _brandNewChannels {
     foreach my $chpos (sort {$erg->{$a} <=> $erg->{$b}} keys %$erg) {
         my $c = $erg->{$chpos};
         $text .= sprintf(gettext('New %s channel: %s on position: %d %s'),
-            ($c->{VPID} > 5 or index('+', $c->{VPID})
+            ($c->{VPID}
                 ? gettext('TV')
                 : gettext('Radio')),
             $c->{Name},
             $c->{POS},
-            (index('+', $c->{VPID}) || $c->{VPID} == 1 ? gettext('(encrypted)') : ''),
+            (($c->{CA} && $c->{CA} > 5) ? gettext('(encrypted)') : ''),
         );
     }
 
