@@ -70,34 +70,46 @@ var myBar = new WebFXMenuBar;
         <?% END %?>
             program.add(new WebFXMenuItem('<?% group.first %?>',null,null,programGrp<?% group.last %?>));
     <?% END %?>
+
+    <?% IF allow('erestart') %?>
+      program.add(new WebFXMenuSeparator());
+      program.add(new WebFXMenuItem("<?% gettext("Update EPG data",12) %?>","?cmd=erestart"));
+    <?% END %?>
+
     myBar.add(new WebFXMenuButton("<?% gettext("Program guide") %?>",null,null,program));
 <?% END %?>
 
 // -----
+    var control = new WebFXMenu;
+    <?% IF allow('alist') %?>control.add(new WebFXMenuItem("<?% gettext("Autotimer",12) %?>",     "?cmd=alist"));<?% END %?>
+    <?% IF allow('tlist') %?>control.add(new WebFXMenuItem("<?% gettext("Timers",12) %?>",        "?cmd=tlist"));<?% END %?>
+    <?% IF allow('movetimerlist') %?>control.add(new WebFXMenuItem("<?% gettext("Rules to move timer",12) %?>","?cmd=movetimerlist"));<?% END %?>
+    myBar.add(new WebFXMenuButton("<?% gettext("Programming") %?>",null,null,control));
+
+    var media = new WebFXMenu;
+    <?% IF allow('rlist') %?>media.add(new WebFXMenuItem("<?% gettext("Recordings",12) %?>",    "?cmd=rlist"));<?% END %?>
+    <?% IF allow('mlist') %?>media.add(new WebFXMenuItem("<?% gettext("Music",12) %?>",         "?cmd=mlist"));<?% END %?>
+    <?% IF allow('mllist') %?>media.add(new WebFXMenuItem("<?% gettext("Media library",12) %?>","?cmd=mllist"));<?% END %?>
+    myBar.add(new WebFXMenuButton("<?% gettext("Media") %?>",null,null,media));
+
 
     var tools = new WebFXMenu;
-    <?% IF allow('cmdlist') %?>tools.add(new WebFXMenuItem("<?% gettext("Commands") %?>",    "?cmd=cmdlist"));<?% END %?>
-    <?% IF allow('alist') %?>tools.add(new WebFXMenuItem("<?% gettext("Autotimer") %?>",     "?cmd=alist"));<?% END %?>
-    <?% IF allow('tlist') %?>tools.add(new WebFXMenuItem("<?% gettext("Timers") %?>",        "?cmd=tlist"));<?% END %?>
-    <?% IF allow('rlist') %?>tools.add(new WebFXMenuItem("<?% gettext("Recordings") %?>",    "?cmd=rlist"));<?% END %?>
-    <?% IF allow('mlist') %?>tools.add(new WebFXMenuItem("<?% gettext("Music") %?>",         "?cmd=mlist"));<?% END %?>
-    <?% IF allow('remote') %?>tools.add(new WebFXMenuItem("<?% gettext("Remote") %?>",        "?cmd=remote"));<?% END %?>
-    <?% IF allow('vtxpage') %?>tools.add(new WebFXMenuItem("<?% gettext("Teletext") %?>",      "?cmd=vtxpage"));<?% END %?>
-    <?% IF allow('report') %?>tools.add(new WebFXMenuItem("<?% gettext("Report") %?>","?cmd=report"));<?% END %?>
-    <?% IF allow('mllist') %?>tools.add(new WebFXMenuItem("<?% gettext("Media library") %?>","?cmd=mllist"));<?% END %?>
-    tools.add(new WebFXMenuItem("<?% gettext("Channels") %?>",  "?cmd=cl"));
+    <?% IF allow('remote') %?>tools.add(new WebFXMenuItem("<?% gettext("Remote",12) %?>",        "?cmd=remote"));<?% END %?>
+    <?% IF allow('vtxpage') %?>tools.add(new WebFXMenuItem("<?% gettext("Teletext",12) %?>",     "?cmd=vtxpage"));<?% END %?>
+    <?% IF allow('cmdlist') %?>tools.add(new WebFXMenuItem("<?% gettext("Commands",12) %?>",     "?cmd=cmdlist"));<?% END %?>
+    <?% IF allow('report') %?>tools.add(new WebFXMenuItem("<?% gettext("Report",12) %?>","?cmd=report"));<?% END %?>
 
     myBar.add(new WebFXMenuButton("<?% gettext("Tools") %?>",null,null,tools));
 
 // -----
 
     var admin = new WebFXMenu;
-    <?% IF allow('ul') %?>admin.add(new WebFXMenuItem("<?% gettext("User") %?>","?cmd=ul"));
-    <?% ELSIF allow('uprefs') %?>admin.add(new WebFXMenuItem("<?% gettext("Personality") %?>","?cmd=uprefs"));<?% END %?>
-    <?% IF allow('erestart') %?>admin.add(new WebFXMenuItem("<?% gettext("Update EPG data") %?>","?cmd=erestart"));<?% END %?>
-    <?% IF allow('rel') %?>admin.add(new WebFXMenuItem("<?% gettext("Reload") %?>","?cmd=rel"));<?% END %?>
-    <?% IF allow('logout') %?>admin.add(new WebFXMenuItem("<?% gettext("Logout") %?>","?cmd=logout"));<?% END %?>
-    <?% IF allow('restart') %?>admin.add(new WebFXMenuItem("<?% gettext("Restart") %?>","?cmd=restart"));<?% END %?>
+    <?% IF allow('cl') %?>admin.add(new WebFXMenuItem("<?% gettext("Channels",12) %?>",  "?cmd=cl"));<?% END %?>
+    <?% IF allow('ul') %?>admin.add(new WebFXMenuItem("<?% gettext("User",12) %?>","?cmd=ul"));
+    <?% ELSIF allow('uprefs') %?>admin.add(new WebFXMenuItem("<?% gettext("Personality",12) %?>","?cmd=uprefs"));<?% END %?>
+    <?% IF allow('rel') %?>admin.add(new WebFXMenuItem("<?% gettext("Reload",12) %?>","?cmd=rel"));<?% END %?>
+    <?% IF allow('logout') %?>admin.add(new WebFXMenuItem("<?% gettext("Logout",12) %?>","?cmd=logout"));<?% END %?>
+    <?% IF allow('restart') %?>admin.add(new WebFXMenuItem("<?% gettext("Restart",12) %?>","?cmd=restart"));<?% END %?>
 
     myBar.add(new WebFXMenuButton("<?% gettext("Administration") %?>",null,null,admin));
 
@@ -107,7 +119,7 @@ var myBar = new WebFXMenuBar;
     var prefs = new WebFXMenu;
     <?% FOREACH co = getModule('CONFIG').realModNames %?>
       <?% IF co != "CONFIG" %?>
-        prefs.add(new WebFXMenuItem("<?% chop(co,10) %?>",  "?cmd=configedit&amp;data=<?% co %?>"));
+        prefs.add(new WebFXMenuItem("<?% chop(co,12) %?>",  "?cmd=configedit&amp;data=<?% co %?>"));
       <?% END %?>
     <?% END %?>
     myBar.add(new WebFXMenuButton("<?% gettext("Preferences") %?>",null,null,prefs));

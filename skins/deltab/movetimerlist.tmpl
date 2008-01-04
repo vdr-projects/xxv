@@ -10,7 +10,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('movetimerdelete') %?>
-                        <a href="javascript:sure('<?% gettext("You will delete this rule") %?>\n<?% escape(source) %?>','?cmd=movetimerdelete&amp;data=<?% id %?>')">
+                        <a href="javascript:sure('<?% gettext("You will delete this rule") %?>\n<?% escape(source) %?> - <?% escape(destination) %?>','?cmd=movetimerdelete&amp;data=<?% id %?>')">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete rule to move timer") %?>" />
                         </a>
 <?% END %?>
@@ -67,6 +67,7 @@
         <?% PROCESS Item %?>
      <?% END %?>
       </table>
+</form>
 <?% END %?>
 </div>
 <!-- ###### Seite ###### -->

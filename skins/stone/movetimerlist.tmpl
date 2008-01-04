@@ -11,7 +11,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('movetimerdelete') %?>
-                        <a href="javascript:surecmd('<?% gettext("You will delete this rule") %?>','<?% escape(source) %?>','movetimerdelete','<?% id %?>',620,670)">
+                        <a href="javascript:surecmd('<?% gettext("You will delete this rule") %?>','<?% escape(source) %?> - <?% escape(destination) %?>','movetimerdelete','<?% id %?>',620,670)">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete rule to move timer") %?>" />
                         </a>
 <?% END %?>
