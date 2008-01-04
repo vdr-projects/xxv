@@ -116,56 +116,64 @@
 </form>
 <?% END %?>
 <?% ######################################################################## %?>
-<?% BLOCK marks # (c) xpix %?>
-    <?% width = 550 %?>
-    <table  width="<?% width %?>" align="center" summary="">
+<?% ######################################################################## %?>
+<?% BLOCK marks %?>
+<?% width = 550 %?>
+  <table summary="" style="width:<?% width %?>px; margin:0; padding:0; text-align:left" >
     <tr>
-        <?%- c = 0; 
-             colspan = 0;
-             IF data.Duration>(45*60);
-                abstand = (15 * 60);
-             ELSIF data.Duration>(30*60);
-                abstand = (5 * 60);
-             ELSE; #data.Duration>(10*60);
-                 abstand = (((data.Duration * 10 ) div 10 ) div 5);
+        <?%- 
+             multi=1;
+             window = 900;
+             ticks = 0;
+             WHILE ticks <= 3 or ticks >= 8;
+               ticks = (data.Duration div window) + 1;
+               IF ticks >= 8;
+                 window = window * 2; 
+               ELSIF ticks <= 3;
+                 IF    window == 900;window = 600;
+                 ELSIF window == 600;window = 300;
+                 ELSIF window == 300;window = 150;
+                 ELSIF window == 150;window = 60;
+                 ELSE; window = window / 2; 
+                 END;
+               END;
              END;
-             IF abstand <= 1; abstand = 1; END;
-             range = ( data.Duration div abstand ) * abstand ;
-             IF range < abstand ; abstand = ( ( range div 60 ) +  1) * 60 ; END;
-             WHILE c < range; 
-                c = c + abstand; 
-                percent = ( data.Duration / abstand ) * width;
-                colspan = colspan + 1;
-                Stunden = c div 3600;
-                Minuten = c div 60 mod 60 -%?>
-         <td width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) div 1 %?>" align='right'>
-            <font size='1'>
-<?% IF allowplay %?>
-              <a href="javascript:setstart('<?% PROCESS hfs d=c %?>')" >
-<?% END %?>
-                <?% Stunden %?>:<?% Minuten | format('%02d') %?>
-<?% IF allowplay %?>
-              </a>
-<?% END %?>
+             
+             IF window <= 15;
+             multi=60;
+             END;
+             cols = 0; 
+             WHILE cols < ticks; 
+                cols = cols + 1; 
+                seconds = window * cols; -%?>
+
+         <td colspan="3" style="width:<?% ( ( width / ticks) ) div 1 %?>px; white-space: nowrap; text-align:right">
+            <font size='0.66em'>
+<?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs d=seconds %?>')" ><?% END %?>
+                <?% ( seconds * multi ) div 3600 %?>:<?% ( seconds * multi ) div 60 mod 60 | format('%02d') %?>
+<?% IF allowplay %?></a><?% END %?>
             </font>
         </td>
-        <?% END %?>
+<?% END %?>
     </tr>
     <tr>
-        <?% c = 0 %?>
-        <?% abstand = abstand / 3 %?>
-        <td colspan="<?% colspan %?>" style="white-space: nowrap">
-			<?%- WHILE c < range -%?><?%- c = c + abstand; percent = (abstand / data.Duration) * width -%?><img src="images/blank.gif" width="<?% offset = (c % 3600 ? 1 : 2);(percent - offset) div 1 %?>" height='10' /><img style="background:<?% c % 900 ? "gray" : "black" %?>" src="images/blank.gif" width="<?% c % 3600 ? "1" : "2" %?>" height='<?% (c % 900 ? "5" : "10") %?>' /><?%- END -%?>
-		</td>
+        <?%- cols = 0; 
+             window = window div 3;
+             WHILE cols < ( ticks * 3); 
+                cols = cols + 1; 
+                seconds = window * cols; -%?>
+         <td style="width:<?% (width / (ticks * 3)) div 1 %?>px; white-space: nowrap; text-align:right">
+            <img style="background:<?% cols % 3 ? "gray" : "black" %?>" src="images/blank.gif" width="<?% cols % 12 ? "1" : "2" %?>" height='<?% (cols % 3 ? "5" : "10") %?>' />
+        </td>
+<?% END %?>
     </tr>
     <tr>
-        <td colspan="<?% colspan %?>" style="white-space: nowrap">
+        <td colspan="<?% cols %?>" style="white-space: nowrap">
 		<?%- secold = 0;
 	        c = -1;
 	        ml = data.Marks.split(',');
-		-%?>
-		<?% IF ml.size > 1 %?>
-		<?%- 
+          totaltime = ticks * window * 3;
+		      IF ml.size > 1;
 		FOREACH marker = ml;
                 b = c;
                 c = c + 1;
@@ -173,25 +181,25 @@
                 sec = m.0 * 3600;
                 sec = sec + m.1 * 60;
                 sec = sec + m.2;
-                percent = ((sec-secold) / data.Duration) * width;
+                percent = ((sec-secold) / totaltime) * width;
             -%?><?% IF c == 0 %?>
 					<?% class = "marksleft" %?>
 				<?% ELSE %?>
 					<?% class = (class == 'marksright2' ? 'marksright1' : 'marksright2'); %?>
-	        	<?% END %?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent - 1 ) div 1 %?>" height="12" title="<?% (b < 0 ? "0:00:00.00" : ml.$b) %?> - <?% ml.$c %?>" />
+	        	<?% END %?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent ) div 1 %?>" height="12" title="<?% (b < 0 ? "0:00:00.00" : ml.$b) %?> - <?% ml.$c %?>" />
             <?%- secold = sec;
             END;
-            IF data.Duration > secold;
+            IF totaltime > secold;
             class = (class == 'marksright2' ? 'marksright1' : 'marksright2'); 
-            percent = ((data.Duration - secold) / data.Duration) * width;
-            -%?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent - 1 ) div 1 %?>" height="12" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% PROCESS hfs d=data.Duration %?>" />
+            percent = ((data.Duration - secold) / totaltime) * width;
+            -%?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent ) div 1 %?>" height="12" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% PROCESS hfs d=data.Duration %?>" />
             <?% END %?>
         <?% ELSE %?>
-			<img class="marksleft" src="images/blank.gif" width="0" height="12" /><img class="marksright2" src="images/blank.gif" width="<?% width %?>" height="12" />
+			      <img class="marksleft" src="images/blank.gif" width="0" height="12" /><img class="marksright2" src="images/blank.gif" width="<?% (( data.Duration / totaltime) * width ) div 1 %?>" height="12" />
         <?% END %?>
         </td>
     </tr>
-    </table>
+  </table>
 <?% END %?>
 <?% ######################################################################## %?>
 <table class="editortable" summary="">
