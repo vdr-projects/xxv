@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XXV 1.1\n"
 "POT-Creation-Date: 2005-01-12 18:55\n"
-"PO-Revision-Date: 2008-01-03 12:31+0100\n"
+"PO-Revision-Date: 2008-01-04 12:42+0100\n"
 "Last-Translator: Andreas Brachold <anbr at users.berlios.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -167,17 +167,17 @@ msgid "Search for channels"
 msgstr "Suche nach Kanälen"
 
 #--------------------
-#: ../html/clist.tmpl:118 ../html/mlist.tmpl:53 ../html/mlsearch.tmpl:37 ../html/rlist.tmpl:267 ../html/rsearch.tmpl:267 ../html/tlist.tmpl:140 ../html/tsearch.tmpl:140
+#: ../html/clist.tmpl:118 ../html/mlist.tmpl:53 ../html/mlsearch.tmpl:37 ../html/movetimerlist.tmpl:72 ../html/rlist.tmpl:267 ../html/rsearch.tmpl:267 ../html/tlist.tmpl:140 ../html/tsearch.tmpl:140
 msgid "Select all"
 msgstr "Alles auswählen"
 
 #--------------------
-#: ../html/clist.tmpl:119 ../html/mlist.tmpl:54 ../html/rlist.tmpl:268 ../html/rsearch.tmpl:268 ../html/tlist.tmpl:141 ../html/tsearch.tmpl:141
+#: ../html/clist.tmpl:119 ../html/mlist.tmpl:54 ../html/movetimerlist.tmpl:73 ../html/rlist.tmpl:268 ../html/rsearch.tmpl:268 ../html/tlist.tmpl:141 ../html/tsearch.tmpl:141
 msgid "Unselect all"
 msgstr "Auswahl aufheben"
 
 #--------------------
-#: ../html/clist.tmpl:120 ../html/mlist.tmpl:55 ../html/rlist.tmpl:269 ../html/rsearch.tmpl:269 ../html/tlist.tmpl:142 ../html/tsearch.tmpl:142
+#: ../html/clist.tmpl:120 ../html/mlist.tmpl:55 ../html/movetimerlist.tmpl:74 ../html/rlist.tmpl:269 ../html/rsearch.tmpl:269 ../html/tlist.tmpl:142 ../html/tsearch.tmpl:142
 msgid "Reverse select"
 msgstr "Auswahl umkehren"
 
@@ -187,7 +187,7 @@ msgid "You would delete follow channels?"
 msgstr "Wollen Sie folgende Kanäle löschen?"
 
 #--------------------
-#: ../html/clist.tmpl:122 ../html/mlist.tmpl:40 ../html/rlist.tmpl:124 ../html/rsearch.tmpl:124 ../html/tlist.tmpl:23 ../html/tlist.tmpl:29 ../html/tsearch.tmpl:23 ../html/tsearch.tmpl:29
+#: ../html/clist.tmpl:122 ../html/mlist.tmpl:40 ../html/movetimerlist.tmpl:64 ../html/rlist.tmpl:124 ../html/rsearch.tmpl:124 ../html/tlist.tmpl:23 ../html/tlist.tmpl:29 ../html/tsearch.tmpl:23 ../html/tsearch.tmpl:29
 msgid "Nothing selected!"
 msgstr "Sie haben nicht gewählt!"
 
@@ -282,7 +282,7 @@ msgid "Channel"
 msgstr "Kanal"
 
 #--------------------
-#: ../html/display.tmpl:27 ../html/topten.tmpl:21 ../lib/XXV/MODULES/AUTOTIMER.pm:1064 ../lib/XXV/MODULES/CHRONICLE.pm:165 ../lib/XXV/MODULES/CHRONICLE.pm:204 ../lib/XXV/MODULES/EPG.pm:746 ../lib/XXV/MODULES/EPG.pm:848 ../lib/XXV/MODULES/EPG.pm:922 ../lib/XXV/MODULES/MOVETIMER.pm:527 ../lib/XXV/MODULES/MUSIC.pm:607 ../lib/XXV/MODULES/RECORDS.pm:1494 ../lib/XXV/MODULES/RECORDS.pm:1569 ../lib/XXV/MODULES/TIMERS.pm:1120 ../lib/XXV/MODULES/USER.pm:525
+#: ../html/display.tmpl:27 ../html/movetimerlist.tmpl:80 ../html/topten.tmpl:21 ../lib/XXV/MODULES/AUTOTIMER.pm:1064 ../lib/XXV/MODULES/CHRONICLE.pm:165 ../lib/XXV/MODULES/CHRONICLE.pm:204 ../lib/XXV/MODULES/EPG.pm:746 ../lib/XXV/MODULES/EPG.pm:848 ../lib/XXV/MODULES/EPG.pm:922 ../lib/XXV/MODULES/MOVETIMER.pm:527 ../lib/XXV/MODULES/MUSIC.pm:607 ../lib/XXV/MODULES/RECORDS.pm:1494 ../lib/XXV/MODULES/RECORDS.pm:1569 ../lib/XXV/MODULES/TIMERS.pm:1120 ../lib/XXV/MODULES/USER.pm:525
 msgid "Service"
 msgstr "Service"
 
@@ -337,62 +337,82 @@ msgid "Total space"
 msgstr "Gesamte Speicherkapazität"
 
 #--------------------
-#: ../html/help.tmpl:100
+#: ../html/help.tmpl:101
+msgid "Documentation"
+msgstr "Dokumentation"
+
+#--------------------
+#: ../html/help.tmpl:102
+msgid "News"
+msgstr "Neuigkeiten"
+
+#--------------------
+#: ../html/help.tmpl:103 ../lib/XXV/MODULES/MEDIALIB.pm:1264
+msgid "History"
+msgstr "Geschichte"
+
+#--------------------
+#: ../html/help.tmpl:104
+msgid "License"
+msgstr "Lizenz"
+
+#--------------------
+#: ../html/help.tmpl:105
 msgid "Readme"
 msgstr "Liesmich"
 
 #--------------------
-#: ../html/help.tmpl:101
+#: ../html/help.tmpl:106
 msgid "Tutorial"
 msgstr "Anleitung"
 
 #--------------------
-#: ../html/help.tmpl:105
+#: ../html/help.tmpl:110
 msgid "Log files"
 msgstr "Log-Dateien"
 
 #--------------------
-#: ../html/help.tmpl:106
+#: ../html/help.tmpl:111
 msgid "Standard"
 msgstr "Standard"
 
 #--------------------
-#: ../html/help.tmpl:107
+#: ../html/help.tmpl:112
 msgid "Syslog"
 msgstr "Syslog"
 
 #--------------------
-#: ../html/help.tmpl:110
-msgid "Report"
-msgstr "Bericht"
+#: ../html/help.tmpl:116
+msgid "Administration"
+msgstr "Administration"
 
 #--------------------
-#: ../html/help.tmpl:111 ../lib/XXV/MODULES/USER.pm:349
+#: ../html/help.tmpl:117 ../lib/XXV/MODULES/USER.pm:349
 msgid "User"
 msgstr "Anwender"
 
 #--------------------
-#: ../html/help.tmpl:112
+#: ../html/help.tmpl:118
 msgid "Personality"
 msgstr "Persönlichkeit"
 
 #--------------------
-#: ../html/help.tmpl:113
+#: ../html/help.tmpl:119
 msgid "Reload"
 msgstr "Erneut laden"
 
 #--------------------
-#: ../html/help.tmpl:114
-msgid "Logout"
-msgstr "Abmelden"
-
-#--------------------
-#: ../html/help.tmpl:115
+#: ../html/help.tmpl:120
 msgid "Restart"
 msgstr "Neustart"
 
 #--------------------
-#: ../html/help.tmpl:124
+#: ../html/help.tmpl:123
+msgid "Logout"
+msgstr "Abmelden"
+
+#--------------------
+#: ../html/help.tmpl:132
 msgid "search"
 msgstr "Suchen"
 
@@ -413,110 +433,115 @@ msgid "Program guide"
 msgstr "Programm"
 
 #--------------------
-#: ../html/help.tmpl:57
-msgid "TopTen"
+#: ../html/help.tmpl:51
+msgid "Top ten entry"
 msgstr "Die besten Zehn"
 
 #--------------------
 #: ../html/help.tmpl:59
-msgid "Commands"
-msgstr "Kommandos"
+msgid "Programming"
+msgstr "Programmierung"
 
 #--------------------
-#: ../html/help.tmpl:61 ../lib/XXV/MODULES/HTTPD.pm:97 ../lib/XXV/MODULES/WAPD.pm:78 ../wml/widgets/footer.tmpl:17
+#: ../html/help.tmpl:60 ../lib/XXV/MODULES/HTTPD.pm:97 ../lib/XXV/MODULES/WAPD.pm:78 ../wml/widgets/footer.tmpl:17
 msgid "Autotimer"
 msgstr "Autotimer"
 
 #--------------------
-#: ../html/help.tmpl:63 ../lib/XXV/MODULES/HTTPD.pm:98 ../lib/XXV/MODULES/WAPD.pm:79 ../wml/tlist.tmpl:2 ../wml/tsearch.tmpl:2 ../wml/widgets/footer.tmpl:15
+#: ../html/help.tmpl:61 ../lib/XXV/MODULES/HTTPD.pm:98 ../lib/XXV/MODULES/WAPD.pm:79 ../wml/tlist.tmpl:2 ../wml/tsearch.tmpl:2 ../wml/widgets/footer.tmpl:15
 msgid "Timers"
 msgstr "Timer"
 
 #--------------------
-#: ../html/help.tmpl:65 ../lib/XXV/MODULES/HTTPD.pm:99 ../lib/XXV/MODULES/WAPD.pm:80 ../wml/widgets/footer.tmpl:18
+#: ../html/help.tmpl:62
+msgid "Rules to move timer"
+msgstr "Regel zum Verschieben von Timern"
+
+#--------------------
+#: ../html/help.tmpl:66
+msgid "Media"
+msgstr "Medien"
+
+#--------------------
+#: ../html/help.tmpl:67 ../lib/XXV/MODULES/HTTPD.pm:99 ../lib/XXV/MODULES/WAPD.pm:80 ../wml/widgets/footer.tmpl:18
 msgid "Recordings"
 msgstr "Aufnahmen"
 
 #--------------------
-#: ../html/help.tmpl:67 ../lib/XXV/MODULES/HTTPD.pm:100 ../lib/XXV/MODULES/MEDIALIB.pm:1256 ../lib/XXV/MODULES/WAPD.pm:81
+#: ../html/help.tmpl:68 ../lib/XXV/MODULES/HTTPD.pm:100 ../lib/XXV/MODULES/MEDIALIB.pm:1256 ../lib/XXV/MODULES/WAPD.pm:81
 msgid "Music"
 msgstr "Musik"
 
 #--------------------
-#: ../html/help.tmpl:69 ../lib/XXV/MODULES/HTTPD.pm:101 ../lib/XXV/MODULES/WAPD.pm:82 ../wml/widgets/footer.tmpl:19
-msgid "Remote"
-msgstr "Fernbedienung"
-
-#--------------------
-#: ../html/help.tmpl:71 ../html/widgets/vtx.tmpl:3 ../lib/XXV/MODULES/HTTPD.pm:102 ../lib/XXV/MODULES/WAPD.pm:83
-msgid "Teletext"
-msgstr "Videotext"
-
-#--------------------
-#: ../html/help.tmpl:73
+#: ../html/help.tmpl:69
 msgid "Media library"
 msgstr "Medienbibliothek"
 
 #--------------------
-#: ../html/help.tmpl:77 ../lib/XXV/MODULES/USER.pm:528
+#: ../html/help.tmpl:73
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#--------------------
+#: ../html/help.tmpl:74 ../lib/XXV/MODULES/HTTPD.pm:101 ../lib/XXV/MODULES/WAPD.pm:82 ../wml/widgets/footer.tmpl:19
+msgid "Remote"
+msgstr "Fernbedienung"
+
+#--------------------
+#: ../html/help.tmpl:75 ../html/widgets/vtx.tmpl:3 ../lib/XXV/MODULES/HTTPD.pm:102 ../lib/XXV/MODULES/WAPD.pm:83
+msgid "Teletext"
+msgstr "Videotext"
+
+#--------------------
+#: ../html/help.tmpl:76
+msgid "Report"
+msgstr "Bericht"
+
+#--------------------
+#: ../html/help.tmpl:77
+msgid "Commands"
+msgstr "Kommandos"
+
+#--------------------
+#: ../html/help.tmpl:82 ../lib/XXV/MODULES/USER.pm:528
 msgid "Preferences"
 msgstr "Einstellungen"
 
 #--------------------
-#: ../html/help.tmpl:83
+#: ../html/help.tmpl:88
 #. (10)
 msgid "Edit channels"
 msgstr "Kanäle bearbeiten"
 
 #--------------------
-#: ../html/help.tmpl:87 ../html/widgets/player.tmpl:105 ../html/widgets/player.tmpl:69 ../lib/XXV/MODULES/HTTPD.pm:103 ../lib/XXV/MODULES/TIMERS.pm:1121 ../lib/XXV/MODULES/WAPD.pm:84
+#: ../html/help.tmpl:92 ../html/widgets/player.tmpl:105 ../html/widgets/player.tmpl:69 ../lib/XXV/MODULES/HTTPD.pm:103 ../lib/XXV/MODULES/TIMERS.pm:1121 ../lib/XXV/MODULES/WAPD.pm:84
 msgid "Status"
 msgstr "Status"
 
 #--------------------
-#: ../html/help.tmpl:88 ../lib/XXV/MODULES/STATUS.pm:210
+#: ../html/help.tmpl:93 ../lib/XXV/MODULES/STATUS.pm:210
 msgid "Vitals"
 msgstr "Wichtiges"
 
 #--------------------
-#: ../html/help.tmpl:89 ../lib/XXV/MODULES/STATUS.pm:274
+#: ../html/help.tmpl:94 ../lib/XXV/MODULES/STATUS.pm:274
 msgid "Memory"
 msgstr "Speicher"
 
 #--------------------
-#: ../html/help.tmpl:90 ../lib/XXV/MODULES/STATUS.pm:710
+#: ../html/help.tmpl:95 ../lib/XXV/MODULES/STATUS.pm:710
 msgid "Filesystem"
 msgstr "Filesystem"
 
 #--------------------
-#: ../html/help.tmpl:91 ../lib/XXV/MODULES/STATUS.pm:228
+#: ../html/help.tmpl:96 ../lib/XXV/MODULES/STATUS.pm:228
 msgid "Network"
 msgstr "Netzwerk"
 
 #--------------------
-#: ../html/help.tmpl:92
+#: ../html/help.tmpl:97
 msgid "Hardware"
 msgstr "Hardware"
-
-#--------------------
-#: ../html/help.tmpl:96
-msgid "Documentation"
-msgstr "Dokumentation"
-
-#--------------------
-#: ../html/help.tmpl:97
-msgid "News"
-msgstr "Neuigkeiten"
-
-#--------------------
-#: ../html/help.tmpl:98 ../lib/XXV/MODULES/MEDIALIB.pm:1264
-msgid "History"
-msgstr "Geschichte"
-
-#--------------------
-#: ../html/help.tmpl:99
-msgid "License"
-msgstr "Lizenz"
 
 #--------------------
 #: ../html/javascript/records.js:7
@@ -847,6 +872,69 @@ msgstr "Suche in"
 #: ../html/mlsearch.tmpl:40
 msgid "Search in selected Genres"
 msgstr "Suche in selektierten Genres"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:13
+msgid "Delete rule to move timer"
+msgstr "Lösche Regel zum Verschieben von Timern"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:14
+msgid "You will delete this rule"
+msgstr "Wollen Sie diese Regel löschen"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:50
+msgid "Rules to move timer between channels"
+msgstr "Regeln zum Verschieben von Timern zwischen Kanälen"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:54 ../html/movetimerlist.tmpl:55 ../lib/XXV/MODULES/MOVETIMER.pm:427
+#. (25)
+msgid "Create a new rule to move timer"
+msgstr "Erzeuge eine neue Regel zum Verschieben von Timern"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:59 ../html/movetimerlist.tmpl:60 ../lib/XXV/MODULES/MOVETIMER.pm:32
+#. (25)
+msgid "Manual move timer between channels"
+msgstr "Manuelles Verschieben der Timer zwischen den Kanälen"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:63 ../html/movetimerlist.tmpl:65
+#. (25)
+msgid "Delete rules to move timer"
+msgstr "Lösche Regeln zum Verschieben von Timern"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:64
+msgid "You would delete follow rules?"
+msgstr "Wollen Sie die folgenden Regeln löschen?"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:7 ../lib/XXV/MODULES/MOVETIMER.pm:426
+msgid "Edit rule to move timer"
+msgstr "Regel zum Verschieben von Timern bearbeiten"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:81 ../lib/XXV/MODULES/MOVETIMER.pm:528
+msgid "Source"
+msgstr "Quelle"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:82 ../lib/XXV/MODULES/MOVETIMER.pm:529
+msgid "Destination"
+msgstr "Ziel"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:83 ../lib/XXV/MODULES/MOVETIMER.pm:530 ../lib/XXV/MODULES/MOVETIMER.pm:593
+msgid "Move timer"
+msgstr "Verschiebe Timer"
+
+#--------------------
+#: ../html/movetimerlist.tmpl:84 ../lib/XXV/MODULES/MOVETIMER.pm:531
+msgid "Change original timer"
+msgstr "Ändere original Timer"
 
 #--------------------
 #: ../html/network.tmpl:57
@@ -2690,11 +2778,6 @@ msgid "There none timer to move."
 msgstr "Es wurden keine Timer verschoben."
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:32
-msgid "Manual move timer between channels"
-msgstr "Manuelles Verschieben der Timer zwischen den Kanälen"
-
-#--------------------
 #: ../lib/XXV/MODULES/MOVETIMER.pm:346 ../lib/XXV/MODULES/MOVETIMER.pm:503
 msgid "Rule to move timer with ID '%s' does not exist in the database!"
 msgstr "Regel zum Verschieben der Timer mit ID '%s' exisitert nicht in der Datenbank!"
@@ -2730,16 +2813,6 @@ msgid "How should timer handled, if changed"
 msgstr "Wie sollen Timer behandelt bei Änderungen behandelt werden"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:426
-msgid "Edit rule to move timer"
-msgstr "Regel zum Verschieben von Timern bearbeiten"
-
-#--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:427
-msgid "Create a new rule to move timer"
-msgstr "Erzeuge eine neue Regel zum Verschieben von Timern"
-
-#--------------------
 #: ../lib/XXV/MODULES/MOVETIMER.pm:435
 msgid "Rule to move timer saved!"
 msgstr "Regel zum Verschieben von Timern gespeichert!"
@@ -2765,29 +2838,9 @@ msgid "Rule to move timer %s is deleted."
 msgstr "Regel zum Verschieben der Timer %s wurde gelöscht."
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:528
-msgid "Source"
-msgstr "Quelle"
-
-#--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:529
-msgid "Destination"
-msgstr "Ziel"
-
-#--------------------
 #: ../lib/XXV/MODULES/MOVETIMER.pm:53
 msgid "Delete rule to move timer between channels"
 msgstr "Lösche Regel zum Verschieben von Timern zwischen Kanälen"
-
-#--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:530 ../lib/XXV/MODULES/MOVETIMER.pm:593
-msgid "Move timer"
-msgstr "Verschiebe Timer"
-
-#--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:531
-msgid "Change original timer"
-msgstr "Ändere original Timer"
 
 #--------------------
 #: ../lib/XXV/MODULES/MOVETIMER.pm:581

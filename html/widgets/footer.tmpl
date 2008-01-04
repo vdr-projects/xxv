@@ -1,3 +1,4 @@
+<?% IF !global.hidefooter %?>
 <?% IF debug %?>
     <?% data = bench %?>
 
@@ -56,5 +57,6 @@ print Dumper($stash->_dump_frame(5));
 User: <?% user %?><br>
 <a href="http://xxv.berlios.de">XXV System</a> -- Version: <?% version %?> -- created by xpix, hulk and poetter 2004 - 2007
 </center>
+<?% END; #global.hidefooter %?>
     </body>
 </HTML>

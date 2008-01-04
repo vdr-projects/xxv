@@ -16,7 +16,7 @@ webFXTreeConfig.iIcon			= "images/xp/I.png";
 webFXTreeConfig.lIcon			= "images/xp/L.png";
 webFXTreeConfig.tIcon			= "images/xp/T.png";
 
-var tree = new WebFXTree("XXV", "?cmd=<?% start %?>");
+var tree = new WebFXTree("XXV", "?cmd=<?% getModule('HTTPD').StartPage %?>");
 
 <?% IF allow('now') %?>
     var runnow = new WebFXTreeItem("<?% gettext("Running now") %?>","?cmd=now",tree);
@@ -48,29 +48,34 @@ var tree = new WebFXTree("XXV", "?cmd=<?% start %?>");
 
 <?% IF allow('schema') %?>
     var program = new WebFXTreeItem("<?% gettext("Program guide") %?>","?cmd=schema",tree);
+    <?% IF allow('topten') %?>program.add(new WebFXTreeItem("<?% gettext("Top ten entry") %?>",    "?cmd=t10"));<?% END %?>
     <?% FOREACH ch = param.CHANNELS %?>
     program.add(new WebFXTreeItem("<?% escape(chop(ch.0,10)) %?>",  "?cmd=program&amp;data=<?% ch.1 %?>"));
     <?% END %?>
 <?% END %?>
 
 
-<?% IF allow('topten') %?>tree.add(new WebFXTreeItem("<?% gettext("TopTen") %?>",    "?cmd=t10"));<?% END %?>
+<?% IF allow('alist') || allow('tlist') || allow('movetimerlist') %?>
+var control = new WebFXTreeItem("<?% gettext("Programming",15) %?>",0,tree);
+<?% IF allow('alist') %?>control.add(new WebFXTreeItem("<?% gettext("Autotimer",12) %?>",     "?cmd=alist"));<?% END %?>
+<?% IF allow('tlist') %?>control.add(new WebFXTreeItem("<?% gettext("Timers",12) %?>",        "?cmd=tlist"));<?% END %?>
+<?% IF allow('movetimerlist') %?>control.add(new WebFXTreeItem("<?% gettext("Rules to move timer",12) %?>","?cmd=movetimerlist"));<?% END %?>
+<?% END %?>
 
-<?% IF allow('cmdlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Commands") %?>",    "?cmd=cmdlist"));<?% END %?>
+<?% IF allow('rlist') || allow('mlist') || allow('mllist') || allow('restart') %?>
+var media = new WebFXTreeItem("<?% gettext("Media",15) %?>",0,tree);
+<?% IF allow('rlist') %?>media.add(new WebFXTreeItem("<?% gettext("Recordings",12) %?>",    "?cmd=rlist"));<?% END %?>
+<?% IF allow('mlist') %?>media.add(new WebFXTreeItem("<?% gettext("Music",12) %?>",         "?cmd=mlist"));<?% END %?>
+<?% IF allow('mllist') %?>media.add(new WebFXTreeItem("<?% gettext("Media library",12) %?>","?cmd=mllist"));<?% END %?>
+<?% END %?>
 
-<?% IF allow('alist') %?>tree.add(new WebFXTreeItem("<?% gettext("Autotimer") %?>",     "?cmd=alist"));<?% END %?>
-
-<?% IF allow('tlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Timers") %?>",        "?cmd=tlist"));<?% END %?>
-
-<?% IF allow('rlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Recordings") %?>",    "?cmd=rlist"));<?% END %?>
-
-<?% IF allow('mlist') %?>tree.add(new WebFXTreeItem("<?% gettext("Music") %?>",         "?cmd=mlist"));<?% END %?>
-
-<?% IF allow('remote') %?>tree.add(new WebFXTreeItem("<?% gettext("Remote") %?>",        "?cmd=remote"));<?% END %?>
-
-<?% IF allow('vtxpage') %?>tree.add(new WebFXTreeItem("<?% gettext("Teletext") %?>",      "?cmd=vtxpage"));<?% END %?>
-
-<?% IF allow('mllist') %?>tree.add(new WebFXTreeItem("<?% gettext("Media library") %?>",      "?cmd=mllist"));<?% END %?>
+<?% IF allow('remote') || allow('vtxpage') || allow('report') || allow('cmdlist') %?>
+var tools = new WebFXTreeItem("<?% gettext("Tools",15) %?>",0,tree);
+<?% IF allow('remote') %?>tools.add(new WebFXTreeItem("<?% gettext("Remote",12) %?>",     "?cmd=remote"));<?% END %?>
+<?% IF allow('vtxpage') %?>tools.add(new WebFXTreeItem("<?% gettext("Teletext",12) %?>",  "?cmd=vtxpage"));<?% END %?>
+<?% IF allow('report') %?>tools.add(new WebFXTreeItem("<?% gettext("Report",12) %?>",     "?cmd=report"));<?% END %?>
+<?% IF allow('cmdlist') %?>tools.add(new WebFXTreeItem("<?% gettext("Commands",12) %?>",  "?cmd=cmdlist"));<?% END %?>
+<?% END %?>
 
 
 <?% IF allow('configedit') %?>
@@ -107,12 +112,15 @@ logger.add(new WebFXTreeItem("<?% gettext("Standard") %?>",  "?cmd=logger&data=m
 logger.add(new WebFXTreeItem("<?% gettext("Syslog") %?>",    "?cmd=logger&data=syslog"));
 <?% END %?>
 
-<?% IF allow('report') %?>var report = new WebFXTreeItem("<?% gettext("Report") %?>","?cmd=report",tree);<?% END %?>
-<?% IF allow('ul') %?>var user = new WebFXTreeItem("<?% gettext("User") %?>","?cmd=ul",tree);
-<?% ELSIF allow('uprefs') %?>var pass = new WebFXTreeItem("<?% gettext("Personality") %?>","?cmd=uprefs",tree);<?% END %?>
-<?% IF allow('rel') %?>var re   = new WebFXTreeItem("<?% gettext("Reload") %?>","?cmd=rel",tree);<?% END %?>
+<?% IF allow('ul') || allow('uprefs') || allow('rel') || allow('restart') %?>
+var admin = new WebFXTreeItem("<?% gettext("Administration") %?>",0,tree);
+<?% IF allow('ul') %?>admin.add(new WebFXTreeItem("<?% gettext("User") %?>","?cmd=ul"));
+<?% ELSIF allow('uprefs') %?>admin.add(new WebFXTreeItem("<?% gettext("Personality") %?>","?cmd=uprefs"));<?% END %?>
+<?% IF allow('rel') %?>admin.add(new WebFXTreeItem("<?% gettext("Reload") %?>","?cmd=rel"));<?% END %?>
+<?% IF allow('restart') %?>admin.add(new WebFXTreeItem("<?% gettext("Restart") %?>","?cmd=restart"));<?% END %?>
+<?% END %?>
+
 <?% IF allow('logout') %?>var lout = new WebFXTreeItem("<?% gettext("Logout") %?>","?cmd=logout",tree);<?% END %?>
-<?% IF allow('restart') %?>var lout = new WebFXTreeItem("<?% gettext("Restart") %?>","?cmd=restart",tree);<?% END %?>
 
 document.write(tree);
 
@@ -124,3 +132,5 @@ document.write(tree);
     <?% gettext("search") %?>:<input style='width:100px' type="text" name="data" size='10'>
 </form>
 </div>
+
+<?% global.hidefooter = 1 %?>
