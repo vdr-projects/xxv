@@ -78,7 +78,7 @@
       <a title="<?% gettext("Create a new rule to move timer") %?>" href="?cmd=movetimercreate"><img src="images/new.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
       <a title="<?% gettext("Create a new rule to move timer") %?>" href="?cmd=movetimercreate"><?% gettext("Create a new rule to move timer",20) %?></a><br />
 <?% END %?>
-<?% IF allow('movetimer') %?>
+<?% IF allow('movetimer') && data.size > 0 %?>
       <a title="<?% gettext("Manual move timer between channels") %?>" href="?cmd=movetimer"><img src="images/refresh.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
       <a title="<?% gettext("Manual move timer between channels") %?>" href="?cmd=movetimer"><?% gettext("Manual move timer between channels",20) %?></a>
 <?% END %?>
