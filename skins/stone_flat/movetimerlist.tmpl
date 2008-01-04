@@ -49,7 +49,7 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <h1>
-    <?% gettext("Move timer") %?>
+    <?% gettext("Rules to move timer between channels") %?>
 </h1>
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
@@ -57,7 +57,7 @@
     <table class="largetable" summary="">
         <tr>
           <td class="largehead">
-              <?% gettext("Rules to move timer between channels") %?>
+              <?% gettext("Rules to move timer") %?>
           </td>
         </tr>
         <tr>
@@ -87,7 +87,7 @@
 <div id="sidebar">
 <?% IF allow('movetimercreate') %?>
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Move timer",20) %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("Rules to move timer",20) %?></td></tr>
     <tr>
     <td class="sidetext">
 <?% IF allow('movetimercreate') %?>
