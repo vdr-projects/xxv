@@ -4,7 +4,16 @@
 <?% subtitle = data.SubTitle %?>
 <?% id = data.RecordId %?>
 <?% allowplay = 1 IF allow('rplay') or allow('playrecord') %?>
-
+<?%-  IF data.Type == 'RADIO';
+          mylist = [ "images/audio", global.imagetyp ];
+          files =  [ mylist.join('.') ];
+       ELSIF param.previews.size <= 0;
+          mylist = [ "images/movie", global.imagetyp ];
+          files = mylist.join('.');
+       ELSE;
+          files = param.previews; 
+       END;
+  -%?>
 
 <script language="javascript" type="text/javascript">
 <!--
@@ -12,9 +21,8 @@
     document.forms.offset.__start.value = wert;
   }  
   function playstart(cmd) {
-    var url = '?cmd='+cmd + '&data=<?% id %?>&__start=' + document.forms.offset.__start.value;
-      location.href = url;
-    }
+    var url = '?cmd='+ cmd + '&data=<?% id %?>&__start=' + document.forms.offset.__start.value;
+    location.href = url;
   }
 -->
 </script>
@@ -32,16 +40,6 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK image %?>
-	<?%-  IF data.Type == 'RADIO';
-            mylist = [ "images/audio", global.imagetyp ];
-            files =  [ mylist.join('.') ];
-         ELSIF param.previews.size <= 0;
-            mylist = [ "images/movie", global.imagetyp ];
-            files = mylist.join('.');
-         ELSE;
-            files = param.previews; 
-         END;
-    -%?>
 						<?% IF files.size %?>
 						<table summary="">
 							<tr>
@@ -113,7 +111,7 @@
         <td colspan="<?% colspan %?>" style="white-space: nowrap">
 		<?%- secold = 0;
 	        c = -1;
-	        ml = d.split(',');
+	        ml = data.Marks.split(',');
 		-%?>
 		<?% IF ml.size > 1 %?>
 		<?%- 
@@ -135,7 +133,7 @@
             IF data.Duration > secold;
             class = (class == 'marksright2' ? 'marksright1' : 'marksright2'); 
             percent = ((data.Duration - secold) / data.Duration) * width;
-            -%?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent - 1 ) div 1 %?>" height="12" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% data.Duration div 3600 %?>:<?% data.Duration div 60 mod 60 | format('%02d') %?>:<?% data.Duration mod 60 | format('%02d') %?>" />
+            -%?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent - 1 ) div 1 %?>" height="12" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% PROCESS hfs d=data.Duration %?>" />
             <?% END %?>
         <?% ELSE %?>
 			<img class="marksleft" src="images/blank.gif" width="0" height="12" /><img class="marksright2" src="images/blank.gif" width="<?% width %?>" height="12" />
