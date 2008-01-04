@@ -57,7 +57,7 @@ var myBar = new WebFXMenuBar;
 <?% IF allow('schema') %?>
     var program = new WebFXMenu;
     program.add(new WebFXMenuItem("<?% gettext("Schema") %?>",  "?cmd=schema"));
-    <?% IF allow('topten') %?>program.add(new WebFXMenuItem("<?% gettext("TopTen") %?>",  "?cmd=t10"));<?% END %?>
+    <?% IF allow('topten') %?>program.add(new WebFXMenuItem("<?% gettext("Top ten entry") %?>",  "?cmd=t10"));<?% END %?>
     program.add(new WebFXMenuItem("<?% gettext("Search") %?>",  "?cmd=search"));
     program.add(new WebFXMenuSeparator());
     <?% FOREACH group = getModule('CHANNELS').ChannelGroupsArray('Name') %?>

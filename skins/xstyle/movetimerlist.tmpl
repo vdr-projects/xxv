@@ -21,6 +21,7 @@
             <?% IF enableform %?>
         			<input type="checkbox" value="<?% id %?>" name="<?% source %?> - <?% destination %?>" />
              <?% END %?>
+            <?% PROCESS RowButtons %?>
           </td>
           <td>
 <?% IF allow('movetimeredit') %?>
@@ -40,9 +41,6 @@
           <td>
             <?% action %?>
           </td>
-          <td>
-            <?% PROCESS RowButtons %?>
-          </td>
         </tr>
 <?% END %?>
 <?% ######################################################################## %?>
@@ -53,15 +51,18 @@
 <div id="navcontainer">
 <ul id="navlist">
 <?% IF allow('movetimercreate') %?>
-    <li><a href="?cmd=movetimercreate"><?% gettext("Create a new rule to move timer") %?></a></li>
+    <li><a title="<?% gettext("Create a new rule to move timer") %?>"
+           href="?cmd=movetimercreate"><?% gettext("Create a new rule to move timer",25) %?></a></li>
 <?% END %?>
 <?% IF data.size > 1 %?>
   <?% IF allow('movetimer') %?>
-    <li><a href="?cmd=movetimer"><?% gettext("Manual move timer between channels",20) %?></a></li>
+    <li><a title="<?% gettext("Manual move timer between channels") %?>"
+           href="?cmd=movetimer"><?% gettext("Manual move timer between channels",25) %?></a></li>
   <?% END %?>
   <?% IF allow('movetimerdelete') %?>
-    <li><a href="#" onClick="Delete('<?% gettext("You would delete follow rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist)">
-        <?% gettext("Delete rules to move timer") %?></a>
+    <li><a title="<?% gettext("Delete rules to move timer") %?>"
+          href="#" onClick="Delete('<?% gettext("You would delete follow rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist)">
+        <?% gettext("Delete rules to move timer",25) %?></a>
      </li>
   <?% END %?>
 <?% END %?>
@@ -79,12 +80,11 @@
 <?% END %?>
 
       <table summary="" width="95%">
-            <tr><th width="20"></th>
-                <th width="120"><?% gettext('Source') %?></th>
+            <tr><th width="80"><?% gettext('Service') %?></th>
+                <th><?% gettext('Source') %?></th>
                 <th><?% gettext('Destination')%?></th>
                 <th><?% gettext('Move timer') %?></th>
                 <th><?% gettext('Change original timer') %?></th>
-                <th width="64" align="right"></th>
             </tr>
      <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
