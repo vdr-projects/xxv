@@ -87,13 +87,11 @@ END %?>
              <div class="description" style="white-space: nowrap">    
                 <?% IF allow('switch') %?>
                 <a href="javascript:post('switch','<?% channel %?>')">
-                    <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" />&nbsp;
-                </a>
+                    <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Switch") %?>" /></a>&nbsp;
          	      <?% END %?>
                 <?% IF allow('livestream') %?>
                 <a href="?cmd=livestream&amp;data=<?% channelid %?>">
                   <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Live TV web cast") %?>" /></a>&nbsp;
-                </a>
         	      <?% END %?>
    			        <?% channel %?>
             </div>

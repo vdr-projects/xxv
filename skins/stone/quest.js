@@ -1,6 +1,6 @@
 
 var questfn = null;
-function questcontent(title, text){
+function questcontent(title, text, image){
   var utitle = unescape(title);
   var content =  '<table class="areatable" summary=""><tr><td class="areahead"><div class="editorhead">';
   content += utitle.substr(0,50);
@@ -21,7 +21,7 @@ function questcontent(title, text){
   content += '</ul></font>';
   content += '<font class="title" style="float:right;padding-right:2em;">';
   content += '<a href="javascript:questclose(1)">';
-  content += '<img src="images/delete.'+ imageExt +'" alt="'+ title +'" />';
+  content += '<img src="images/'+ image +'.'+ imageExt +'" alt="'+ title +'" />';
   content += '</a></font></td></tr>';
   content += '<tr><td class="areabottom"></td></tr></table>';
   return content;
@@ -39,7 +39,7 @@ function questkeypress(e) {
 }
 
 var lastKeypress = null;
-function quest(title, text, center) {
+function quest(title, text, center, image) {
   ttp_enable(0);
   lastKeypress = document.onkeypress;
   document.onkeypress = questkeypress;
@@ -80,7 +80,7 @@ function quest(title, text, center) {
   }
 	ele.style.left = x + "px";
 
-	ele.innerHTML = questcontent(title, text);
+	ele.innerHTML = questcontent(title, text, image);
   ele.style.visibility = "visible";
 }
 
@@ -108,7 +108,7 @@ function sure(question, text, cmd, data) {
       }
     }
     questfn=new fn();
-    quest(question,[text],0);
+    quest(question,[text],0,'delete');
 }
 
 function di(url, wert) {
@@ -123,7 +123,7 @@ function sureandreload(question, text, cmd, data) {
       }
     }
     questfn=new fn();
-    quest(question,[text],0);
+    quest(question,[text],0,'delete');
 }
 
 // Question bevor delete
@@ -134,7 +134,7 @@ function surecmd(question,text,cmd,data,width,height) {
       }
     }
     questfn=new fn();
-    quest(question,[text],0);
+    quest(question,[text],0,'delete');
 }
 
 function DeleteSelected(question,warnmsg,cmd,form,width,height) {
@@ -165,8 +165,11 @@ function DeleteSelected(question,warnmsg,cmd,form,width,height) {
           }
         }
         questfn=new fn();
-        quest(question,txt,1);
+        quest(question,txt,1,'delete');
     } else {
-        alert(warnmsg);
+        function none() { this.callback=function() { } }
+        questfn=new none();
+        txt.push(warnmsg);
+        quest(question,txt,1,'off');
     }
 }
