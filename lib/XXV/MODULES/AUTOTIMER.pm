@@ -913,6 +913,71 @@ You can also fine tune your search :
             def     => $epg->{Dir},
             # choices   =>  main::getModule('TIMERS')->getRootDirs,
         },
+        'startdate' => {
+            typ     => 'string',
+            def     => sub{
+                # Convert day from mysql format to locale format
+                my $value = $epg->{startdate};
+
+                if($value and $value =~ /^\d{4}\-\d{2}-\d{2}/) {
+                  Date_Init("Language=English");
+                  my $d = ParseDate($value);
+                  if($d) {
+                    my $t = UnixDate($d,gettext('%Y-%m-%d %H:%M:%S'));
+                    return $t if($t);
+                  }
+                }
+                return $value;
+            },
+            msg     => gettext("Start date as YYYY-MM-DD HH:MM:SS."),
+            check   => sub{
+                my $value = shift;
+            		return "" if(not $value);
+                # Convert locale format to mysql format %Y-%m-%d
+                if($value and $value =~ /^\d+/) {
+              		return "" if($value eq '0000-00-00 00:00:00');
+                  Date_Init(split(',',gettext("Language=English")));
+                  my $d = ParseDate($value);
+                  if($d) {
+                    my $t = UnixDate($d,'%Y-%m-%d %H:%M:%S');
+                    return $t if($t);
+                  }
+                }
+                return undef, gettext('The day is incorrect or was in a wrong format!');
+            },
+        },
+        'stopdate' => {
+            typ     => 'string',
+            def     => sub{
+                # Convert day from mysql format to locale format
+                my $value = $epg->{stopdate};
+                if($value and $value =~ /^\d{4}\-\d{2}-\d{2}/) {
+              		return "" if($value eq '0000-00-00 00:00:00');
+                  Date_Init("Language=English");
+                  my $d = ParseDate($value);
+                  if($d) {
+                    my $t = UnixDate($d,gettext('%Y-%m-%d %H:%M:%S'));
+                    return $t if($t);
+                  }
+                }
+                return $value;
+            },
+            msg     => gettext("Stop date as YYYY-MM-DD HH:MM:SS."),
+            check   => sub{
+                my $value = shift;
+            		return "" if(not $value);
+                # Convert locale format to mysql format %Y-%m-%d
+                if($value and $value =~ /^\d+/) {
+                  Date_Init(split(',',gettext("Language=English")));
+                  my $d = ParseDate($value);
+                  if($d) {
+                    my $t = UnixDate($d,'%Y-%m-%d %H:%M:%S');
+                    return $t if($t);
+                  }
+                }
+                return undef, gettext('The day is incorrect or was in a wrong format!');
+            },
+        },
     ];
 
     # Ask Questions
@@ -1134,6 +1199,20 @@ sub _eventsearch {
       $term = $query->{term};
     }
 
+    $a->{startdate} = 0 if($a->{startdate} && $a->{startdate} eq '0000-00-00 00:00:00');
+    $a->{stopdate} = 0  if($a->{stopdate}  && $a->{stopdate}  eq '0000-00-00 00:00:00');
+    if($a->{startdate} and $a->{stopdate}) {
+      $search .= "\n AND (e.starttime > ? AND e.starttime < ?)";
+      push(@{$term},$a->{startdate});
+      push(@{$term},$a->{stopdate});    
+    } elsif($a->{startdate}) {
+      $search .= "\n AND (e.starttime > ?)";
+      push(@{$term},$a->{startdate});
+    } elsif($a->{stopdate}) {
+      $search .= "\n AND (e.starttime < ?)";
+      push(@{$term},$a->{stopdate});
+    }
+
     # Start and Stop
     if($a->{Start} and $a->{Stop}) {
         if($a->{Start} > $a->{Stop}) {
@@ -1215,8 +1294,6 @@ WHERE
 ORDER BY
     e.starttime
     |;
-
-#dumper $sql;
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($prev,$after,@{$term})

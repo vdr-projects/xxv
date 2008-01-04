@@ -56,14 +56,14 @@ var tree = new WebFXTree("XXV", "?cmd=<?% getModule('HTTPD').StartPage %?>");
 
 
 <?% IF allow('alist') || allow('tlist') || allow('movetimerlist') %?>
-var control = new WebFXTreeItem("<?% gettext("Programming",15) %?>",0,tree);
-<?% IF allow('alist') %?>control.add(new WebFXTreeItem("<?% gettext("Autotimer",12) %?>",     "?cmd=alist"));<?% END %?>
+var control = new WebFXTreeItem("<?% gettext("Programming",15) %?>","?cmd=tlist",tree);
 <?% IF allow('tlist') %?>control.add(new WebFXTreeItem("<?% gettext("Timers",12) %?>",        "?cmd=tlist"));<?% END %?>
+<?% IF allow('alist') %?>control.add(new WebFXTreeItem("<?% gettext("Autotimer",12) %?>",     "?cmd=alist"));<?% END %?>
 <?% IF allow('movetimerlist') %?>control.add(new WebFXTreeItem("<?% gettext("Rules to move timer",12) %?>","?cmd=movetimerlist"));<?% END %?>
 <?% END %?>
 
-<?% IF allow('rlist') || allow('mlist') || allow('mllist') || allow('restart') %?>
-var media = new WebFXTreeItem("<?% gettext("Media",15) %?>",0,tree);
+<?% IF allow('rlist') || allow('mlist') || allow('mllist') %?>
+var media = new WebFXTreeItem("<?% gettext("Media",15) %?>","?cmd=rlist",tree);
 <?% IF allow('rlist') %?>media.add(new WebFXTreeItem("<?% gettext("Recordings",12) %?>",    "?cmd=rlist"));<?% END %?>
 <?% IF allow('mlist') %?>media.add(new WebFXTreeItem("<?% gettext("Music",12) %?>",         "?cmd=mlist"));<?% END %?>
 <?% IF allow('mllist') %?>media.add(new WebFXTreeItem("<?% gettext("Media library",12) %?>","?cmd=mllist"));<?% END %?>
