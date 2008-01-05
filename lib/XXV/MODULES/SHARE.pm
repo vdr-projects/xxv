@@ -66,7 +66,7 @@ sub module {
             rating => {
                 description => gettext('URL to access popularity web service.'),
                 default     => 'http://www.deltab.de/t10.php?wsdl',
-                type        => 'url',
+                type        => 'string',
                 required    => gettext('This is required!'),
             },
             update => {
@@ -233,7 +233,13 @@ sub ConnectToService {
     my $version = main::getVersion();
 
     my $client = SOAP::Lite->new;
-    $client->schema->useragent->agent(sprintf("xxv %s",$version));
+    if($client->can('schema')) {
+     my $schema = $client->schema;
+     if($schema && $schema->can('useragent')) {
+       my $ua = $schema->useragent;
+       $ua->agent(sprintf("xxv %s",$version)) if($ua);
+      }
+    }
     my $webservice = $client->service($service);
       
     my $usrkey;
