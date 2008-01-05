@@ -148,9 +148,9 @@
 
          <td colspan="3" style="width:<?% ( ( width / ticks) ) div 1 %?>px; white-space: nowrap; text-align:right">
             <font size='0.66em'>
-<?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs d=seconds %?>')" ><?% END %?>
+<?% IF allowplay && seconds < data.Duration %?><a href="javascript:setstart('<?% PROCESS hfs d=seconds %?>')" ><?% END %?>
                 <?% ( seconds * multi ) div 3600 %?>:<?% ( seconds * multi ) div 60 mod 60 | format('%02d') %?>
-<?% IF allowplay %?></a><?% END %?>
+<?% IF allowplay && seconds < data.Duration %?></a><?% END %?>
             </font>
         </td>
 <?% END %?>
