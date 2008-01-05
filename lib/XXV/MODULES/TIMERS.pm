@@ -1000,7 +1000,8 @@ sub insert {
     }
 
     my $sth = $obj->{dbh}->prepare('REPLACE INTO TIMERS VALUES (?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,NOW(),?)');
-    $sth->execute( @$data );
+    $sth->execute( @$data )
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
 }
 
 

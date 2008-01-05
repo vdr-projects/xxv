@@ -518,6 +518,14 @@ sub _autotimerLookup {
                 }
             }
             if($error) {
+#error('Event : ###############################################################');
+#dumper($event);
+#error('Autotimer : ###########################################################');
+#dumper($a);
+#error('Timer : ###############################################################');
+#my $tdata = getDataByTable('TIMERS');
+#dumper($tdata);
+
                 $console->err(sprintf(gettext("Could not save timer for '%s' : %s"), $event->{File}, $error))
                   if(ref $console && $autotimerid);
             } else {
@@ -918,8 +926,8 @@ You can also fine tune your search :
             def     => sub{
                 # Convert day from mysql format to locale format
                 my $value = $epg->{startdate};
-
                 if($value and $value =~ /^\d{4}\-\d{2}-\d{2}/) {
+              		return "" if($value eq '0000-00-00 00:00:00');
                   Date_Init("Language=English");
                   my $d = ParseDate($value);
                   if($d) {
@@ -1312,17 +1320,19 @@ sub _timerexists {
                 ChannelID = ?
                 and UNIX_TIMESTAMP(NextStartTime) = ?
                 and UNIX_TIMESTAMP(NextStopTime)  = ?
-                and Priority = ?
-                and Lifetime = ?
-                and (
-                       ( Status & 1 = '0' )
-                    or ( File = ? )
-                )";
+                ";
+#               and Priority = ?
+#               and Lifetime = ?
+#               and (
+#                      ( Status & 1 = '0' )
+#                   or ( File = ? )
+#               )
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{ChannelID},$eventdata->{starttime},$eventdata->{stoptime},
-                  $eventdata->{Priority},$eventdata->{Lifetime},
-                  $eventdata->{File})
+#                 $eventdata->{Priority},$eventdata->{Lifetime},
+#                 $eventdata->{File}
+                  )
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
