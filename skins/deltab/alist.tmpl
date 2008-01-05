@@ -15,9 +15,10 @@
 <!-- active:  <?% param.timers.$id.activeTimer.size %?>   -->
 <!-- deactive:<?% param.timers.$id.deactiveTimer.size %?> -->
 <?% END %?>
-                <a href="?cmd=tlist&amp;data=<?% param.timers.$id.allTimer.join(',') %?>">
-                    <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Planned recordings") %?>" />
-                </a>
+              <a href="?cmd=tlist&amp;data=<?% param.timers.$id.allTimer.join('_') %?>"
+                   onmouseover="ttptlist(this, '<?% gettext("Planned recordings") %?>','<?% param.timers.$id.allTimer.join('_') %?>', -400);"
+                <img src="images/info.<?% global.imagetyp %?>" alt="" />
+             </a>
           <?% END %?>
         <?% END %?>
             <a href="?cmd=search&amp;data=<?% url( title ) %?>">

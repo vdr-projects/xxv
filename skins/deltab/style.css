@@ -408,8 +408,6 @@ font-size:8px;
 #TOOLTIP {
 position:absolute;
 width:400px;
-top:0;
-left:0;
 z-index:5;
 visibility:hidden;
 }
@@ -428,7 +426,7 @@ margin:0;
 padding:3px;
 }
 
-#ttwindow p.description {
+#ttwindow p.description, p.title {
 border-left:1px dashed #4080ff;
 border-right:1px dashed #4080ff;
 border-bottom:1px dashed #4080ff;

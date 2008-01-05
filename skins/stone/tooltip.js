@@ -98,12 +98,12 @@ if(ttp_visable) {
   }
 }
 
-function ttp_update_content(title, description){
+function ttp_update_content(title, description, style){
   var utitle = unescape(title);
   ttp_content =  '<table class="areatable" summary=""><tr><td class="areahead">';
   ttp_content += utitle.substr(0,50);
   if (utitle.length > 50)  {ttp_content += '...';}
-  ttp_content += '</td></tr><tr><td class="areatext"><font class="description">';
+  ttp_content += '</td></tr><tr><td class="areatext"><font class="' + style +'">';
   if(description == 'WAIT') {
     ttp_content += '<img src="images/wait.gif" alt="" />';
   } else {
@@ -112,9 +112,9 @@ function ttp_update_content(title, description){
   ttp_content += '</font></td></tr><tr><td class="areabottom"></td></tr></table>';
 }
 
-function ttp_make_visable(title, description){
+function ttp_make_visable(title, description, style){
 		ttp_update_pos();
-		ttp_update_content(title, description);
+		ttp_update_content(title, description, style);
     var ele = document.getElementById('TOOLTIP');
 		ele.innerHTML = ttp_content;
 		ele.style.visibility = "visible";
@@ -148,7 +148,7 @@ function ttp_make_req_visable(title, eventid, x, y){
 
     ttp_x_start = ttp_x;
     ttp_y_start = ttp_y;
-    ttp_make_visable(title,'WAIT');
+    ttp_make_visable(title,'WAIT','description');
 
     var fnWhenDone = function (oXML, sData) {
 
@@ -160,7 +160,7 @@ function ttp_make_req_visable(title, eventid, x, y){
             content = '...';
         }
 
-        ttp_make_visable(title,content);
+        ttp_make_visable(title,content,'description');
     };
 
     var url = "?cmd=edescription&data=" + eventid + "&ajax=json";
@@ -182,6 +182,80 @@ function ttpreq(self, title, eventid, offset_x){
   }
 }
 
+
+function ttp_make_tlist_visable(title, tlist, x, y){
+
+    if(!tlist || ttp_inside==0
+      || Math.abs(x - ttp_x) > 15
+      || Math.abs(y - ttp_y) > 15) {
+        clearTimeout(ttp_timer);
+        ttp_inside = 0;
+        return false;
+    }
+
+    ttp_x_start = ttp_x;
+    ttp_y_start = ttp_y;
+    ttp_make_visable(title,'WAIT','title');
+
+    var fnWhenDone = function (oAnswer, sData) {
+        var content = "";
+        var values = eval('(' + oAnswer.responseText + ')');
+        if(values && values.data && typeof(values.data) == 'object'){
+          for (var i = 1; i < values.data.length; i++) {
+            var x = values.data[i];
+              if ((x[1] & 1) == 0) { //Status
+                content += '<span class="deactive">';
+              }
+              //var d = new Date(x[9] * 1000);
+              content += x[4]; //Day
+              content += " - ";
+              content += x[5]; //Start
+              content += "-";
+              content += x[6]; //Stop
+              content += " - ";
+              if (x[2].length > 15) {//Channel
+                content += x[2].substring(0, 13);
+                content += '...';
+              } else {
+                content += x[2]; 
+              }
+              content += " - ";
+              if (x[7].length > 23) {
+                content += x[7].substring(0, 21);
+                content += '...';
+              } else {
+                content += x[7]; //File
+              }
+              if ((x[1] & 1) == 0) { //Status
+                content += "</span>";
+              }
+              content += "<br />";
+            }
+        } else {
+            content = '...';
+        }
+
+        ttp_make_visable(title,content,'title');
+    };
+
+    var url = "?cmd=tlist&data=" + tlist + "&ajax=json";
+    var aconn = new XHRequest();
+    if(!aconn)
+      return false;
+    return aconn.connect(url, fnWhenDone, tlist);
+}
+
+
+function ttptlist(self, title, tlist, offset_x){
+  if(ttp_active) {
+    self.onmouseout=function(){ ttp_make_invisable(); };
+  	if(tlist && ttp_x != -1 && ttp_y != -1){
+      ttp_offset_x  = offset_x;
+      ttp_inside = 1;
+      ttp_timer = setTimeout("ttp_make_tlist_visable('"+escape(title)+"', '"+tlist+"', '"+ttp_x+"', '"+ttp_y+"')", 750);
+  	}
+  }
+}
 function ttp_make_direct_visable(title, description, x, y){
 
     if(ttp_inside==0
@@ -194,7 +268,7 @@ function ttp_make_direct_visable(title, description, x, y){
 
     ttp_x_start = ttp_x;
     ttp_y_start = ttp_y;
-    ttp_make_visable(title,description);
+    ttp_make_visable(title,description,'description');
 }
 
 function ttp(self, title, description, offset_x){
