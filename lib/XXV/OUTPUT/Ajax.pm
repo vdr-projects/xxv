@@ -130,13 +130,18 @@ sub printout {
 
     my $content;
     if($obj->{browser}->{Method} ne 'HEAD') {
-      $content = ($obj->{outtype} eq 'xml' 
-    								? $obj->{xml}->XMLout($obj->{output}) 
-    								: 
-    									( $obj->{outtype} eq 'json' 
-	    									? $obj->{json}->objToJson ($obj->{output}, {pretty => 1, indent => 2})
-	    									: $obj->{output}->{DATA})
-									);
+      if($obj->{outtype} eq 'xml') {
+      $content = $obj->{xml}->XMLout($obj->{output});
+      } elsif( $obj->{outtype} eq 'json' ) {
+        if($obj->{json}->can('to_json')) { # Version 2.0 see http://search.cpan.org/~makamaka/JSON-2.04/lib/JSON.pm#Transition_ways_from_1.xx_to_2.xx.
+          $content = $obj->{json}->to_json($obj->{output});
+        } else { # Version 1.0
+          $content = $obj->{json}->objToJson ($obj->{output});
+        }
+      } else {
+        $content = $obj->{output}->{DATA};
+      }
+
 	  	# compress data
       $content = Compress::Zlib::memGzip($content)
         if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip});

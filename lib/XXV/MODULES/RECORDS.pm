@@ -434,7 +434,7 @@ sub parseData {
         $event->{title} = $title;
 
         $hash = sprintf("%s~%s",$title,$event->{starttime});
-        %{$dataHash->{lc($hash)}} = %{$event};
+        %{$dataHash->{$hash}} = %{$event};
     }
     return ($dataHash);
 }
@@ -443,15 +443,48 @@ sub parseData {
 sub scandirectory {
 # ------------------
     my $obj = shift || return error('No object defined!');
+    my $typ = shift;
 
+    my $files = (); # Hash with md5 and path to recording
     find(
             {
                 wanted => sub{
                     if(-r $File::Find::name) {
-                        push(@{$obj->{FILES}},[$File::Find::name,$obj->converttitle($File::Find::name)])
-                            if($File::Find::name =~ /\.rec\/\d{3}.vdr$/sig);  # Lookup for *.rec/001.vdr
+                        if($File::Find::name =~ /\.$typ\/\d{3}.vdr$/sig) {  # Lookup for *.rec/001.vdr
+                          my $path = dirname($File::Find::name);
+                          my $md5 = md5_hex($path);
+                          unless(exists $files->{$md5}) {
+                            my $rec;
+                            $rec->{path} = $path;
+                          	# Splitt 2005-01-16.04:35.88.99
+  	                        my ($year, $month, $day, $hour, $minute, $priority, $lifetime)
+                               = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\./s;
+                            $rec->{year} = $year;
+                            $rec->{month} = $month;
+                            $rec->{day} = $day;
+                            $rec->{hour} = $hour;
+                            $rec->{minute} = $minute;
+                            $rec->{priority} = $priority;
+                            $rec->{lifetime} = $lifetime;
+
+                            # convert path to title
+                            my $title = dirname($path);
+                            $title =~ s/^$obj->{videodir}//g;
+                            $title =~ s/^\///g;
+                            $rec->{title} = $obj->converttitle($title);
+
+                            # add file
+                            push(@{$rec->{files}},$File::Find::name);
+                            $files->{$md5} = $rec;
+
+                          } else {
+
+                            push(@{$files->{$md5}->{files}},$File::Find::name);
+
+                          }
+                        }
                     } else {
-                        lg "Permissions deny, Couldn't read : $File::Find::name";
+                        lg "Permissions deny, couldn't read : $File::Find::name";
                     }
                 },
                 follow => 1,
@@ -459,6 +492,7 @@ sub scandirectory {
             },
         $obj->{videodir}
     );
+    return $files;
 }
 
 # ------------------
@@ -517,8 +551,6 @@ sub readData {
     $waiter->max(scalar keys %$vdrData)
         if(ref $console && ref $waiter);
 
-    $obj->{FILES} = undef;
-
     my $db_data;
     if($forceUpdate) {
         $obj->{dbh}->do('DELETE FROM RECORDS');
@@ -528,7 +560,7 @@ sub readData {
                         UNIX_TIMESTAMP(e.starttime) as starttime, 
                         e.duration as duration, r.State as state, 
                         CONCAT_WS("~",e.title,e.subtitle) as title, 
-                        LOWER(CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime))) as hash,
+                        CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as hash,
                         UNIX_TIMESTAMP(e.addtime) as addtime,
                         r.Path as path,
                         r.Type as type,
@@ -542,6 +574,8 @@ sub readData {
        lg sprintf( 'Compare recording database with data from vdr : %d / %d', 
                     scalar keys %$db_data,scalar keys %$vdrData );
     }
+
+    my $files; # Hash with md5 and path to recording
 
     # Compare this Hashes
     foreach my $h (keys %{$vdrData}) {
@@ -605,25 +639,33 @@ sub readData {
               if(ref $waiter);
 
           # Read VideoDir only at first call
-          if(not defined $obj->{FILES}) {
-            $obj->{FILES} = [];
-            $obj->scandirectory();
+          unless($files) {
+            $files = $obj->scandirectory('rec');
+          }
+          unless($files && keys %{$files}) {
+            last;
           }
 
-          my $anahash = $obj->analyze($event);
-          if(ref $anahash eq 'HASH') {
-              $totalDuration += $anahash->{Duration};
-              $totalSpace += $anahash->{FileSize};
+          my $info = $obj->analyze($files,$event);
+          if(ref $info eq 'HASH') {
+              $totalDuration += $info->{Duration};
+              $totalSpace += $info->{FileSize};
 
-              if($obj->insert($anahash)) {
-                  push(@merkMD5,$anahash->{RecordMD5});
+              if($obj->insert($info)) {
+                  push(@merkMD5,$info->{RecordMD5});
                   $insertedData++;
               } else {
-                  push(@{$err},$anahash->{title});
+                  push(@{$err},sprintf(gettext("Can't add recording '%s' into database!"),$info->{title}));
               }
           } else {
-              push(@{$err},$event->{title});
+              push(@{$err},sprintf(gettext("Can't assign recording '%s' to file!"),$event->{title}));
           }
+        }
+      }
+
+      if($forceUpdate) {
+        foreach my $md5 (keys %{$files}) {
+           push(@{$err},sprintf(gettext("Recording '%s' without id or unique title and date from VDR!"),$files->{$md5}->{title}));
         }
       }
 
@@ -765,8 +807,8 @@ sub insert {
     my $sth = $obj->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
-        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type )
-     VALUES (?,?,?,?,?,?,?,?,?,?)
+        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type, addtime )
+     VALUES (?,?,?,?,?,?,?,?,?,?, NOW())
     |);
 
     $attr->{Marks} = ""
@@ -807,8 +849,8 @@ sub _updateState {
     my $oldattr = shift || return error ('No data defined!');
     my $attr = shift || return error ('No data to replace!');
 
-    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET RecordId=?, State=?, addtime=FROM_UNIXTIME(?) where RecordMD5=?');
-    return $sth->execute($attr->{id},$attr->{state},time,$oldattr->{RecordMD5});
+    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET RecordId=?, State=?, addtime=NOW() where RecordMD5=?');
+    return $sth->execute($attr->{id},$attr->{state},$oldattr->{RecordMD5});
 }
 
 # ------------------
@@ -817,21 +859,20 @@ sub _updateFileSize {
     my $obj = shift || return error('No object defined!');
     my $attr = shift || return error ('No data to replace!');
 
-    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=FROM_UNIXTIME(?) where RecordMD5=?');
-    return $sth->execute($attr->{FileSize},time,$attr->{RecordMD5});
+    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=NOW() where RecordMD5=?');
+    return $sth->execute($attr->{FileSize},$attr->{RecordMD5});
 }
 
 # ------------------
 sub analyze {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $recattr = shift || return error ('No data to analyze!');
+    my $files = shift; # Hash with md5 and path to recording
+    my $recattr = shift;
 
-    lg sprintf('Analyze recording "%s"',
-            $recattr->{title},
-        );
+    lg sprintf('Analyze recording "%s"', $recattr->{title} );
 
-    my $info = $obj->videoInfo($recattr->{title}, $recattr->{starttime});
+    my $info = $obj->videoInfo($files,$recattr->{title}, $recattr->{starttime});
     unless($info && ref $info eq 'HASH') {
       error sprintf("Couldn't find recording '%s' with id : '%s' !",$recattr->{title}, $recattr->{id});
       return 0;
@@ -894,59 +935,45 @@ sub analyze {
 sub videoInfo {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $title   = shift || return error('No title defined!');
-    my $starttime   = shift || return error('No start time defined!');
-
-    lg sprintf('Get information from recording "%s"', $title );
+    my $files   = shift; # Hash with md5 and path to recording
+    my $title   = shift; # title from VDR
+    my $starttime   = shift; # time from VDR
 
     my @ltime = localtime($starttime);
-    my $month=sprintf("%02d",$ltime[4]+1);
-    my $day=sprintf("%02d",$ltime[3]);
-    my $hour=sprintf("%02d",$ltime[2]);
-    my $minute=sprintf("%02d",$ltime[1]);
+    my $month=$ltime[4]+1;
+    my $day=$ltime[3];
+    my $hour=$ltime[2];
+    my $minute=$ltime[1];
 
-    my @files;
+    foreach my $md5 (keys %{$files}) {
+        my $rec = $files->{$md5};
+        if($rec->{title} eq $title
+#          && $rec->{year} == $year
+           && $rec->{month} == $month
+           && $rec->{day} == $day
+           && $rec->{hour} == $hour
+           && $rec->{minute} == $minute) {
 
-    $title =~ s/([\)\(\-\?\+\*\[\]\{\}])/\\$1/g; # Replace regex groupsymbols "),(,-,?,+,*,[,],{,}"
-    $title =~ s/([\/])/\./g; # Replace splash
+              my $info = $obj->readinfo($rec->{path});    
 
-    foreach my $f (@{$obj->{FILES}})
-    {
-        push (@files, $f->[0])
-            if(grep(/\~$title.*?\d{4}\-$month\-$day\.$hour[\:|\.]$minute.+?\d{3}\.vdr/,$f->[1]));
+              $info->{RecordMD5} = $md5;
+              $info->{path} = $rec->{path};
+              $info->{Prio} = $rec->{priority};
+              $info->{Lifetime} = $rec->{lifetime};
+              $info->{duration} = $obj->_recordinglength($rec->{path});
+              $info->{FileSize} = $obj->_recordingCapacity($rec->{files},
+                                   ($info->{duration} * 8 * $obj->{framerate}));
+
+              my $marks = $obj->readmarks($rec->{path});
+              map { $info->{$_} = $marks->{$_}; } keys %{$marks}; 
+
+              delete $files->{$md5}; # remove from hash, avoid double lookup
+              return $info;
+        }
     }
 
-    unless(scalar @files) {
-      error sprintf("Couldn't assign recording with title: '%s' (%s/%s %s:%s)", $title,$month,$day,$hour,$minute);
-      return 0;
-    }
-
-    my $status;
-
-    # Dateigröße von index.vdr für Aufnahmedauer ermitteln
-    if($files[0] && -e $files[0]) {
-
-      my $path = dirname($files[0]);
-
-    	#Splitt 2005-01-16.04:35.88.99.rec
-    	my ($year, $month, $day, $hour, $minute, $prio, $lifetime)
-             = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\.rec/si;
-
-      $status->{Prio} = $prio;
-      $status->{Lifetime} = $lifetime;
-
-      $status->{duration} = $obj->_recordinglength($path);
-      $status->{FileSize} = $obj->_recordingCapacity(\@files,($status->{duration} * 8 * $obj->{framerate}));
-
-      my $info = $obj->readinfo($path);    
-      foreach my $h (keys %{$info}) { $status->{$h} = $info->{$h}; }
-      my $marks = $obj->readmarks($path);
-      foreach my $m (keys %{$marks}) { $status->{$m} = $marks->{$m}; }
-
-      $status->{path} = $path;
-      $status->{RecordMD5} = md5_hex($path);
-    }
-    return $status;
+    error sprintf("Couldn't assign recording with title: '%s' (%s/%s %s:%s)", $title,$month,$day,$hour,$minute);
+    return 0;
 }
 
 #-------------------------------------------------------------------------------
@@ -1297,7 +1324,6 @@ sub createOldEventId {
         starttime => $start,
         video => $info->{video} || "",
         audio => $info->{audio} || "",
-        addtime => time
     };
 
     $attr->{eventid} = $obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(eventid)+1 from OLDEPG')->[0];
@@ -1305,7 +1331,7 @@ sub createOldEventId {
 
     lg sprintf('Create event "%s" into OLDEPG', $subtitle ? $title .'~'. $subtitle : $title);
 
-    my $sth = $obj->{dbh}->prepare('REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, duration, tableid, starttime, video, audio, addtime) VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),?,?,FROM_UNIXTIME(?))');
+    my $sth = $obj->{dbh}->prepare('REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, duration, tableid, starttime, video, audio, addtime) VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),?,?,NOW())');
     $sth->execute(
         $attr->{eventid},
         $attr->{title},
@@ -1316,8 +1342,7 @@ sub createOldEventId {
         $attr->{tableid},
         $attr->{starttime},
         $attr->{video},
-        $attr->{audio},
-        $attr->{addtime}
+        $attr->{audio}
     );
 
     return $attr;
@@ -1962,7 +1987,8 @@ WHERE
             $rec->{Path} = $newPath;
         }
 
-        if($dropEPGEntry || $ChangeRecordingData) { 
+        if($dropEPGEntry || $ChangeRecordingData) {
+            $obj->{lastupdate} = 0;
             touch($obj->{videodir}."/.update");
         }
 
@@ -2222,6 +2248,7 @@ GROUP BY
 
 
 # ------------------
+# title to path
 sub translate {
 # ------------------
     my $obj = shift || return error('No object defined!');
@@ -2236,12 +2263,29 @@ sub translate {
         $title =~ s/(\.$)/\#2E/sig;
         $title =~ s/(\.~)/\#2E~/sig;
     } else {
-        $title =~ s/\'/\x01/sg;
-        $title =~ s/\//\x02/sg;
-        $title =~ s/ /_/sg;
+     $title =~ tr# \'\/#_\x01\x02#;
     }
-    $title =~ s/~/\//sg;
 
+    $title =~ tr#\/~#~\/#;
+    return $title;
+}
+
+# ------------------
+# path to title
+sub converttitle {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $title = shift || return error ('No title in translate!');
+    my $vfat = shift || $obj->{vfat};
+
+    $title =~ s/_/ /g;
+
+    if($vfat eq 'y') {
+        $title =~ s/\#([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+        $title =~ s/\x03/:/g; # See backward compat.. at recordings.c
+    }
+
+    $title=~tr#\/~\x01\x02#~\/\'\/#;
     return $title;
 }
 
@@ -2313,28 +2357,6 @@ sub _recordingCapacity {
 }
 
 # ------------------
-sub converttitle {
-# ------------------
-    my $obj = shift || return error('No object defined!');
-    my $title = shift || return error ('No title in translate!');
-    my $vfat = shift || $obj->{vfat};
-
-    $title =~ s/_/ /g;
-
-    if($vfat eq 'y') {
-        $title =~ s/\#([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-        $title =~ s/\x03/:/g; # See backward compat.. at recordings.c
-    }
-
-    $title =~ s/\x01/\'/g;
-    $title =~ s/\x02/\\/g;
-
-    $title =~ s/\//~/g;
-
-    return $title;
-}
-
-# ------------------
 sub suggest {
 # ------------------
     my $obj = shift  || return error('No object defined!');
@@ -2388,35 +2410,15 @@ sub recover {
     my $recordid  = shift || 0;
     my $data    = shift || 0;
 
-    my $files; # Array with md5 and humanreadable title
-    my $paths; # Hash with md5 and path to recording
-    find(
-            {
-                wanted => sub{
-                    if(-r $File::Find::name) {
-                        if($File::Find::name =~ /\.del\/\d{3}.vdr$/sig) {  # Lookup for *.del/001.vdr
-                          my $path = dirname($File::Find::name);
-                          my $md5 = md5_hex($path);
-                          unless(exists $paths->{$md5}) {
-                            my $title = dirname($path);
-                            $title =~ s/^$obj->{videodir}//g;
-                            $title =~ s/^\///g;
-                            push(@{$files},[$obj->converttitle($title),$md5]);
-                            $paths->{$md5} = $path;
-                          }
-                        }
-                    } else {
-                        lg "Permissions deny, couldn't read : $File::Find::name";
-                    }
-                },
-                follow => 1,
-                follow_skip => 2,
-            },
-        $obj->{videodir}
-    );
+    my $files = $obj->scandirectory('del');
 
     return con_msg($console,gettext("There none recoverable recordings!"))
-      unless($files and scalar @{$files});
+      unless($files and keys %{$files});
+
+    my $choices = [];
+    foreach my $v (keys %{$files}) {
+      push(@$choices,[$files->{$v}->{title},$v]);
+    }
 
     my $questions = [
       'restore' => {
@@ -2426,12 +2428,12 @@ sub recover {
         options => 'multi',
         def   => sub {
             my @ret;
-            foreach my $v (@{$files}) {
-              push(@ret,$v->[1]);
+            foreach my $v (keys %{$files}) {
+              push(@ret,$v);
             }
             return @ret;
           },
-        choices => $files,
+        choices => $choices,
         check   => sub{
             my $value = shift || return undef, gettext("This is required!");
             my @ret = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
@@ -2445,12 +2447,12 @@ sub recover {
         my $ChangeRecordingData = 0;
 
         foreach my $md5 (split(/\s*,\s*/, $data->{restore})) {
-          unless(exists $paths->{$md5}) {
+          unless(exists $files->{$md5}) {
             con_err($console,gettext("Can't recover recording, maybe was this in the meantime deleted!"));
             next;
           }
 
-          my $path = $paths->{$md5};
+          my $path = $files->{$md5}->{path};
           my $newPath = $path;
           $newPath =~ s/\.del$/\.rec/g;
           lg sprintf("Recover recording, rename '%s' to %s",$path,$newPath);
@@ -2464,6 +2466,7 @@ sub recover {
         if($ChangeRecordingData) {
           my $waiter;
 
+          $obj->{lastupdate} = 0;
           touch($obj->{videodir}."/.update");
 
           if(ref $console && $console->typ eq 'HTML' && !($obj->{inotify})) {

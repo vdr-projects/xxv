@@ -177,16 +177,17 @@ sub con_err {
     my $console = shift;
     my $msg = shift;
 
-    if(ref $msg eq 'ARRAY') {
-      $msg = join('\n', @$msg);
-    }
-
-    &_msg(501,$msg, 2);
-
     if(ref $console) {
       $console->{call} = 'message'; #reset default widget, avoid own widget
       $console->err($msg);
     }
+
+    if(ref $msg eq 'ARRAY') {
+      $msg = join("\n", @$msg);
+    }
+
+    &_msg(501,$msg, 2);
+
 
     return undef;
 }
@@ -197,16 +198,16 @@ sub con_msg {
     my $console = shift;
     my $msg = shift;
 
-    if(ref $msg eq 'ARRAY') {
-      $msg = join('\n', @$msg);
-    }
-
-    &_msg(250,$msg, 4);
-
     if(ref $console) {
       $console->{call} = 'message'; #reset default widget, avoid own widget
       $console->msg($msg);
     }
+
+    if(ref $msg eq 'ARRAY') {
+      $msg = join("\n", @$msg);
+    }
+
+    &_msg(250,$msg, 4);
 
     return undef;
 }

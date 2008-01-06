@@ -452,7 +452,7 @@ sub replace {
     my $eventid = shift || return error('No eventid defined!');
     my $attr = shift || return error('No data defined!');
 
-    my $sth = $obj->{dbh}->prepare('REPLACE INTO EPG(eventid, title, subtitle, description, channel_id, duration, tableid, image, version, video, audio, starttime, addtime, vpstime) VALUES (?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),FROM_UNIXTIME(?))');
+    my $sth = $obj->{dbh}->prepare('REPLACE INTO EPG(eventid, title, subtitle, description, channel_id, duration, tableid, image, version, video, audio, starttime, vpstime, addtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),NOW())');
     $sth->execute(
         $eventid,
         $attr->{title},
@@ -466,7 +466,6 @@ sub replace {
         $attr->{video} || '1 01 deu 4:3',
         $attr->{audio} || "2 03 deu stereo",
         $attr->{starttime},
-        time,
         $attr->{vpstime}
     ) if($attr->{channel});
 }
