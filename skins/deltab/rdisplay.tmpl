@@ -132,13 +132,13 @@
 					<?% class = "marksleft" %?>
 				<?% ELSE %?>
 					<?% class = (class == 'marksright2' ? 'marksright1' : 'marksright2'); %?>
-	        	<?% END %?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent ) div 1 %?>" height="12" title="<?% (b < 0 ? "0:00:00.00" : ml.$b) %?> - <?% ml.$c %?>" />
+	        	<?% END %?><img<?% IF allowplay %?> onclick="javascript:setstart('<?% PROCESS hfs d=secold %?>')"<?% END %?> class="<?% class %?>" src="images/blank.gif" width="<?% ( percent ) div 1 %?>" height="12" title="<?% (b < 0 ? "0:00:00.00" : ml.$b) %?> - <?% ml.$c %?>" />
             <?%- secold = sec;
             END;
             IF totaltime > secold;
             class = (class == 'marksright2' ? 'marksright1' : 'marksright2'); 
             percent = ((data.Duration - secold) / totaltime) * width;
-            -%?><img class="<?% class %?>" src="images/blank.gif" width="<?% ( percent ) div 1 %?>" height="12" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% PROCESS hfs d=data.Duration %?>" />
+            -%?><img<?% IF allowplay %?> onclick="javascript:setstart('<?% PROCESS hfs d=secold %?>')"<?% END %?> class="<?% class %?>" src="images/blank.gif" width="<?% ( percent ) div 1 %?>" height="12" title="<?% (c < 0 ? "0:00:00.00" : ml.$c) %?> - <?% PROCESS hfs d=data.Duration %?>" />
             <?% END %?>
         <?% ELSE %?>
 			      <img class="marksleft" src="images/blank.gif" width="0" height="12" /><img class="marksright2" src="images/blank.gif" width="<?% (( data.Duration / totaltime) * width ) div 1 %?>" height="12" />
