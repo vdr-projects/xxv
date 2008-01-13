@@ -31,7 +31,7 @@ sub module {
           movetimer => {
               description => gettext("Manual move timer between channels"),
               short       => 'mt',
-              callback    => sub{ $self->movetimer(@_) },
+              callback    => sub{ $self->movetimermanual(@_) },
               Level       => 'user',
               DenyClass   => 'tedit',
           },
@@ -146,7 +146,7 @@ sub _init {
         return 0 if($self->{active} ne 'y');
 
         lg 'Start timer callback to move timer!';
-        return $self->movetimer();
+        return $self->_movetimer();
 
         });
         return 1;
@@ -156,7 +156,23 @@ sub _init {
 }
 
 # ------------------
-sub movetimer {
+sub movetimermanual {
+# ------------------
+  my $self = shift || return error('No object defined!');
+  my $watcher = shift;
+  my $console = shift;
+  my $id = shift;
+
+  return 0 unless($self->_movetimer($watcher,$console,$id));
+
+  $console->redirect({url => '?cmd=movetimerlist', wait => 1})
+    if($console->typ eq 'HTML');
+
+  return 1;
+}
+
+# ------------------
+sub _movetimer {
 # ------------------
   my $self = shift || return error('No object defined!');
   my $watcher = shift;
@@ -438,7 +454,7 @@ sub movetimeredit {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $self->movetimer($watcher, $console, $data->{id});
+        $self->_movetimer($watcher, $console, $data->{id});
 
         $console->redirect({url => '?cmd=movetimerlist', wait => 1})
           if($console->typ eq 'HTML');

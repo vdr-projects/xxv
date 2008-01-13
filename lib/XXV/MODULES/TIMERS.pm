@@ -444,14 +444,14 @@ sub _init {
            return 0;
         }
 
-        $obj->readData();
+        $obj->_readData();
 
         # Interval to read timers and put to DB
         Event->timer(
           interval => $obj->{interval},
           prio => 6,  # -1 very hard ... 6 very low
           cb => sub{
-            $obj->readData();
+            $obj->_readData();
           }
         );
         return 1;
@@ -468,16 +468,51 @@ sub saveTimer {
     my $data = shift || return error('No data defined!');
     my $timerid = shift || 0;
 
-    my $status = ($data->{Activ} eq 'y' ? 1 : 0);
-       $status |= ($data->{VPS} eq 'y' ? 4 : 0);
+    $obj->_saveTimer($data,$timerid);
+    if($obj->{svdrp}->queue_cmds('COUNT')) {
+      my $erg = $obj->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
+
+      # Save shortly this timer in DB if this only a new timer (at)
+      # Very Important for Autotimer!
+      my $pos = $1 if($erg->[1] =~ /^250\s+(\d+)/);
+      if(! $timerid and $pos) {
+          $obj->insert([
+                  $data->{Status},
+                  $data->{ChannelID},
+                  $data->{Day},
+                  $data->{Start},
+                  $data->{Stop},
+                  int($data->{Priority}),
+                  int($data->{Lifetime}),
+                  $data->{File},
+                  ($data->{aux} || '')
+                  ], $pos);
+      }
+
+      event sprintf('Save timer "%s" with id: "%d"', $data->{File}, $pos || 0);
+
+      return $erg;
+  }
+  return 0;
+}
+
+# ------------------
+sub _saveTimer {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $data = shift || return error('No data defined!');
+    my $timerid = shift || 0;
+
+    $data->{Status}  = ($data->{Activ} eq 'y' ? 1 : 0);
+    $data->{Status} |= ($data->{VPS} eq 'y' ? 4 : 0);
 
     $data->{File} =~ s/:/|/g;
     $data->{File} =~ s/(\r|\n)//sig;
 
-    my $erg = $obj->{svdrp}->command(
+    $obj->{svdrp}->queue_cmds(
         sprintf("%s %s:%s:%s:%s:%s:%s:%s:%s:%s",
             $timerid ? "modt $timerid" : "newt",
-            $status,
+            $data->{Status},
             $data->{ChannelID},
             $data->{Day},
             $data->{Start},
@@ -488,29 +523,25 @@ sub saveTimer {
             ($data->{aux} || '')
         )
     );
-
-    # Save shortly this timer in DB if this only a new timer (at)
-    # Very Important for Autotimer!
-    my $pos = $1 if($erg->[1] =~ /^250\s+(\d+)/);
-    if(! $timerid and $pos) {
-        $obj->insert([
-                $status,
-                $data->{ChannelID},
-                $data->{Day},
-                $data->{Start},
-                $data->{Stop},
-                int($data->{Priority}),
-                int($data->{Lifetime}),
-                $data->{File},
-	              ($data->{aux} || '')
-                ], $pos);
-    }
-
-    event sprintf('Save timer "%s" with id: "%d"', $data->{File}, $pos || 0);
-
-    return $erg;
 }
 
+sub _newTimerdefaults {
+    my $obj     = shift || return error('No object defined!');
+    my $epg     = shift;
+
+    $epg->{Activ} = 'y';
+    $epg->{Priority} = $obj->{Priority};
+    $epg->{Lifetime} = $obj->{Lifetime};
+
+    if($epg->{VpsStart} && $obj->{usevpstime} eq 'y') {
+      $epg->{VPS} = 'y';
+      $epg->{Day} = $epg->{VpsDay};
+      $epg->{Start} = $epg->{VpsStart};
+      $epg->{Stop} = $epg->{VpsStop};
+    } else {
+      $epg->{VPS} = 'n';
+    }
+}
 # ------------------
 sub newTimer {
 # ------------------
@@ -520,11 +551,13 @@ sub newTimer {
     my $epgid   = shift || 0;
     my $epg     = shift || 0;
 
-    if($epgid and not ref $epg) {
+    my $fast = (ref $epg and exists $epg->{fast}) ? 1 : 0;
+    if($epgid and ( (not ref $epg) || $fast) ) {
+      my @events  = reverse sort{ $a <=> $b } split(/[^0-9]/, $epgid);
       my $sql = qq|
 SELECT SQL_CACHE 
     eventid,
-    channel_id,
+    channel_id as ChannelID,
     description,
     CONCAT_WS('~', title, subtitle) as File,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) - ? ), '%Y-%m-%d') as Day,
@@ -535,44 +568,41 @@ SELECT SQL_CACHE
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(vpstime) + duration), '%H%i') as VpsStop
 FROM
     EPG
-WHERE
-    eventid = ?|;
+WHERE|;
+    $sql .= sprintf(" eventid in (%s)", join(',' => ('?') x @events));
+
       my $sth = $obj->{dbh}->prepare($sql);
-      $sth->execute($obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, $epgid)
-        or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),$epgid));
-      $epg = $sth->fetchrow_hashref();
+      $sth->execute($obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, @events)
+        or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),join(',',@events)));
+
+      my $data = $sth->fetchall_hashref('eventid')
+        or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),join(',',@events)));
+
+      my $count = 1;
+      foreach my $eventid (keys %{$data}) {
+        $epg = $data->{$eventid};
+        $obj->_newTimerdefaults($epg);
+        $epg->{action} = 'save' if(scalar keys %{$data} > 1 || $fast );
+        $obj->_editTimer($watcher, $console, 0, $epg) if($count < scalar keys %{$data});
+        $count += 1;
+      }
     }
     if(not ref $epg) {
-		my $t = time;
-   	    $epg = {
-            channel_id => '',
-            File => '',
-            description => '',
+		  my $t = time;
+ 	    $epg = {
+            ChannelID => '',
+            File => gettext('New timer'),
             Day => my_strftime("%Y-%m-%d",$t),
             Start => my_strftime("%H%M",$t),
             Stop => my_strftime("%H%M",$t)
     	};
+      $obj->_newTimerdefaults($epg);
     }
-
-    $epg->{Status} = '1'
-         if(not defined $epg->{Status});
-    $epg->{Priority} = $obj->{Priority}
-         if(not defined $epg->{Priority});
-    $epg->{Lifetime} = $obj->{Lifetime}
-         if(not defined $epg->{Lifetime});
-
-    if($epg->{VpsStart} && $obj->{usevpstime} eq 'y') {
-        $epg->{Status} |= 4;
-        $epg->{Day} = $epg->{VpsDay};
-        $epg->{Start} = $epg->{VpsStart};
-        $epg->{Stop} = $epg->{VpsStop};
-    }
-
     $obj->editTimer($watcher, $console, 0, $epg);
 }
 
 # ------------------
-sub editTimer {
+sub _editTimer {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
@@ -586,7 +616,7 @@ sub editTimer {
 qq|
 SELECT SQL_CACHE 
     Id, 
-    ChannelID as channel_id, 
+    ChannelID, 
     File, 
     aux, 
     Start, 
@@ -594,7 +624,8 @@ SELECT SQL_CACHE
     Day, 
     Priority, 
     Lifetime, 
-    Status
+    IF(Status & 1,'y','n') as Activ,
+    IF(Status & 4,'y','n') as VPS
 FROM
     TIMERS
 WHERE
@@ -620,17 +651,17 @@ WHERE
         },
         'Activ' => {
             typ     => 'confirm',
-            def     => (defined $timerData->{Status} and ($timerData->{Status} & 1) ? 'y' : 'n'),
+            def     => $timerData->{Activ},
             msg     => gettext('Enable this timer'),
         },
         'VPS' => {
             typ     => 'confirm',
-            def     => (defined $timerData->{Status} and ($timerData->{Status} & 4) ? 'y' : 'n'),
+            def     => $timerData->{VPS},
             msg     => gettext('Use PDC time to control timer'),
         },
         'ChannelID' => {
             typ     => 'list',
-            def     => $con ? $mod->ChannelToPos($timerData->{channel_id}) : $timerData->{channel_id},
+            def     => $con ? $mod->ChannelToPos($timerData->{ChannelID}) : $timerData->{ChannelID},
             choices => $con ? $mod->ChannelArray('Name') : $mod->ChannelIDArray('Name'),
             msg     => gettext('Which channel should recorded'),
             req     => gettext("This is required!"),
@@ -782,33 +813,49 @@ WHERE
                                                 : gettext('New timer')), $questions, $data);
 
     if(ref $datasave eq 'HASH') {
-        my $erg = $obj->saveTimer($datasave, $timerid);
+        $obj->_saveTimer($datasave, $timerid);
+        return 1;
+    }
+    return 0;
+}
+# ------------------
+sub editTimer {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $timerid = shift;   # If timerid the edittimer
+    my $data    = shift;  # Data for defaults
 
-        my $error;
-        foreach my $zeile (@$erg) {
+    if($obj->_editTimer($watcher,$console,$timerid,$data) 
+        && $obj->{svdrp}->queue_cmds('COUNT')) {
+          my $erg = $obj->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
+          my $error;
+          foreach my $zeile (@$erg) {
             if($zeile =~ /^(\d{3})\s+(.+)/) {
                 $error = $2 if(int($1) >= 500);
             }
-        }
+          }
 
-        unless($error) {
+          unless($error) {
             debug sprintf('%s timer with title "%s" is saved%s',
                 ($timerid ? 'Changed' : 'New'),
                 $data->{File},
                 ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
                 );
                 $console->message($erg);
-        } else {
+          } else {
             error sprintf('%s timer with title "%s" does\'nt saved : %s',
                 ($timerid ? 'Changed' : 'New'),
                 $data->{File},
                 $error
                 );
                 $console->err($erg);
-        }
-        $obj->readData($watcher,$console);
-        $console->redirect({url => '?cmd=tlist', wait => 1})
-            if($console->typ eq 'HTML');
+          }
+          if($obj->_readData($watcher,$console)) {
+            $console->redirect({url => '?cmd=tlist', wait => 1})
+              if(!$error && $console->typ eq 'HTML');
+          }
     }
 }
 
@@ -843,7 +890,7 @@ sub deleteTimer {
             my $confirm = $console->confirm({
                 typ   => 'confirm',
                 def   => 'y',
-                msg   => gettext('Are you sure to delete this timer?'),
+                msg   => gettext('Would you like to delete this timer?'),
             }, $answer);
             next if(!$answer eq 'y');
         }
@@ -865,10 +912,10 @@ sub deleteTimer {
 
         sleep(1);
 
-        $obj->readData($watcher,$console);
-
-        $console->redirect({url => '?cmd=tlist', wait => 1})
+        if($obj->_readData($watcher,$console)) {
+          $console->redirect({url => '?cmd=tlist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
+        }
     } else {
         $console->err(gettext("No timer to delete!"));
     }
@@ -922,10 +969,10 @@ sub toggleTimer {
         $console->msg($erg, $obj->{svdrp}->err)
             if(ref $console and $console->typ ne 'AJAX');
 
-        $obj->readData($watcher, $console);
-
-        $console->redirect({url => '?cmd=tlist', wait => 1})
+        if($obj->_readData($watcher, $console)) {
+          $console->redirect({url => '?cmd=tlist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
+        }
 
         if(ref $console and $console->typ eq 'AJAX') {
           # { "data" : [ [ ID, ON, RUN, CONFLICT ], .... ] }
@@ -959,8 +1006,10 @@ sub insert {
     $data->[0] &= 15;
 
     # change pos to channelid, because change to telnet reader
-    $data->[1] = $obj->{channels}->{$data->[1]}->{Id}
-        if(index($data->[1], '-') < 0);
+    if(index($data->[1], '-') < 0) {
+      $data->[1] = main::getModule('CHANNELS')->ToCID($data->[1])
+        or return error(sprintf("Couldn't get channel from this data: %s", join(',', @$data)));
+    }
 
     # POS
     unshift(@$data, $pos);
@@ -968,7 +1017,7 @@ sub insert {
 
     # NextTime
     my $nexttime = $obj->getNextTime( $data->[3], $data->[4], $data->[5] )
-        or return error(sprintf("Couldn't get time form this data: %s", join(' ', @$data)));
+        or return error(sprintf("Couldn't get time from this data: %s", join(',', @$data)));
     push(@$data, $nexttime->{start}, $nexttime->{stop});
 
     # insert placeholder
@@ -1005,9 +1054,9 @@ sub insert {
 }
 
 
-# Read from svdrp (better for future development)
+# Read data
 # ------------------
-sub readData {
+sub _readData {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $watcher = shift;
@@ -1021,9 +1070,7 @@ sub readData {
 
     $obj->{dbh}->do('DELETE FROM TIMERS');
 
-    # read from svdrp, because the
-    # vdr edit the timers.conf to lazy ;)
-    $obj->{channels} = main::getModule('CHANNELS')->ChannelHash('POS');
+    # read from svdrp
     my $tlist = $obj->{svdrp}->command('lstt');
 
     my $c = 0;
@@ -1062,10 +1109,20 @@ sub readData {
     $console->message(sprintf(gettext("%d timer written to database."), $c), {overlapping => $overlapping})
         if(ref $console and $console->typ ne 'AJAX');
 
-    $console->redirect({url => '?cmd=tlist', wait => 1})
-        if(ref $console and $console->typ eq 'HTML');
-
     return 1;
+}
+
+# ------------------
+sub readData {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift;
+    my $console = shift;
+
+    if($obj->_readData($watcher,$console)) {
+      $console->redirect({url => '?cmd=tlist', wait => 1})
+        if(ref $console and $console->typ eq 'HTML');
+    }
 }
 
 # Routine um Callbacks zu registrieren und
@@ -1295,8 +1352,6 @@ SELECT SQL_CACHE  t.Id as Id, t.Status as Status,t.ChannelID as ChannelID,
     foreach my $t (keys %$erg) {
         my %tt;
 
-#       dumper($erg->{$t});
-        
         # Adjust start and stop times
         my $start;
         my $stop;

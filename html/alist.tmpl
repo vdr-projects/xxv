@@ -47,7 +47,7 @@
                     <?% END %?>
                     <?% IF allow('adelete') %?>
                     <a title="<?% gettext("Delete autotimer")  %?>"
-                       href="javascript:sure(document.Autotimer, '<?% gettext("You will delete this autotimer") %?> : <?% escape(zeile.2) %?>','?cmd=adelete&amp;data=<?% zeile.0 %?>')">
+                       href="javascript:sure(document.Autotimer, '<?% gettext("Would you like to delete this autotimer?") %?>\n<?% escape(zeile.2) %?>','?cmd=adelete&amp;data=<?% zeile.0 %?>')">
                     [<?% gettext("Del") %?>]
                     </a>
                     <?% END %?>

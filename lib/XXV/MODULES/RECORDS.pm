@@ -519,21 +519,21 @@ sub readData {
     }
 
     # Get state from used harddrive (/video)
-    my $stat = $obj->{svdrp}->command('stat disk');
+    my $disk = $obj->{svdrp}->command('stat disk');
     my ($total, $totalUnit, $free, $freeUnit, $percent);    
     my $totalDuration = 0;
     my $totalSpace = 0;
 
-    if($stat->[1] and $stat->[1] =~ /^250/s) {
+    if($disk->[1] and $disk->[1] =~ /^250/s) {
         #250 473807MB 98028MB 79%
         ($total, $totalUnit, $free, $freeUnit, $percent)
-            = $stat->[1] =~ /^250[\-|\s](\d+)(\S+)\s+(\d+)(\S+)\s+(\S+)/s;
+            = $disk->[1] =~ /^250[\-|\s](\d+)(\S+)\s+(\d+)(\S+)\s+(\S+)/s;
 
         $obj->{CapacityMessage} = sprintf(gettext("Used %s, total %s%s, free %s%s"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit);
         $obj->{CapacityPercent} = int($percent);
 
     } else {
-        error("Couldn't get disc state : ".join("\n", @$stat));
+        error("Couldn't get disc state : ".join("\n", @$disk));
         $obj->{CapacityMessage} = gettext("Unknown disc capacity!");
         $obj->{CapacityPercent} = 0;
 
@@ -1696,7 +1696,7 @@ sub delete {
             my $confirm = $console->confirm({
                 typ   => 'confirm',
                 def   => 'y',
-                msg   => gettext('Are you sure to delete this recording?'),
+                msg   => gettext('Would you like to delete this recording?'),
             }, $answer);
             next if(! $answer eq 'y');
         }
@@ -2300,12 +2300,13 @@ sub _recordinglength {
     my $f = sprintf("%s/index.vdr", $path);
     my $r = sprintf("%s/001.vdr", $path);
 
+    my $fst = stat($f);
+    my $rst = stat($r);
     # Pseudo Recording (DIR)
-    return 0 if(! -r $f and ! -s $r);
+    return 0 unless($fst and $rst);
 
-    if(-r $f) {
-        my $bytes = stat($f)->size;
-        return int(($bytes / 8) / $obj->{framerate});
+    if($fst->mode & 00400) { # mode & S_IRUSR
+        return int(($fst->size / 8) / $obj->{framerate});
     } else {
         error sprintf("Couldn't read : '%s'", $f);
     }

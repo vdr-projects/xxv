@@ -73,7 +73,7 @@
     <td colspan="2"><b>
     <a href="?cmd=rlist">[<?% gettext("Recording list") %?>]</a>&nbsp;
 <?% IF allow('rdelete') %?>
-    <a href="javascript:sure(document.RecordDisplay, '<?% gettext("Do you really want to delete these recordings?") %?>?','?cmd=rdelete&amp;data=<?% data.RecordId %?>')">
+    <a href="javascript:sure(document.RecordDisplay, '<?% gettext("Would you like to delete this recording?") %?>?','?cmd=rdelete&amp;data=<?% data.RecordId %?>')">
     [<?% gettext("Delete recording") %?>]
     </a>&nbsp;
 <?% END %?>

@@ -63,7 +63,7 @@ var control = new WebFXTreeItem("<?% gettext("Programming",15) %?>","?cmd=tlist"
 <?% END %?>
 
 <?% IF allow('rlist') || allow('mlist') || allow('mllist') %?>
-var media = new WebFXTreeItem("<?% gettext("Media",15) %?>","?cmd=rlist",tree);
+var media = new WebFXTreeItem("<?% gettext("Media content",15) %?>","?cmd=rlist",tree);
 <?% IF allow('rlist') %?>media.add(new WebFXTreeItem("<?% gettext("Recordings",12) %?>",    "?cmd=rlist"));<?% END %?>
 <?% IF allow('mlist') %?>media.add(new WebFXTreeItem("<?% gettext("Music",12) %?>",         "?cmd=mlist"));<?% END %?>
 <?% IF allow('mllist') %?>media.add(new WebFXTreeItem("<?% gettext("Media library",12) %?>","?cmd=mllist"));<?% END %?>

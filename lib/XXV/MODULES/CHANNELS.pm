@@ -967,7 +967,7 @@ sub deleteChannel {
             my $confirm = $console->confirm({
                 typ   => 'confirm',
                 def   => 'y',
-                msg   => gettext('Do you want to delete this channel?'),
+                msg   => gettext('Would you like to delete this channel?'),
             }, $answer);
             next if(! $answer eq 'y');
         }

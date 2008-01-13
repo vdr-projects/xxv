@@ -8,6 +8,7 @@ use Tools;
 use XXV::OUTPUT::HTML::WAIT;
 use File::Path;
 use File::Basename;
+use File::stat;
 use Fcntl;
 
 $SIG{CHLD} = 'IGNORE';
@@ -611,12 +612,12 @@ sub datei {
 
     my %args = ();
 
-    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
-        $atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
-    unless($blocks and ($mode & 00400)) { 
+    my $fst = stat($file);
+    unless($fst and ($fst->mode & 00400)) { # mode & S_IRUSR
       error sprintf("Couldn't stat file '%s' : %s",$file,$!);
       return $obj->status404($file,$!);
     }
+    my $size = $fst->size;
 
     $typ = $obj->{mime}->{lc((split('\.', $file))[-1])}
       unless($typ);
@@ -627,14 +628,14 @@ sub datei {
         if($typ =~ /image\// || $typ =~ /video\//);
 
     # header only if caching
-    $args{'ETag'} = sprintf('%x-%x-%x',$ino, $size, $mtime);
+    $args{'ETag'} = sprintf('%x-%x-%x',$fst->ino, $size, $fst->mtime);
     return $obj->statusmsg(304,undef,undef,$typ)
         if($obj->{browser}->{'Match'}
             && $args{'ETag'} eq $obj->{browser}->{'Match'});
 
     my(@MON)=qw/Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec/;
     my(@WDAY) = qw/Sun Mon Tue Wed Thu Fri Sat/;
-    my($sec,$min,$hour,$mday,$mon,$year,$wday) = gmtime($mtime);
+    my($sec,$min,$hour,$mday,$mon,$year,$wday) = gmtime($fst->mtime);
     $args{'Last-Modified'} = sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
                    $WDAY[$wday],$mday,$MON[$mon],$year + 1900,$hour,$min,$sec);
     $args{'attachment'} = basename($file);
@@ -663,15 +664,13 @@ sub stream {
     my $total = 0;
 
     foreach my $file (@{$files}) {
-      
-      my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
-          $atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
-      unless($blocks and ($mode & 00400)) { 
+
+      my $fst = stat($file);
+      unless($fst and ($fst->mode & 00400)) { # mode & S_IRUSR
         error sprintf("Couldn't stat file '%s' : %s",$file,$!);
         return $obj->status404($file,$!);
       }
-
-       $total += $size;
+      $total += $fst->size;
     }
     $args{'Content-Length'} = ($total - $offset);
 

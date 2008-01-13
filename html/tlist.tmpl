@@ -25,7 +25,7 @@
 </a>
 <?% END %?>
 <?% IF allow('tdelete') %?>
-<a href="#" onClick="Delete('<?% gettext("Would You like to delete the following timer(s)?") %?>',
+<a href="#" onClick="Delete('<?% gettext("Would you like to delete these timers?") %?>',
 '<?% gettext("Nothing selected!") %?>','tdelete',document.TimerList)">
     [<?% gettext("Delete timer") %?>]
 </a>
@@ -79,7 +79,7 @@
                         <a href="?cmd=tedit&amp;data=<?% zeile.0 %?>" title="<?% gettext("Edit this timer") %?>"><div class="<?% myclass %?>">[E]</div></a>
     <?% END %?>
     <?% IF allow('tdelete') %?>
-                        <a href="javascript:sure(document.TimerList, '<?% gettext("Would You like to delete the following timer(s)?") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Would You like to delete the following timer(s)?") %?>"><div class="<?% myclass %?>">[D]</div></a>
+                        <a href="javascript:sure(document.TimerList, '<?% gettext("Would you like to delete this timer?") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Would you like to delete this timer?") %?>"><div class="<?% myclass %?>">[D]</div></a>
     <?% END %?>
                     </td>
                     <?% ELSIF c == 1; # Id Status %?>

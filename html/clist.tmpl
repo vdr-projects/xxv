@@ -36,7 +36,7 @@
 <a href="?cmd=cedit&amp;data=<?% id %?>" title="<?% gettext("Edit channel") %?>">[E]</a>&nbsp;
 <?%- END -%?>
 <?%- IF allow('cdelete') -%?>
-<a href="javascript:sure(document.KanalListe, '<?% gettext("You will delete this channel") %?> : \'<?% escape(name) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')"
+<a href="javascript:sure(document.KanalListe, '<?% gettext("Would you like to delete this channel?") %?>\n\'<?% escape(name) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')"
    title="<?% gettext("Delete channel") %?>" >[D]</a>
 <?%- END -%?>
 <?% END %?>
@@ -118,7 +118,7 @@
         <a href="#" onclick="selAll(document.clist,1)">[<?% gettext("Select all") %?>]</a>&nbsp;
         <a href="#" onclick="selAll(document.clist,0)">[<?% gettext("Unselect all") %?>]</a>&nbsp;
         <a href="#" onclick="reverse(document.clist)">[<?% gettext("Reverse select") %?>]</a>&nbsp;
-        <a href="#" onclick="Delete('<?% gettext("You would delete follow channels?") %?>',
+        <a href="#" onclick="Delete('<?% gettext("Would you like to delete these channels?") %?>',
                             '<?% gettext("Nothing selected!") %?>','cdelete',document.clist)">
                             [<?% gettext("Delete channels") %?>]
         </a>
