@@ -57,7 +57,7 @@
                         </a>
 			<?% END %?>
 			<?% IF allow('tdelete') %?>
-                        <a href="javascript:surecmd('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% escape(title) %?><?% IF subtitle != "";"~";escape(subtitle);END %?>','tdelete','<?% id %?>',620,670)">
+                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this timer?") %?>','<?% escape(title) %?><?% IF subtitle != "";"~";escape(subtitle);END %?>','tdelete','<?% id %?>',620,670)">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete timer") %?>" />
                         </a>
 			<?% END %?>
@@ -243,8 +243,8 @@
         <a href="javascript:selToggle('<?% gettext("Nothing selected!") %?>',document.tlist)"><?% gettext("Toggle timer",20) %?></a><br />
 <?% END %?>
 <?% IF allow('tdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist,620,670)"><?% gettext("Delete timer",20) %?></a><br />
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these timers?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist,620,670,'delete')"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these timers?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist,620,670,'delete')"><?% gettext("Delete timer",20) %?></a><br />
 <?% END %?>
     </td>
     </tr>

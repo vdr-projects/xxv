@@ -37,7 +37,7 @@
 <a href="?cmd=cedit&amp;data=<?% id %?>" title="<?% gettext("Edit channel") %?>"><img src="images/edit.png"></a>
 <?%- END -%?>
 <?%- IF allow('cdelete') -%?>
-<a href="javascript:sure(document.KanalListe, '<?% gettext("You will delete this channel") %?> : \'<?% escape(name) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')"
+<a href="javascript:sure(document.KanalListe, '<?% gettext("Would you like to delete this channel?") %?>\n\'<?% escape(name) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')"
    title="<?% gettext("Delete channel") %?>" ><img src="images/delete.png"></a>
 </div>
 <?%- END -%?>

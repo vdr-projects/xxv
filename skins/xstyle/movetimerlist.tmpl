@@ -9,7 +9,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('movetimerdelete') %?>
-                        <a href="javascript:sure(document.movetimerlist, '<?% gettext("You will delete this rule") %?>\n<?% escape(source) %?> - <?% escape(destination) %?>','?cmd=movetimerdelete&amp;data=',<?% id %?>)" title="<?% gettext("Delete rule to move timer") %?>">
+                        <a href="javascript:sure(document.movetimerlist, '<?% gettext("Would you like to delete this rule?") %?>\n<?% escape(source) %?> - <?% escape(destination) %?>','?cmd=movetimerdelete&amp;data=',<?% id %?>)" title="<?% gettext("Delete rule to move timer") %?>">
                             <img src="images/delete.png" alt="" title="<?% gettext("Delete rule to move timer") %?>" />
                         </a>
 <?% END %?>
@@ -61,7 +61,7 @@
   <?% END %?>
   <?% IF allow('movetimerdelete') %?>
     <li><a title="<?% gettext("Delete rules to move timer") %?>"
-          href="#" onClick="Delete('<?% gettext("You would delete follow rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist)">
+          href="#" onClick="Delete('<?% gettext("Would you like to delete these rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist)">
         <?% gettext("Delete rules to move timer",25) %?></a>
      </li>
   <?% END %?>

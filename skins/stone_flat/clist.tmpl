@@ -23,7 +23,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('cdelete') %?>
-                        <a href="javascript:surecmd('<?% gettext("You will delete this channel") %?>','<?% escape(name) %?>','cdelete','<?% POS %?>',620,670)">
+                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this channel?") %?>','<?% escape(name) %?>','cdelete','<?% POS %?>',620,670)">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete channel") %?>" />
                         </a>
 <?% END %?>
@@ -230,8 +230,8 @@
     <tr>
     <td class="sidetext">
 <?% IF allow('cdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist,620,670)"><?% gettext("Delete channels",20) %?></a><br />
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist,620,670,'delete')"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist,620,670,'delete')"><?% gettext("Delete channels",20) %?></a><br />
 <?% END %?>
     </td>
     </tr>

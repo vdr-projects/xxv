@@ -2,6 +2,8 @@
 <?% USE date %?>
 <body class="frame">
 <div id="body">
+<?% enableform = ( allow('tnew') ) && data.size > 1 %?>
+<?% activeform = 0 %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
                         <a href="?cmd=search&amp;data=<?% url( title ) %?>">
@@ -63,6 +65,11 @@
             <td class="fieldtext">
               <table class="fieldinline" summary="">
                 <tr>
+                    <td valign="middle" align="left" style="white-space: nowrap">
+                        <?% IF enableform && !param.timers.exists(id); activeform = 1 %?>
+                  			<input class="push" type="checkbox" value="<?% id %?>" name="<?% title %?><?% IF subtitle != "";"~";subtitle;END %?>" />
+    	 		              <?% END %?>
+                    </td>
                     <td class="fieldinline" style="white-space: nowrap">
                        <font class="description<?% IF state != "";" ";state;END %?>">
                        <?% start %?>&nbsp;-&nbsp;<?% stop %?>
@@ -89,6 +96,7 @@
 <?% ELSE %?>
 <?% fields = data.shift %?>
 <h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% date.format(data.first.7, "%A, %x", locale) %?></h1>
+<form name="searchlist" action="">
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;pdc=zeile.9 %?>
@@ -101,6 +109,7 @@
         <?% old = day %?>
     <?% END %?>
 <div class="areaclose"></div>
+</form>
 <?% END %?>
 </div>
 <!-- ###### Seite ###### -->
@@ -150,6 +159,30 @@
     <td class="sidebottom"></td>
     </tr>
   </table>
+<?% IF activeform %?>
+  <table summary="">
+    <tr><td class="sidehead"><?% gettext("To record") %?></td></tr>
+    <tr>
+    <td class="sidetext">
+        <a href="javascript:selAll(document.searchlist,1)"><img src="images/select.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:selAll(document.searchlist,1)"><?% gettext("Select all",20) %?></a><br />
+        <a href="javascript:selAll(document.searchlist,0)"><img src="images/deselect.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:selAll(document.searchlist,0)"><?% gettext("Unselect all",20) %?></a><br />
+        <a href="javascript:reverse(document.searchlist)"><img src="images/invers.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:reverse(document.searchlist)"><?% gettext("Reverse select",20) %?></a>
+    </td>
+    </tr>
+    <tr>
+    <td class="sidetext">
+        <a href="javascript:DoitReally('<?% gettext("Would you like to record these events?") %?>','<?% gettext("Nothing selected!") %?>','tnew&__fast=1',document.searchlist,620,670,'record')"><img src="images/record.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DoitReally('<?% gettext("Would you like to record these events?") %?>','<?% gettext("Nothing selected!") %?>','tnew&__fast=1',document.searchlist,620,670,'record')"><?% gettext("Record selected events",20) %?></a><br />
+    </td>
+    </tr>
+    <tr>
+    <td class="sidebottom"></td>
+    </tr>
+  </table>
+<?% END %?>
   <p id="sidefooter">&nbsp;</p>
 </div>
 <?% INCLUDE header.inc %?>

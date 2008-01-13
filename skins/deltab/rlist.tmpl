@@ -103,7 +103,7 @@
             <img src="images/webcast.<?% global.imagetyp %?>" alt="" title="<?% gettext("Watch recording as web cast") %?>" /></a>
     <?% END %?>
     <?% IF allow('rdelete') %?>
-            <a href="javascript:sure('<?% gettext("Do you really want to delete these recordings?") %?> : \'<?% escape( title ) %?>\' ?','?cmd=rdelete&amp;data=<?% id %?>')">
+            <a href="javascript:sure('<?% gettext("Would you like to delete this recording?") %?> : \'<?% escape( title ) %?>\' ?','?cmd=rdelete&amp;data=<?% id %?>')">
                 <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete recording") %?>" />
             </a>
     <?% END %?>
@@ -289,8 +289,8 @@
       <a href="javascript:reverse(document.rlist)"><img src="images/invers.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
       <a href="javascript:reverse(document.rlist)"><?% gettext("Reverse select",20) %?></a><br />
 <?% IF allow('rdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("Do you want to delete the following recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("Do you want to delete the following recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist)"><?% gettext("Delete recordings",20) %?></a><br />
+        <a href="javascript:DeleteSelected('<?% gettext("Would you like to delete these recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("Would you like to delete these recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist)"><?% gettext("Delete recordings",20) %?></a><br />
 <?% END %?>
     </p>
 <?% END %?>

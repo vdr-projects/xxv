@@ -92,7 +92,7 @@
             </a>
     <?% END %?>
     <?% IF allow('rdelete') %?>
-            <a href="javascript:sure('<?% gettext("Do you want to delete the following recordings?") %?>','<?% escape(title) %?><?% IF subtitle.length > 0 %?>~<?% escape(subtitle) %?><?% END %?>','rdelete','<?% id %?>')">
+            <a href="javascript:sure('<?% gettext("Would you like to delete this recording?") %?>','<?% escape(title) %?><?% IF subtitle.length > 0 %?>~<?% escape(subtitle) %?><?% END %?>','rdelete','<?% id %?>')">
                 <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete recording") %?>" />
             </a>
     <?% END %?>

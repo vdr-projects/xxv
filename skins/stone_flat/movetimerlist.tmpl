@@ -11,7 +11,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('movetimerdelete') %?>
-                        <a href="javascript:surecmd('<?% gettext("You will delete this rule") %?>','<?% escape(source) %?> - <?% escape(destination) %?>','movetimerdelete','<?% id %?>',620,670)">
+                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this rule?") %?>','<?% escape(source) %?> - <?% escape(destination) %?>','movetimerdelete','<?% id %?>',620,670)">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete rule to move timer") %?>" />
                         </a>
 <?% END %?>
@@ -121,8 +121,8 @@
     <tr>
     <td class="sidetext">
 <?% IF allow('movetimerdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist,620,670)"><?% gettext("Delete rules to move timer",20) %?></a><br />
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist,620,670,'delete')"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these rules?") %?>','<?% gettext("Nothing selected!") %?>','movetimerdelete',document.movetimerlist,620,670,'delete')"><?% gettext("Delete rules to move timer",20) %?></a><br />
 <?% END %?>
     </td>
     </tr>

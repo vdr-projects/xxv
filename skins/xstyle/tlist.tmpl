@@ -22,7 +22,7 @@
     <li><a href="#" onClick="Toggle('<?% gettext("Nothing selected!") %?>',document.TimerList)"><?% gettext("Toggle timer") %?></a></li>
 <?% END %?>
 <?% IF allow('tdelete') %?>
-    <li><a href="#" onClick="Delete('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.TimerList)"><?% gettext("Delete timer") %?></a></li>
+    <li><a href="#" onClick="Delete('<?% gettext("Would you like to delete these timers?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.TimerList)"><?% gettext("Delete timer") %?></a></li>
 <?% END %?>
     <li><a href="#" onClick="suche('<?% gettext("Search text") %?>', '?cmd=tsearch&data=')"><?% gettext("Search for timers") %?></a></li>
 </ul>
@@ -74,7 +74,7 @@
 <!--
                         <a href="?cmd=search&amp;data=<?% url( zeile.7.split('~').last ) %?>" title="<?% gettext("Search for repeats") %?>"><img src="images/repeat.png"></a><br/>
     <?% IF allow('tdelete') %?>
-                        <a href="javascript:sure(document.TimerList, '<?% gettext("Would You like to delete the following timer(s)?") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Would You like to delete the following timer(s)?") %?>"><img src="images/delete.png"></a><br/>
+                        <a href="javascript:sure(document.TimerList, '<?% gettext("Would you like to delete this timer?") %?> : <?% escape(zeile.7.split('~').first)  %?>','?cmd=tdelete&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Would you like to delete this timer?") %?>"><img src="images/delete.png"></a><br/>
     <?% END %?>
 -->
                         </div>

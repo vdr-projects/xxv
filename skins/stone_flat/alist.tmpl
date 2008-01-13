@@ -31,7 +31,7 @@
                 </a>
 		    <?% END %?>
 		    <?% IF allow('adelete') %?>
-                <a href="javascript:sureandreload('<?% gettext("You will delete this autotimer") %?>','<?% escape(title) %?>','adelete','<?% id %?>')">
+                <a href="javascript:sureandreload('<?% gettext("Would you like to delete this autotimer?") %?>','<?% escape(title) %?>','adelete','<?% id %?>')">
                     <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete autotimer") %?>" />
                 </a>
 		    <?% END %?>

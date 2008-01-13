@@ -110,7 +110,7 @@
         </a>
     <?% END %?>
 	<?% IF allow('tdelete') %?>
-        <a href="javascript:sure('<?% gettext("Would You like to delete the following timer(s)?") %?>\n<?% escape( title.split('&#x7e;').first) %?>','?cmd=tdelete&amp;data=<?% id %?>')">
+        <a href="javascript:sure('<?% gettext("Would you like to delete this timer?") %?>\n<?% escape( title.split('&#x7e;').first) %?>','?cmd=tdelete&amp;data=<?% id %?>')">
             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete timer") %?>" />
         </a>
     <?% END %?>
@@ -230,8 +230,8 @@
         <a href="javascript:ToggleTimer('<?% gettext("Nothing selected!") %?>',document.tlist)"><?% gettext("Toggle timer",20) %?></a><br />
 <?% END %?>
 <?% IF allow('tdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("Would You like to delete the following timer(s)?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist)"><?% gettext("Delete timer",20) %?></a><br />
+        <a href="javascript:DeleteSelected('<?% gettext("Would you like to delete these timers?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("Would you like to delete these timers?") %?>','<?% gettext("Nothing selected!") %?>','tdelete',document.tlist)"><?% gettext("Delete timer",20) %?></a><br />
 <?% END %?>
     </p>
 <?% END %?>

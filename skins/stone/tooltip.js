@@ -75,7 +75,8 @@ function ttp_update_pos(){
 }
 
 var ttp_ie = document.all?true:false;
-if (!ttp_ie) document.captureEvents(Event.MOUSEMOVE)
+//Netscape 4.0 only 
+//if (!ttp_ie) document.captureEvents(Event.MOUSEMOVE)
 document.onmousemove = ttp_onmousemove;
 
 function ttp_onmousemove(e) {

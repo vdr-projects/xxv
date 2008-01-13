@@ -172,11 +172,12 @@ function checkValue (valobj, msgname, cmd, wrongMsg, goodMsg) {
 
 function suche(question, urls, def, last) {
     var sstring = prompt(question, def);
+    if(!sstring || sstring.length <= 0 ) {
+      return
+    }
     if(! urls)
         urls    = "?cmd=search&data=";
-    if(sstring) {
-        var url =  urls + sstring;
-    }
+    var url =  urls + sstring;
     if(last) {
         url = url + last;
     }

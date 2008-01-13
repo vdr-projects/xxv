@@ -42,6 +42,7 @@ var lastKeypress = null;
 function popupkeypress(e) {
   var KeyID = (window.event) ? event.keyCode : e.keyCode;
   if(KeyID == 27) { //ESC
+    parent.parent_url = null;
     closeit();
   } 
 }

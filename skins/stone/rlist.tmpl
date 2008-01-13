@@ -94,7 +94,7 @@
             </a>
     <?% END %?>
     <?% IF allow('rdelete') %?>
-            <a href="javascript:surecmd('<?% gettext("Do you want to delete the following recordings?") %?>','<?% escape(fulltitle) %?>','rdelete','<?% id %?>',620,670)">
+            <a href="javascript:surecmd('<?% gettext("Would you like to delete this recording?") %?>','<?% escape(fulltitle) %?>','rdelete','<?% id %?>',620,670)">
                 <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete recording") %?>" />
             </a>
     <?% END %?>
@@ -106,7 +106,7 @@
           <tr>
             <td class="fieldhead">
               <div class="fieldhead">
-            <?% IF folder <= 1 %?>
+            <?% IF !folder || folder <= 1 %?>
             <a href="javascript:popup('rdisplay','<?% id %?>',620,670,0)" class="fieldinline">
             <?% IF new %?><img src="images/new.<?% global.imagetyp %?>" alt="" title="<?% gettext("New recording") %?>" /><?% END %?>
             <?% fta = fulltitle.split('&#x7e;'); 
@@ -131,7 +131,7 @@
               </div>
             </td>
           </tr>
-          <?% IF folder > 1 %?>
+          <?% IF folder && folder > 1 %?>
           <tr>
             <td class="fieldtext">
               <div class="fieldtext">
@@ -232,12 +232,12 @@
           foldertitle=fulltitle.split('&#x7e;').last;
           IF foldertitle == " ";  foldertitle=fulltitle.split('&#x7e;').last(2).join(" "); END;
     -%?>
-			<?% IF old.defined && old != ( folder > 1 ?  2 : 1 ) %?>
+			<?% IF old.defined && old != ( folder && folder > 1 ?  2 : 1 ) %?>
   <div class="areaclose"></div>
         <?% END %?>
         <?% PROCESS ItemAsArea %?>
     		<?% total = total + duration %?>
-        <?% old = ( folder > 1 ?  2 : 1 ) %?>
+        <?% old = ( folder && folder > 1 ?  2 : 1 ) %?>
     <?% END %?>
   <div class="areaclose"></div>
 <?% PROCESS printsumme %?>
@@ -338,8 +338,8 @@
     <tr>
     <td class="sidetext">
 <?% IF allow('rdelete') %?>
-        <a href="javascript:DeleteSelected('<?% gettext("Do you want to delete the following recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("Do you want to delete the following recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670)"><?% gettext("Delete recordings",20) %?></a><br />
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670,'delete')"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DoitReally('<?% gettext("Would you like to delete these recordings?") %?>','<?% gettext("Nothing selected!") %?>','rdelete',document.rlist,620,670,'delete')"><?% gettext("Delete recordings",20) %?></a><br />
 <?% END %?>
     </td>
     </tr>

@@ -90,7 +90,7 @@ var myBar = new WebFXMenuBar;
     <?% IF allow('rlist') %?>media.add(new WebFXMenuItem("<?% gettext("Recordings",12) %?>",    "?cmd=rlist"));<?% END %?>
     <?% IF allow('mlist') %?>media.add(new WebFXMenuItem("<?% gettext("Music",12) %?>",         "?cmd=mlist"));<?% END %?>
     <?% IF allow('mllist') %?>media.add(new WebFXMenuItem("<?% gettext("Media library",12) %?>","?cmd=mllist"));<?% END %?>
-    myBar.add(new WebFXMenuButton("<?% gettext("Media") %?>",null,null,media));
+    myBar.add(new WebFXMenuButton("<?% gettext("Media content") %?>",null,null,media));
 
 
     var tools = new WebFXMenu;

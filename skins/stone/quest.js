@@ -44,9 +44,6 @@ function quest(title, text, center, image) {
   lastKeypress = document.onkeypress;
   document.onkeypress = questkeypress;
 
-  if(title.charAt(title.length-1) != '?') {
-    title += ' ?';
-  } 
   var Size = WindowSize();
   var x0;
   var y;
@@ -137,8 +134,8 @@ function surecmd(question,text,cmd,data,width,height) {
     quest(question,[text],0,'delete');
 }
 
-function DeleteSelected(question,warnmsg,cmd,form,width,height) {
-// test on checked Boxes
+function DoitReally(question,warnmsg,cmd,form,width,height,image) {
+// collect checked boxes
     ok = new Array;
     txt = new Array;
     x = 0;
@@ -165,7 +162,7 @@ function DeleteSelected(question,warnmsg,cmd,form,width,height) {
           }
         }
         questfn=new fn();
-        quest(question,txt,1,'delete');
+        quest(question,txt,1,image);
     } else {
         function none() { this.callback=function() { } }
         questfn=new none();

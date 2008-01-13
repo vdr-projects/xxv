@@ -41,7 +41,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('cdelete') %?>
-                        <a href="javascript:sure('<?% gettext("You will delete this channel") %?> : \'<?% escape( name ) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')">
+                        <a href="javascript:sure('<?% gettext("Would you like to delete this channel?") %?> : \'<?% escape( name ) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete channel") %?>" />
                         </a>
 <?% END %?>
@@ -182,8 +182,8 @@
 
 <?% IF allow('cdelete') %?>
         <br /><br />
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DeleteSelected('<?% gettext("You would delete follow channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist)"><?% gettext("Delete channels",20) %?></a><br />
+        <a href="javascript:DeleteSelected('<?% gettext("Would you like to delete these channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist)"><img src="images/delete.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DeleteSelected('<?% gettext("Would you like to delete these channels?") %?>','<?% gettext("Nothing selected!") %?>','cdelete',document.clist)"><?% gettext("Delete channels",20) %?></a><br />
 <?% END %?>
     </p>
 <?% END %?>
