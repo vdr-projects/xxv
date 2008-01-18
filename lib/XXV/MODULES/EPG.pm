@@ -374,7 +374,7 @@ sub compareEpgData {
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       my $db_data = $sth->fetchall_hashref('eventid');
 
-      lg sprintf( 'Compare EPG Database with data from vdr : %d / %d for channel %s', scalar keys %$db_data,scalar keys %$vdrData, $channel);
+      lg sprintf("Compare EPG Database with data from vdr : %d / %d for channel '%s' - %s", scalar keys %$db_data,scalar keys %$vdrData, $channelname, $channel);
       # Compare this Hashes
       foreach my $eid (keys %{$vdrData}) {
         my $row = $vdrData->{$eid};
@@ -404,14 +404,14 @@ sub compareEpgData {
       }
 
       # Delete unused EpgEntrys in DB 
-      $deleteData += scalar keys %$db_data;
       if(scalar keys %$db_data > 0) {
-        my $sth = $obj->{dbh}->prepare('DELETE FROM EPG WHERE eventid IN (?)');
-        foreach my $eventid (keys %$db_data) {
-            if(!$sth->execute($eventid)) {
-                error sprintf("Couldn't execute query: %s.",$sth->errstr);
-            }
+        my @todel = keys(%$db_data);
+        my $sql = sprintf('DELETE FROM EPG WHERE eventid IN (%s)', join(',' => ('?') x @todel)); 
+        my $sth = $obj->{dbh}->prepare($sql);
+        if(!$sth->execute(@todel)) {
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
         }
+        $deleteData += scalar @todel;
       }
     } 
     debug sprintf('Finish .. %d events created, %d events replaced, %d events deleted', $changedData, $updatedData, $deleteData);
@@ -652,7 +652,7 @@ sub search {
     where
         e.channel_id = c.Id
         AND ( $search->{query} )
-        AND (FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration) > NOW())
+        AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
     order by
         starttime
         |;
@@ -707,7 +707,7 @@ from
     EPG as e, CHANNELS as c
 where
     e.channel_id = c.Id
-    AND (FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration) > NOW())
+    AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
     AND e.channel_id = ?
 order by
     starttime
