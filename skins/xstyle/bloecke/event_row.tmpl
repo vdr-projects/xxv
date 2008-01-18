@@ -36,7 +36,7 @@
     <?% field | format('%d') %?>
     </td>
     <?% ELSE %?>
-        <?% IF param.timers.${fielddata.11} && param.timers.${fielddata.11}.Status  %?>
+        <?% IF param.timers.${fielddata.11} && param.timers.${fielddata.11}.activ %?>
                 <td><b><?% field %?></b></td>
         <?% ELSE %?>
                 <td><?% field %?></td>

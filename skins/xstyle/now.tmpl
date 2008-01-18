@@ -64,18 +64,18 @@
                 <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile switch=1 %?>
                 </td>
                 <td>
-                    <?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?>
+                    <?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?>
                     <?% INCLUDE bloecke/tooltip.tmpl cmd="display" eventid=id linkid=id ttp_offset=0 %?><?% title %?></a>
                     <?% IF subtitle != "" %?>
                     <br><small><?% subtitle %?></small>
                     <?% END %?>
                 </td>
                 <td>
-                    <?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?>
+                    <?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?>
                     <a href="?cmd=program&amp;data=<?% channel %?>"><?% sender %?></a>
                 </td>
-                <td><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% start %?><?% IF param.timers.${id} && param.timers.${id}.Status %?></b><?% END %?></td>
-                <td><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% stop %?><?% IF param.timers.${id} && param.timers.${id}.Status %?></b><?% END %?></td>
+                <td><?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?><?% start %?><?% IF param.timers.${id} && param.timers.${id}.activ %?></b><?% END %?></td>
+                <td><?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?><?% stop %?><?% IF param.timers.${id} && param.timers.${id}.activ %?></b><?% END %?></td>
                 <?% UNLESS duration > 100 OR duration <= 0 %?>
                 <td width="100" valign='bottom'><nobr>
                     <?% per = (100 - duration) + 0.999 div 1; per = (per > 100 ? 100 : per)  %?>

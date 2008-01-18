@@ -97,11 +97,11 @@ END %?>
       <br />
 
     <?% IF param.timers.${id} && allow('tedit') %?>
-    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
+    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.id %?>">
         <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
     </a>
     &nbsp;
-    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">
+    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.id %?>">
         <?% gettext("Edit this timer",20) %?>
     </a>
     <br />

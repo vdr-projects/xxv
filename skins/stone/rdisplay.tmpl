@@ -162,7 +162,9 @@
                 cols = cols + 1; 
                 seconds = window * cols; -%?>
          <td style="width:<?% (width / (ticks * 3)) div 1 %?>px; white-space: nowrap; text-align:right">
-            <img style="background:<?% cols % 3 ? "gray" : "black" %?>" src="images/blank.gif" width="<?% cols % 12 ? "1" : "2" %?>" height='<?% (cols % 3 ? "5" : "10") %?>' />
+<?% IF allowplay && seconds < data.Duration %?><a href="javascript:setstart('<?% PROCESS hfs d=seconds %?>')" ><?% END %?>
+<img title="<?% PROCESS hfs d=seconds %?>" style="background:<?% cols % 3 ? "gray" : "black" %?>" src="images/blank.gif" width="<?% cols % 12 ? "1" : "2" %?>" height='<?% (cols % 3 ? "5" : "10") %?>' />
+<?% IF allowplay && seconds < data.Duration %?></a><?% END %?>
         </td>
 <?% END %?>
     </tr>

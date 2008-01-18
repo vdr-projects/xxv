@@ -20,7 +20,7 @@
                             <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
                         </a>
                         <?% IF param.timers.${id} && allow('tedit') %?>
-                        <a href="javascript:popup('tedit','<?% param.timers.${id}.Id %?>',620,670,1)">
+                        <a href="javascript:popup('tedit','<?% param.timers.${id}.id %?>',620,670,1)">
                             <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
                         </a>
                         <?% ELSIF allow('tnew') %?>
@@ -35,7 +35,7 @@
     <?% IF param.runningTimer.exists(id) %?>
         <?% state = "running" %?>
     <?% ELSIF param.timers.exists(id) %?>
-      <?% UNLESS param.timers.${id}.Status %?>
+      <?% UNLESS param.timers.${id}.activ %?>
         <?% state = "deactive" %?>
       <?% ELSE %?>
         <?% state = "active" %?>
