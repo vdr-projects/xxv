@@ -166,10 +166,10 @@ Duration = param.zeitbis - param.zeitvon;
 <?%- BLOCK getStatus -%?>
 <?%-
     class = 'schema_normal';
-    IF t.exists(e.0) && t.${e.0}.Status;
+    IF t.exists(e.0) && t.${e.0}.activ;
         class = 'schema_record_plan';
     END;
-    IF t.exists(e.0) && r.exists(t.${e.0}.Id);
+    IF t.exists(e.0) && r.exists(t.${e.0}.id);
         class = 'schema_record_now';
     END;
 class;

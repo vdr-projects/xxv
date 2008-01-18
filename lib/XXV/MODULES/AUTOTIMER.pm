@@ -130,24 +130,24 @@ sub module {
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'Id');
+                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
                             my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
-                            my $autotimer = getDataById($timer->{AutotimerId}, 'AUTOTIMER', 'Id');
+                            my $autotimer = getDataById($timer->{autotimerid}, 'AUTOTIMER', 'Id');
                             my $title = sprintf(gettext("Autotimer('%s') found: %s"),
-                                                    $autotimer->{Search}, $timer->{File});
+                                                    $autotimer->{Search}, $timer->{file});
 
                             my $description = '';                           
 
-                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{ChannelID});
+                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{channel});
                             $description .= sprintf(gettext("Channel: %s"), $channel);
                             $description .= "\r\n";
 
                             Date_Init("Language=English");
-                            my $d = ParseDate($timer->{NextStartTime});
-                            $timer->{NextStartTime} = datum(UnixDate($d,"%s")) if($d);
+                            my $d = ParseDate($timer->{starttime});
+                            $timer->{starttime} = datum(UnixDate($d,"%s")) if($d);
                             $description .= sprintf(gettext("On: %s to %s"),
-                                $timer->{NextStartTime},
-                                fmttime($timer->{Stop}));
+                                $timer->{starttime},
+                                fmttime($timer->{stop}));
                             $description .= "\r\n";
                             $description .= sprintf(gettext("Description: %s"), $desc->{description} )
                               if($desc && $desc->{description});
@@ -176,28 +176,28 @@ sub status {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    t.Id as __Id,
-    t.File,
-    t.Status as __Status,
+    t.id as __id,
+    t.file,
+    t.flags as __flags,
     c.Name as Channel,
     c.Pos as __Pos,
-    DATE_FORMAT(t.Day, '%e.%c.%Y') as Day,
-    t.Start,
-    t.Stop,
-    t.Priority,
-    UNIX_TIMESTAMP(t.NextStartTime) as __Day,
-    t.Collision as __Collision,
-    t.eventid as __NextEpgId,
-    t.AutotimerId as __AutotimerId
+    DATE_FORMAT(t.day, '%e.%c.%Y') as Day,
+    t.start,
+    t.stop,
+    t.priority,
+    UNIX_TIMESTAMP(t.starttime) as __day,
+    t.collision as __collision,
+    t.eventid as __eventid,
+    t.autotimerid as __autotimerid
 FROM
     TIMERS as t,
     CHANNELS as c
 WHERE
-    t.ChannelID = c.Id
+    t.channel = c.Id
     and UNIX_TIMESTAMP(t.addtime) > ?
-    and t.AutotimerId > 0
+    and t.autotimerid > 0
 ORDER BY
-    t.NextStartTime|;
+    t.starttime|;
 
     my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
@@ -298,9 +298,9 @@ sub _init {
     |);
 
     main::after(sub{
-        my $m = main::getModule('EPG');
-        $m->updated(
-        sub{
+        my $modE = main::getModule('EPG');
+        $modE->updated(
+         sub{
           my $watcher = shift;
           my $console = shift;
           my $waiter = shift;
@@ -411,7 +411,7 @@ sub _autotimerLookup {
 
     my $now = time;
     # Get Timersmodule
-    my $timermod = main::getModule('TIMERS');
+    my $modT = main::getModule('TIMERS');
     foreach my $id (sort keys %$att) {
         my $a = $att->{$id};
 
@@ -424,18 +424,18 @@ sub _autotimerLookup {
         }
 
         # Build SQL Command and run it ....
-        my $events = $obj->_eventsearch($a, $timermod, $addtime ) || next;
+        my $events = $obj->_eventsearch($a, $modT, $addtime ) || next;
 
         # Only search for one at?
         if(ref $console && $autotimerid) {
             $console->message(sprintf(gettext("Found %d entries for '%s' in EPG database."), scalar keys %$events, $a->{Search}));
             foreach my $Id (sort keys %$events) {
               my $output = [
-                  [gettext("Title")	     , $events->{$Id}->{Title}],
-                  [gettext("Subtitle")	 , $events->{$Id}->{Subtitle}],
-                  [gettext("Channel")	   , $events->{$Id}->{Channel}],
+                  [gettext("Title")	     , $events->{$Id}->{title}],
+                  [gettext("Subtitle")	 , $events->{$Id}->{subtitle}],
+                  [gettext("Channel")	   , $events->{$Id}->{channelname}],
               ];
-              if($events->{$Id}->{vpsstart} and $a->{VPS}) {
+              if($events->{$Id}->{vpsstart} and $a->{VPS} and $modT->{usevpstime} eq 'y') {
                 push(@$output, [gettext("Start") , datum($events->{$Id}->{vpsstart} )]);
                 push(@$output, [gettext("Stop")  , datum($events->{$Id}->{vpsstop}  )]);
               } else {
@@ -456,22 +456,33 @@ sub _autotimerLookup {
         foreach my $Id (sort keys %$events) {
             my $event = $events->{$Id};
 
-            $event->{Activ} = 'y';
-            $event->{Priority} = $a->{Priority};
-            $event->{Lifetime} = $a->{Lifetime};
+            $event->{activ} = 'y';
+            $event->{priority} = $a->{Priority};
+            $event->{lifetime} = $a->{Lifetime};
 
-            $event->{File} = $obj->_placeholder($event, $a);
-
-            if($event->{vpsstart} and $a->{VPS}) {
-              $event->{VPS} = 'y';
+            if($event->{vpsstart} and $a->{VPS} and $modT->{usevpstime} eq 'y') {
+              $event->{vps} = 'y';
  	            $event->{starttime} = $event->{vpsstart};
  	            $event->{stoptime} = $event->{vpsstop};
             } else {
-              $event->{VPS} = '';
+              $event->{vps} = 'n';
             }
 
             # ignore outdated event
             next if($event->{stoptime} < $now);
+            
+            # remove seconds from time 12:00:30 => 12:00:00
+            $event->{starttime} -= ($event->{starttime} % 60);
+            $event->{stoptime}  -= ($event->{stoptime} % 60);
+
+            my ($bsec,$bmin,$bhour,$bmday,$bmon,$byear,$bwday,$byday,$bisdst) = localtime($event->{starttime});
+            my ($esec,$emin,$ehour,$emday,$emon,$eyear,$ewday,$eyday,$eisdst) = localtime($event->{stoptime});
+
+            $event->{day} = sprintf("%04d-%02d-%02d",$byear+1900,$bmon+1,$bmday);
+            $event->{start} = sprintf("%02d%02d",$bhour,$bmin);
+            $event->{stop}  = sprintf("%02d%02d",$ehour,$emin);
+
+            $event->{file} = $obj->_placeholder($event, $a);
 
             # Add anchor for reidentify timer
         		$event->{aux} = sprintf('#~AT[%d]', $id);
@@ -486,32 +497,28 @@ sub _autotimerLookup {
 
                 # Ignore timer if it already with same title recorded
                 if(grep(/^chronicle$/, @done) && $obj->_chronicleexists($event)) {
-                  lg sprintf("Don't create timer from AT(%d) '%s', because found same data on chronicle", $id, $event->{File});
+                  lg sprintf("Don't create timer from AT(%d) '%s', because found same data on chronicle", $id, $event->{file});
                   next;
                 }
 
                 # Ignore timer if it already with same title recorded
                 if(grep(/^recording$/, @done) && $obj->_recordexists($event)){
-                  lg sprintf("Don't create timer from AT(%d) '%s', because found same data on recordings", $id, $event->{File});
+                  lg sprintf("Don't create timer from AT(%d) '%s', because found same data on recordings", $id, $event->{file});
                   next;
                 }
                 # Ignore timer if it already a timer with same title programmed, on other place
                 if(grep(/^timer$/, @done) && $obj->_timerexiststitle($event)){
-                  lg sprintf("Don't create timer from AT(%d) '%s', because found same data on other timers", $id, $event->{File});
+                  lg sprintf("Don't create timer from AT(%d) '%s', because found same data on other timers", $id, $event->{file});
                   next;
                 }
             }
 
             my $error = 0;
 
-            my ($bsec,$bmin,$bhour,$bmday,$bmon,$byear,$bwday,$byday,$bisdst) = localtime($event->{starttime});
-            my ($esec,$emin,$ehour,$emday,$emon,$eyear,$ewday,$eyday,$eisdst) = localtime($event->{stoptime});
-
-            $event->{Day} = sprintf("%04d-%02d-%02d",$byear+1900,$bmon+1,$bmday);
-            $event->{Start} = sprintf("%02d%02d",$bhour,$bmin);
-            $event->{Stop}  = sprintf("%02d%02d",$ehour,$emin);
-
-            my $erg = $timermod->saveTimer($event, $timerID ? $timerID : undef);
+            if($timerID) {
+              $event->{pos} = $modT->getPos($timerID);
+            }
+            my $erg = $modT->saveTimer($event);
             foreach my $zeile (@$erg) {
                 if($zeile =~ /^(\d{3})\s+(.+)/) {
                     $error = $2 if(int($1) >= 500);
@@ -526,16 +533,16 @@ sub _autotimerLookup {
 #my $tdata = getDataByTable('TIMERS');
 #dumper($tdata);
 
-                $console->err(sprintf(gettext("Could not save timer for '%s' : %s"), $event->{File}, $error))
+                $console->err(sprintf(gettext("Could not save timer for '%s' : %s"), $event->{file}, $error))
                   if(ref $console && $autotimerid);
             } else {
                 if($timerID) {
                   ++$m;
-                  $console->message(sprintf(gettext("Modified timer for '%s'."), $event->{File}))
+                  $console->message(sprintf(gettext("Modified timer for '%s'."), $event->{file}))
                     if(ref $console && $autotimerid);
                 } else {
                   ++$c;
-                  $console->message(sprintf(gettext("Timer for '%s' has been created."), $event->{File}))
+                  $console->message(sprintf(gettext("Timer for '%s' has been created."), $event->{file}))
                     if(ref $console && $autotimerid);
                 }
             }
@@ -572,7 +579,7 @@ sub _autotimerLookup {
 
     sleep 1;
 
-    $timermod->readData();
+    $modT->readData();
 
     return (\@{$log},$C,$M);
 }
@@ -603,7 +610,7 @@ sub autotimerEdit {
     my $timerid = shift || 0;
     my $data    = shift || 0;
 
-    my $mod = main::getModule('CHANNELS');
+    my $modC = main::getModule('CHANNELS');
     my $modT = main::getModule('TIMERS');
 
     my $epg;
@@ -615,7 +622,7 @@ sub autotimerEdit {
 
             # Channels Ids in Namen umwandeln
             if($epg->{Channels}) {
-              my @channels = map { $_ = $mod->ChannelToPos($_) } split(/[\s|,]+/, $epg->{Channels});
+              my @channels = map { $_ = $modC->ChannelToPos($_) } split(/[\s|,]+/, $epg->{Channels});
               $epg->{Channels} = \@channels;
             }
 
@@ -655,9 +662,9 @@ sub autotimerEdit {
     my $DoneChoices = [$do{'timer'}, $do{'recording'}];
 
     # Enable option "chronicle" only if activated.
-    my $cm  = main::getModule('CHRONICLE');
+    my $modCH  = main::getModule('CHRONICLE');
     push(@$DoneChoices, $do{'chronicle'})
-      if($cm and $cm->{active} eq 'y');
+      if($modCH and $modCH->{active} eq 'y');
 
     my $questions = [
         'Id' => {
@@ -713,14 +720,14 @@ You can also fine tune your search :
         'Channels' => {
             typ     => 'list',
             def     => $epg->{Channels},
-            choices => $mod->ChannelArray('Name', sprintf(' NOT (%s)', $obj->{exclude})),
+            choices => $modC->ChannelArray('Name', sprintf(' NOT (%s)', $obj->{exclude})),
             options => 'multi',
             msg     => gettext('Limit search to these channels'),
             check   => sub{
                 my $value = shift || return;
                 my @vals;
                 foreach my $chname ((ref $value eq 'ARRAY' ? @$value : split(/\s*,\s*/, $value))) {
-                    if( my $chid = $mod->PosToChannel($chname) || $mod->NameToChannel($chname)) {
+                    if( my $chid = $modC->PosToChannel($chname) || $modC->NameToChannel($chname)) {
                         push(@vals, $chid);
                     } else {
                         return undef, sprintf(gettext("The channel '%s' does not exist!"),$chname);
@@ -838,7 +845,7 @@ You can also fine tune your search :
             },
         },
         'VPS' => {
-            typ     => 'confirm',
+            typ     => $modT->{usevpstime} eq 'y' ? 'confirm' : 'hidden',
             def     => $epg->{VPS} || 'n',
             msg     => gettext('Use PDC time to control created timer'),
         },
@@ -919,7 +926,7 @@ You can also fine tune your search :
 						typ 		=> 'string',
             msg     => gettext('Group all recordings into one directory'),
             def     => $epg->{Dir},
-            # choices   =>  main::getModule('TIMERS')->getRootDirs,
+            # choices   =>  $modT->getRootDirs,
         },
         'startdate' => {
             typ     => 'string',
@@ -1194,7 +1201,7 @@ sub _eventsearch {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $a   = shift  || return error('No data defined!');
-    my $timermod = shift || return error('No timer modul defined!');
+    my $modT = shift || return error('No timer modul defined!');
     my $addtime = shift;
 
     my $query;
@@ -1268,12 +1275,12 @@ sub _eventsearch {
 	  if(defined $a->{prevminutes}) {
 			$prev = $a->{prevminutes} * 60;
 		} else {
-			$prev = $timermod->{prevminutes} * 60;
+			$prev = $modT->{prevminutes} * 60;
 		}
 		if(defined $a->{afterminutes}) {
 			$after = $a->{afterminutes} * 60;
 		} else {
-			$after = $timermod->{afterminutes} * 60;
+			$after = $modT->{afterminutes} * 60;
 		}
 #	}
 
@@ -1283,9 +1290,8 @@ sub _eventsearch {
     my $sql = qq|
 SELECT SQL_CACHE 
     e.eventid as eventid,
-    e.channel_id as ChannelID,
-    c.Name as Channel,
-    c.POS as POS,
+    e.channel_id as channel,
+    c.Name as channelname,
     e.title as Title,
     e.subtitle as Subtitle,
     e.description as description,
@@ -1317,21 +1323,21 @@ sub _timerexists {
 
     # Avoid Timer already defined (the timer with the same data again do not put on)
     my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where
-                ChannelID = ?
-                and UNIX_TIMESTAMP(NextStartTime) = ?
-                and UNIX_TIMESTAMP(NextStopTime)  = ?
+                channel = ?
+                and UNIX_TIMESTAMP(starttime) = ?
+                and UNIX_TIMESTAMP(stoptime)  = ?
                 ";
-#               and Priority = ?
-#               and Lifetime = ?
+#               and priority = ?
+#               and lifetime = ?
 #               and (
-#                      ( Status & 1 = '0' )
-#                   or ( File = ? )
+#                      ( flags & 1 = '0' )
+#                   or ( file = ? )
 #               )
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{ChannelID},$eventdata->{starttime},$eventdata->{stoptime},
-#                 $eventdata->{Priority},$eventdata->{Lifetime},
-#                 $eventdata->{File}
+    $sth->execute($eventdata->{channel},$eventdata->{starttime},$eventdata->{stoptime},
+#                 $eventdata->{priority},$eventdata->{lifetime},
+#                 $eventdata->{file}
                   )
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -1348,22 +1354,22 @@ sub _timerexistsfuzzy {
     my $eventdata = shift  || return error('No data defined!');
 
     # Adjust timers set by the autotimer, if event changed +/- five minutes. 
-    my $sql = "SELECT SQL_CACHE ID from TIMERS where
-                ChannelID = ?
-                and ? between (UNIX_TIMESTAMP(NextStartTime) - 300) AND (UNIX_TIMESTAMP(NextStartTime) + 300)
-                and ? between (UNIX_TIMESTAMP(NextStopTime)  - 300) AND (UNIX_TIMESTAMP(NextStopTime) + 300)
-                and File = ?
+    my $sql = "SELECT SQL_CACHE id from TIMERS where
+                channel = ?
+                and ? between (UNIX_TIMESTAMP(starttime) - 300) AND (UNIX_TIMESTAMP(starttime) + 300)
+                and ? between (UNIX_TIMESTAMP(stoptime)  - 300) AND (UNIX_TIMESTAMP(stoptime) + 300)
+                and file = ?
                 and aux like ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{ChannelID},
+    $sth->execute($eventdata->{channel},
                   $eventdata->{starttime},
                   $eventdata->{stoptime},
-                  $eventdata->{File},
+                  $eventdata->{file},
                   "%".$eventdata->{aux})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
-    return $erg->{ID} 
+    return $erg->{id} 
         if($erg);
     return 0;
 }
@@ -1381,7 +1387,7 @@ sub _recordexists {
                     AND CONCAT_WS('~',e.title,IF(e.subtitle<>'',e.subtitle,NULL)) = ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{File})
+    $sth->execute($eventdata->{file})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
@@ -1395,13 +1401,13 @@ sub _chronicleexists {
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
 
-    my $chroniclemod  = main::getModule('CHRONICLE');
+    my $modCH  = main::getModule('CHRONICLE');
     return 0
-      unless($chroniclemod and $chroniclemod->{active} eq 'y');
+      unless($modCH and $modCH->{active} eq 'y');
 
     my $sql = "SELECT SQL_CACHE count(*) as cc from CHRONICLE where title = ?";
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{File})
+    $sth->execute($eventdata->{file})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
@@ -1415,10 +1421,10 @@ sub _timerexiststitle {
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
 
-    my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where File = ?";
+    my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where file = ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{File})
+    $sth->execute($eventdata->{file})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
@@ -1470,8 +1476,8 @@ sub _placeholder {
         if($title =~ /.*%.*%.*/sig) {
 	 	   my %at_details;
                 $at_details{'title'}            = $data->{Title};
-                $at_details{'subtitle'}         = $data->{Subtitle} ? $data->{Subtitle} : $data->{Start};
-                $at_details{'date'}             = $data->{Day};
+                $at_details{'subtitle'}         = $data->{Subtitle} ? $data->{Subtitle} : $data->{start};
+                $at_details{'date'}             = $data->{day};
                 $at_details{'regie'}            = $1 if $data->{description} =~ m/\|Director: (.*?)\|/;
                 $at_details{'category'}         = $1 if $data->{description} =~ m/\|Category: (.*?)\|/;
                 $at_details{'genre'}            = $1 if $data->{description} =~ m/\|Genre: (.*?)\|/;

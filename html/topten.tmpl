@@ -34,7 +34,7 @@
                 <?% ELSIF c == 2; # Text Field %?>
                 <td>
                     <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.3 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
-                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.Status %?>
+                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.activ %?>
                     <b><?% field %?></b>
                     <?% ELSE %?>
                     <?% field %?>
@@ -61,7 +61,7 @@
                 <?% field | format('%d') %?>
                 </td>
                 <?% ELSE %?>
-                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.Status %?>
+                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.activ %?>
                             <td><b><?% field %?></b></td>
                     <?% ELSE %?>
                             <td><?% field %?></td>

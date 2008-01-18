@@ -28,7 +28,7 @@
             <td>
             <a href="?cmd=search&amp;data=<?% url( data.first.1 ) %?>">[<?% gettext("Search for repeats") %?>]</a>
             <?% IF param.timers.${data.first.$c} && allow('tedit') %?>
-                <a href="?cmd=tedit&amp;data=<?% param.timers.${data.first.$c}.Id %?>"><span name='recordlink' class='normal'><b>[<?% gettext("Edit this timer") %?>]</b></span></a>
+                <a href="?cmd=tedit&amp;data=<?% param.timers.${data.first.$c}.id %?>"><span name='recordlink' class='normal'><b>[<?% gettext("Edit this timer") %?>]</b></span></a>
             <?% ELSIF allow('tnew')%?>
                 <a href="?cmd=tnew&amp;data=<?% data.first.$c %?>"><span name='recordlink' id='<?% data.first.$c %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
             <?% END %?>

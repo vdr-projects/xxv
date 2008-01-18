@@ -65,7 +65,7 @@
                 <td>
                     <a href="?cmd=search&amp;data=<?% url( zeile.1 ) %?>">[<?% gettext("Rep") %?>]</a>
     <?% IF param.timers.${zeile.0} && allow('tedit') %?>
-                    <a href="?cmd=tedit&amp;data=<?% param.timers.${zeile.0}.Id %?>"><b><span name='recordlink' id='<?% zeile.0 %?>' class='normal'>[<?% gettext("Edit this timer") %?>]</span></b></a>
+                    <a href="?cmd=tedit&amp;data=<?% param.timers.${zeile.0}.id %?>"><b><span name='recordlink' id='<?% zeile.0 %?>' class='normal'>[<?% gettext("Edit this timer") %?>]</span></b></a>
     <?% ELSIF allow('tnew') %?>
                     <a href="?cmd=tnew&amp;data=<?% zeile.0 %?>"><span name='recordlink' id='<?% zeile.0 %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
     <?% END %?>
@@ -75,7 +75,7 @@
                 <?% ELSIF c == 2; # Text Field %?>
                 <td>
                     <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.6 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
-                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.Status %?>
+                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.activ %?>
                     <b><?% field %?></b>
                     <?% ELSE %?>
                     <?% field %?>
@@ -92,7 +92,7 @@
                 <?% ELSIF c == 6; # Day Field %?>
                 <?% ELSIF c >= 7; # Desc Field %?>
                 <?% ELSE %?>
-                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.Status %?>
+                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.activ %?>
                             <td><b><?% field %?></b></td>
                     <?% ELSE %?>
                             <td><?% field %?></td>

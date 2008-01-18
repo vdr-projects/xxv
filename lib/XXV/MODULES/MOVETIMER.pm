@@ -184,31 +184,32 @@ sub _movetimer {
   my $sth = $self->{dbh}->prepare(
 q|
   select
-  t.Id as Id,
-  IF(t.Status & 1,'y','n') as Activ,
-  IF(t.Status & 4,'y','n') as VPS,
-  t.Status as Status,
-  t.ChannelID as ChannelID,
-  t.File as File,
+  t.id as id,
+  t.pos as pos,
+  IF(t.flags & 1,'y','n') as activ,
+  IF(t.flags & 4,'y','n') as vps,
+  t.flags as flags,
+  t.channel as channel,
+  t.file as file,
   t.aux as aux,
-  t.Day as Day,
-  t.Start as Start,
-  t.Stop as Stop,
-  t.Priority as Priority,
-  t.Lifetime as Lifetime,
-  t.Collision as Collision,
-  IF(t.Status & 1 and NOW() between t.NextStartTime and t.NextStopTime,1,0) as Running 
+  t.day as day,
+  t.start as start,
+  t.stop as stop,
+  t.priority as priority,
+  t.lifetime as lifetime,
+  t.collision as collision,
+  IF(t.flags & 1 and NOW() between t.starttime and t.stoptime,1,0) as running 
   from TIMERS as t,MOVETIMER as m 
   where 
-  m.source = t.channelid
+  m.source = t.channel
   and m.move != 'm'
-  and t.Status & 1
+  and t.flags & 1
 |);
 
   if(!$sth->execute()) {
       return error sprintf("Couldn't execute query: %s.",$sth->errstr);
   }
-  my $timer = $sth->fetchall_hashref('Id');
+  my $timer = $sth->fetchall_hashref('id');
   return unless($timer);
 
   $sth = $self->{dbh}->prepare("select * from MOVETIMER where move != 'n'");
@@ -229,7 +230,7 @@ q|
 
       my $rule = $rules->{$id};
 
-      if($data->{ChannelID} eq $rule->{source}) {
+      if($data->{channel} eq $rule->{source}) {
 
         # Move timer if collision present
         if($rule->{move} eq 'collision') {
@@ -243,39 +244,41 @@ q|
               if($col > $maxPrio);
           }
           # dont solve collision until lesser own Priority
-          last if($maxPrio < $data->{Priority});
+          last if($maxPrio < $data->{priority});
         }
 
         debug sprintf("Move timer %d (%s) at %s : from %s to %s", 
-                      $data->{Id}, 
-                      $data->{File}, 
-                      $data->{Day}, 
+                      $data->{pos}, 
+                      $data->{file}, 
+                      $data->{day}, 
                       $rule->{source},
                       $rule->{destination});
 
         if($rule->{original} eq 'keep' ) {
 
           # Keep original timer but disable him
-          $data->{Activ} = 'n';
-          $self->modifyTimer($data,$tid);
+          $data->{activ} = 'n';
+          $self->modifyTimer($data);
 
           # Create new timer
-          $data->{Activ} = 'y';
-          $data->{ChannelID} = $rule->{destination};
-          $self->modifyTimer($data,0);
+          $data->{activ} = 'y';
+          $data->{channel} = $rule->{destination};
+          $data->{pos} = 0;
+          $self->modifyTimer($data);
 
         } elsif($rule->{original} eq 'copy' ) {
 
           # Copy to new timer
-          $data->{Activ} = 'y';
-          $data->{ChannelID} = $rule->{destination};
-          $self->modifyTimer($data,0);
+          $data->{activ} = 'y';
+          $data->{channel} = $rule->{destination};
+          $data->{pos} = 0;
+          $self->modifyTimer($data);
 
         } else {
 
           # Edit timer direct
-          $data->{ChannelID} = $rule->{destination};
-          $self->modifyTimer($data,$tid);
+          $data->{channel} = $rule->{destination};
+          $self->modifyTimer($data);
 
         }
 
@@ -302,26 +305,25 @@ sub modifyTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $data = shift || return error('No data defined!');
-    my $id = shift || 0;
 
-    my $status = ($data->{Activ} eq 'y' ? 1 : 0);
-       $status |= ($data->{VPS} eq 'y' ? 4 : 0);
+    my $flags  = ($data->{activ} eq 'y' ? 1 : 0);
+       $flags |= ($data->{vps} eq 'y' ? 4 : 0);
 
-    $data->{File} =~ s/:/|/g;
-    $data->{File} =~ s/(\r|\n)//sig;
+    $data->{file} =~ s/:/|/g;
+    $data->{file} =~ s/(\r|\n)//sig;
 
     $self->{svdrp}->queue_cmds(
         sprintf("%s %s:%s:%s:%s:%s:%s:%s:%s:%s",
-            $id ? "modt $id" : "newt",
-            $status,
-            $data->{ChannelID},
-            $data->{Day},
-            $data->{Start},
-            $data->{Stop},
-            int($data->{Priority}),
-            int($data->{Lifetime}),
-            $data->{File},
-            ($data->{aux} || '')
+            $data->{pos} ? "modt $data->{pos}" : "newt",
+            $flags,
+            $data->{channel},
+            $data->{day},
+            $data->{start},
+            $data->{stop},
+            int($data->{priority}),
+            int($data->{lifetime}),
+            $data->{file},
+           ($data->{aux} || '')
         )
     );
 }

@@ -269,7 +269,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 26; # Must be increment if rows of table changed
+    my $version = 27; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($obj->{dbh},'RECORDS',$version,1)) {
@@ -279,7 +279,7 @@ sub _init {
     # Look for table or create this table
     $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS RECORDS (
-          eventid bigint unsigned NOT NULL,
+          eventid int unsigned NOT NULL,
           RecordId int unsigned not NULL,
           RecordMD5 varchar(32) NOT NULL,
           Path text NOT NULL,

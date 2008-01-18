@@ -202,7 +202,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 26; # Must be increment if rows of table changed
+    my $version = 27; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
 
@@ -216,7 +216,7 @@ sub _init {
 
       $obj->{dbh}->do(qq|
           CREATE TABLE IF NOT EXISTS $table (
-              eventid bigint unsigned NOT NULL default '0',
+              eventid int unsigned NOT NULL default '0',
               title text NOT NULL default '',
               subtitle text default '',
               description text,
@@ -665,7 +665,7 @@ sub search {
         unshift(@$erg, $fields);
     }
     $console->table($erg, {
-                            timers => $tim->getEpgIds,
+                            timers => $tim->getEvents,
                             runningTimer => $tim->getRunningTimer('eventid'),
                           }
                     );
@@ -722,7 +722,7 @@ order by
     $console->table($erg, {
                             channels => $mod->ChannelArray('Name'),
                             current => $mod->ChannelToPos($cid),
-                            timers => $tim->getEpgIds,
+                            timers => $tim->getEvents,
                             runningTimer => $tim->getRunningTimer('eventid'),
                            }
                     );
@@ -803,7 +803,7 @@ where
     unshift(@$erg, $fields);
 
     my $tim = main::getModule('TIMERS');
-    $console->table($erg,{timers => $tim->getEpgIds});
+    $console->table($erg,{timers => $tim->getEvents});
 }
 
 # ------------------
@@ -885,7 +885,7 @@ ORDER BY
 
     $console->table($erg,
         {
-            timers => $tim->getEpgIds,
+            timers => $tim->getEvents,
             runningTimer => $tim->getRunningTimer('eventid'),
             periods => $obj->{periods},
             cgroups => $cgroups,
@@ -960,7 +960,7 @@ ORDER BY
     my $tim = main::getModule('TIMERS');
     $console->table($erg,
         {
-            timers => $tim->getEpgIds,
+            timers => $tim->getEvents,
             runningTimer => $tim->getRunningTimer('eventid'),
             zeit => $zeit,
             periods => $obj->{periods},
@@ -1104,7 +1104,7 @@ ORDER BY
     my $tim = main::getModule('TIMERS');
     $console->table($data,
         {
-            timers => $tim->getEpgIds,
+            timers => $tim->getEvents,
             runningTimer => $tim->getRunningTimer('eventid'),
             zeitvon => $zeitvon,
             zeitbis => $zeitbis,
@@ -1127,8 +1127,8 @@ sub checkOnTimer {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    e.starttime as NextStartTime,
-    ADDDATE(e.starttime, INTERVAL e.duration SECOND) as NextStopTime,
+    e.starttime as starttime,
+    ADDDATE(e.starttime, INTERVAL e.duration SECOND) as stoptime,
     LEFT(c.Source,1) as source,
     c.TID as transponderid
 FROM
@@ -1147,7 +1147,7 @@ WHERE
     my $tmod = main::getModule('TIMERS');
     # Zeige den Title des Timers
     foreach (@$erg) { 
-      $_ = $tmod->getTimerById((split(':', $_))[0])->{File}
+      $_ = $tmod->getTimerById((split(':', $_))[0])->{file}
         unless($_ eq 'ok'); 
     }
 

@@ -60,10 +60,10 @@
             <?% END %?>
         <tr class="<?% myclass %?>" <?% IF (loop.count mod 2) == 0 %?>bgcolor='#F5F5F5'<?% END %?>>
                 <td><nobr>
-                <?% IF param.timers.${id} && param.timers.${id}.Status  %?><b><?% END %?>
+                <?% IF param.timers.${id} && param.timers.${id}.activ  %?><b><?% END %?>
                     <a href="?cmd=search&amp;data=<?% url( title ) %?>">[<?% gettext("Rep") %?>]</a>
                 <?% IF param.timers.${id} && allow('tedit') %?>
-                    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.Id %?>">[<?% gettext("Edit") %?>]</a><br>
+                    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.id %?>">[<?% gettext("Edit") %?>]</a><br>
                 <?% ELSIF allow('tnew') %?>
                     <a href="?cmd=tnew&amp;data=<?% id %?>"><span name='recordlink' id='<?% id %?>' class='normal'>[<?% gettext("Rec") %?>]</span></a><br>
                 <?% END %?>
@@ -72,18 +72,18 @@
                 <?% END %?>
                 </td>
                 <td>
-                    <?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?>
+                    <?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?>
                     <?% INCLUDE bloecke/tooltip.tmpl cmd="display" eventid=id linkid=id ttp_offset=0 %?><?% title %?></a>
                     <?% IF subtitle != "" %?>
                     <br><small><?% subtitle %?></small>
                     <?% END %?>
                 </td>
                 <td>
-                    <?% IF param.timers.${id} && param.timers.${id}.Status  %?><b><?% END %?>
+                    <?% IF param.timers.${id} && param.timers.${id}.activ  %?><b><?% END %?>
                     <a href="?cmd=program&amp;data=<?% channel %?>"><?% sender %?></a>
                 </td>
-                <td><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% start %?><?% IF param.timers.${id} && param.timers.${id}.Status %?></b><?% END %?></td>
-                <td><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% stop %?><?% IF param.timers.${id} && param.timers.${id}.Status %?></b><?% END %?></td>
+                <td><?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?><?% start %?><?% IF param.timers.${id} && param.timers.${id}.activ %?></b><?% END %?></td>
+                <td><?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?><?% stop %?><?% IF param.timers.${id} && param.timers.${id}.activ %?></b><?% END %?></td>
                 <?% UNLESS duration > 100 OR duration <= 0 %?>
                 <td width="100" valign='bottom'><nobr>
                     <?% per = ( (100 - duration) + 0.999 ) div 1 ; per = (per > 100 ? 100 : per)  %?>
@@ -91,8 +91,8 @@
                     <?% text = per div 1 | format("<br><font size='1'>${per}%%</font>") %?>
                     <table width="100%" cellspacing='0' cellpadding='0'>
                         <tr>
-                        <td bgcolor="#dedede"><img src='images/blank.png' width="<?% per %?>" height='1' hspace=0 vspace=0><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% (per > 19 ? text : "&nbsp;") %?></td>
-                        <td bgcolor="#ffffff"><img src='images/blank.png' width="<?% per2 %?>" height='1' hspace=0 vspace=0><?% IF param.timers.${id} && param.timers.${id}.Status %?><b><?% END %?><?% (per < 20 ? text : "") %?></td>
+                        <td bgcolor="#dedede"><img src='images/blank.png' width="<?% per %?>" height='1' hspace=0 vspace=0><?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?><?% (per > 19 ? text : "&nbsp;") %?></td>
+                        <td bgcolor="#ffffff"><img src='images/blank.png' width="<?% per2 %?>" height='1' hspace=0 vspace=0><?% IF param.timers.${id} && param.timers.${id}.activ %?><b><?% END %?><?% (per < 20 ? text : "") %?></td>
                         <tr>
                     </table>
                 </td>
