@@ -85,7 +85,7 @@
                         <?% aus = gettext('Off') %?>
                         <?% an = gettext('On') %?>
     <?% IF allow('ttoggle') %?>
-            			<a name='<?% zeile.0 %?>' href="javascript:tostatus('?cmd=ttoggle&amp;data=<?% zeile.0 %?>', <?% zeile.0 %?>)" title="<?% gettext("Toggle timer") %?>&nbsp;<?% aktiv ? aus : an %?>"><img src="images/<?% aktiv ? "on.png" : "off.png" %?>"></a><br/>
+            			<a name='<?% zeile.0 %?>' href="javascript:tostatus('?cmd=ttoggle&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Toggle timer") %?>&nbsp;<?% aktiv ? aus : an %?>"><img src="images/<?% aktiv ? "on.png" : "off.png" %?>"></a><br/>
 <!--
                         <?% IF zeile.12 && allow('aedit') %?>
             			<a href="?cmd=aedit&amp;data=<?% zeile.12 %?>" title="<?% gettext("Edit autotimer") %?>"><img src="images/at.png"></a><br>

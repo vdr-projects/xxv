@@ -1,5 +1,5 @@
 // To status frame und dann refresh der seite
-function tostatus(url, num) {
+function tostatus(url) {
     myoldurl = location.href;
     location.href = url;
 }
