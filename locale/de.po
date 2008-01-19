@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XXV 1.1\n"
 "POT-Creation-Date: 2005-01-12 18:55\n"
-"PO-Revision-Date: 2008-01-18 17:38+0100\n"
+"PO-Revision-Date: 2008-01-19 09:02+0100\n"
 "Last-Translator: Andreas Brachold <anbr at users.berlios.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -142,7 +142,7 @@ msgid "Search in autotimer"
 msgstr "Suche in Autotimern"
 
 #--------------------
-#: ../html/alist.tmpl:7 ../html/asearch.tmpl:7 ../html/search.tmpl:21
+#: ../html/alist.tmpl:7 ../html/asearch.tmpl:7 ../html/search.tmpl:22
 msgid "Search text"
 msgstr "Suchtext"
 
@@ -167,17 +167,17 @@ msgid "Search for channels"
 msgstr "Suche nach Kanälen"
 
 #--------------------
-#: ../html/clist.tmpl:118 ../html/mlist.tmpl:53 ../html/mlsearch.tmpl:37 ../html/movetimerlist.tmpl:73 ../html/rlist.tmpl:267 ../html/rsearch.tmpl:267 ../html/tlist.tmpl:140 ../html/tsearch.tmpl:140
+#: ../html/clist.tmpl:118 ../html/mlist.tmpl:53 ../html/mlsearch.tmpl:37 ../html/movetimerlist.tmpl:73 ../html/rlist.tmpl:267 ../html/rsearch.tmpl:267 ../html/search.tmpl:81 ../html/tlist.tmpl:140 ../html/tsearch.tmpl:140
 msgid "Select all"
 msgstr "Alles auswählen"
 
 #--------------------
-#: ../html/clist.tmpl:119 ../html/mlist.tmpl:54 ../html/movetimerlist.tmpl:74 ../html/rlist.tmpl:268 ../html/rsearch.tmpl:268 ../html/tlist.tmpl:141 ../html/tsearch.tmpl:141
+#: ../html/clist.tmpl:119 ../html/mlist.tmpl:54 ../html/movetimerlist.tmpl:74 ../html/rlist.tmpl:268 ../html/rsearch.tmpl:268 ../html/search.tmpl:82 ../html/tlist.tmpl:141 ../html/tsearch.tmpl:141
 msgid "Unselect all"
 msgstr "Auswahl aufheben"
 
 #--------------------
-#: ../html/clist.tmpl:120 ../html/mlist.tmpl:55 ../html/movetimerlist.tmpl:75 ../html/rlist.tmpl:269 ../html/rsearch.tmpl:269 ../html/tlist.tmpl:142 ../html/tsearch.tmpl:142
+#: ../html/clist.tmpl:120 ../html/mlist.tmpl:55 ../html/movetimerlist.tmpl:75 ../html/rlist.tmpl:269 ../html/rsearch.tmpl:269 ../html/search.tmpl:83 ../html/tlist.tmpl:142 ../html/tsearch.tmpl:142
 msgid "Reverse select"
 msgstr "Auswahl umkehren"
 
@@ -187,7 +187,7 @@ msgid "Would you like to delete these channels?"
 msgstr "Wollen Sie diese Kanäle löschen?"
 
 #--------------------
-#: ../html/clist.tmpl:122 ../html/mlist.tmpl:40 ../html/movetimerlist.tmpl:64 ../html/rlist.tmpl:124 ../html/rsearch.tmpl:124 ../html/tlist.tmpl:23 ../html/tlist.tmpl:29 ../html/tsearch.tmpl:23 ../html/tsearch.tmpl:29
+#: ../html/clist.tmpl:122 ../html/mlist.tmpl:40 ../html/movetimerlist.tmpl:64 ../html/rlist.tmpl:124 ../html/rsearch.tmpl:124 ../html/search.tmpl:78 ../html/tlist.tmpl:23 ../html/tlist.tmpl:29 ../html/tsearch.tmpl:23 ../html/tsearch.tmpl:29
 msgid "Nothing selected!"
 msgstr "Sie haben nicht gewählt!"
 
@@ -277,7 +277,7 @@ msgid "Percent"
 msgstr "Prozent"
 
 #--------------------
-#: ../html/display.tmpl:25 ../html/rdisplay.tmpl:149 ../html/search.tmpl:54 ../html/topten.tmpl:21 ../lib/XXV/MODULES/AUTOTIMER.pm:436 ../lib/XXV/MODULES/CHRONICLE.pm:168 ../lib/XXV/MODULES/CHRONICLE.pm:207 ../lib/XXV/MODULES/EPG.pm:748 ../lib/XXV/MODULES/EPG.pm:849 ../lib/XXV/MODULES/EPG.pm:923 ../lib/XXV/MODULES/RECORDS.pm:1873 ../lib/XXV/MODULES/TIMERS.pm:1230 ../lib/XXV/MODULES/TIMERS.pm:889
+#: ../html/display.tmpl:25 ../html/rdisplay.tmpl:149 ../html/search.tmpl:55 ../html/topten.tmpl:21 ../lib/XXV/MODULES/AUTOTIMER.pm:436 ../lib/XXV/MODULES/CHRONICLE.pm:168 ../lib/XXV/MODULES/CHRONICLE.pm:207 ../lib/XXV/MODULES/EPG.pm:748 ../lib/XXV/MODULES/EPG.pm:849 ../lib/XXV/MODULES/EPG.pm:923 ../lib/XXV/MODULES/RECORDS.pm:1873 ../lib/XXV/MODULES/TIMERS.pm:1230 ../lib/XXV/MODULES/TIMERS.pm:889
 msgid "Channel"
 msgstr "Kanal"
 
@@ -777,7 +777,7 @@ msgid "Albums"
 msgstr "Alben"
 
 #--------------------
-#: ../html/mlist.tmpl:24 ../html/mlnavcontainer.tmpl:96 ../html/mlsearch.tmpl:46 ../html/search.tmpl:66 ../html/widgets/vtx.tmpl:28 ../lib/XXV/MODULES/AUTOTIMER.pm:1146 ../lib/XXV/MODULES/AUTOTIMER.pm:1171 ../wml/next.tmpl:15 ../wml/now.tmpl:15 ../wml/program.tmpl:43 ../wml/search.tmpl:17
+#: ../html/mlist.tmpl:24 ../html/mlnavcontainer.tmpl:96 ../html/mlsearch.tmpl:46 ../html/search.tmpl:67 ../html/widgets/vtx.tmpl:28 ../lib/XXV/MODULES/AUTOTIMER.pm:1146 ../lib/XXV/MODULES/AUTOTIMER.pm:1171 ../wml/next.tmpl:15 ../wml/now.tmpl:15 ../wml/program.tmpl:43 ../wml/search.tmpl:17
 msgid "Search"
 msgstr "Suche"
 
@@ -1185,74 +1185,84 @@ msgid "o'clock"
 msgstr "Uhr"
 
 #--------------------
-#: ../html/search.tmpl:12
+#: ../html/search.tmpl:10
+msgid "Advanced Search"
+msgstr "Erweiterte Suche"
+
+#--------------------
+#: ../html/search.tmpl:13
 msgid "Found %s items"
 msgstr "%s Sendungen gefunden"
 
 #--------------------
-#: ../html/search.tmpl:25
+#: ../html/search.tmpl:26
 msgid "Search in fields"
 msgstr "Suchfelder"
 
 #--------------------
-#: ../html/search.tmpl:27 ../html/search.tmpl:35 ../html/search.tmpl:42 ../lib/XXV/MODULES/MEDIALIB.pm:1329
+#: ../html/search.tmpl:28 ../html/search.tmpl:36 ../html/search.tmpl:43 ../lib/XXV/MODULES/MEDIALIB.pm:1329
 msgid "All"
 msgstr "Alle"
 
 #--------------------
-#: ../html/search.tmpl:28
+#: ../html/search.tmpl:29
 msgid "Only in title"
 msgstr "Nur im Titel"
 
 #--------------------
-#: ../html/search.tmpl:29
+#: ../html/search.tmpl:30
 msgid "Only in title and subtitle"
 msgstr "Nur im Titel und Serientitel"
 
 #--------------------
-#: ../html/search.tmpl:33
+#: ../html/search.tmpl:34
 msgid "Video format"
 msgstr "Videoformat"
 
 #--------------------
-#: ../html/search.tmpl:36
+#: ../html/search.tmpl:37
 msgid "16:9 Wide screen"
 msgstr "16:9 Breitwandfilm"
 
 #--------------------
-#: ../html/search.tmpl:40
+#: ../html/search.tmpl:41
 msgid "Audio format"
 msgstr "Audioformat"
 
 #--------------------
-#: ../html/search.tmpl:43
+#: ../html/search.tmpl:44
 msgid "Dolby Digital"
 msgstr "Dolby Digital"
 
 #--------------------
-#: ../html/search.tmpl:44
+#: ../html/search.tmpl:45
 msgid "Stereo"
 msgstr "Stereo"
 
 #--------------------
-#: ../html/search.tmpl:48
+#: ../html/search.tmpl:49
 msgid "Minimum length (in minutes)"
 msgstr "Mindestlänge (in Minuten)"
 
 #--------------------
-#: ../html/search.tmpl:57
+#: ../html/search.tmpl:58
 msgid "All channels"
 msgstr "Alle Kanäle"
 
 #--------------------
-#: ../html/search.tmpl:67 ../html/widgets/formEnd.tmpl:6 ../wml/widgets/formEnd.tmpl:4
+#: ../html/search.tmpl:68 ../html/widgets/formEnd.tmpl:6 ../wml/widgets/formEnd.tmpl:4
 msgid "Reset"
 msgstr "Zurücksetzen"
 
 #--------------------
-#: ../html/search.tmpl:9
-msgid "Advanced Search"
-msgstr "Erweiterte Suche"
+#: ../html/search.tmpl:77
+msgid "Would you like to record these events?"
+msgstr "Wollen Sie diese Sendungen aufnehmen?"
+
+#--------------------
+#: ../html/search.tmpl:79
+msgid "Record selected events"
+msgstr "Gewählte Sendungen aufnehmen"
 
 #--------------------
 #: ../html/tlist.tmpl:10 ../html/tlist.tmpl:8 ../html/tsearch.tmpl:10 ../html/tsearch.tmpl:8

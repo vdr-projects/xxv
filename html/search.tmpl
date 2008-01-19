@@ -6,6 +6,7 @@
 -->
 </SCRIPT>
 <?% USE date %?>
+<?% enableform = ( allow('tnew') ) && data.size > 1 %?>
 <h1><?% gettext("Advanced Search") %?>
 <?% IF data.size %?>
     <?% found = data.size - 1 %?>
@@ -14,7 +15,7 @@
 </h1>
 
 <table border="0" width="95%">
-<form method='get'>
+<form method='get' name='searchparam'>
     <input type='hidden' name='cmd' value='search'>
     <input type='hidden' name='__action' value='save'>
 <tr>
@@ -70,12 +71,26 @@
 </form>
 </table>
 
-
 <?% IF data.size > 1 %?>
+
+<?% IF enableform %?>
+<a href="#" onClick="Delete('<?% gettext("Would you like to record these events?") %?>',
+'<?% gettext("Nothing selected!") %?>','tnew&__fast=1',document.searchlist)">
+    [<?% gettext("Record selected events") %?>]
+</a>
+<a href="#" onClick="selAll(document.searchlist, 1)">[<?% gettext("Select all") %?>]</a>
+<a href="#" onClick="selAll(document.searchlist, 0)">[<?% gettext("Unselect all") %?>]</a>
+<a href="#" onClick="reverse(document.searchlist)">[<?% gettext("Reverse select") %?>]</a>
+<form name='searchlist'>
+    <?% INCLUDE 'widgets/referer.tmpl' %?>
+<?% END %?>
+
 <table border="0" width="95%">
-<?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
+            <?% IF enableform %?>
+              <th></th>
+            <?% END %?>
         <?% FOREACH field = fields %?>
             <?% NEXT IF field.match('^__') || loop.count == 8 || loop.count == 9 %?>
             <th><?% field %?></th>
@@ -94,6 +109,13 @@
                 <?% c = c + 1 %?>
                 <?% NEXT IF fields.$c.match('^__') %?>
                 <?% IF c == 0; # Id Field %?>
+                <?% IF enableform %?>
+                <td>
+                <?% IF !param.timers.exists(zeile.0); %?>
+            			<input type="checkbox" value="<?% zeile.0 %?>" name="<?% zeile.1 %?><?% IF zeile.2 != "";"~";zeile.2;END %?>" />
+	              <?% END %?>
+                </td>
+	              <?% END %?>
                 <td>
                 <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile %?>
                 </td>
@@ -126,6 +148,8 @@
         </tr>
         <?% oldday = day %?>
         <?% END %?>
-<?% END %?>
 </table>
+<?% IF enableform %?>
+</form>
+<?% END %?>
 <?% END %?>
