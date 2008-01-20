@@ -57,7 +57,7 @@
                 <?% myclass = "deactive" %?>
             <?% ELSIF zeile.10 %?>
                 <?% myclass = 'problem' %?>
-            <?% ELSIF param.runningTimer.exists(zeile.0) %?>
+            <?% ELSIF zeile.15 %?>
                 <?% myclass = "active" %?>
             <?% END %?>
             <tr class="<?% myclass %?>" <?% IF (loop.count mod 2) == 0 %?>bgcolor='#F5F5F5'<?% END %?>>

@@ -14,10 +14,10 @@
 <?% ######################################################################## %?>
 <?% BLOCK SetState %?>
     <?% state = '' %?>
-    <?% IF param.runningTimer.exists(id) %?>
+    <?% IF running %?>
         <?% state = "running" %?>
-    <?% ELSIF param.timers.exists(id) %?>
-      <?% UNLESS param.timers.${id}.activ %?>
+    <?% ELSIF timerid %?>
+      <?% UNLESS recording %?>
         <?% state = "deactive" %?>
       <?% ELSE %?>
         <?% state = "active" %?>
@@ -50,8 +50,8 @@
         <a href="?cmd=search&amp;data=<?% url( title ) %?>">
             <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
         </a>
-        <?% IF param.timers.${id} && allow('tedit') %?>
-        <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.id %?>">
+        <?% IF timerid && allow('tedit') %?>
+        <a href="?cmd=tedit&amp;data=<?% timerid %?>">
             <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
         </a>
         <?% ELSIF allow('tnew') %?>
@@ -76,8 +76,10 @@
     </tr>
 	<?% FOREACH zeile = data %?>
      <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;pdc=zeile.9 %?>
-        <?% day = date.format(zeile.7, "%A, %x", locale) %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;
+            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            day = date.format(zeile.7, "%A, %x", locale) %?>
 		<?% IF old.defined && day != old %?>
    		  <tr>
             <td colspan="12" align="left">

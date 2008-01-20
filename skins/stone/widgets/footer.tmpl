@@ -3,6 +3,31 @@
 <?% END %?>
 <!-- ###### Ende ###### -->
 <?% IF debug %?>
+<?% benchdata = bench() %?>
+<?% IF benchdata.keys %?>
+<table class="editortable" summary="">
+    <tr><td class="editorhead"><div class="editorhead">Benchmark</div></td></tr>
+    <tr>  
+        <td class="editortext" align="left">
+            <table summary="" width="100%">
+                <?% FOREACH n = benchdata.keys.sort %?>
+                    <?% NEXT IF benchdata.$n > 1000 %?>
+                    <?% ges = benchdata.$n + ges %?>
+                <tr>
+                    <td><?% n %?></td>
+                    <td><?% benchdata.$n %?></td>
+                </tr>
+                <?% END %?>
+                <tr>
+                    <td>Summary:</td>
+                    <td><?% ges %?></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr><td class="editorbottom"></td></tr>
+</table>
+<?% END %?>
 <!-- 
 <?% PERL %?>
 use Data::Dumper;

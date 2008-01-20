@@ -19,8 +19,8 @@
                         <a href="?cmd=search&amp;data=<?% ( title ) %?>">
                             <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
                         </a>
-                        <?% IF param.timers.${id} && allow('tedit') %?>
-                        <a href="javascript:popup('tedit','<?% param.timers.${id}.id %?>',620,670,1)">
+                        <?% IF timerid && allow('tedit') %?>
+                        <a href="javascript:popup('tedit','<?% timerid %?>',620,670,1)">
                             <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
                         </a>
                         <?% ELSIF allow('tnew') %?>
@@ -32,10 +32,10 @@
 <?% ######################################################################## %?>
 <?% BLOCK SetState %?>
     <?% state = '' %?>
-    <?% IF param.runningTimer.exists(id) %?>
+    <?% IF running %?>
         <?% state = "running" %?>
-    <?% ELSIF param.timers.exists(id) %?>
-      <?% UNLESS param.timers.${id}.activ %?>
+    <?% ELSIF timerid %?>
+      <?% UNLESS recording %?>
         <?% state = "deactive" %?>
       <?% ELSE %?>
         <?% state = "active" %?>
@@ -134,7 +134,11 @@
 <?% fields = data.shift %?>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;description=zeile.8;duration=zeile.9;pdc=zeile.10 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;
+            description=zeile.8;duration=zeile.9;
+            timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            pdc=zeile.13; %?>
         <?% IF old.defined && group != old %?>
 <div class="areaclose"></div>
 <h2><?% group %?></h2>

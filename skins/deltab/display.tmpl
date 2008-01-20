@@ -12,12 +12,15 @@
   stopp = data.last.4;
   channel = data.last.5;
   description = data.last.6;
-  bild = data.last.7;
-  d = data.last.8;
-  video = data.last.9;
-  audio = data.last.10;
-  pdc = data.last.11;
-  channelid = data.last.12;
+  video = data.last.7;
+  audio = data.last.8;
+  d = data.last.9;
+  timerid=data.last.10;
+  recording=data.last.11;
+  running=data.last.12;
+  bild = data.last.13;
+  pdc = data.last.14;
+  channelid = data.last.15;
 %?>
 <?% ######################################################################## %?>
 <div id="body">
@@ -96,12 +99,12 @@ END %?>
 
       <br />
 
-    <?% IF param.timers.${id} && allow('tedit') %?>
-    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.id %?>">
+    <?% IF timerid && allow('tedit') %?>
+    <a href="?cmd=tedit&amp;data=<?% timerid %?>">
         <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
     </a>
     &nbsp;
-    <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.id %?>">
+    <a href="?cmd=tedit&amp;data=<?% timerid %?>">
         <?% gettext("Edit this timer",20) %?>
     </a>
     <br />

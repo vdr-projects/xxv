@@ -27,8 +27,8 @@
 <table border="0" width="95%">
 <?% fields = data.shift %?>
     <?% c = -1 %?>
-    <?% IF data.first.7 %?>
-       <?% Image = data.first.7 %?>
+    <?% IF data.first.13 %?>
+       <?% Image = data.first.13 %?>
     <?% END %?>
     <?% FOREACH field = fields %?>
         <?% c = c + 1 %?>
@@ -71,7 +71,7 @@
             <td>
 			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
                 <?% date.format(data.first.$c,"%H:%M",locale) %?>
-                <?% IF data.first.11 && data.first.11 != data.first.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(data.first.11,"%H:%M",locale) %?>) <?% END %?>
+                <?% IF data.first.14 && data.first.14 != data.first.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(data.first.14,"%H:%M",locale) %?>) <?% END %?>
             </td>
         <?% ELSIF field == gettext('Stop') %?>
             <td>

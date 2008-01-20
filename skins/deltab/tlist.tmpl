@@ -52,7 +52,7 @@
         <?% state = "deactive" %?>
     <?% ELSIF conflict %?>
         <?% state = "problem" %?>
-    <?% ELSIF param.runningTimer.exists(id) %?>
+    <?% ELSIF running %?>
         <?% state = "active" %?>
     <?% END %?>
 <?% END %?>
@@ -157,6 +157,7 @@
           autotimerid=zeile.12;
           duration=zeile.13;
           description=zeile.14;
+          running=zeile.15;
           t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
           pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
 	    	  day = date.format(zeile.9, "%A, %x", locale) %?>

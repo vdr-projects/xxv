@@ -177,6 +177,9 @@ sec_height = 0.1;
     video       = e.11;
     audio       = e.12;
     image       = e.13;
+    timerid     = e.14;
+    recording   = e.15;
+    running     = e.16;
 
     # Schon früher angefangende Sendung ...
     IF second_start < param.zeitvon;
@@ -209,7 +212,7 @@ sec_height = 0.1;
     END;
  %?>
 
-<div id='eventbox' style="<?% IF param.timers.$epgId.id && param.timers.$epgId.activ %?>border-color:#F00;<?% END %?><?% IF param.runningTimer.$epgId.Id %?>border-color:#0F0;<?% END %?>height: <?% (durat * sec_height) | format('%d') %?>px;<?%- IF date.now < second_start || date.now > second_stop -%?>color : #777;<?%- END -%?>
+<div id='eventbox' style="<?% IF timerid && recording %?>border-color:#F00;<?% END %?><?% IF running %?>border-color:#0F0;<?% END %?>height: <?% (durat * sec_height) | format('%d') %?>px;<?%- IF date.now < second_start || date.now > second_stop -%?>color : #777;<?%- END -%?>
 <?%- IF second_start == param.zeitvon -%?>
 top: 0px;border-top-style:dashed;border-top-color:green;border-top-width:2px;
 <?%- ELSE -%?>

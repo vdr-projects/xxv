@@ -118,7 +118,7 @@
                 <?% IF c == 0; # Id Field %?>
                 <?% IF enableform %?>
                 <td>
-                <?% IF !param.timers.exists(zeile.0); %?>
+                <?% IF !zeile.10 %?>
             			<input type="checkbox" value="<?% zeile.0 %?>" name="<?% zeile.1 %?><?% IF zeile.2 != "";"~";zeile.2;END %?>" />
 	              <?% END %?>
                 </td>
@@ -129,7 +129,7 @@
                 <?% ELSIF c == 1; # Text Field %?>
                 <td>
                     <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.8 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
-                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.activ %?>
+                    <?% IF zeile.11 %?>
                     <b><?% field %?></b>
                     <?% ELSE %?>
                     <?% field %?>

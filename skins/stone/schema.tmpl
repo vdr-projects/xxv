@@ -131,6 +131,9 @@
                                 video = event.11;
                                 audio = event.12;
                                 image = event.13;
+                                timerid     = event.14;
+                                recording   = event.15;
+                                running     = event.16;
                                 IF second_start > oldend;
                                     laenge = second_start - oldend;
                                     percent = (laenge / Duration) * width;
@@ -158,7 +161,7 @@
                             <img style="float:left" alt="" src="images/blank.gif" width="<?% percent div 1 %?>" height="1" align="left" />
                         <!-- </a> -->
                         <?% ELSE %?>
-                        <?% PROCESS SetState t=param.timers r=param.runningTimer %?>
+                        <?% PROCESS SetState %?>
                         <table summary="" class="schema" style="width:<?% percent div 1 %?>px">
                             <tr>
                                 <td>
@@ -184,10 +187,10 @@
 <?% ######################################################################## %?>
 <?% BLOCK SetState %?>
     <?% state = '' %?>
-    <?% IF param.runningTimer.exists(id) %?>
+    <?% IF running %?>
         <?% state = "running" %?>
-    <?% ELSIF param.timers.exists(id) %?>
-      <?% UNLESS param.timers.${id}.activ %?>
+    <?% ELSIF timerid %?>
+      <?% UNLESS recording %?>
         <?% state = "deactive" %?>
       <?% ELSE %?>
         <?% state = "active" %?>
