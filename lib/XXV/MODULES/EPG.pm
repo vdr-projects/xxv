@@ -592,8 +592,6 @@ sub search {
     my $data = shift;
     my $params = shift;
 
-    my $tim = main::getModule('TIMERS');
-
     # Textsearch
     my $search;
     if($data) {
@@ -645,7 +643,22 @@ sub search {
         DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as Stop,
         UNIX_TIMESTAMP(e.starttime) as Day,
         e.description,
-        IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
+        IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
+        ( SELECT 
+            t.id
+            FROM TIMERS as t
+            WHERE t.eventid = e.eventid
+            LIMIT 1) as __timerid,
+        ( SELECT 
+            (t.flags & 1) 
+            FROM TIMERS as t
+            WHERE t.eventid = e.eventid
+            LIMIT 1) as __timeractiv,
+        ( SELECT 
+            NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+            FROM TIMERS as t
+            WHERE t.eventid = e.eventid
+            LIMIT 1) as __running
     from
         EPG as e,
         CHANNELS as c
@@ -664,11 +677,7 @@ sub search {
 
         unshift(@$erg, $fields);
     }
-    $console->table($erg, {
-                            timers => $tim->getEvents,
-                            runningTimer => $tim->getRunningTimer('eventid'),
-                          }
-                    );
+    $console->table($erg);
 }
 
 # ------------------
@@ -680,7 +689,6 @@ sub program {
     my $channel = shift || $obj->{dbh}->selectrow_arrayref("SELECT SQL_CACHE  POS from CHANNELS limit 1")->[0];
 
     my $mod = main::getModule('CHANNELS');
-    my $tim = main::getModule('TIMERS');
 
     my $cid;
     if($channel =~ /^\d+$/sig) {
@@ -702,7 +710,22 @@ SELECT SQL_CACHE
     e.description as __Description,
     e.video as __Video,
     e.audio as __Audio,
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
+    ( SELECT 
+        t.id
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timerid,
+    ( SELECT 
+        (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timeractiv,
+    ( SELECT 
+        NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __running
 from
     EPG as e, CHANNELS as c
 where
@@ -722,9 +745,7 @@ order by
     $console->table($erg, {
                             channels => $mod->ChannelArray('Name'),
                             current => $mod->ChannelToPos($cid),
-                            timers => $tim->getEvents,
-                            runningTimer => $tim->getRunningTimer('eventid'),
-                           }
+                          }
                     );
 }
 
@@ -773,10 +794,25 @@ SELECT SQL_CACHE
     $stopp as \'$f{'Stop'}\',
     c.Name as \'$f{'Channel'}\',
     e.description as \'$f{'Description'}\',
-    e.image as __Image,
-    (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/duration*100 as \'$f{'Percent'}\',
     e.video as __Video,
     e.audio as __Audio,
+    (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/duration*100 as \'$f{'Percent'}\',
+    ( SELECT 
+        t.id
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timerid,
+    ( SELECT 
+        (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timeractiv,
+    ( SELECT 
+        NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __running,
+    e.image as __Image,
     IF(e.vpstime!=0,$vps,'') as __PDC,
     e.channel_id as __channel_id
 from
@@ -802,8 +838,7 @@ where
 
     unshift(@$erg, $fields);
 
-    my $tim = main::getModule('TIMERS');
-    $console->table($erg,{timers => $tim->getEvents});
+    $console->table($erg);
 }
 
 # ------------------
@@ -863,6 +898,21 @@ SELECT SQL_CACHE
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
     e.description as __Description,
     999 as __Percent,
+    ( SELECT 
+        t.id
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timerid,
+    ( SELECT 
+        (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timeractiv,
+    ( SELECT 
+        NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __running,
     IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
 FROM
     EPG as e, CHANNELS as c, NEXTEPG as n, CHANNELGROUPS as g
@@ -881,12 +931,8 @@ ORDER BY
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
-    my $tim = main::getModule('TIMERS');
-
     $console->table($erg,
         {
-            timers => $tim->getEvents,
-            runningTimer => $tim->getRunningTimer('eventid'),
             periods => $obj->{periods},
             cgroups => $cgroups,
             channelgroup => $cgrp,
@@ -938,6 +984,21 @@ SELECT SQL_CACHE
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
     e.description as __Description,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as \'$f{'Percent'}\',
+    ( SELECT 
+        t.id
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timerid,
+    ( SELECT 
+        (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timeractiv,
+    ( SELECT 
+        NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __running,
     IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
 FROM
     EPG as e, CHANNELS as c, CHANNELGROUPS as g
@@ -957,11 +1018,8 @@ ORDER BY
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
-    my $tim = main::getModule('TIMERS');
     $console->table($erg,
         {
-            timers => $tim->getEvents,
-            runningTimer => $tim->getRunningTimer('eventid'),
             zeit => $zeit,
             periods => $obj->{periods},
             cgroups => $cgroups,
@@ -993,7 +1051,22 @@ SELECT SQL_CACHE
     DATE_FORMAT(e.starttime, "%H:%i") as StartTime,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as __Percent,
     e.description as Description,
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,        
+    ( SELECT 
+        t.id
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timerid,
+    ( SELECT 
+        (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timeractiv,
+    ( SELECT 
+        NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __running
 FROM
     EPG as e, CHANNELS as c
 WHERE
@@ -1071,7 +1144,22 @@ SELECT SQL_CACHE
     UNIX_TIMESTAMP(starttime) + e.duration as second_stop,
     e.video as __video,
     e.audio as __audio,
-    e.image as __image
+    e.image as __image,        
+    ( SELECT 
+        t.id
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timerid,
+    ( SELECT 
+        (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __timeractiv,
+    ( SELECT 
+        NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+        FROM TIMERS as t
+        WHERE t.eventid = e.eventid
+        LIMIT 1) as __running
 FROM
     EPG as e, CHANNELS as c
 WHERE
@@ -1101,11 +1189,8 @@ ORDER BY
         push(@{$data->{$c->[4]}}, $c);
     }
 
-    my $tim = main::getModule('TIMERS');
     $console->table($data,
         {
-            timers => $tim->getEvents,
-            runningTimer => $tim->getRunningTimer('eventid'),
             zeitvon => $zeitvon,
             zeitbis => $zeitbis,
             periods => $obj->{periods},

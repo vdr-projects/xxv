@@ -12,8 +12,8 @@
 <table border="0" width="95%">
 <?% fields = data.shift %?>
     <?% c = -1 %?>
-    <?% IF data.first.7 %?>
-       <?% Image = data.first.7 %?>
+    <?% IF data.first.13 %?>
+       <?% Image = data.first.13 %?>
     <?% END %?>
     <?% FOREACH field = fields %?>
         <?% c = c + 1 %?>
@@ -27,8 +27,8 @@
         <?% ELSIF field == gettext('Service') %?>
             <td>
             <a href="?cmd=search&amp;data=<?% url( data.first.1 ) %?>">[<?% gettext("Search for repeats") %?>]</a>
-            <?% IF param.timers.${data.first.$c} && allow('tedit') %?>
-                <a href="?cmd=tedit&amp;data=<?% param.timers.${data.first.$c}.id %?>"><span name='recordlink' class='normal'><b>[<?% gettext("Edit this timer") %?>]</b></span></a>
+            <?% IF data.first.10 && allow('tedit') %?>
+                <a href="?cmd=tedit&amp;data=<?% data.first.10 %?>"><span name='recordlink' class='normal'><b>[<?% gettext("Edit this timer") %?>]</b></span></a>
             <?% ELSIF allow('tnew')%?>
                 <a href="?cmd=tnew&amp;data=<?% data.first.$c %?>"><span name='recordlink' id='<?% data.first.$c %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
             <?% END %?>
@@ -70,7 +70,7 @@
             <td>
 			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
                 <?% date.format(data.first.$c,"%H:%M",locale) %?>
-                <?% IF data.first.11 && data.first.11 != data.first.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(data.first.11,"%H:%M",locale) %?>) <?% END %?>
+                <?% IF data.first.14 && data.first.14 != data.first.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(data.first.14,"%H:%M",locale) %?>) <?% END %?>
             </td>
         <?% ELSIF field == gettext('Stop') %?>
             <td>

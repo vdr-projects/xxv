@@ -618,9 +618,13 @@ SELECT SQL_CACHE
     priority, 
     lifetime, 
     IF(flags & 1,'y','n') as activ,
-    IF(flags & 4,'y','n') as vps
+    IF(flags & 4,'y','n') as vps,
+    (SELECT description
+      FROM EPG as e
+      WHERE t.eventid = e.eventid
+      LIMIT 1) as description
 FROM
-    TIMERS
+    TIMERS as t
 WHERE
     id = ?
 |);
@@ -786,21 +790,15 @@ WHERE
         'aux' => {
             typ     => 'hidden',
             def   => $timerData->{aux},
+        },
+        'description' => {
+            msg       =>  gettext('Description'),
+            typ       => $timerData->{description} ? 'string' : 'hidden',
+            def       => $timerData->{description},
+            readonly  => 1
         }
     ];
 
-    if($timerData->{id} || $timerData->{description}) {
-      my $description = $timerData->{description} || $obj->getEpgDesc($timerData->{id});
-      if($description) {
-	  	  push(@$questions,
-	  	    'Description' => {
-              msg   =>  gettext('Description'),
-              typ     => 'string',
-              def   => $description,
-              readonly => 1
-          });
-      }
-    }
     # Ask Questions
     my $datasave = $console->question(($timerid ? gettext('Edit timer')
                                                 : gettext('New timer')), $questions, $data);
@@ -866,7 +864,7 @@ sub deleteTimer {
 
     my @timers  = split(/[^0-9a-f]/, $timerid);
 
-    my $sql = sprintf('SELECT SQL_CACHE id,pos,file,channel,starttime,IF(flags & 1 and NOW() between starttime and stoptime,1,0) FROM TIMERS where id in (%s) ORDER BY pos desc', join(',' => ('?') x @timers)); 
+    my $sql = sprintf('SELECT SQL_CACHE id,pos,file,channel,starttime,flags & 1 and NOW() between starttime and stoptime FROM TIMERS where id in (%s) ORDER BY pos desc', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@timers)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1014,7 +1012,7 @@ sub toggleTimer {
         if(ref $console and $console->typ eq 'AJAX') {
           # { "data" : [ [ ID, ON, RUN, CONFLICT ], .... ] }
           # { "data" : [ [ 5, 1, 0, 0 ], .... ] }
-          my $sql = sprintf('SELECT SQL_CACHE id, flags & 1 as Active, IF(NOW() between starttime and stoptime,1,0) as Running, Collision from TIMERS where id in (%s) %s',
+          my $sql = sprintf('SELECT SQL_CACHE id, flags & 1 as Active, NOW() between starttime and stoptime as Running, Collision from TIMERS where id in (%s) %s',
                              join(',' => ('?') x @success),$ref); 
           my $sth = $obj->{dbh}->prepare($sql);
           $sth->execute(@success)
@@ -1067,7 +1065,10 @@ sub _insert {
           stop    => $nexttime->{stop},
         });
 
-    my $sth = $obj->{dbh}->prepare('REPLACE INTO TIMERS VALUES (MD5(CONCAT(?,?,?)),?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,?,NOW())');
+    my $sth = $obj->{dbh}->prepare(
+q|REPLACE INTO TIMERS VALUES 
+  (MD5(CONCAT(?,?,?)),?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,?,NOW())
+|);
     $sth->execute( 
          $timer->{channel},$nexttime->{start},$nexttime->{stop},
          $timer->{pos},
@@ -1204,23 +1205,15 @@ sub list {
     my $text    = shift || '';
 
 	  my $term;
-	  my $search1 = '';
-	  my $search2 = '';
+	  my $search = '';
 	  if($text and $text =~ /^[0-9a-f,_ ]+$/ and length($text) >= 32 ) {
       my @timers  = split(/[^0-9a-f]/, $text);
-      $search1 = sprintf(" AND t.id in (%s)",join(',' => ('?') x @timers));
+      $search = sprintf(" AND t.id in (%s)",join(',' => ('?') x @timers));
       foreach(@timers) { push(@{$term},$_); }
-      $search2 = sprintf(" AND t.id in (%s)",join(',' => ('?') x @timers));
-      foreach(@timers) { push(@{$term},$_); }
-
 	  } elsif($text) {
-      my $query1 = buildsearch("t.file,e.description",$text);
-      $search1 = sprintf('AND ( %s )', $query1->{query});
-      foreach(@{$query1->{term}}) { push(@{$term},$_); }
-
-      my $query2 = buildsearch("t.file",$text);
-      $search2 = sprintf('AND ( %s )', $query2->{query});
-      foreach(@{$query2->{term}}) { push(@{$term},$_); }
+      my $query = buildsearch("t.file,(SELECT description FROM EPG as e WHERE t.eventid = e.eventid LIMIT 1)",$text);
+      $search = sprintf('AND ( %s )', $query->{query});
+      foreach(@{$query->{term}}) { push(@{$term},$_); }
 	  }
 
     my %f = (
@@ -1250,43 +1243,18 @@ SELECT SQL_CACHE
     t.eventid as __eventid,
     t.autotimerid as __autotimerid,
 	  UNIX_TIMESTAMP(t.stoptime) - UNIX_TIMESTAMP(t.starttime) as __duration,
-    e.description as __description
-FROM
-    TIMERS as t,
-    CHANNELS as c,
-    EPG as e
-WHERE
-    t.stoptime > NOW()
-    AND t.channel = c.Id
-    AND (t.eventid = e.eventid)
-    $search1
-
-UNION 
-
-SELECT SQL_CACHE 
-    t.id as \'$f{'id'}\',
-    t.flags as \'$f{'flags'}\',
-    c.Name as \'$f{'channel'}\',
-    c.Pos as __pos,
-    t.day as \'$f{'day'}\',
-    DATE_FORMAT(t.starttime, '%H:%i') as \'$f{'start'}\',
-    DATE_FORMAT(t.stoptime, '%H:%i') as \'$f{'stop'}\',
-    t.file as \'$f{'title'}\',
-    t.priority as \'$f{'priority'}\',
-    UNIX_TIMESTAMP(t.starttime) as __day,
-    t.collision as __collision,
-    t.eventid as __eventid,
-    t.autotimerid as __autotimerid,
-	  UNIX_TIMESTAMP(t.stoptime) - UNIX_TIMESTAMP(t.starttime) as __duration,
-    "" as __description
+    (SELECT description
+      FROM EPG as e
+      WHERE t.eventid = e.eventid
+      LIMIT 1) as __description,
+    NOW() between starttime and stoptime AND (flags & 1) as __running 
 FROM
     TIMERS as t,
     CHANNELS as c
 WHERE
-    t.channel = c.Id
-    AND ((t.eventid = 0) or (t.eventid is null))
-    $search2
-
+    t.stoptime > NOW()
+    AND t.channel = c.Id
+    $search
 ORDER BY
     __day
 |;
@@ -1300,7 +1268,6 @@ ORDER BY
     unshift(@$erg, $fields);
 
     $console->table($erg, {
-        runningTimer => $obj->getRunningTimer,
         cards => $obj->{DVBCards},
 		    capacity => main::getModule('RECORDS')->{CapacityFree},
     });
@@ -1341,7 +1308,40 @@ WHERE
     return $sth->fetchrow_hashref();
 }
 
+# ------------------
+sub getTimerByPos {
+# ------------------
+    my $obj = shift  || return error('No object defined!');
+    my $tid = shift  || return error('No id defined!');
 
+    my $sql = qq|
+SELECT SQL_CACHE 
+    t.id,
+    t.flags,
+    c.Name as Channel,
+    c.Pos as __Pos,
+    t.day as Date,
+    t.start,
+    t.stop,
+    t.file,
+    t.priority,
+    UNIX_TIMESTAMP(t.starttime) as Day,
+    t.collision,
+    t.eventid,
+    t.autotimerid
+FROM
+    TIMERS as t,
+    CHANNELS as c
+WHERE
+    t.channel = c.Id
+    and t.pos = ?
+|;
+
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute($tid)
+        or return error(sprintf("Timer '%s' does not exist in the database!",$tid));
+    return $sth->fetchrow_hashref();
+}
 # ------------------
 sub getRunningTimer {
 # ------------------
@@ -1624,7 +1624,7 @@ sub getNextTimer {
             or (ref $obj->{NextTimerEvent} and $obj->{NextTimerEvent}->at == $zeit)
         );
 
-        my $timer = $obj->getTimerById($nextTimer);
+        my $timer = $obj->getTimerByPos($nextTimer);
 
         $obj->{NextTimerEvent} = Event->timer(
             at  => $zeit,

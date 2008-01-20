@@ -1331,7 +1331,11 @@ sub createOldEventId {
 
     lg sprintf('Create event "%s" into OLDEPG', $subtitle ? $title .'~'. $subtitle : $title);
 
-    my $sth = $obj->{dbh}->prepare('REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, duration, tableid, starttime, video, audio, addtime) VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),?,?,NOW())');
+    my $sth = $obj->{dbh}->prepare(
+q|REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, 
+                      duration, tableid, starttime, video, audio, addtime) 
+  VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),?,?,NOW())|);
+
     $sth->execute(
         $attr->{eventid},
         $attr->{title},
@@ -1382,7 +1386,10 @@ SELECT SQL_CACHE
     e.description as Description,
     r.State as New,
     r.Type as Type,
-    e.channel_id
+    (SELECT Name
+      FROM CHANNELS as c
+      WHERE e.channel_id = c.Id
+      LIMIT 1) as Channel
 from
     RECORDS as r,OLDEPG as e
 where
@@ -1405,11 +1412,6 @@ where
         previews => $obj->getPreviewFiles($rec->{RecordId}),
         reccmds => [@{$obj->{reccmds}}],
     };
-
-    my $cmod = main::getModule('CHANNELS');
-    $rec->{Channel} = $cmod->ChannelToName($rec->{channel_id})
-        if($rec->{channel_id} && $rec->{channel_id} ne "<undef>");
-    delete $rec->{channel_id};
 
     $console->table($rec, $param);
 }
