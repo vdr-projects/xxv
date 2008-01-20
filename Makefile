@@ -4,7 +4,7 @@
 # $Id$
 
 XXV = xxv
-VERSION = 1.0.1
+VERSION = 1.1
 
 ### The name of the distribution archive:
 
@@ -28,7 +28,7 @@ clean:
 
 tmpfolder:
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
-	@mkdir -p $(TMPDIR)/$(ARCHIVE)
+	@mkdir -p $(TMPDIR)/$(ARCHIVE)/contrib/
 
 copyfiles:
 	@for i in $(INCLUDE) ;\
@@ -55,7 +55,8 @@ updateversion:
 DBTABLES = $(shell cat ./contrib/update-xxv | grep tables= | cut -d '=' -f 2 | sed -e s/\'//g;)
 updatesql:
 	@echo Please type the DB-Password for root:
-	@mysqldump -p -n -d --add-drop-table --compatible=mysql40,no_table_options -p -u root xxv $(DBTABLES) -r ./contrib/upgrade-xxv-db.sql
+	@mysqldump --skip-opt -u root -p -n -d --compatible=mysql40,no_table_options xxv $(DBTABLES) -r $(TMPDIR)/$(ARCHIVE)/contrib/upgrade-xxv-db.sql
+	@sed -e "s/CREATE TABLE/CREATE TABLE IF NOT EXISTS/g" $(TMPDIR)/$(ARCHIVE)/contrib/upgrade-xxv-db.sql > ./contrib/upgrade-xxv-db.sql
 
 setpermission:
 	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;

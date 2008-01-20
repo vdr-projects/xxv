@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: xxv
 -- ------------------------------------------------------
--- Server version	5.0.32-Debian_7etch1
+-- Server version	5.0.32-Debian_7etch3
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -14,8 +14,7 @@
 -- Table structure for table `AUTOTIMER`
 --
 
-DROP TABLE IF EXISTS `AUTOTIMER`;
-CREATE TABLE `AUTOTIMER` (
+CREATE TABLE IF NOT EXISTS `AUTOTIMER` (
   `Id` int(11) unsigned NOT NULL auto_increment,
   `Activ` enum('y','n') default 'y',
   `Done` set('timer','recording','chronicle') NOT NULL default 'timer',
@@ -42,8 +41,7 @@ CREATE TABLE `AUTOTIMER` (
 -- Table structure for table `CHRONICLE`
 --
 
-DROP TABLE IF EXISTS `CHRONICLE`;
-CREATE TABLE `CHRONICLE` (
+CREATE TABLE IF NOT EXISTS `CHRONICLE` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `hash` varchar(16) NOT NULL default '',
   `title` text NOT NULL,
@@ -58,8 +56,7 @@ CREATE TABLE `CHRONICLE` (
 -- Table structure for table `MEDIALIB_ACTORS`
 --
 
-DROP TABLE IF EXISTS `MEDIALIB_ACTORS`;
-CREATE TABLE `MEDIALIB_ACTORS` (
+CREATE TABLE IF NOT EXISTS `MEDIALIB_ACTORS` (
   `name` varchar(255) NOT NULL default '',
   `actorid` varchar(15) NOT NULL default '',
   `imgurl` varchar(255) NOT NULL default '',
@@ -71,8 +68,7 @@ CREATE TABLE `MEDIALIB_ACTORS` (
 -- Table structure for table `MEDIALIB_VIDEODATA`
 --
 
-DROP TABLE IF EXISTS `MEDIALIB_VIDEODATA`;
-CREATE TABLE `MEDIALIB_VIDEODATA` (
+CREATE TABLE IF NOT EXISTS `MEDIALIB_VIDEODATA` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `md5` varchar(32) default NULL,
   `title` varchar(255) default NULL,
@@ -119,8 +115,7 @@ CREATE TABLE `MEDIALIB_VIDEODATA` (
 -- Table structure for table `MEDIALIB_VIDEOGENRE`
 --
 
-DROP TABLE IF EXISTS `MEDIALIB_VIDEOGENRE`;
-CREATE TABLE `MEDIALIB_VIDEOGENRE` (
+CREATE TABLE IF NOT EXISTS `MEDIALIB_VIDEOGENRE` (
   `video_id` int(10) unsigned NOT NULL default '0',
   `genre_id` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`video_id`,`genre_id`)
@@ -130,8 +125,7 @@ CREATE TABLE `MEDIALIB_VIDEOGENRE` (
 -- Table structure for table `MOVETIMER`
 --
 
-DROP TABLE IF EXISTS `MOVETIMER`;
-CREATE TABLE `MOVETIMER` (
+CREATE TABLE IF NOT EXISTS `MOVETIMER` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `source` varchar(64) NOT NULL,
   `destination` varchar(64) NOT NULL,
@@ -145,8 +139,7 @@ CREATE TABLE `MOVETIMER` (
 -- Table structure for table `USER`
 --
 
-DROP TABLE IF EXISTS `USER`;
-CREATE TABLE `USER` (
+CREATE TABLE IF NOT EXISTS `USER` (
   `Id` int(11) unsigned NOT NULL auto_increment,
   `Name` varchar(100) NOT NULL default '',
   `Password` varchar(100) NOT NULL,
@@ -165,4 +158,4 @@ CREATE TABLE `USER` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2007-12-28 10:05:06
+-- Dump completed on 2008-01-20 20:49:43

@@ -1663,8 +1663,8 @@ sub delete {
     my $answer  = shift || 0;
 
     my @rcs  = split(/_/, $record);
-    my @todelete;
-    my @md5delete;
+    my $todelete;
+    my $md5delete;
     my %rec;
         
     foreach my $item (@rcs) {
@@ -1711,8 +1711,8 @@ sub delete {
 
 
         $obj->{svdrp}->queue_cmds(sprintf("delr %s",$r->{Id}));
-        push(@todelete,$r->{Title}); # Remember title
-        push(@md5delete,$r->{MD5}); # Remember hash
+        push(@{$todelete},$r->{Title}); # Remember title
+        push(@{$md5delete},$r->{MD5}); # Remember hash
 
         # Delete recordings from request, if found in database
         my $i = 0;
@@ -1732,7 +1732,7 @@ sub delete {
 
     if($obj->{svdrp}->queue_cmds('COUNT')) {
 
-        my $msg = sprintf(gettext("Recording '%s' to delete"),join('\',\'',@todelete));
+        my $msg = sprintf(gettext("Recording '%s' to delete"),join('\',\'',@{$todelete}));
 
         my $erg = $obj->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
 
@@ -1746,10 +1746,10 @@ sub delete {
           }else {
             con_msg($console,$msg);
           }
-
-          my $dsql = sprintf("DELETE FROM RECORDS WHERE RecordMD5 IN (%s)", join(',' => ('?') x @md5delete)); 
+#dumper($md5delete);
+          my $dsql = sprintf("DELETE FROM RECORDS WHERE RecordMD5 IN (%s)", join(',' => ('?') x @{$md5delete})); 
           my $dsth = $obj->{dbh}->prepare($dsql);
-            $sth->execute(@md5delete)
+            $sth->execute(@{$md5delete})
               or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
         }
@@ -1758,7 +1758,7 @@ sub delete {
           unless($obj->{inotify});
 
         if(ref $console && $console->typ eq 'HTML') {
-          my @t = split('~', $todelete[0]);
+          my @t = split('~', $todelete->[0]);
           if(scalar @t > 1) { # Remove subtitle
             delete $t[-1];
             $console->redirect({url => sprintf('?cmd=rlist&data=%s',url(join('~',@t))), wait => 1});

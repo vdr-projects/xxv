@@ -603,18 +603,17 @@ sub getChannelType {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $id = shift || return undef;
-    my $pos = $obj->ChannelToPos($id);
-    if($pos and $pos >= 1)
-    {
-      my $data = $obj->ChannelHash('POS', sprintf('POS = %d', $pos));
-      if(exists $data->{$pos}) {
-        my $ch = $data->{$pos};
-        if($ch->{VPID}) {
+
+    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE VPID,APID from CHANNELS where Id = ?');
+    $sth->execute($id)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchrow_hashref();
+    if($erg) {
+        if(exists $erg->{VPID}) {
           return 'TV';
-        } elsif($ch->{APID}) {
+        } elsif(exists $erg->{APID}) {
           return 'RADIO';
         }
-      }
     }
     error sprintf("Unknown channel! Couldn't identify type of channel with id: %s", $id);
     return 'UNKNOWN';
