@@ -430,19 +430,21 @@ sub _autotimerLookup {
         if(ref $console && $autotimerid) {
             $console->message(sprintf(gettext("Found %d entries for '%s' in EPG database."), scalar keys %$events, $a->{Search}));
             foreach my $Id (sort keys %$events) {
-              my $output = [
-                  [gettext("Title")	     , $events->{$Id}->{title}],
-                  [gettext("Subtitle")	 , $events->{$Id}->{subtitle}],
-                  [gettext("Channel")	   , $events->{$Id}->{channelname}],
-              ];
+
+              my $output = [   [gettext("Title"),     $events->{$Id}->{title}] ];
+              push(@$output,   [gettext("Subtitle"),  $events->{$Id}->{subtitle}])
+                if($events->{$Id}->{subtitle});
+              push(@$output,   [gettext("Channel"),   $events->{$Id}->{channelname}]);
+
               if($events->{$Id}->{vpsstart} and $a->{VPS} and $modT->{usevpstime} eq 'y') {
-                push(@$output, [gettext("Start") , datum($events->{$Id}->{vpsstart} )]);
-                push(@$output, [gettext("Stop")  , datum($events->{$Id}->{vpsstop}  )]);
+                push(@$output, [gettext("Start"),     datum($events->{$Id}->{vpsstart} )]);
+                push(@$output, [gettext("Stop"),      datum($events->{$Id}->{vpsstop}  )]);
               } else {
-                push(@$output, [gettext("Start") , datum($events->{$Id}->{starttime})]);
-                push(@$output, [gettext("Stop")  , datum($events->{$Id}->{stoptime} )]);
+                push(@$output, [gettext("Start"),     datum($events->{$Id}->{starttime})]);
+                push(@$output, [gettext("Stop"),      datum($events->{$Id}->{stoptime} )]);
               }
-              push(@$output,[gettext("Description"), $events->{$Id}->{description}]);
+              push(@$output,[gettext("Description"),  $events->{$Id}->{description}])
+                if($events->{$Id}->{description});
               $console->table($output);
             };
         }
@@ -1292,8 +1294,8 @@ SELECT SQL_CACHE
     e.eventid as eventid,
     e.channel_id as channel,
     c.Name as channelname,
-    e.title as Title,
-    e.subtitle as Subtitle,
+    e.title as title,
+    e.subtitle as subtitle,
     e.description as description,
     (UNIX_TIMESTAMP(e.starttime) - ? ) as starttime,
     (UNIX_TIMESTAMP(e.starttime) + e.duration + ?) as stoptime,
@@ -1475,8 +1477,8 @@ sub _placeholder {
     	my $title = $at->{Dir};
         if($title =~ /.*%.*%.*/sig) {
 	 	   my %at_details;
-                $at_details{'title'}            = $data->{Title};
-                $at_details{'subtitle'}         = $data->{Subtitle} ? $data->{Subtitle} : $data->{start};
+                $at_details{'title'}            = $data->{title};
+                $at_details{'subtitle'}         = $data->{subtitle} ? $data->{subtitle} : $data->{start};
                 $at_details{'date'}             = $data->{day};
                 $at_details{'regie'}            = $1 if $data->{description} =~ m/\|Director: (.*?)\|/;
                 $at_details{'category'}         = $1 if $data->{description} =~ m/\|Category: (.*?)\|/;
@@ -1490,16 +1492,16 @@ sub _placeholder {
                 $title =~ s/%([\w_-]+)%/$at_details{lc($1)}/sieg;
 				$file = $title;
         } else { # Classic mode DIR~TITLE~SUBTILE
-          if($data->{Subtitle}) {
-            $file = sprintf('%s~%s~%s', $at->{Dir}, $data->{Title},$data->{Subtitle});
+          if($data->{subtitle}) {
+            $file = sprintf('%s~%s~%s', $at->{Dir}, $data->{title},$data->{subtitle});
           } else {
-            $file = sprintf('%s~%s', $at->{Dir}, $data->{Title});
+            $file = sprintf('%s~%s', $at->{Dir}, $data->{title});
           }
         }
-	  } elsif($data->{Subtitle}) {
-		  $file = sprintf('%s~%s', $data->{Title},$data->{Subtitle});
+	  } elsif($data->{subtitle}) {
+		  $file = sprintf('%s~%s', $data->{title},$data->{subtitle});
     } else {
-		  $file = $data->{Title};
+		  $file = $data->{title};
     }
 
     # sind irgendweche Tags verwendet worden, die leer waren und die doppelte Verzeichnisse erzeugten?

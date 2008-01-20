@@ -633,11 +633,7 @@ sub datei {
         if($obj->{browser}->{'Match'}
             && $args{'ETag'} eq $obj->{browser}->{'Match'});
 
-    my(@MON)=qw/Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec/;
-    my(@WDAY) = qw/Sun Mon Tue Wed Thu Fri Sat/;
-    my($sec,$min,$hour,$mday,$mon,$year,$wday) = gmtime($fst->mtime);
-    $args{'Last-Modified'} = sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
-                   $WDAY[$wday],$mday,$MON[$mon],$year + 1900,$hour,$min,$sec);
+    $args{'Last-Modified'} = datum($fst->mtime,'header');
     $args{'attachment'} = basename($file);
     $args{'Content-Length'} = $size
         if($obj->{nopack});

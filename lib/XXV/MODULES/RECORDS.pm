@@ -251,7 +251,7 @@ sub new {
     $self->{dbh} = delete $attr{'-dbh'};
 
     # define framerate PAL 25, NTSC 30
-    $self->{framerate} = 25;
+    $self->{framerate} = Tools->FRAMESPERSECOND;
 
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize modul!');
@@ -1437,7 +1437,7 @@ sub play {
       $start = &text2frame($params->{start});
     }
     if($start) {
-      if($start < 0 or ($start / 25) >= ($rec->{duration})) {
+      if($start < 0 or ($start / $obj->{framerate}) >= ($rec->{duration})) {
         $start = 'begin';
       } else {
         $start = &frame2hms($start);

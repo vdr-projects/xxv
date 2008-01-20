@@ -22,6 +22,9 @@ our $BENCH      = {};
 our $LOGCALLB   = sub{ };
 our $DBH        = {};
 
+# PAL use 25, NTFS use 30 frames per seconds
+use constant FRAMESPERSECOND => 25; 
+
 @EXPORT = qw(&datum &stackTrace &lg &event &debug &error &panic &rep2str &dumper 
  &getFromSocket &fields &load_file &save_file &tableUpdated &buildsearch 
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
@@ -40,6 +43,8 @@ sub fmttime {
     return $ret;
 }
 
+use constant MONTHS => qw/Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec/;
+use constant WEEKDAYS => qw/Sun Mon Tue Wed Thu Fri Sat/;
 # ------------------
 sub datum {
 # ------------------
@@ -58,9 +63,12 @@ sub datum {
     } elsif (lc($typ) eq 'rss') {
         # 23 Aug 1999 07:00:00 GMT
         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($zeit);
-        my @abbr = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
         return sprintf('%02d %s %04d %02d:%02d:%02d GMT',
-            $mday, $abbr[$mon], $year+1900, $hour, $min, $sec );
+            $mday, (MONTHS)[$mon], $year+1900, $hour, $min, $sec );
+    } elsif (lc($typ) eq 'header') {
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($zeit);
+        return sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
+            (WEEKDAYS)[$wday],$mday,(MONTHS)[$mon],$year + 1900,$hour,$min,$sec);
     } else {
         # time depends locale, most 07:00:00
         return strftime("%X", localtime($zeit));   
@@ -681,21 +689,21 @@ sub text2frame() {
     } elsif($s =~ /^\d+\:\d+\:\d+\.\d+$/sg) {
       my ($hour,$minute,$seconds,$frames) = $s =~ /(\d+)\:(\d+)\:(\d+)\.(\d+)/s;
       $start = ($hour * 3600) + ($minute * 60) + $seconds;
-      $start *= 25;
+      $start *= FRAMESPERSECOND;
       $start += $frames;
     } elsif($s =~ /^\d+\:\d+\:\d+$/sg) {
       my ($hour,$minute,$seconds) = $s =~ /(\d+)\:(\d+)\:(\d+)/s;
       $start = ($hour * 3600) + ($minute * 60) + $seconds;
-      $start *= 25;
+      $start *= FRAMESPERSECOND;
     } elsif($s =~ /^\d+\:\d+\.\d+$/sg) {
       my ($minute,$seconds,$frames) = $s =~ /(\d+)\:(\d+)\.(\d+)/s;
       $start = ($minute * 60) + $seconds;
-      $start *= 25;
+      $start *= FRAMESPERSECOND;
       $start += $frames;
     } elsif($s =~ /^\d+\:\d+$/sg) {
       my ($minute,$seconds) = $s =~ /(\d+)\:(\d+)/s;
       $start = ($minute * 60) + $seconds;
-      $start *= 25;
+      $start *= FRAMESPERSECOND;
     }
     return $start;
 }
@@ -707,8 +715,8 @@ sub text2frame() {
 sub frame2hms() {
     my $frames = shift;
 
-    my $frame = $frames % 25;
-    my $time = $frames / 25;
+    my $frame = $frames % FRAMESPERSECOND;
+    my $time = $frames / FRAMESPERSECOND;
     my $sec  = $time % 60;
     my $min  = ($time / 60) % 60;
     my $hour = CORE::int($time/3600);
