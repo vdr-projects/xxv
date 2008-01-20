@@ -40,9 +40,7 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK dur # d in Sekunden %?>
-<?% IF d > 1 %?>
     <br /><?% gettext("Duration") %?>: <?% PROCESS hfs %?>
-<?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK image %?>
@@ -122,24 +120,30 @@
     <tr>
         <?%- 
              multi=1;
-             window = 900;
-             ticks = 0;
-             WHILE ticks <= 3 or ticks >= 8;
-               ticks = (data.Duration div window) + 1;
-               IF ticks >= 8;
-                 window = window * 2; 
-               ELSIF ticks <= 3;
-                 IF    window == 900;window = 600;
-                 ELSIF window == 600;window = 300;
-                 ELSIF window == 300;window = 150;
-                 ELSIF window == 150;window = 60;
-                 ELSE; window = window / 2; 
+             IF data.Duration;
+               window = 900;
+               ticks = 0;
+               WHILE (ticks <= 3 or ticks >= 8) && window > 15;
+                 ticks = (data.Duration div window) + 1;
+                 IF ticks >= 8;
+                   window = window * 2; 
+                 ELSIF ticks <= 3;
+                   IF    window == 900;window = 600;
+                   ELSIF window == 600;window = 300;
+                   ELSIF window == 300;window = 150;
+                   ELSIF window == 150;window = 60;
+                   ELSE; window = window / 2; 
+                   END;
                  END;
                END;
              END;
-             
-             IF window <= 15;
-             multi=60;
+
+             IF window <= 300;
+              multi=60;
+             END;
+             IF window <= 15 or ticks < 1;
+              ticks = 1;
+              window = 15;
              END;
              cols = 0; 
              WHILE cols < ticks; 
@@ -174,7 +178,7 @@
 	        c = -1;
 	        ml = data.Marks.split(',');
           totaltime = ticks * window * 3;
-		      IF ml.size > 1;
+          IF ml.size > 1;
 		FOREACH marker = ml;
                 b = c;
                 c = c + 1;

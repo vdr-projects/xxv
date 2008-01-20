@@ -21,21 +21,17 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK durMin # d in Minuten%?>
-<?% IF d > 1 %?>
     <?% Stunden = d div 60 %?>
     <?% Minuten = d mod 60 %?>
     <?% Sekunden = ( d * 60 ) mod 60 %?>
     <br />Dauer: <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?> 
 <?% END %?>
-<?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK dur # d in Sekunden %?>
-<?% IF d > 1 %?>
     <?% Stunden = d div 3600 %?>
     <?% Minuten = d div 60 mod 60 %?>
     <?% Sekunden =  d mod 60 %?>
     <br />Dauer: <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?> 
-<?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% total = 0 %?>
