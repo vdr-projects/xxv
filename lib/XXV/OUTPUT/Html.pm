@@ -17,7 +17,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'Html',
         Prereq => {
@@ -38,17 +38,17 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || {};
     my $params = shift || 0;
 
     my $name = (split('::', $AUTOLOAD))[-1];
     return  if($name eq 'DESTROY');
 
-    my $output = $obj->parseTemplate($name, $data, $params);
+    my $output = $self->parseTemplate($name, $data, $params);
 
-    $obj->out( $output );
-    $obj->{call} = '';
+    $self->out( $output );
+    $self->{call} = '';
 }
 
 
@@ -104,24 +104,8 @@ sub new {
     $ENV{'SERVER_SOFTWARE'} = sprintf("xxvd %s",main::getVersion());
     $ENV{'SERVER_PROTOCOL'} = 'HTTP/1.1';
 
-    # create Template object
-    $self->{tt} = Template->new(
-      START_TAG    => '\<\?\%',		    # Tagstyle
-      END_TAG      => '\%\?\>',		    # Tagstyle
-      INCLUDE_PATH => [$self->{htmdir},$self->{htmdef}] ,  # or list ref
-      INTERPOLATE  => 1,                # expand "$var" in plain text
-      PRE_CHOMP    => 1,                # cleanup whitespace
-      EVAL_PERL    => 1,                # evaluate Perl code blocks
-    );
-
     eval "use Compress::Zlib";
     $self->{Zlib} = ($@ ? 0 : 1);
-
-
-    # create TextToHTML object
-    $self->{txt2html} = HTML::TextToHTML->new(
-        preformat_whitespace_min => 4,
-    );
 
     &bench('CLEAR');
 
@@ -131,48 +115,59 @@ sub new {
 # ------------------
 sub parseTemplate {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return error('No name defined!');
     my $data = shift || return error('No data defined!');
     my $params = shift || {};
 
     my $output;
-    unless(defined $obj->{header}) {
-        $output .= $obj->parseTemplateFile("start", $data, $params);
+    unless(defined $self->{header}) {
+        $output .= $self->parseTemplateFile("start", $data, $params);
         # we must add footer on any template generated output
-        $obj->{inclFooter} = 1; 
+        $self->{inclFooter} = 1; 
     }
-    $output .= $obj->parseTemplateFile($name, $data, $params,((exists $obj->{call}) ? $obj->{call} : 'nothing'));
+    $output .= $self->parseTemplateFile($name, $data, $params,((exists $self->{call}) ? $self->{call} : 'nothing'));
     return $output;
 }
 
 # ------------------
 sub index {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    $obj->{nopack} = 1;
-    $obj->{call} = 'index';
+    my $self = shift || return error('No object defined!');
+    $self->{nopack} = 1;
+    $self->{call} = 'index';
     my $params = {};
-    $params->{start} = $obj->{start};
-    $obj->out( $obj->parseTemplateFile("index", {}, $params, $obj->{call}));
+    $params->{start} = $self->{start};
+    $self->out( $self->parseTemplateFile("index", {}, $params, $self->{call}));
 }
 
 
 # ------------------
 sub parseTemplateFile {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return error ('No name defined!' );
     my $data = shift || return error ('No data defined!' );
     my $params = shift || return error ('No paramters defined!' );
     my $call = shift || 'nothing';
 
-    $obj->parseData($data)
+    $self->parseData($data)
         if($name ne 'start' && $name ne 'footer'  
-        && !$obj->{dontparsedData} );
+        && !$self->{dontparsedData} );
 
-    my $t = $obj->{tt};
-    my $u = main::getModule('USER');
+    unless(exists $self->{tt}) {
+      # create Template object
+      $self->{tt} = Template->new(
+        START_TAG    => '\<\?\%',		    # Tagstyle
+        END_TAG      => '\%\?\>',		    # Tagstyle
+        INCLUDE_PATH => [$self->{htmdir},$self->{htmdef}] ,  # or list ref
+        INTERPOLATE  => 1,                # expand "$var" in plain text
+        PRE_CHOMP    => 1,                # cleanup whitespace
+        EVAL_PERL    => 1,                # evaluate Perl code blocks
+      ) or return panic("Can't create instance of front-end module of Template Toolkit!");
+    }
+
+    my $u = main::getModule('USER') or return;
 
     # you can use two templates, first is a user defined template
     # and second the standard template
@@ -181,24 +176,24 @@ sub parseTemplateFile {
     # StandardTemplate: ./htmlRoot/widgets/menu.tmpl
     my $widget_first  = sprintf('%s.tmpl', $call);
     my $widget_second = sprintf('widgets/%s.tmpl', $name);
-    my $widget = (-e sprintf('%s/%s', $obj->{htmdir}, $widget_first) ? $widget_first : $widget_second);
+    my $widget = (-e sprintf('%s/%s', $self->{htmdir}, $widget_first) ? $widget_first : $widget_second);
 
-    my $user = ($u->{active} eq 'y' && $obj->{USER}->{Name} ? $obj->{USER}->{Name} : "nobody" );
+    my $user = ($u->{active} eq 'y' && $self->{USER}->{Name} ? $self->{USER}->{Name} : "nobody" );
     my $output;
     my $vars = {
-        cgi     => $obj->{cgi},
+        cgi     => $self->{cgi},
         call    => $name,
         data    => $data,
         type    => ref $data,
-        info    => $obj->browser,
+        info    => $self->browser,
         param   => $params,
         pid     => $$,
-        debug   => $obj->{debug},
+        debug   => $self->{debug},
         user    => $user,
         # query the current locale
         locale  => main::getGeneralConfig->{Language},
         allow   => sub{
-            my($cmdobj, $cmdname, $se, $err) = $u->checkCommand($obj, $_[0],"1");
+            my($cmdobj, $cmdname, $se, $err) = $u->checkCommand($self, $_[0],"1");
             return $cmdobj;
         },
 
@@ -286,20 +281,19 @@ sub parseTemplateFile {
                 return sprintf('tempimages/%s', $filename);
             }
         },
-        fmttime => sub{ return fmttime(@_) },
         bench => \&bench,
         llog => sub{
             my $lines = shift || 10;
             my $lmod = main::getModule('LOGREAD');
-            return $lmod->tail($obj->{paths}->{LOGFILE}, $lines);
+            return $lmod->tail($self->{paths}->{LOGFILE}, $lines);
         },
         getModule => sub{
             return main::getModule(shift);
         },
     };
 
-    $t->process($widget, $vars, \$output)
-          or return error($t->error());
+    $self->{tt}->process($widget, $vars, \$output)
+          or return error($self->{tt}->error());
 
     return $output;
 }
@@ -307,75 +301,75 @@ sub parseTemplateFile {
 # ------------------
 sub out {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $text = shift || 'no Text for Output';
     my $type = shift || 'text/html';
     my %args = @_;
 
-    unless(defined $obj->{header}) {
+    unless(defined $self->{header}) {
         # HTTP Header
-        $obj->{output_header} = $obj->header($type, \%args);
+        $self->{output_header} = $self->header($type, \%args);
     }
 
-    $obj->{output} .= $text,"\r\n"
+    $self->{output} .= $text,"\r\n"
       if($text);
 }
 
 # ------------------
 sub printout {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
-    my $nopack = shift || $obj->{nopack} || 0;
+    my $self = shift  || return error('No object defined!');
+    my $nopack = shift || $self->{nopack} || 0;
 
-    if($obj->{output} && $obj->{handle}) {
+    if($self->{output} && $self->{handle}) {
       my $content;     
-      if($obj->{browser}->{Method} ne 'HEAD') {
-        if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip}) {
-          $content = Compress::Zlib::memGzip($obj->{output});
+      if($self->{browser}->{Method} ne 'HEAD') {
+        if(! $nopack and $self->{Zlib} and $self->{browser}->{accept_gzip}) {
+          $content = Compress::Zlib::memGzip($self->{output});
         } else {
-          $content = $obj->{output};
+          $content = $self->{output};
         }
       }
-      if($obj->{output_header} && $content) {
-        $obj->{handle}->print($obj->{output_header},$content);
-        $obj->{sendbytes}+= length($obj->{output_header});
-        $obj->{sendbytes}+= length($content);
-      } elsif($obj->{output_header}) {
-        $obj->{handle}->print($obj->{output_header});
-        $obj->{sendbytes}+= length($obj->{output_header});
+      if($self->{output_header} && $content) {
+        $self->{handle}->print($self->{output_header},$content);
+        $self->{sendbytes}+= length($self->{output_header});
+        $self->{sendbytes}+= length($content);
+      } elsif($self->{output_header}) {
+        $self->{handle}->print($self->{output_header});
+        $self->{sendbytes}+= length($self->{output_header});
       } elsif($content) {
-        $obj->{handle}->print($content);
-        $obj->{sendbytes}+= length($content);
+        $self->{handle}->print($content);
+        $self->{sendbytes}+= length($content);
       }
-      $obj->{handle}->close();
+      $self->{handle}->close();
     }
-    undef $obj->{output};
-    undef $obj->{output_header};
-    undef $obj->{nopack};
-    undef $obj->{hasentities};
-    undef $obj->{dontparsedData};
+    undef $self->{output};
+    undef $self->{output_header};
+    undef $self->{nopack};
+    undef $self->{hasentities};
+    undef $self->{dontparsedData};
 }
 
 # ------------------
 sub header {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $typ = shift  || 'text/html';
     my $arg = shift || {};
 
     $arg->{'Content-encoding'} = 'gzip'
-        if($obj->{browser}->{accept_gzip} && ((!defined $obj->{nopack}) || $obj->{nopack} == 0) );
+        if($self->{browser}->{accept_gzip} && ((!defined $self->{nopack}) || $self->{nopack} == 0) );
 
-    if(defined $obj->{nocache} && $obj->{nocache}) {
+    if(defined $self->{nocache} && $self->{nocache}) {
       $arg->{'Cache-Control'} = 'no-cache, must-revalidate' unless(defined $arg->{'Cache-Control'});
       $arg->{'Pragma'} = 'no-cache' unless(defined $arg->{'Pragma'});
     }
 
-    $obj->{header} = 200;
-    return $obj->{cgi}->header(
+    $self->{header} = 200;
+    return $self->{cgi}->header(
         -type   =>  $typ,
         -status  => "200 OK",
-        -expires => ($typ =~ 'text/html' || (defined $obj->{nocache} && $obj->{nocache})) ? "now" : "+7d",
+        -expires => ($typ =~ 'text/html' || (defined $self->{nocache} && $self->{nocache})) ? "now" : "+7d",
         %{$arg},
     );
 }
@@ -383,14 +377,14 @@ sub header {
 # ------------------
 sub statusmsg {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $state = shift || return error('No state defined!');
     my $msg = shift;
     my $title = shift;
     my $typ = shift || 'text/html';
 
-    unless(defined $obj->{header}) {
-        $obj->{nopack} = 1;
+    unless(defined $self->{header}) {
+        $self->{nopack} = 1;
 
         my $s = {
             200 => '200 OK',
@@ -418,22 +412,22 @@ sub statusmsg {
         $arg->{'WWW-Authenticate'} = "Basic realm=\"xxvd\""
             if($state == 401);
 
-        $arg->{'expires'} = (($state != 304) || (defined $obj->{nocache} && $obj->{nocache})) ? "now" : "+7d";
+        $arg->{'expires'} = (($state != 304) || (defined $self->{nocache} && $self->{nocache})) ? "now" : "+7d";
 
-        $obj->{header} = $state;
-        $obj->{output_header} = $obj->{cgi}->header(
+        $self->{header} = $state;
+        $self->{output_header} = $self->{cgi}->header(
             -type   =>  $typ,
             -status  => $status,
             %{$arg},
         );
     }
     if($msg && $title) {
-        $obj->{output} = $obj->{cgi}->start_html(-title => $title)
-                       . $obj->{cgi}->h1($title)
-                       . $obj->{cgi}->p($msg)
-                       . $obj->{cgi}->end_html();
+        $self->{output} = $self->{cgi}->start_html(-title => $title)
+                       . $self->{cgi}->h1($title)
+                       . $self->{cgi}->p($msg)
+                       . $self->{cgi}->end_html();
     } else {
-        $obj->{output} = '\r\n';
+        $self->{output} = '\r\n';
     }   
 }
 
@@ -441,20 +435,20 @@ sub statusmsg {
 # Send HTTP Status 401 (Authorization Required)
 sub login {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $msg = shift || '';
 
-    $obj->statusmsg(401,$msg,gettext("Authorization required"));
+    $self->statusmsg(401,$msg,gettext("Authorization required"));
 }
 
 # ------------------
 # Send HTTP Status 403 (Access Forbidden)
 sub status403 {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $msg = shift  || '';
 
-    $obj->statusmsg(403,$msg,gettext("Forbidden"));
+    $self->statusmsg(403,$msg,gettext("Forbidden"));
 }
 
 
@@ -462,25 +456,25 @@ sub status403 {
 # Send HTTP Status 404 (File not found)
 sub status404 {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $file = shift || return error('No file defined!');
     my $why = shift || "";
 
-    $file =~ s/$obj->{htmdir}\///g; # Don't post html root, avoid spy out
+    $file =~ s/$self->{htmdir}\///g; # Don't post html root, avoid spy out
 
-    $obj->statusmsg(404,sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),
+    $self->statusmsg(404,sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),
                     gettext("Not found"));
 }
 
 # ------------------
 sub question {
 # ------------------
-    my $obj         = shift || return error('No object defined!');
+    my $self         = shift || return error('No object defined!');
     my $titel       = shift || 'undef';
     my $questions   = shift || return error ('No data defined!');
     my $erg         = shift || 0;
 
-    my $q = $obj->{cgi};
+    my $q = $self->{cgi};
     my $quest;
 
     # Check Data
@@ -517,7 +511,7 @@ sub question {
             }
 
             if($error) {
-                $obj->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
+                $self->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
                 last;
             }
         }
@@ -527,9 +521,9 @@ sub question {
         }
     }
 
-    $obj->formStart($titel);
+    $self->formStart($titel);
     if(ref $questions eq 'ARRAY') {
-        my $q = $obj->{cgi};
+        my $q = $self->{cgi};
         @$quest = @$questions;
         my $c=0;
         while (my ($name, $data) = splice(@$quest, 0, 2)) {
@@ -539,28 +533,28 @@ sub question {
             $data->{msg} =~ s/\n/<br \/>/sig if($data->{msg});
             $data->{NAME} = '__'.$name;
             $type ||= 'string';
-            $obj->$type($data, $params);
+            $self->$type($data, $params);
         }
     } else {
         my $type = delete $questions->{typ};
         $questions->{NAME} = '__'.$type;
         $type ||= 'string';
-        $obj->$type($questions);
+        $self->$type($questions);
     }
-    $obj->formEnd;
+    $self->formEnd;
     return undef;
 }
 
 # ------------------
 sub wait {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $msg = shift  || gettext("Please wait ...");
     my $min = shift  || 0;
     my $max = shift  || 0;
     my $screen = shift  || 0;
 
-    my $http_useragent = $obj->{browser}->{http_useragent};
+    my $http_useragent = $self->{browser}->{http_useragent};
     if(grep(/Mozilla/i,$http_useragent) == 0  # Only Mozilla compatible browser support server push
       || grep(/MSIE/i,$http_useragent) > 0 # Stopp her for Browser e.g. Internet Explorer
       || grep(/Opera/i,$http_useragent) > 0 # Stopp her for Browser e.g. Opera
@@ -570,14 +564,14 @@ sub wait {
             $http_useragent );
         return 0;
     }
-    $obj->{nopack} = 1;
-    $obj->{header} = 200;
+    $self->{nopack} = 1;
+    $self->{header} = 200;
     my $waiter =  XXV::OUTPUT::HTML::WAIT->new(
-        -cgi => $obj->{cgi},
-        -handle => $obj->{handle},
+        -cgi => $self->{cgi},
+        -handle => $self->{handle},
         -callback => sub{
             my ($min, $max, $cur, $steps, $nextmessage, $eta) = @_;
-            my $out = $obj->parseTemplate(
+            my $out = $self->parseTemplate(
                 'wait',
                 {
                     msg     => $nextmessage || $msg,
@@ -606,7 +600,7 @@ sub wait {
 # ------------------
 sub datei {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $file = shift || return error('No file defined!');
     my $typ = shift;
 
@@ -615,43 +609,43 @@ sub datei {
     my $fst = stat($file);
     unless($fst and ($fst->mode & 00400)) { # mode & S_IRUSR
       error sprintf("Couldn't stat file '%s' : %s",$file,$!);
-      return $obj->status404($file,$!);
+      return $self->status404($file,$!);
     }
     my $size = $fst->size;
 
-    $typ = $obj->{mime}->{lc((split('\.', $file))[-1])}
+    $typ = $self->{mime}->{lc((split('\.', $file))[-1])}
       unless($typ);
     $typ = "application/octet-stream"
       unless($typ);
 
-    $obj->{nopack} = 1
+    $self->{nopack} = 1
         if($typ =~ /image\// || $typ =~ /video\//);
 
     # header only if caching
     $args{'ETag'} = sprintf('%x-%x-%x',$fst->ino, $size, $fst->mtime);
-    return $obj->statusmsg(304,undef,undef,$typ)
-        if($obj->{browser}->{'Match'}
-            && $args{'ETag'} eq $obj->{browser}->{'Match'});
+    return $self->statusmsg(304,undef,undef,$typ)
+        if($self->{browser}->{'Match'}
+            && $args{'ETag'} eq $self->{browser}->{'Match'});
 
     $args{'Last-Modified'} = datum($fst->mtime,'header');
     $args{'attachment'} = basename($file);
     $args{'Content-Length'} = $size
-        if($obj->{nopack});
+        if($self->{nopack});
 
     if($size > (32768 * 16)) { ## Only files bigger then 512k
         lg sprintf("stream file : '%s' (%s)",$file,convert($size));
-        $obj->_stream([$file],$size, 0, $typ, %args);
+        $self->_stream([$file],$size, 0, $typ, %args);
     } else {
         my $data = load_file($file) || '';
         # send data
-        $obj->out($data, $typ, %args );
+        $self->out($data, $typ, %args );
     }
 }
 
 # ------------------
 sub stream {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $files = shift || return error('No file defined!');
     my $typ = shift;
     my $offset = shift || 0;
@@ -664,37 +658,37 @@ sub stream {
       my $fst = stat($file);
       unless($fst and ($fst->mode & 00400)) { # mode & S_IRUSR
         error sprintf("Couldn't stat file '%s' : %s",$file,$!);
-        return $obj->status404($file,$!);
+        return $self->status404($file,$!);
       }
       $total += $fst->size;
     }
     $args{'Content-Length'} = ($total - $offset);
 
-    return $obj->_stream($files, $total, $offset, $typ, %args);
+    return $self->_stream($files, $total, $offset, $typ, %args);
 }
 
 sub _stream {
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $files = shift || return error('No file defined!');
     my $size = shift;
     my $offset = shift || 0;
     my $typ = shift;
     my %args = @_;
 
-    $obj->{nopack} = 1;
-    my $handle = $obj->{handle};
+    $self->{nopack} = 1;
+    my $handle = $self->{handle};
 
     my $child = fork(); 
     if ($child < 0) {
       error("Couldn't create process for streaming : " . $!);
       my $file = join(',',@$files);
-      return $obj->status404($file,$!);
+      return $self->status404($file,$!);
     }
     elsif ($child > 0) {
-      $obj->{header} = 200;
-      $obj->{sendbytes} += $size;
-      undef $obj->{handle};
-      undef $obj->{output};
+      $self->{header} = 200;
+      $self->{sendbytes} += $size;
+      undef $self->{handle};
+      undef $self->{output};
       return 1;
     }
     elsif ($child == 0) {
@@ -702,8 +696,8 @@ sub _stream {
       { 
         local $SIG{'__DIE__'};
 
-        my $hdr = $obj->header($typ, \%args);
-        if($obj->{browser}->{Method} eq 'HEAD') {
+        my $hdr = $self->header($typ, \%args);
+        if($self->{browser}->{Method} eq 'HEAD') {
           $handle->print($hdr);
         } else {
           foreach my $file (@{$files}) {
@@ -747,21 +741,21 @@ sub _stream {
 # ------------------
 sub image {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $file = shift || return error('No file defined!');
     my $typ = shift;
-    return $obj->datei($file,$typ);
+    return $self->datei($file,$typ);
 }
 
 # ------------------
 sub pod {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $modname = uc(shift) || return error ('No modul defined!');
     $modname = ucfirst($modname) if($modname eq 'GENERAL');
 
-    my $podfile = sprintf('%s/%s.pod', $obj->{paths}->{PODPATH}, $modname);
-    return $obj->err(gettext('Module %s not found!'), $modname)
+    my $podfile = sprintf('%s/%s.pod', $self->{paths}->{PODPATH}, $modname);
+    return $self->err(gettext('Module %s not found!'), $modname)
         unless(-r $podfile);
 
     my $u = main::getModule('USER');
@@ -778,32 +772,32 @@ sub pod {
 
     my $html = load_file($outfile);
     $html = $1 if($html =~ /\<body.*?\>(.+?)\<\/body\>/si);
-    $obj->link({
+    $self->link({
         text => gettext("Back to configuration page."),
-        url => $obj->{browser}->{Referer},
+        url => $self->{browser}->{Referer},
     });
 
-    $obj->message($html);
+    $self->message($html);
 }
 
 # ------------------
 sub txtfile {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $filename = shift || return error ('No file defined!');
     my $param = shift || {};
 
-    my $txtfile = sprintf('%s/%s', $obj->{paths}->{DOCPATH}, $filename);
+    my $txtfile = sprintf('%s/%s', $self->{paths}->{DOCPATH}, $filename);
     unless( -r $txtfile) {
-      $txtfile = sprintf('%s/%s.txt', $obj->{paths}->{DOCPATH}, $filename);
+      $txtfile = sprintf('%s/%s.txt', $self->{paths}->{DOCPATH}, $filename);
       unless( -r $txtfile) {
-        my $gzfile  = sprintf('%s/%s.gz', $obj->{paths}->{DOCPATH}, $filename);
+        my $gzfile  = sprintf('%s/%s.gz', $self->{paths}->{DOCPATH}, $filename);
         unless( -r $gzfile) {
-          $gzfile  = sprintf('%s/%s.txt.gz', $obj->{paths}->{DOCPATH}, $filename);
+          $gzfile  = sprintf('%s/%s.txt.gz', $self->{paths}->{DOCPATH}, $filename);
           unless( -r $gzfile) {
             my $e = $!;
-            error sprintf("Could not open file '%s/%s[.txt .gz txt.gz]! : %s", $obj->{paths}->{DOCPATH}, $filename, $e);
-            return $obj->err(sprintf(gettext("Could not open file '%s'! : %s"), $filename, $e));
+            error sprintf("Could not open file '%s/%s[.txt .gz txt.gz]! : %s", $self->{paths}->{DOCPATH}, $filename, $e);
+            return $self->err(sprintf(gettext("Could not open file '%s'! : %s"), $filename, $e));
           }
         }
         $txtfile = main::getModule('HTTPD')->unzip($gzfile);
@@ -814,13 +808,20 @@ sub txtfile {
 
     if($param->{'format'} eq 'txt') {
         my $txt = load_file($txtfile);
-        return $obj->message($txt, {tags => {first => "$topic: $filename"}});
+        return $self->message($txt, {tags => {first => "$topic: $filename"}});
     }
 
     my $u = main::getModule('USER');
     my $htmlfile = sprintf('%s/temp_txt.html', $u->userTmp);
 
-    $obj->{txt2html}->txt2html(
+    # create TextToHTML object
+    unless(exists $self->{txt2html}) {
+      $self->{txt2html} = HTML::TextToHTML->new(
+          preformat_whitespace_min => 4,
+      );
+    }
+
+    $self->{txt2html}->txt2html(
                      infile=>[$txtfile],
                      outfile=>$htmlfile,
                      title=> $filename,
@@ -828,45 +829,45 @@ sub txtfile {
     );
     my $html = load_file($htmlfile);
     $html = $1 if($html =~ /\<body.*?\>(.+?)\<\/body\>/si);
-    $obj->message($html, {tags => {first => "<h1>$topic: $filename</h1>"}});
+    $self->message($html, {tags => {first => "<h1>$topic: $filename</h1>"}});
 }
 
 # ------------------
 sub typ {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    return $obj->{TYP};
+    my $self = shift || return error('No object defined!');
+    return $self->{TYP};
 }
 
 # ------------------
 sub setCall {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return error ('No name defined!');
 
-    $obj->{call} = $name;
-    return $obj->{call};
+    $self->{call} = $name;
+    return $self->{call};
 }
 
 # ------------------
 sub browser {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    return $obj->{browser};
+    my $self = shift || return error('No object defined!');
+    return $self->{browser};
 }
 
 # Special Version from Message (with error handling)
 # ------------------
 sub msg {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $data = shift || 0;
     my $err = shift  || 0;
 
     unless($err) {
-        $obj->message($data);
+        $self->message($data);
     } else {
-        $obj->err($data || $err);
+        $self->err($data || $err);
         return undef;
     }
 }
@@ -874,29 +875,29 @@ sub msg {
 # ------------------
 sub parseData {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $dta = shift  || return '';
 
     if(ref $dta eq 'HASH') {
         foreach my $name (keys %$dta) {
             if(ref $dta->{$name}) {
-                $obj->parseData($dta->{$name});
+                $self->parseData($dta->{$name});
             } else {
-                $dta->{$name} = reentities($dta->{$name}) if($obj->{hasentities});
+                $dta->{$name} = reentities($dta->{$name}) if($self->{hasentities});
                 $dta->{$name} = entities($dta->{$name});
             }
         }
     } elsif (ref $dta eq 'ARRAY') {
         foreach (@$dta) {
             if(ref $_) {
-                $obj->parseData($_);
+                $self->parseData($_);
             } else {
-                $_ = reentities($_) if($obj->{hasentities});
+                $_ = reentities($_) if($self->{hasentities});
                 $_ = entities($_);
             }
         }
     }
-    $obj->{hasentities} = 1;
+    $self->{hasentities} = 1;
     return $dta;
 }
 

@@ -1183,6 +1183,11 @@ sub list {
     $sth->execute(@{$term})
       or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
+    map {
+        $_->[5] = fmttime($_->[5]);
+        $_->[6] = fmttime($_->[6]);
+    } @$erg;
+
     unshift(@$erg, $fields);
 
     my $channels = main::getModule('CHANNELS')->ChannelHash('Id');
