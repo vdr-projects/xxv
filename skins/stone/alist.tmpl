@@ -5,10 +5,6 @@
 <?% aus = gettext('Off') %?>
 <?% an = gettext('On') %?>
 <?% ######################################################################## %?>
-<?% BLOCK time %?>
-    <?% tt = t FILTER format('%04d') %?><?% tt.chunk(-2).join(':') %?>
-<?% END %?>
-<?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
 		    <?% IF allow('tlist') %?>
           <?% IF param.timers.$id.allTimer.size %?>
@@ -95,7 +91,7 @@
                     <td valign="middle" align="left" class="fieldinline">
                       <?% IF start != stop  %?>
                         <font class="description<?% IF state != "";" ";state;END %?>">
-                         <?% PROCESS time t = start %?>-<?% PROCESS time t = stop %?>
+                         <?% start %?>-<?% stop %?>
                         </font>
                       <?% END  %?>
                     </td>
@@ -116,7 +112,7 @@
 <?% fields = data.shift %?>
     <?% FOREACH zeile = data %?>
        <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-       <?% id=zeile.0;title=zeile.2;channels=zeile.3;directory=zeile.4;start=zeile.5;stop=zeile.6 %?>
+       <?% id=zeile.0;title=zeile.2;channels=zeile.3;directory=zeile.4;start=zeile.5;stop=zeile.6;minlength=zeile.7 %?>
        <?% IF zeile.1 == 'y' %?><?% aktiv = 1 %?><?% ELSE %?><?% aktiv = 0 %?><?% END %?>
        <?% PROCESS ItemAsArea %?>
     <?% END %?>
