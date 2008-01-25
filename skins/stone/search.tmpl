@@ -1,5 +1,4 @@
 <!-- search -->
-<?% USE date %?>
 <body class="frame">
 <div id="body">
 <?% enableform = ( allow('tnew') ) && data.size > 1 %?>
@@ -9,14 +8,23 @@
                         <a href="?cmd=search&amp;data=<?% url( title ) %?>">
                             <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
                         </a>
-                        <?% IF timerid && allow('tedit') %?>
+                        <?% IF timerid %?>
+                          <?% IF allow('tedit') %?>
                         <a href="javascript:popup('tedit','<?% timerid %?>',620,670,1)">
                             <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
                         </a>
-                        <?% ELSIF allow('tnew') %?>
+                          <?% END %?>
+                          <?% IF allow('tdelete') %?>
+                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this timer?") %?>','<?% escape(title) %?><?% IF subtitle != "";"~";escape(subtitle);END %?>','tdelete','<?% timerid %?>',620,670)">
+                            <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete timer") %?>" />
+                        </a>
+                          <?% END %?>
+                        <?% ELSE %?>
+                          <?% IF allow('tnew') %?>
                         <a href="javascript:popup('tnew','<?% id %?>',620,670,1)">
                             <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
                         </a>
+                          <?% END %?>
                         <?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>
@@ -94,14 +102,14 @@
 <h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?></h1>
 <?% ELSE %?>
 <?% fields = data.shift %?>
-<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% date.format(data.first.7, "%A, %x", locale) %?></h1>
+<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% data.first.7 %?></h1>
 <form name="searchlist" action="">
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
             channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;
             pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            day = date.format(zeile.7, "%A, %x", locale) %?>
+            day = zeile.7 %?>
         <?% IF old.defined && day != old %?>
 <div class="areaclose"></div>
 <h2><?% day %?></h2>
@@ -122,7 +130,7 @@
         <form action="" name="searchform" >
             <input type='hidden' name='cmd' value='search' />
             <input type="text" id="epgtext" name="data" alt="<?% gettext("Search") %?>" 
-               onkeyup="suggest('esuggest&__channel=' + escape(this.form.__channel[this.form.__channel.options.selectedIndex].value),'epgtext','epgsuggest');"
+               onkeyup="suggest('esuggest&amp;__channel=' + escape(this.form.__channel[this.form.__channel.options.selectedIndex].value),'epgtext','epgsuggest');"
                value="<?% cgi.param('data') %?>"
                autocomplete="off" />
             <br /><div class="suggestbox" id="epgsuggest"></div>
@@ -147,7 +155,7 @@
             <?% gettext('Channel',30) %?><br />
             <select name='__channel'>
                 <option value="0"><?% gettext('All channels') %?></option>
-            <?% FOREACH chan = getModule('CHANNELS').ChannelArray('Name') %?>
+            <?% FOREACH chan = param.channels %?>
                 <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected<?% END %?>><?% chan.first %?></option>
             <?% END %?>
             </select>
@@ -175,8 +183,8 @@
     </tr>
     <tr>
     <td class="sidetext">
-        <a href="javascript:DoitReally('<?% gettext("Would you like to record these events?") %?>','<?% gettext("Nothing selected!") %?>','tnew&__fast=1',document.searchlist,620,670,'record')"><img src="images/record.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
-        <a href="javascript:DoitReally('<?% gettext("Would you like to record these events?") %?>','<?% gettext("Nothing selected!") %?>','tnew&__fast=1',document.searchlist,620,670,'record')"><?% gettext("Record selected events",20) %?></a><br />
+        <a href="javascript:DoitReally('<?% gettext("Would you like to record these events?") %?>','<?% gettext("Nothing selected!") %?>','tnew&amp;__fast=1',document.searchlist,620,670,'record')"><img src="images/record.<?% global.imagetyp %?>" alt="" /></a>&nbsp;
+        <a href="javascript:DoitReally('<?% gettext("Would you like to record these events?") %?>','<?% gettext("Nothing selected!") %?>','tnew&amp;__fast=1',document.searchlist,620,670,'record')"><?% gettext("Record selected events",20) %?></a><br />
     </td>
     </tr>
     <tr>

@@ -1,5 +1,4 @@
 <!-- search -->
-<?% USE date %?>
 <body class="frame">
 <div id="body">
 <?% enableform = ( allow('tnew') ) && data.size > 1 %?>
@@ -82,7 +81,7 @@
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
             channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;
             pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            day = date.format(zeile.7, "%A, %x", locale) %?>
+            day = zeile.7 %?>
         <?% IF !old.defined || day != old %?>
             <?% IF old.defined  %?>
             </table>
@@ -145,7 +144,7 @@
             <?% gettext('Channel',30) %?><br />
             <select name='__channel'>
                 <option value="0"><?% gettext('All channels') %?></option>
-            <?% FOREACH chan = getModule('CHANNELS').ChannelArray('Name') %?>
+            <?% FOREACH chan = param.channels %?>
                 <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected<?% END %?>><?% chan.first %?></option>
             <?% END %?>
             </select>

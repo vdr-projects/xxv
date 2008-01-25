@@ -5,7 +5,6 @@
 
 -->
 </SCRIPT>
-<?% USE date %?>
 <?% enableform = ( allow('tnew') ) && data.size > 1 %?>
 <h1><?% gettext("Advanced Search") %?>&nbsp;
 <?% IF data.size %?>
@@ -56,7 +55,7 @@
     <td>
     <select name='__channel'>
         <option value="0"><?% gettext('All channels') %?>
-    <?% FOREACH chan = getModule('CHANNELS').ChannelArray('Name') %?>
+    <?% FOREACH chan = param.channels %?>
         <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected<?% END %?>><?% chan.first %?>
     <?% END %?>
     </select>
@@ -105,7 +104,7 @@
         </tr>
         <?% FOREACH zeile = data %?>
             <?% c = -1 %?>
-            <?% day = date.format(zeile.7, "%A, %x", locale) %?>
+            <?% day = zeile.7 %?>
             <?% IF !oldday.defined || day != oldday %?>
                 <tr><td colspan="<?% zeile.size %?>" bgcolor='#DDDDDD'>
                 <b><?% day %?></b>

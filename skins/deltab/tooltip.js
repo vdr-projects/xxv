@@ -204,34 +204,41 @@ function ttp_make_tlist_visable(title, tlist, x, y){
         if(values && values.data && typeof(values.data) == 'object'){
           for (var i = 1; i < values.data.length; i++) {
             var x = values.data[i];
-              if ((x[1] & 1) == 0) { //Status
-                content += '<span class="deactive">';
-              }
-              //var d = new Date(x[9] * 1000);
-              content += x[4]; //Day
-              content += " - ";
-              content += x[5]; //Start
-              content += "-";
-              content += x[6]; //Stop
-              content += " - ";
-              if (x[2].length > 15) {//Channel
-                content += x[2].substring(0, 13);
-                content += '...';
-              } else {
-                content += x[2]; 
-              }
-              content += " - ";
-              if (x[7].length > 23) {
-                content += x[7].substring(0, 21);
-                content += '...';
-              } else {
-                content += x[7]; //File
-              }
-              if ((x[1] & 1) == 0) { //Status
-                content += "</span>";
-              }
-              content += "<br />";
+            var len = 23;
+
+            if ((x[1] & 1) == 0) { //Status
+              content += '<span class="deactive">';
             }
+            //var d = new Date(x[9] * 1000);
+            content += x[4]; //Day
+            content += " - ";
+            content += x[5]; //Start
+            content += "-";
+            content += x[6]; //Stop
+            content += " - ";
+            if (x[2].length > 15) {//Channel
+              content += x[2].substring(0, 13);
+              content += '...';
+            } else {
+              content += x[2]; 
+            }
+            if ((x[2].length + x[7].length) > 30) {
+              content += "<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+              len = 50;
+            } else {
+              content += " - ";
+            }
+            if (x[7].length > len) {
+              content += x[7].substring(0, len-2);
+              content += '...';
+            } else {
+              content += x[7]; //File
+            }
+            if ((x[1] & 1) == 0) { //Status
+              content += "</span>";
+            }
+            content += "<br />";
+          }
         } else {
             content = '...';
         }

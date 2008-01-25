@@ -1,5 +1,4 @@
 <!-- program -->
-<?% USE date %?>
 <div id="body">
 <?% BLOCK dur %?>
     <?% height=6;d = d div 1 ; IF d >= 0 and d <= 100 %?>
@@ -68,7 +67,7 @@
 <h1><?% gettext("Program guide for") %?>&nbsp;<?% channel %?></h1>
 <?% ELSE %?>
 <?% fields = data.shift %?>
-<h1><?% gettext("Program guide for") %?>&nbsp;<?% channel %?> - <?% date.format(data.first.5, "%A, %x", locale) %?></h1>
+<h1><?% gettext("Program guide for") %?>&nbsp;<?% channel %?> - <?% data.first.5 %?></h1>
 	<table summary="" width="100%">
     <tr>
         <th></th>
@@ -81,7 +80,7 @@
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;
             description=zeile.6;video=zeile.7;audio=zeile.8;pdc=zeile.9;
             timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            day = date.format(zeile.5, "%A, %x", locale) %?>
+            day = zeile.5 %?>
 		<?% IF old.defined && day != old %?>
   		<tr>
             <td colspan="12" align="left">

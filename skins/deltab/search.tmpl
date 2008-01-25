@@ -1,5 +1,4 @@
 <!-- search -->
-<?% USE date %?>
 <div id="body">
 <?% BLOCK dur %?>
     <?% height=6;d = d div 1 ; IF d >= 0 and d <= 100 %?>
@@ -66,7 +65,7 @@
 <h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?></h1>
 <?% ELSE %?>
 <?% fields = data.shift %?>
-<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% date.format(data.first.7, "%A, %x", locale) %?></h1>
+<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% data.first.7 %?></h1>
 <table summary="" width="100%">
     <tr>
         <th width="180"></th>
@@ -79,7 +78,7 @@
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
             channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;
             pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            day = date.format(zeile.7, "%A, %x", locale) %?>
+            day = zeile.7 %?>
 		<?% IF old.defined && day != old %?>
    		  <tr>
             <td colspan="12" align="left">
@@ -124,7 +123,7 @@
             <?% gettext('Channel',30) %?><br />
             <select name='__channel'>
                 <option value="0"><?% gettext('All channels') %?></option>
-            <?% FOREACH chan = getModule('CHANNELS').ChannelArray('Name') %?>
+            <?% FOREACH chan = param.channels %?>
                 <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected="selected"<?% END %?>><?% chan.first %?></option>
             <?% END %?>
             </select>

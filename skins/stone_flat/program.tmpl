@@ -1,5 +1,4 @@
 <!-- program -->
-<?% USE date %?>
 <body class="frame">
 <div id="body">
 <?% ######################################################################## %?>
@@ -97,7 +96,7 @@
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;
             description=zeile.6;video=zeile.7;audio=zeile.8;pdc=zeile.9;
             timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            day = date.format(zeile.5, "%A, %x", locale) %?>
+            day = zeile.5 %?>
         <?% IF !old.defined || day != old %?>
             <?% IF old.defined  %?>
             </table>
