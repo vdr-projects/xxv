@@ -5,7 +5,6 @@ use Tools;
 use File::Basename;
 use Locale::gettext;
 
-
 # This module method must exist for XXV
 # ------------------
 sub module {
@@ -631,18 +630,26 @@ sub search {
         push(@{$search->{term}},($params->{MinLength}*60));
     }
 
+    my %f = (
+        'id' => gettext('Service'),
+        'title' => gettext('Title'),
+        'channel' => gettext('Channel'),
+        'start' => gettext('Start'),
+        'stop' => gettext('Stop'),
+        'day' => gettext('Day')
+    );
 
     my $sql = qq|
     SELECT SQL_CACHE 
-        e.eventid as Service,
-        e.title as Title,
+        e.eventid as \'$f{'id'}\',
+        e.title as \'$f{'title'}\',
         e.subtitle as __Subtitle,
-        c.Name as Channel,
+        c.Name as \'$f{'channel'}\',
         c.POS as __Pos,
-        DATE_FORMAT(e.starttime, '%H:%i') as Start,
-        DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as Stop,
-        UNIX_TIMESTAMP(e.starttime) as Day,
-        e.description,
+        DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
+        DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
+        UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
+        e.description as __description,
         IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
         ( SELECT 
             t.id
@@ -674,10 +681,16 @@ sub search {
         $sth->execute(@{$search->{term}})
           or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
         $erg = $sth->fetchall_arrayref();
+        map {
+            $_->[7] = datum($_->[7],'weekday');
+        } @$erg;
 
         unshift(@$erg, $fields);
     }
-    $console->table($erg);
+    my $modC = main::getModule('CHANNELS');
+    $console->table($erg,  {
+                            channels => $modC->ChannelArray('Name'),
+    });
 }
 
 # ------------------
@@ -699,14 +712,23 @@ sub program {
             or return con_err($console, sprintf(gettext("This channel '%s' does not exist in the database!"),$channel));
     }
 
+    my %f = (
+        'id' => gettext('Service'),
+        'title' => gettext('Title'),
+        'channel' => gettext('Channel'),
+        'start' => gettext('Start'),
+        'stop' => gettext('Stop'),
+        'day' => gettext('Day')
+    );
+
     my $sql = qq|
 SELECT SQL_CACHE 
-    e.eventid as Service,
-    e.title as Title,
+    e.eventid as \'$f{'id'}\',
+    e.title as \'$f{'title'}\',
     e.subtitle as __Subtitle,
-    DATE_FORMAT(e.starttime, '%H:%i') as Start,
-    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as Stop,
-    UNIX_TIMESTAMP(e.starttime) as Day,
+    DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
+    DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
+    UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
     e.description as __Description,
     e.video as __Video,
     e.audio as __Audio,
@@ -740,6 +762,10 @@ order by
     $sth->execute($cid)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $erg = $sth->fetchall_arrayref();
+    map {
+        $_->[5] = datum($_->[5],'weekday');
+    } @$erg;
+
     unshift(@$erg, $fields);
 
     $console->table($erg, {
@@ -776,22 +802,14 @@ sub display {
     my $fields;
     my $erg;
 
-    my $start = "e.starttime";
-    my $stopp = "FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration)";
-    my $vps = "e.vpstime";
-
-    $start = "UNIX_TIMESTAMP(e.starttime)" if($console->typ eq "HTML");
-    $stopp = "UNIX_TIMESTAMP(e.starttime) + e.duration" if($console->typ eq "HTML");
-    $vps   = "UNIX_TIMESTAMP(e.vpstime)" if($console->typ eq "HTML");
-
-    foreach my $table (qw/EPG OLDEPG/) {
+   foreach my $table (qw/EPG OLDEPG/) {
     my $sql = qq|
 SELECT SQL_CACHE 
     e.eventid as \'$f{'Id'}\',
     e.title as \'$f{'Title'}\',
     e.subtitle as \'$f{'Subtitle'}\',
-    $start as \'$f{'Start'}\',
-    $stopp as \'$f{'Stop'}\',
+    UNIX_TIMESTAMP(e.starttime) as \'$f{'Start'}\',
+    UNIX_TIMESTAMP(e.starttime) + e.duration as \'$f{'Stop'}\',
     c.Name as \'$f{'Channel'}\',
     e.description as \'$f{'Description'}\',
     e.video as __Video,
@@ -813,7 +831,7 @@ SELECT SQL_CACHE
         WHERE t.eventid = e.eventid
         LIMIT 1) as __running,
     e.image as __Image,
-    IF(e.vpstime!=0,$vps,'') as __PDC,
+    UNIX_TIMESTAMP(e.vpstime) as __PDC,
     e.channel_id as __channel_id
 from
     $table as e,CHANNELS as c
@@ -835,7 +853,13 @@ where
         con_err($console, sprintf(gettext("Event '%d' does not exist in the database!"),$eventid));
         return;
     }
-
+    if($console->{TYP} ne 'HTML') {
+      map {
+          $_->[3] = datum($_->[3],'voll');
+          $_->[4] = datum($_->[4],'time');
+          $_->[14] = datum($_->[14],'time') if($_->[14]);
+      } @$erg;
+    }
     unshift(@$erg, $fields);
 
     $console->table($erg);

@@ -436,7 +436,7 @@ sub _autotimerLookup {
                 if($events->{$Id}->{subtitle});
               push(@$output,   [gettext("Channel"),   $events->{$Id}->{channelname}]);
 
-              if($events->{$Id}->{vpsstart} and $a->{VPS} and $modT->{usevpstime} eq 'y') {
+              if($events->{$Id}->{vpsstart} and $a->{VPS} eq 'y' and $modT->{usevpstime} eq 'y') {
                 push(@$output, [gettext("Start"),     datum($events->{$Id}->{vpsstart} )]);
                 push(@$output, [gettext("Stop"),      datum($events->{$Id}->{vpsstop}  )]);
               } else {
@@ -462,7 +462,7 @@ sub _autotimerLookup {
             $event->{priority} = $a->{Priority};
             $event->{lifetime} = $a->{Lifetime};
 
-            if($event->{vpsstart} and $a->{VPS} and $modT->{usevpstime} eq 'y') {
+            if($event->{vpsstart} and $a->{VPS} eq 'y' and $modT->{usevpstime} eq 'y') {
               $event->{vps} = 'y';
  	            $event->{starttime} = $event->{vpsstart};
  	            $event->{stoptime} = $event->{vpsstop};

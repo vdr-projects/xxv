@@ -57,6 +57,9 @@ sub datum {
     } elsif(lc($typ) eq 'tag') {
         # day depends locale e.g. 24.12.2007 or 12/24/2007
         return strftime("%x", localtime($zeit));   
+    } elsif(lc($typ) eq 'weekday') {
+        # day depends locale e.g. Fryday ,24.12.2007
+        return strftime("%A, %x", localtime($zeit));   
     } elsif (lc($typ) eq 'int') {
         # 1901-01-01T00:00+00:00
         return strftime("%Y-%m-%dT%H:%M:%S%z", localtime($zeit));
@@ -186,7 +189,7 @@ sub con_err {
     my $msg = shift;
 
     if(ref $console) {
-      $console->{call} = 'message'; #reset default widget, avoid own widget
+      $console->setCall('message'); #reset default widget, avoid own widget
       $console->err($msg);
     }
 
@@ -207,7 +210,7 @@ sub con_msg {
     my $msg = shift;
 
     if(ref $console) {
-      $console->{call} = 'message'; #reset default widget, avoid own widget
+      $console->setCall('message'); #reset default widget, avoid own widget
       $console->msg($msg);
     }
 

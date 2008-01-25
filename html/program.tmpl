@@ -7,7 +7,6 @@
 </SCRIPT>
 
 <!-- TableTemplate -->
-<?% USE date %?>
 <?% FOREACH ch = param.channels %?>
     <?% IF cgi.param('data') == ch.1 || cgi.param('data') == ch.0 || param.current == ch.1 %?>
         <?% channel = ch.0 %?>
@@ -52,7 +51,7 @@
         </tr>
         <?% FOREACH zeile = data %?>
             <?% c = 0 %?>
-            <?% day = date.format(zeile.5, "%A, %x", locale) %?>
+            <?% day = zeile.5 %?>
             <?% IF !oldday.defined || day != oldday %?>
                 <tr><td colspan="<?% zeile.size %?>" bgcolor='#DDDDDD'>
                 <b><?% day %?></b>

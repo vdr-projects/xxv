@@ -270,7 +270,7 @@ sub communicator
             ($userMod->{active} ne 'y'
                 or exists $console->{USER}->{Level})) {
 
-        $console->{call} = 'nothing';
+        $console->setCall('nothing');
         if(($data->{Request} eq '/' or $data->{Request} =~ /\.html$/) and not $data->{Query}) {
             # Send the first page (index.html)
             my $page = $data->{Request};
@@ -475,7 +475,7 @@ sub handleInput {
     my $u = main::getModule('USER');
     if($u) {
       my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
-      $console->{call} = $cmdname;
+      $console->setCall($cmdname);
       if($cmdobj and not $shorterr) {
 
           if($cmdobj->{binary}) {

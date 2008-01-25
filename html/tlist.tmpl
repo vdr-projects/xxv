@@ -1,5 +1,4 @@
 <!-- tlist -->
-<?% USE date %?>
 <?% enableform = allow('tdelete') || allow('ttoggle');
 	rest = param.capacity;
 %?>
@@ -7,7 +6,7 @@
 <?% IF data.size <= 1 %?>
 <h1><?% gettext("Planned recordings") %?></h1>
 <?% ELSE %?>
-<h1><?% gettext("Planned recordings") %?> - <?% date.format(data.1.9, "%A, %x", locale) %?></h1>
+<h1><?% gettext("Planned recordings") %?> - <?% data.1.4 %?></h1>
 <?% END %?>
 
 <?% IF allow('tnew') %?>
@@ -42,36 +41,38 @@
 <table border="0" width="95%">
         <tr>
         <?% fields = data.shift %?>
+        <?% c = -1 %?>
         <?% FOREACH field = fields %?>
-            <?% NEXT IF field.match('^__') %?>
+            <?% c = c + 1 %?>
+            <?% NEXT IF field.match('^__') or c == 4 %?>
             <th><?% field %?></th>
         <?% END %?>
 <?% IF enableform %?>
-            <th><?% gettext("Selection") %?></th>
+            <th width="64"><?% gettext("Selection",7) %?></th>
 <?% END %?>
         </tr>
         <?% FOREACH zeile = data %?>
             <?% aktiv= ( zeile.1 ? zeile.1 mod 2 : 0 );
                 pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
-                day = date.format(zeile.9, "%A, %x", locale);
-                IF aktiv; rest = rest - zeile.13; END;
+                day = zeile.4;
+                IF aktiv; rest = rest - zeile.12; END;
             %?>
             <?% IF oldDay != day %?>
-            <tr><td colspan='<?% zeile.size + 1 %?>' bgcolor='#DDDDDD'><b><?% day %?></b></td><tr>
+            <tr><td colspan='<?% zeile.size %?>' bgcolor='#DDDDDD'><b><?% day %?></b></td><tr>
             <?% END %?>
             <?% myclass = "normal" %?>
             <?% UNLESS aktiv %?>
                 <?% myclass = "deactive" %?>
-            <?% ELSIF zeile.10 %?>
+            <?% ELSIF zeile.9 %?>
                 <?% myclass = 'problem' %?>
-            <?% ELSIF zeile.15 %?>
+            <?% ELSIF zeile.14 %?>
                 <?% myclass = "active" %?>
             <?% END %?>
             <tr class="<?% myclass %?>" <?% IF (loop.count mod 2) == 0 %?>bgcolor='#F5F5F5'<?% END %?>>
                 <?% c = -1 %?>
                 <?% FOREACH field = zeile %?>
                     <?% c = c + 1 %?>
-                    <?% NEXT IF fields.$c.match('^__') %?>
+                    <?% NEXT IF fields.$c.match('^__') or c == 4 %?>
                     <?% IF c == 0; # Id Field %?>
                     <td nowrap><nobr>
                         <a href="?cmd=search&amp;data=<?% url( zeile.7.split('~').last ) %?>" title="<?% gettext("Search for repeats") %?>"><div class="<?% myclass %?>">[R]</div></a>
@@ -89,15 +90,15 @@
     <?% IF allow('ttoggle') %?>
             			<a name='<?% zeile.0 %?>' href="javascript:tostatus('?cmd=ttoggle&amp;data=<?% zeile.0 %?>')" title="<?% gettext("Toggle timer") %?>&nbsp;<?% aktiv ? aus : an %?>"><div class="<?% myclass %?>">[<?% aktiv ? an : aus %?>]</div></a>
             			<?% IF pdc;'(';gettext('PDC');')';END %?>
-                        <?% IF zeile.12 && allow('aedit') %?>
-            			<a href="?cmd=aedit&amp;data=<?% zeile.12 %?>" title="<?% gettext("Edit autotimer") %?>"><div class="<?% myclass %?>">(AT)</div></a><br>
+                        <?% IF zeile.11 && allow('aedit') %?>
+            			<a href="?cmd=aedit&amp;data=<?% zeile.11 %?>" title="<?% gettext("Edit autotimer") %?>"><div class="<?% myclass %?>">(AT)</div></a><br>
                         <?% END %?>
                         <?% IF rest <= 0 %?><a href="javascript:alert('<?% gettext("Not enough space to record this timer!") %?>')">(!)</a><br/><?% END %?>
     <?% ELSE %?>
             			[<?% aktiv ? aus : an %?>]<?% IF pdc;'&nbsp;(';gettext('PDC');')';END %?>
     <?% END %?>
 
-                        <?% level = getModule('SHARE').getEventLevel(zeile.11) %?>
+                        <?% level = getModule('SHARE').getEventLevel(zeile.10) %?>
                         <?% IF level %?><?% "*" FILTER repeat(level) %?><?% END %?>
     		</td>
                     <?% ELSIF c == 2; # Channel Field %?>
@@ -106,11 +107,11 @@
                     </td>
                     <?% ELSIF c == 7; # Title %?>
                     <td>
-                        <?% IF zeile.11 %?><?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field desc=zeile.14 eventid=zeile.11 linkid=zeile.11 ttp_offset=0 %?><?% END %?>
+                        <?% IF zeile.10 %?><?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field desc=zeile.13 eventid=zeile.10 linkid=zeile.10 ttp_offset=0 %?><?% END %?>
                         <?% FOREACH f = field.split('~') %?>
                             <div class="<?% myclass %?>"><?% f %?></div>
                         <?% END %?>
-                        <?% IF zeile.11 %?></a><?% END %?>
+                        <?% IF zeile.10 %?></a><?% END %?>
                     </td>
                     <?% ELSIF c == 8; # Prio %?>
                     <td>

@@ -13,7 +13,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'Ajax',
         Prereq => {
@@ -32,17 +32,17 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || {};
     my $params = shift || 0;
 
     my $name = (split('::', $AUTOLOAD))[-1];
     return  if($name eq 'DESTROY');
 
-    $obj->{nopack} = 1;
-    $obj->out( $data, $params, $name );
+    $self->{nopack} = 1;
+    $self->out( $data, $params, $name );
 
-    $obj->{call} = '';
+    $self->{call} = '';
 }
 
 # ------------------
@@ -65,30 +65,35 @@ sub new {
         || return error('No handle defined!');
 
     $self->{cgi} = $attr{'-cgi'}
-        || return error('No TemplateDir given!');
+        || return error('No cgi given!');
 
     $self->{browser} = $attr{'-browser'}
-        || return error('No Mimehash given!');
-
-    $self->{xml} = XML::Simple->new()
-        || return error('XML failed!');
+        || return error('No browser given!');
 
     $self->{outtype} = $attr{'-output'}
         || return error('No output type given!');
 
 		$self->{types} = {
 			'xml' => 'application/xml',
+#			'json' => 'application/json; charset=utf-8', # json with utf-8
+#			'json' => 'application/json; charset=iso-8859-1', # json with iso-8859
 			'json' => 'text/html',
-			'html' => 'text/html',
-			'javascript' => 'text/javascript',
+			'text' => 'text/plain',
 		};
 
 		# New JSON Object if required
 		if($self->{outtype} eq 'json') {
 			$self->{json} = JSON->new()
-				unless(ref $self->{json});
-		}	
-
+        || return error("Can't create JSON instance!");
+		}	elsif($self->{outtype} eq 'xml') {
+      $self->{xml} = XML::Simple->new()
+        || return error("Can't create XML instance!");
+    }	elsif($self->{outtype} eq 'text') {
+        # ...
+    } else {
+       $self->{outtype} = 'text';
+#      return error(sprintf("Can't create instance for typ '%s'!"),$self->{outtype});
+    }
     $self->{TYP} = 'AJAX';
 
 	return $self;
@@ -97,27 +102,27 @@ sub new {
 # ------------------
 sub out {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || 0;
     my $para = shift || 0;
     my $name = shift || 'noName';
-    my $type = shift || $obj->{types}->{$obj->{outtype}} || 'text/plain';
+    my $type = shift || $self->{types}->{$self->{outtype}} || 'text/plain';
     my %args = @_;
 
-    $obj->{nopack} = 1;
-    unless(defined $obj->{header}) {
+    $self->{nopack} = 1;
+    unless(defined $self->{header}) {
         # HTTP Header
-        $obj->{output_header} = $obj->header($type, \%args);
+        $self->{output_header} = $self->header($type, \%args);
     }
 
-    $obj->{sendbytes}+= length($data);
+    $self->{sendbytes}+= length($data);
 	
-		if($obj->{outtype} eq 'json') {
-	    $obj->{output}->{data} = $data;
+		if($type ne 'application/xml') {
+	    $self->{output}->{data} = $data;
 		} else {
-	    $obj->{output}->{DATA} = $data;
-	    $obj->{output}->{$name}->{data} = $data;
-	    $obj->{output}->{$name}->{params} = $para
+	    $self->{output}->{DATA} = $data;
+	    $self->{output}->{$name}->{data} = $data;
+	    $self->{output}->{$name}->{params} = $para
 	        if($para);
 		}
 }
@@ -125,58 +130,58 @@ sub out {
 # ------------------
 sub printout {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
-    my $nopack = shift || $obj->{nopack} || 0;
+    my $self = shift  || return error('No object defined!');
+    my $nopack = shift || $self->{nopack} || 0;
 
     my $content;
-    if($obj->{browser}->{Method} ne 'HEAD') {
-      if($obj->{outtype} eq 'xml') {
-      $content = $obj->{xml}->XMLout($obj->{output});
-      } elsif( $obj->{outtype} eq 'json' ) {
-        if($obj->{json}->can('to_json')) { # Version 2.0 see http://search.cpan.org/~makamaka/JSON-2.04/lib/JSON.pm#Transition_ways_from_1.xx_to_2.xx.
-          $content = $obj->{json}->to_json($obj->{output});
+    if($self->{browser}->{Method} ne 'HEAD') {
+      if( $self->{outtype} eq 'json' ) {
+        if($self->{json}->can('to_json')) { # Version 2.0 see http://search.cpan.org/~makamaka/JSON-2.04/lib/JSON.pm#Transition_ways_from_1.xx_to_2.xx.
+          $content = $self->{json}->to_json($self->{output});
         } else { # Version 1.0
-          $content = $obj->{json}->objToJson ($obj->{output});
+          $content = $self->{json}->objToJson($self->{output});
         }
+      } elsif($self->{outtype} eq 'xml') {
+        $content = $self->{xml}->XMLout($self->{output});
       } else {
-        $content = $obj->{output}->{DATA};
+        $content = $self->{output}->{data};
       }
 
 	  	# compress data
       $content = Compress::Zlib::memGzip($content)
-        if(! $nopack and $obj->{Zlib} and $obj->{browser}->{accept_gzip});
+        if(! $nopack and $self->{Zlib} and $self->{browser}->{accept_gzip});
     }
 
     if($content) {
-      $obj->{handle}->print($obj->{output_header},$content);
-      $obj->{sendbytes}+= length($obj->{output_header});
-      $obj->{sendbytes}+= length($content);
+      $self->{handle}->print($self->{output_header},$content);
+      $self->{sendbytes}+= length($self->{output_header});
+      $self->{sendbytes}+= length($content);
     } else {
-      $obj->{handle}->print($obj->{output_header});
-      $obj->{sendbytes}+= length($obj->{output_header});
+      $self->{handle}->print($self->{output_header});
+      $self->{sendbytes}+= length($self->{output_header});
     }
 
-    undef $obj->{output};
-    undef $obj->{output_header};
-    undef $obj->{nopack};
+    undef $self->{output};
+    undef $self->{output_header};
+    undef $self->{nopack};
 }
 
 
 # ------------------
 sub header {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $typ = shift || return error('No type defined!');
     my $arg = shift || {};
 
     $arg->{'Content-encoding'} = 'gzip'
-        if($obj->{browser}->{accept_gzip} && ((!defined $obj->{nopack}) || $obj->{nopack} == 0) );
+        if($self->{browser}->{accept_gzip} && ((!defined $self->{nopack}) || $self->{nopack} == 0) );
 
     $arg->{'Cache-Control'} = 'no-cache, must-revalidate' if(!defined $arg->{'Cache-Control'});
     $arg->{'Pragma'} = 'no-cache' if(!defined $arg->{'Pragma'});
 
-    $obj->{header} = 200;
-    return $obj->{cgi}->header(
+    $self->{header} = 200;
+    return $self->{cgi}->header(
         -type   =>  $typ,
         -status  => "200 OK",
         -expires => "now",
@@ -187,11 +192,11 @@ sub header {
 # ------------------
 sub headerNoAuth {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $typ = shift || 'text/html';
 
-    $obj->{header} = 401;
-    return $obj->{cgi}->header(
+    $self->{header} = 401;
+    return $self->{cgi}->header(
         -type    => $typ,
         -status  => "401 Authorization Required\nWWW-Authenticate: Basic realm=\"xxvd\""
     );
@@ -200,7 +205,7 @@ sub headerNoAuth {
 # ------------------
 sub msg {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || 0;
     my $err  = shift || 0;
 
@@ -212,33 +217,33 @@ sub msg {
         $msg = sprintf('ERROR:%s (%s)', $data);
     }
 
-    $obj->out( $msg, 0, 'msg' );
+    $self->out( $msg, 0, 'msg' );
 
-    $obj->{call} = '';
+    $self->{call} = '';
 }
 
 # ------------------
 sub typ {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    return $obj->{TYP};
+    my $self = shift || return error('No object defined!');
+    return $self->{TYP};
 }
 
 # ------------------
 sub setCall {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return error('No name defined!');
 
-    $obj->{call} = $name;
-    return $obj->{call};
+    $self->{call} = $name;
+    return $self->{call};
 }
 
 # ------------------
 sub browser {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    return $obj->{browser};
+    my $self = shift || return error('No object defined!');
+    return $self->{browser};
 }
 
 1;

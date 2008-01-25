@@ -1365,12 +1365,6 @@ sub display {
         return;
     }
 
-    my $start = "e.starttime";
-    my $stopp = "FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration)";
-
-    $start = "UNIX_TIMESTAMP(e.starttime)" if($console->typ eq "HTML");
-    $stopp = "UNIX_TIMESTAMP(e.starttime) + e.duration" if($console->typ eq "HTML");
-
     my $sql = qq|
 SELECT SQL_CACHE 
     r.RecordMD5 as RecordId,
@@ -1379,8 +1373,8 @@ SELECT SQL_CACHE
     r.Marks,
     r.Prio,
     r.Lifetime,
-    $start as StartTime,
-    $stopp as StopTime,
+    UNIX_TIMESTAMP(e.starttime) as StartTime,
+    UNIX_TIMESTAMP(e.starttime) + e.duration as StopTime,
     e.title as Title,
     e.subtitle as SubTitle,
     e.description as Description,
@@ -1397,23 +1391,28 @@ where
     and RecordMD5 = ?
 |;
 
-    my $rec;
-    my $fields = fields($obj->{dbh}, $sql);
+    my $erg;
+#   my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute($recordid)
-      || !($rec = $sth->fetchrow_hashref())) {
+      || !($erg = $sth->fetchrow_hashref())) {
         con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
         return;
+    }
+
+    if($console->{TYP} ne 'HTML') {
+      $erg->{StartTime} = datum($erg->{StartTime},'voll');
+      $erg->{StopTime} = datum($erg->{StopTime},'voll');
     }
 
     $obj->_loadreccmds;
 
     my $param = {
-        previews => $obj->getPreviewFiles($rec->{RecordId}),
+        previews => $obj->getPreviewFiles($erg->{RecordId}),
         reccmds => [@{$obj->{reccmds}}],
     };
 
-    $console->table($rec, $param);
+    $console->table($erg, $param);
 }
 
 # ------------------
@@ -2265,7 +2264,7 @@ sub translate {
         $title =~ s/(\.$)/\#2E/sig;
         $title =~ s/(\.~)/\#2E~/sig;
     } else {
-     $title =~ tr# \'\/#_\x01\x02#;
+        $title =~ tr# \'\/#_\x01\x02#;
     }
 
     $title =~ tr#\/~#~\/#;
@@ -2281,13 +2280,13 @@ sub converttitle {
     my $vfat = shift || $obj->{vfat};
 
     $title =~ s/_/ /g;
+    $title =~ tr#\/~\x01\x02#~\/\'\/#;
 
     if($vfat eq 'y') {
         $title =~ s/\#([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
         $title =~ s/\x03/:/g; # See backward compat.. at recordings.c
     }
 
-    $title=~tr#\/~\x01\x02#~\/\'\/#;
     return $title;
 }
 

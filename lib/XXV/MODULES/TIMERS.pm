@@ -1233,12 +1233,11 @@ SELECT SQL_CACHE
     t.flags as \'$f{'flags'}\',
     c.Name as \'$f{'channel'}\',
     c.Pos as __pos,
-    t.day as \'$f{'day'}\',
+    UNIX_TIMESTAMP(t.starttime) as \'$f{'day'}\',
     DATE_FORMAT(t.starttime, '%H:%i') as \'$f{'start'}\',
     DATE_FORMAT(t.stoptime, '%H:%i') as \'$f{'stop'}\',
     t.file as \'$f{'title'}\',
     t.priority as \'$f{'priority'}\',
-    UNIX_TIMESTAMP(t.starttime) as __day,
     t.collision as __collision,
     t.eventid as __eventid,
     t.autotimerid as __autotimerid,
@@ -1256,7 +1255,7 @@ WHERE
     AND t.channel = c.Id
     $search
 ORDER BY
-    __day
+    t.starttime
 |;
 
     my $fields = fields($obj->{dbh}, $sql);
@@ -1265,6 +1264,10 @@ ORDER BY
     $sth->execute(@{$term})
       or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
+    map {
+        $_->[4] = datum($_->[4],'weekday');
+    } @$erg;
+
     unshift(@$erg, $fields);
 
     $console->table($erg, {
