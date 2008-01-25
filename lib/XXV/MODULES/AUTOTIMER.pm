@@ -722,7 +722,7 @@ You can also fine tune your search :
         'Channels' => {
             typ     => 'list',
             def     => $epg->{Channels},
-            choices => $modC->ChannelArray('Name', sprintf(' NOT (%s)', $obj->{exclude})),
+            choices => $modC->ChannelWithGroup('Name,POS', sprintf(' NOT (%s)', $obj->{exclude})),
             options => 'multi',
             msg     => gettext('Limit search to these channels'),
             check   => sub{

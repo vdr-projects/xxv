@@ -304,7 +304,7 @@ sub TopTen {
 
     return $console->table($out, {
         channels => $can->ChannelHash('Id'),
-        timers => $tim->getEpgIds
+        timers => $tim->getEvents()
        });
 }
 

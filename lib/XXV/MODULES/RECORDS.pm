@@ -1013,7 +1013,7 @@ sub readinfo {
     my $file = sprintf("%s/info.vdr", $path);
     if(-r $file) {
         my $text = load_file($file);
-        my $cmod = main::getModule('CHANNELS');
+        my $modC = main::getModule('CHANNELS');
         foreach my $zeile (split(/[\r\n]/, $text)) {
             if($zeile =~ /^D\s+(.+)/s) {
                 $info->{description} = $1;
@@ -1023,7 +1023,7 @@ sub readinfo {
             }
             elsif($zeile =~ /^C\s+(\S+)/s) {
                 $info->{channel} = $1;
-                $info->{type} = $cmod->getChannelType($info->{channel});
+                $info->{type} = $modC->getChannelType($info->{channel});
             }
             elsif($zeile =~ /^T\s+(.+)$/s) {
                 $info->{title} = $1;
@@ -1827,7 +1827,7 @@ WHERE
 	  $rec->{title} =~s#^~##g;
     $rec->{title} =~s#~$##g;
 
-    my $mod = main::getModule('CHANNELS');
+    my $modC = main::getModule('CHANNELS');
 
     my $questions = [
         'title' => {
@@ -1865,19 +1865,19 @@ WHERE
         },
     		'channel' => {
             typ     => 'list',
-            def     => $mod->ChannelToPos($status->{channel}),
+            def     => $modC->ChannelToPos($status->{channel}),
             choices => sub {
-                my $erg = $mod->ChannelArray('Name');
-                unshift(@$erg, [gettext("Undefined"),undef]);                          
+                my $erg = $modC->ChannelWithGroup('Name,Pos');
+                unshift(@$erg, [gettext("Undefined"),undef,undef]);                          
                 return $erg;
             },
             msg   => gettext('Channel'),
             check   => sub{
                 my $value = shift || return;
 
-                if(my $ch = $mod->PosToChannel($value) || $mod->NameToChannel($value) ) {
+                if(my $ch = $modC->PosToChannel($value) || $modC->NameToChannel($value) ) {
                     return $ch;
-                } elsif( ! $mod->NameToChannel($value)) {
+                } elsif( ! $modC->NameToChannel($value)) {
                     return undef, sprintf(gettext("This channel '%s' does not exist!"),$value);
                 } else {
                    return undef, gettext("This is required!");

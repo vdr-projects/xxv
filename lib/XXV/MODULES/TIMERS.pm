@@ -664,7 +664,7 @@ WHERE
         'channel' => {
             typ     => 'list',
             def     => $con ? $modC->ChannelToPos($timerData->{channel}) : $timerData->{channel},
-            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelIDArray('Name'),
+            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('Name,Id'),
             msg     => gettext('Which channel should recorded'),
             req     => gettext("This is required!"),
             check   => sub{

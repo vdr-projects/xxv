@@ -28,8 +28,15 @@
     <td>
     <select name='data' onChange="di(this.form.data.options[this.form.data.options.selectedIndex].value, '?cmd=program&amp;data=')">
     <?% FOREACH ch = param.channels %?>
-        <option value="<?% ch.1 %?>" <?% "selected" IF channelpos == ch.1 %?>><?% ch.0 %?></option>
+      <?% IF ch.2 != channelgroup %?>
+        <?% IF channelgroup %?>
+        </optgroup>
+        <?% END %?>
+        <optgroup label="<?% channelgroup = ch.2;ch.2 %?>">
     <?% END %?>
+        <option value="<?% ch.1 %?>"<?% ' selected="selected"' IF channelpos == ch.1 %?>><?% ch.0 %?></option>
+    <?% END %?>
+      </optgroup>
     </select>
     </td>
 </form>

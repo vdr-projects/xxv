@@ -532,6 +532,21 @@ sub ChannelArray {
 }
 
 # ------------------
+sub ChannelWithGroup {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $field = shift || return undef;
+    my $where = shift || '';
+    $where = sprintf('WHERE %s', $where) if($where);
+
+    my $sql = sprintf(q|SELECT SQL_CACHE %s, ( SELECT 
+        g.Name FROM CHANNELGROUPS as g WHERE c.GRP = g.Id
+        LIMIT 1) as GRP from CHANNELS as c %s order by c.POS|, $field, $where);
+    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    return $erg;
+}
+
+# ------------------
 sub ChannelIDArray {
 # ------------------
     my $obj = shift || return error('No object defined!');

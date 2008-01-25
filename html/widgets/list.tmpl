@@ -19,16 +19,25 @@
                 <?% sel = '' %?>
                 <?% dis = '' %?>
                 <?% FOREACH valch = values %?>
-					<?% IF (valch == l.1 || valch == l.0) %?>
-                    <?% sel = ' selected="selected"';values.shift;LAST %?>
+					          <?% IF (valch == l.1 || valch == l.0) %?>
+                    <?% sel = ' selected="selected"';LAST %?>
                     <?% END %?>
                 <?% END %?>
                 <?% FOREACH valch = data.disabled %?>
-					<?% IF (valch == l.1 || valch == l.0) %?>
-                    <?% dis = ' disabled="disabled"';data.disabled.shift;LAST %?>
+					          <?% IF (valch == l.1 || valch == l.0) %?>
+                    <?% dis = ' disabled="disabled"';LAST %?>
                     <?% END %?>
                 <?% END %?>
-            <option value='<?% l.1 %?>'<?% sel %?><?% dis %?>><?% l.0 %?></option>
+            <?% IF l.2 && l.2 != optgroup %?>
+              <?% IF optgroup %?>
+              </optgroup>
+              <?% END %?>
+              <optgroup label="<?% optgroup = l.2;l.2 %?>">
+            <?% END %?>
+                <option value='<?% l.1 %?>'<?% sel %?><?% dis %?>><?% l.0 %?></option>
+            <?% END %?>
+            <?% IF optgroup %?>
+              </optgroup>
             <?% END %?>
             </select>
     </td>

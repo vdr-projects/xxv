@@ -768,8 +768,9 @@ order by
 
     unshift(@$erg, $fields);
 
+
     $console->table($erg, {
-                            channels => $mod->ChannelArray('Name'),
+                            channels => $mod->ChannelWithGroup('Name,POS'),
                             current => $mod->ChannelToPos($cid),
                           }
                     );
