@@ -116,8 +116,15 @@
     <p>
         <select size="15" name='data' onchange="di('?cmd=program&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">
         <?% FOREACH ch = param.channels %?>
-            <option value="<?% ch.1 %?>" <?% 'selected="selected"' IF cgi.param('data') == ch.1 %?>><?% ch.0 %?></option>
+          <?% IF ch.2 != channelgroup %?>
+            <?% IF channelgroup %?>
+            </optgroup>
+            <?% END %?>
+            <optgroup label="<?% channelgroup = ch.2;ch.2 %?>">
         <?% END %?>
+            <option value="<?% ch.1 %?>"<?% ' selected="selected"' IF channelpos == ch.1 %?>><?% ch.0 %?></option>
+        <?% END %?>
+          </optgroup>
         </select>
     </p>
     </form>

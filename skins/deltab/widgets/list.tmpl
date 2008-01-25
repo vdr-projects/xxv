@@ -28,7 +28,16 @@
                     <?% dis = ' disabled="disabled"';LAST %?>
                     <?% END %?>
                 <?% END %?>
+            <?% IF l.2 && l.2 != optgroup %?>
+              <?% IF optgroup %?>
+              </optgroup>
+              <?% END %?>
+              <optgroup label="<?% optgroup = l.2;l.2 %?>">
+            <?% END %?>
                 <option value='<?% l.1 %?>'<?% sel %?><?% dis %?>><?% l.0 %?></option>
+            <?% END %?>
+            <?% IF optgroup %?>
+              </optgroup>
             <?% END %?>
             </select>
     </td>

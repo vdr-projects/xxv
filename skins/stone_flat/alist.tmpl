@@ -7,13 +7,13 @@
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
 		    <?% IF allow('tlist') %?>
-          <?% IF param.timers.$id.allTimer.size %?>
+          <?% IF param.timers.${id}.allTimer.size %?>
 <?% IF debug %?>
-<!-- active:  <?% param.timers.$id.activeTimer.size %?>   -->
-<!-- deactive:<?% param.timers.$id.deactiveTimer.size %?> -->
+<!-- active:  <?% param.timers.${id}.activeTimer.size %?>   -->
+<!-- deactive:<?% param.timers.${id}.deactiveTimer.size %?> -->
 <?% END %?>
-                  <a href="?cmd=tlist&amp;data=<?% param.timers.$id.allTimer.join(',') %?>"
-                       onmouseover="ttptlist(this, '<?% gettext("Planned recordings") %?>','<?% param.timers.$id.allTimer.join(',') %?>', -350);"
+                  <a href="?cmd=tlist&amp;data=<?% param.timers.${id}.allTimer.join(',') %?>"
+                       onmouseover="ttptlist(this, '<?% gettext("Planned recordings") %?>','<?% param.timers.${id}.allTimer.join(',') %?>', -350);">
                     <img src="images/info.<?% global.imagetyp %?>" alt="" />
                  </a>
           <?% END %?>

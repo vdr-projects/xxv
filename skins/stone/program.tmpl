@@ -169,7 +169,16 @@
     <form action="">
         <select size="15" name="data" onchange="di('?cmd=program&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">
         <?% FOREACH ch = param.channels %?>
+          <?% IF ch.2 && ch.2 != optgroup %?>
+            <?% IF optgroup %?>
+            </optgroup>
+            <?% END %?>
+            <optgroup label="<?% optgroup = ch.2;ch.2 %?>">
+          <?% END %?>
             <option value="<?% ch.1 %?>"<?% ' selected="selected"' IF channelpos == ch.1 %?>><?% ch.0 %?></option>
+        <?% END %?>
+        <?% IF optgroup %?>
+          </optgroup>
         <?% END %?>
         </select>
     </form>

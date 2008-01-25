@@ -7,13 +7,13 @@
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
 		    <?% IF allow('tlist') %?>
-          <?% IF param.timers.$id.allTimer.size %?>
+          <?% IF param.timers.${id}.allTimer.size %?>
 <?% IF debug %?>
-<!-- active:  <?% param.timers.$id.activeTimer.size %?>   -->
-<!-- deactive:<?% param.timers.$id.deactiveTimer.size %?> -->
+<!-- active:  <?% param.timers.${id}.activeTimer.size %?>   -->
+<!-- deactive:<?% param.timers.${id}.deactiveTimer.size %?> -->
 <?% END %?>
-                <a href="?cmd=tlist&amp;data=<?% param.timers.$id.allTimer.join('_') %?>"
-                     onmouseover="ttptlist(this, '<?% gettext("Planned recordings") %?>','<?% param.timers.$id.allTimer.join('_') %?>', -200);"
+                <a href="?cmd=tlist&amp;data=<?% param.timers.${id}.allTimer.join('_') %?>"
+                     onmouseover="ttptlist(this, '<?% gettext("Planned recordings") %?>','<?% param.timers.${id}.allTimer.join('_') %?>', -200);">
                   <img src="images/info.<?% global.imagetyp %?>" alt="" />
                </a>
         <?% END %?>
@@ -66,6 +66,7 @@
 		  <?% IF allow('aedit') %?>
                   <a title="<?% gettext("Edit autotimer") %?>" href="javascript:popup('aedit','<?% id %?>',620,670,1)" class="fieldinline<?% IF state != "";" ";state;END %?>">
 		  <?% END %?>
+                  <?% IF channels.length > 0 || directory != "" %?>
                   <font class="description<?% IF state != "";" ";state;END %?>">
                   <?% IF channels.length > 0;
                       chlist = [ ];
@@ -81,6 +82,7 @@
                     <?% directory %?><br />
                   <?% END  %?>
                   </font>
+                  <?% END  %?>
                   <?% "</a>" IF allow('aedit') %?>
             </td>
           </tr>
