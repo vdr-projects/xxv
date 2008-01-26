@@ -539,9 +539,12 @@ SELECT SQL_CACHE
 from 
   USER
     |;
-    my $fields = fields($obj->{dbh}, $sql);
 
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
+    my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
     $console->table($erg);

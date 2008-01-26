@@ -164,7 +164,6 @@ sub list {
     my %f = (
         'id' => gettext('Service'),
         'title' => gettext('Title'),
-        'subtitle' => gettext('Subtitle'),
         'channel' => gettext('Channel'),
         'day' => gettext('Day'),
         'start' => gettext('Start'),
@@ -173,17 +172,26 @@ sub list {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-  CHRONICLE.id as \'$f{'id'}\',
-  CHRONICLE.title as \'$f{'title'}\',
-  CHRONICLE.channel_id as \'$f{'channel'}\',
-  DATE_FORMAT(CHRONICLE.starttime, '%d.%m.%Y') as \'$f{'day'}\',
-  DATE_FORMAT(CHRONICLE.starttime, '%H:%i') as \'$f{'start'}\',
-  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(CHRONICLE.starttime) + CHRONICLE.duration), '%H:%i') as \'$f{'stop'}\'
-FROM CHRONICLE
-ORDER BY CHRONICLE.starttime
+  id as \'$f{'id'}\',
+  title as \'$f{'title'}\',
+  (SELECT Name
+      FROM CHANNELS as c
+      WHERE channel_id = c.Id
+      LIMIT 1) as \'$f{'channel'}\',
+  UNIX_TIMESTAMP(starttime) as \'$f{'day'}\',
+  DATE_FORMAT(starttime, '%H:%i') as \'$f{'start'}\',
+  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration), '%H:%i') as \'$f{'stop'}\'
+FROM CHRONICLE WHERE id > 0
+ORDER BY starttime
 |;
-    my $fields = fields($self->{dbh}, $sql);
-    my $erg = $self->{dbh}->selectall_arrayref($sql);
+    my $sth = $self->{dbh}->prepare($sql);
+    $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
+    my $erg = $sth->fetchall_arrayref();
+    map {
+        $_->[3] = datum($_->[3],'weekday');
+    } @$erg;
     unshift(@$erg, $fields);
     $console->table($erg);
 
@@ -203,7 +211,6 @@ sub search {
     my %f = (
         'id' => gettext('Service'),
         'title' => gettext('Title'),
-        'subtitle' => gettext('Subtitle'),
         'channel' => gettext('Channel'),
         'day' => gettext('Day'),
         'start' => gettext('Start'),
@@ -212,20 +219,26 @@ sub search {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-  CHRONICLE.id as \'$f{'id'}\',
-  CHRONICLE.title as \'$f{'title'}\',
-  CHRONICLE.channel_id as \'$f{'channel'}\',
-  DATE_FORMAT(CHRONICLE.starttime, '%d.%m.%Y') as \'$f{'day'}\',
-  DATE_FORMAT(CHRONICLE.starttime, '%H:%i') as \'$f{'start'}\',
-  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(CHRONICLE.starttime) + CHRONICLE.duration), '%H:%i') as \'$f{'stop'}\'
+  id as \'$f{'id'}\',
+  title as \'$f{'title'}\',
+  (SELECT Name
+      FROM CHANNELS as c
+      WHERE channel_id = c.Id
+      LIMIT 1) as \'$f{'channel'}\',
+  UNIX_TIMESTAMP(starttime) as \'$f{'day'}\',
+  DATE_FORMAT(starttime, '%H:%i') as \'$f{'start'}\',
+  DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration), '%H:%i') as \'$f{'stop'}\'
 FROM CHRONICLE
 |;
-    $sql .= sprintf("WHERE %s ORDER BY CHRONICLE.starttime",$query->{query});
-    my $fields = fields($self->{dbh}, $sql);
+    $sql .= sprintf("WHERE %s ORDER BY starttime",$query->{query});
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@{$query->{term}})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
+    map {
+        $_->[3] = datum($_->[3],'weekday');
+    } @$erg;
     unshift(@$erg, $fields);
     $console->table($erg);
 

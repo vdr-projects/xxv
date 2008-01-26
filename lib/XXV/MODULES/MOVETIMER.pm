@@ -377,7 +377,7 @@ sub movetimeredit {
         'source' => {
             typ     => 'list',
             def     => $con ? $modC->ChannelToPos($rule->{source}) : $rule->{source},
-            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelIDArray('Name'),
+            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('Name,Id'),
             msg     => gettext('Which channel should used as source?'),
             req     => gettext("This is required!"),
             check   => sub{
@@ -399,7 +399,7 @@ sub movetimeredit {
         'destination' => {
             typ     => 'list',
             def     => $con ? $modC->ChannelToPos($rule->{destination}) : $rule->{destination},
-            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelIDArray('Name'),
+            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('Name,Id'),
             msg     => gettext('Which channel should used as destination?'),
             req     => gettext("This is required!"),
             check   => sub{
@@ -552,18 +552,27 @@ sub movetimerlist {
     my $sql = qq|
     select
       id as \'$f{'id'}\',
-      source as \'$f{'source'}\',
-      destination as \'$f{'destination'}\',
+      (SELECT Name
+          FROM CHANNELS as c
+          WHERE m.source = c.Id
+          LIMIT 1) as \'$f{'source'}\',
+      (SELECT Name
+          FROM CHANNELS as c
+          WHERE m.destination = c.Id
+          LIMIT 1) as \'$f{'destination'}\',
       move as \'$f{'move'}\',
       original as \'$f{'original'}\'
     from
-      MOVETIMER
+      MOVETIMER as m
     order by 
       id
     |;
 
-    my $fields = fields($self->{dbh}, $sql);
-    my $erg = $self->{dbh}->selectall_arrayref($sql);
+    my $sth = $self->{dbh}->prepare($sql);
+    $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
+    my $erg = $sth->fetchall_arrayref();
 
     my %m;
     my %d;
@@ -577,10 +586,7 @@ sub movetimerlist {
       $d{$drr->[0]} = $drr->[1];
     }
 
-    my $modC = main::getModule('CHANNELS');
     map { 
-      $_->[1] = $modC->ChannelToName($_->[1]);
-      $_->[2] = $modC->ChannelToName($_->[2]);
       $_->[3] = $m{$_->[3]};
       $_->[4] = $d{$_->[4]};
     } @$erg;

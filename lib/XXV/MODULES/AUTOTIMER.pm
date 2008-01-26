@@ -174,17 +174,26 @@ sub status {
     my $console = shift;
     my $lastReportTime = shift || 0;
 
+    my %f = (
+        'title' => gettext('Title'),
+        'day' => gettext('Day'),
+        'channel' => gettext('Channel'),
+        'start' => gettext('Start'),
+        'stop' => gettext('Stop'),
+        'priority' => gettext('Priority')
+    );
+
     my $sql = qq|
 SELECT SQL_CACHE 
     t.id as __id,
-    t.file,
+    t.file as \'$f{'title'}\',
     t.flags as __flags,
-    c.Name as Channel,
+    c.Name as \'$f{'channel'}\',
     c.Pos as __Pos,
-    DATE_FORMAT(t.day, '%e.%c.%Y') as Day,
-    t.start,
-    t.stop,
-    t.priority,
+    UNIX_TIMESTAMP(t.starttime) as \'$f{'day'}\',
+    t.start as \'$f{'start'}\',
+    t.stop as \'$f{'stop'}\',
+    t.priority as \'$f{'priority'}\',
     UNIX_TIMESTAMP(t.starttime) as __day,
     t.collision as __collision,
     t.eventid as __eventid,
@@ -199,17 +208,18 @@ WHERE
 ORDER BY
     t.starttime|;
 
-    my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($lastReportTime)
         or return error "Couldn't execute query: $sth->errstr.";
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     for(@$erg) {
+        $_->[5] = datum($_->[5],'weekday');
         $_->[6] = fmttime($_->[6]);
         $_->[7] = fmttime($_->[7]);
     }
-
     unshift(@$erg, $fields);
+
     return {
         message => sprintf(gettext('Autotimer has programmed %d new timer(s) since last report to %s'),
             (scalar @$erg - 1), scalar localtime($lastReportTime)),
@@ -493,7 +503,7 @@ sub _autotimerLookup {
             next if($obj->_timerexists($event));
 
             # Adjust timers set by the autotimer
-            my $timerID = $obj->_timerexistsfuzzy($event);
+            my $timerID = $obj->_timerexistsfuzzy($event,$a,$modT);
 
             if(scalar @done) {
 
@@ -1359,19 +1369,34 @@ sub _timerexistsfuzzy {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
+    my $a   = shift  || return error('No data defined!');
+    my $modT = shift || return error('No timer modul defined!');
+
+	  my $after = 0;
+	  my $prev = 0;
+    if(defined $a->{prevminutes}) {
+		  $prev = $a->{prevminutes} * 60;
+	  } else {
+		  $prev = $modT->{prevminutes} * 60;
+	  }
+	  if(defined $a->{afterminutes}) {
+		  $after = $a->{afterminutes} * 60;
+	  } else {
+		  $after = $modT->{afterminutes} * 60;
+	  }
 
     # Adjust timers set by the autotimer, if event changed +/- five minutes. 
     my $sql = "SELECT SQL_CACHE id from TIMERS where
                 channel = ?
-                and ? between (UNIX_TIMESTAMP(starttime) - 300) AND (UNIX_TIMESTAMP(starttime) + 300)
-                and ? between (UNIX_TIMESTAMP(stoptime)  - 300) AND (UNIX_TIMESTAMP(stoptime) + 300)
+                and ? between (UNIX_TIMESTAMP(starttime) - ?) AND (UNIX_TIMESTAMP(starttime) + ?)
+                and ? between (UNIX_TIMESTAMP(stoptime)  - ?) AND (UNIX_TIMESTAMP(stoptime) + ?)
                 and file = ?
                 and aux like ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{channel},
-                  $eventdata->{starttime},
-                  $eventdata->{stoptime},
+                  $eventdata->{starttime},$prev,$prev,
+                  $eventdata->{stoptime},$after,$after,
                   $eventdata->{file},
                   "%".$eventdata->{aux})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1391,7 +1416,7 @@ sub _recordexists {
     my $sql = "SELECT SQL_CACHE count(*) as cc
                 FROM RECORDS as r, OLDEPG as e
                 WHERE e.eventid = r.EventId
-                    AND CONCAT_WS('~',e.title,IF(e.subtitle<>'',e.subtitle,NULL)) = ?";
+                    AND CONCAT_WS('~',e.title,IF(e.subtitle<>'',e.subtitle,NULL)) SOUNDS LIKE ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{file})
@@ -1412,7 +1437,7 @@ sub _chronicleexists {
     return 0
       unless($modCH and $modCH->{active} eq 'y');
 
-    my $sql = "SELECT SQL_CACHE count(*) as cc from CHRONICLE where title = ?";
+    my $sql = "SELECT SQL_CACHE count(*) as cc from CHRONICLE where title SOUNDS LIKE ?";
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{file})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -1428,7 +1453,7 @@ sub _timerexiststitle {
     my $obj = shift  || return error('No object defined!');
     my $eventdata = shift  || return error('No data defined!');
 
-    my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where file = ?";
+    my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where file SOUNDS LIKE ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{file})

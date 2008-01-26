@@ -687,11 +687,10 @@ sub list {
         |;
     }
 
-    my $fields = fields($dbh, $sql);
-
     my $sth = $dbh->prepare($sql);
     $sth->execute(@{$term})
       or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 

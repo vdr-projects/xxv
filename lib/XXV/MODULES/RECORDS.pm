@@ -1392,9 +1392,10 @@ where
 |;
 
     my $erg;
-#   my $fields = fields($obj->{dbh}, $sql);
+#   my $fields;
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute($recordid)
+#     || !($fields = $sth->{'NAME'})
       || !($erg = $sth->fetchrow_hashref())) {
         con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
         return;
@@ -2130,10 +2131,11 @@ WHERE
 ORDER BY
     e.starttime asc
 |;
-    my $fields = fields($obj->{dbh}, $sql);
+
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($lastReportTime)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
     return {

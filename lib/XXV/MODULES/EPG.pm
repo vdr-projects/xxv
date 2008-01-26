@@ -676,10 +676,11 @@ sub search {
     order by
         starttime
         |;
-        my $fields = fields($obj->{dbh}, $sql);
+
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute(@{$search->{term}})
           or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+        my $fields = $sth->{'NAME'};
         $erg = $sth->fetchall_arrayref();
         map {
             $_->[7] = datum($_->[7],'weekday');
@@ -689,7 +690,7 @@ sub search {
     }
     my $modC = main::getModule('CHANNELS');
     $console->table($erg,  {
-                            channels => $modC->ChannelArray('Name'),
+                            channels => $modC->ChannelWithGroup('Name,Pos'),
     });
 }
 
@@ -757,10 +758,10 @@ where
 order by
     starttime
 |;
-    my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($cid)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     map {
         $_->[5] = datum($_->[5],'weekday');
@@ -840,10 +841,10 @@ where
     e.channel_id = c.Id
     and eventid = ?
 |;
-    $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventid)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    $fields = $sth->{'NAME'};
     $erg = $sth->fetchall_arrayref();
 
     last
@@ -949,10 +950,11 @@ WHERE
     AND c.GRP = ?
 ORDER BY
     c.POS|;
-    my $fields = fields($obj->{dbh}, $sql);
+
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($cgrp)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -1036,10 +1038,10 @@ WHERE
 ORDER BY
     c.POS|;
 
-    my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeit, $cgrp)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
 
@@ -1203,10 +1205,10 @@ ORDER BY
     c.POS,e.starttime
 |;
 
-    my $fields = fields($obj->{dbh}, $sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeitvon,$zeitbis,$zeitvon,$zeitbis,$zeitvon,$zeitbis,$cgrp)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
 
     my $data = {};

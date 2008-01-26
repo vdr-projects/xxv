@@ -482,6 +482,8 @@ sub saveTimer {
 
       event sprintf('Save timer "%s" with id: "%d"', $data->{file}, $pos || 0);
 
+      $obj->{changedTimer} = 1;
+
       return $erg;
   }
   return 0;
@@ -497,7 +499,7 @@ sub _saveTimer {
     $data->{flags} |= ($data->{vps} eq 'y' ? 4 : 0);
 
     $data->{file} =~ s/(\r|\n)//sg;
-    $data->{aux}  =~ s/(\r|\n)//sg;
+    $data->{aux}  =~ s/(\r|\n)//sg if(exists $data->{aux});
 
     my $file = $data->{file};
     $file =~ s/:/|/g;
@@ -838,6 +840,7 @@ sub editTimer {
                 ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
                 );
                 $console->message($erg);
+
           } else {
             error sprintf('%s timer with title "%s" does\'nt saved : %s',
                 ($timerid ? 'Changed' : 'New'),
@@ -846,6 +849,8 @@ sub editTimer {
                 );
                 $console->err($erg);
           }
+          $obj->{changedTimer} = 1;
+
           if($obj->_readData($watcher,$console)) {
             $console->redirect({url => '?cmd=tlist', wait => 1})
               if(!$error && $console->typ eq 'HTML');
@@ -1142,12 +1147,13 @@ sub _readData {
     $obj->getTimersByAutotimer($aids);
 
     # Get new timers by User
-    if($oldTimers) {
+    if($oldTimers or exists $obj->{changedTimer}) {
         my $timers = $obj->getNewTimers($oldTimers);
         foreach my $timerdata (@$timers) {
             event sprintf('New timer "%s" with id: "%d"', $timerdata->{file}, $timerdata->{pos});
         }
-        $obj->updated() if(scalar @$timers);
+        $obj->updated() if(scalar @$timers or exists $obj->{changedTimer});
+        delete $obj->{changedTimer}  if(exists $obj->{changedTimer});
     }
 
     $obj->{REGISTER}++;
@@ -1258,11 +1264,10 @@ ORDER BY
     t.starttime
 |;
 
-    my $fields = fields($obj->{dbh}, $sql);
-
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
       or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     map {
         $_->[4] = datum($_->[4],'weekday');
