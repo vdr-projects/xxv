@@ -21,7 +21,6 @@ sub AUTOLOAD {
     if($cmd eq 'setEventLevel') {
         $obj->StoreEventLevel($_[0],$_[1]);
         $_[2] += $obj->{TimeOffset} if(exists $obj->{TimeOffset});
-return;
     }
 
     if($obj->{SOAP} && $obj->{active} eq 'y') {
@@ -347,7 +346,7 @@ sub TopTen {
             LIMIT 1) as __running,
         e.video as __video,
         e.audio as __audio,
-        ROUND(s.rank,2) as \'$f{'rank'}\',
+        s.rank as \'$f{'rank'}\',
         s.level as __level,
         s.quantity as __quantity
     from
