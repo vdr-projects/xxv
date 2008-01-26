@@ -12,14 +12,14 @@
     <a href="?cmd=switch&amp;data=<?% url(data.4) %?>"><img src="images/switch.png" title="<?% gettext("Switch to channel") %?>&nbsp;<?% data.4 %?>" /></a><?% umbruch %?>
 <?% END %?>
 <?% INCLUDE 'bloecke/stars.tmpl' eventid=data.0 %?>
-<?% IF data.7;
-        vid = data.7.split(' ');
+<?% IF data.13;
+        vid = data.13.split(' ');
         video = (vid.3 == '16:9' ? '16_9Screen.png' : '4_3Screen.png');
         videotext = (vid.3 == '16:9' ? '16:9' : '4:3') %?>
     <img src="images/<?% video %?>" title="<?% gettext("Video format") %?> : <?% videotext %?>" /><?% umbruch %?>
 <?% END %?>
-<?% IF data.8;
-    aud = data.8.split("\n");
+<?% IF data.14;
+    aud = data.14.split("\n");
     audio = (aud.size > 2 ? 'Dolby' : 'Stereo') %?>
     <?% IF audio == 'Dolby' %?>
     <img src="images/dolby.png" title="<?% gettext("Audio format") %?> : <?% audio %?>" /><?% umbruch %?>

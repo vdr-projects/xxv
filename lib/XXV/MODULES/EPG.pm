@@ -665,7 +665,9 @@ sub search {
             NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
             FROM TIMERS as t
             WHERE t.eventid = e.eventid
-            LIMIT 1) as __running
+            LIMIT 1) as __running,
+        e.video as __video,
+        e.audio as __audio
     from
         EPG as e,
         CHANNELS as c

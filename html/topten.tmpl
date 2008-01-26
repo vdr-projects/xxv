@@ -7,25 +7,28 @@
 </SCRIPT>
 
 <!-- TableTemplate -->
-<?% USE date %?>
 <h1><?% gettext("Top Ten entrys") %?></h1>
 <h6><?% gettext("This Screen list the most programmed EPG Events from all XXV Users. Of course, we list only Events these are exists in your EPG Table!") %?></h6>
 <p/>
-<table>
-<tr>
 
 <table border="0" width="95%">
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = [gettext('Service'),gettext('Title'),gettext('Channel'),gettext('Start'),gettext('Rank')] %?>
+        <?% FOREACH field = fields %?>
+            <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
         <?% FOREACH zeile = data %?>
-            <?% c = 0 %?>
-        <tr class="<?% myclass %?>"<?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
-            <?% FOREACH field = [zeile.0,zeile.1,zeile.4,zeile.5,zeile.8] %?>
+        <?% c = 0 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;start=zeile.5;stop=zeile.6;day=zeile.7;description=zeile.8;
+            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            video=zeile.13;audio=zeile.14;rank=zeile.15 div 1;level=zeile.16;quantity=zeile.17;
+            %?>
+        <tr <?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
+            <?% FOREACH field = [id,title,channel,start,stop,day,rank] %?>
                 <?% c = c + 1 %?>
                 <?% IF c == 1; # Id Field %?>
                 <td>
@@ -33,35 +36,26 @@
                 </td>
                 <?% ELSIF c == 2; # Text Field %?>
                 <td>
-                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.3 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
-                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.activ %?>
+                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" desc=description eventid=id linkid=id ttp_offset=0 %?>
+                    <?% IF timerid && recording %?>
                     <b><?% field %?></b>
                     <?% ELSE %?>
                     <?% field %?>
                     <?% END %?>
-                    <?% IF zeile.2.length > 0  %?>
-                    <br><small><?% zeile.2 %?></small>
+                    <?% IF subtitle.length > 0  %?>
+                    <br><small><?% subtitle %?></small>
                     <?% END %?>
-                    <?% IF zeile.3.length > 0 %?>
-                    <br><small><em><?% chop(zeile.3,30) | replace('<br />',' ') %?></em></small>
+                    <?% IF description.length > 0 %?>
+                    <br><small><em><?% chop(description,30) | replace('<br />',' ') %?></em></small>
                     <?% END %?>
                     </a>
                 </td>
                 <?% ELSIF c == 3; # Channel Field %?>
-								<?% cf = reentities(field) %?>
                 <td>
-    						<a href='?cmd=program&data=<?% param.channels.$cf.POS %?>'><?% param.channels.$cf.Name %?></a>
-                </td>
-                <?% ELSIF c == 4; # Time Field %?>
-                <td>
-                  <?% date.format(field,"%x %X",locale) %?>
-                </td>
-                <?% ELSIF c == 5; # Rank Field %?>
-                <td>
-                <?% field | format('%d') %?>
+    						<a href='?cmd=program&data=<?% channel %?>'><?% sender %?></a>
                 </td>
                 <?% ELSE %?>
-                    <?% IF param.timers.${zeile.0} && param.timers.${zeile.0}.activ %?>
+                    <?% IF timerid && recording %?>
                             <td><b><?% field %?></b></td>
                     <?% ELSE %?>
                             <td><?% field %?></td>
@@ -69,7 +63,6 @@
                 <?% END %?>
             <?% END %?>
         </tr>
-        <?% oldday = day %?>
         <?% END %?>
 <?% END %?>
 </table>
