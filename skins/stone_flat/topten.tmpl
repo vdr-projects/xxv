@@ -1,5 +1,4 @@
 <!-- topten -->
-<?% USE date %?>
 <body class="frame">
 <div id="body">
 <?% ######################################################################## %?>
@@ -7,23 +6,35 @@
                         <a href="?cmd=search&amp;data=<?% url( title ) %?>">
                             <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
                         </a>
-                        <?% IF param.timers.${id} && allow('tedit') %?>
-                        <a href="javascript:popup('tedit','<?% param.timers.${id}.id %?>',620,670,1)">
+                        <?% IF timerid %?>
+                          <?% IF allow('tedit') %?>
+                        <a href="javascript:popup('tedit','<?% timerid %?>',620,670,1)">
                             <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
                         </a>
-                        <?% ELSIF allow('tnew') %?>
+                          <?% END %?>
+                          <?% IF allow('tdelete') %?>
+<!--
+                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this timer?") %?>','<?% escape(title) %?><?% IF subtitle != "";"~";escape(subtitle);END %?>','tdelete','<?% timerid %?>',620,670)">
+                            <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete timer") %?>" />
+                        </a>
+-->
+                          <?% END %?>
+                        <?% ELSE %?>
+                          <?% IF allow('tnew') %?>
                         <a href="javascript:popup('tnew','<?% id %?>',620,670,1)">
                             <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
                         </a>
+                          <?% END %?>
                         <?% END %?>
+
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK SetState %?>
     <?% state = '' %?>
-    <?% IF param.runningTimer.exists(id) %?>
+    <?% IF running %?>
         <?% state = "running" %?>
-    <?% ELSIF param.timers.exists(id) %?>
-      <?% UNLESS param.timers.${id}.activ %?>
+    <?% ELSIF timerid %?>
+      <?% UNLESS recording %?>
         <?% state = "deactive" %?>
       <?% ELSE %?>
         <?% state = "active" %?>
@@ -45,7 +56,7 @@
 				  </a>
             </td>
             <td class="fieldinline subtitle<?% IF state != "";" ";state;END %?>" style="white-space: nowrap">
-              <?% date.format(start,"%x %X",locale) %?>
+              <?% day %?>&nbsp;<?% start %?>-<?% stop %?>
             </td>
             <td class="fieldinline push">
                 <?% INCLUDE widgets/tooltip.inc cmd="display" eventid=id linkid=id ttp_offset=-300 %?>
@@ -69,10 +80,11 @@
 <h1><?% gettext("Top Ten entrys") %?></h1>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;description=zeile.3;channel_id=zeile.4;start=zeile.5;video=zeile.6;audio=zeile.7;rank=zeile.8;level=zeile.9;count=zeile.10 %?>
-        <?% chid_enc = reentities(channel_id) %?>
-        <?% channel = param.channels.$chid_enc.POS %?>
-        <?% sender = param.channels.$chid_enc.Name %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;start=zeile.5;stop=zeile.6;day=zeile.7;description=zeile.8;
+            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            rank=zeile.13;level=zeile.14;quantity=zeile.15;
+            %?>
         <?% IF !old.defined || 1 != old %?>
             <?% IF old.defined  %?>
             </table>
@@ -82,12 +94,12 @@
 </table> 
             <?% END %?>
 <table class="largetable" summary="">
-    <tr><td class="largehead"><?% day %?></td></tr>
+    <tr><td class="largehead"></td></tr>
         <tr>
             <td class="largetext" align="left">
             <table  summary="" width="100%">
             <?% z = 1 %?>
-            <tr height="0"><th width="120"></th><th></th><th width="60"></th><th width="40" align="right"></th></tr>
+            <tr height="0"><th width="120"></th><th></th><th width="100"></th><th width="40" align="right"></th></tr>
         <?% END %?>
         <?% PROCESS ItemAsFlat %?>
         <?% old = 1 %?>

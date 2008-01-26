@@ -1,28 +1,28 @@
 <!-- topten -->
-<?% USE date %?>
 <div id="body">
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
-                        <a href="?cmd=search&amp;data=<?% url( title ) %?>">
-                            <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
-                        </a>
-                        <?% IF param.timers.${id} && allow('tedit') %?>
-                        <a href="?cmd=tedit&amp;data=<?% param.timers.${id}.id %?>">
-                            <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
-                        </a>
-                        <?% ELSIF allow('tnew') %?>
-                        <a href="?cmd=tnew&amp;data=<?% id %?>">
-                            <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
-                        </a>
-                        <?% END %?>
+                <?% INCLUDE widgets/tooltip.inc cmd="display"  eventid=id linkid=id ttp_offset=-400 %?>
+                <a href="?cmd=search&amp;data=<?% url( title ) %?>">
+                    <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
+                </a>
+                <?% IF timerid && allow('tedit') %?>
+                <a href="?cmd=tedit&amp;data=<?% timerid %?>">
+                    <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
+                </a>
+                <?% ELSIF allow('tnew') %?>
+                <a href="?cmd=tnew&amp;data=<?% id %?>">
+                     <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
+                </a>
+                <?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK SetState %?>
     <?% state = '' %?>
-    <?% IF param.runningTimer.exists(id) %?>
+    <?% IF running %?>
         <?% state = "running" %?>
-    <?% ELSIF param.timers.exists(id) %?>
-      <?% UNLESS param.timers.${id}.activ %?>
+    <?% ELSIF timerid %?>
+      <?% UNLESS recording %?>
         <?% state = "deactive" %?>
       <?% ELSE %?>
         <?% state = "active" %?>
@@ -44,17 +44,20 @@
 				  </a>
             </td>
             <td class="subtitle<?% IF state != "";" ";state;END %?>" style="white-space: nowrap">
-              <?% date.format(start,"%x %X",locale) %?>
+              <?% day %?>
+            </td>
+            </td>
+            <td class="subtitle<?% IF state != "";" ";state;END %?>" style="white-space: nowrap">
+              <?% start %?>-<?% stop %?>
             </td>
             <td class="push">
-                <?% INCLUDE widgets/tooltip.inc cmd="display"  eventid=id linkid=id ttp_offset=-400 %?>
                 <?% PROCESS RowButtons %?>
             </td>
         </tr>
         <?% IF global.hideDescription != 1  && description.length > 0 %?>
         <tr<?% ' class="two"' IF z mod 2 == 0 %?>>
             <td>&nbsp;</td>
-            <td colspan="4">
+            <td colspan="5">
                   <a href="?cmd=display&amp;data=<?% id %?>">
                   <font class="description<?% IF state != "";" ";state;END %?>"><?% chop(description,100,1) %?></font>
 				  </a>
@@ -67,13 +70,14 @@
 <?% fields = data.shift %?>
 <h1><?% gettext("Top Ten entrys") %?></h1>
 <table  summary="" width="100%">
-  <tr height="0"><th width="120"></th><th></th><th width="60"></th><th width="40" align="right"></th></tr>
+  <tr height="0"><th width="120"></th><th></th><th width="100"></th><th width="40" align="right"></th></tr>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;description=zeile.3;channel_id=zeile.4;start=zeile.5;video=zeile.6;audio=zeile.7;rank=zeile.8;level=zeile.9;count=zeile.10 %?>
-        <?% chid_enc = reentities(channel_id) %?>
-        <?% channel = param.channels.$chid_enc.POS %?>
-        <?% sender = param.channels.$chid_enc.Name %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;start=zeile.5;stop=zeile.6;day=zeile.7;description=zeile.8;
+            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            video=zeile.13;audio=zeile.14;rank=zeile.15;level=zeile.16;quantity=zeile.17;
+            %?>
           <?% PROCESS ItemAsFlat %?>
         <?% END %?>
 </table> 

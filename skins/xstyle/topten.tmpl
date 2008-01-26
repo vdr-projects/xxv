@@ -11,8 +11,6 @@
 <h1><?% gettext("Top Ten entrys") %?></h1>
 <h6><?% gettext("This Screen list the most programmed EPG Events from all XXV Users. Of course, we list only Events these are exists in your EPG Table!") %?></h6>
 <p/>
-<table>
-<tr>
 
 <div id="navcontainer">
 <ul id="navlist">
@@ -26,16 +24,21 @@
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = [gettext('Service'),gettext('Title'),gettext('Channel'),gettext('Start'),gettext('Rank')] %?>
+        <?% FOREACH field = fields %?>
+            <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
         <?% FOREACH zeile = data %?>
-        <?% c=0;id=zeile.0;title=zeile.1;subtitle=zeile.2;description=zeile.3;channel_id=zeile.4;start=zeile.5;video=zeile.6;audio=zeile.7;rank=zeile.8;level=zeile.9;count=zeile.10 %?>
+        <?% c=0 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;start=zeile.5;stop=zeile.6;day = zeile.7;description=zeile.8;
+            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            video=zeile.13;audio=zeile.14;rank=zeile.15 div 1;level=zeile.16;quantity=zeile.17;
+            %?>
         <tr class="<?% myclass %?>"<?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
-        <?% INCLUDE 'bloecke/event_row.tmpl' fielddata=[id,title,subtitle,channel_id,description,date.format(start, "%x %X", locale),rank] %?>
+        <?% INCLUDE 'bloecke/event_row.tmpl' fielddata=[id,title,subtitle,channel,description,start,stop,day,rank] %?>
         </tr>
-        <?% oldday = day %?>
         <?% END %?>
 <?% END %?>
 </table>

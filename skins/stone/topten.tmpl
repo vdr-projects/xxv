@@ -1,5 +1,4 @@
 <!-- topten -->
-<?% USE date %?>
 <body class="frame">
 <div id="body">
 <?% ######################################################################## %?>
@@ -7,23 +6,34 @@
                         <a href="?cmd=search&amp;data=<?% url( title ) %?>">
                             <img src="images/find.<?% global.imagetyp %?>" alt="" title="<?% gettext("Search for repeats") %?>" />
                         </a>
-                        <?% IF param.timers.${id} && allow('tedit') %?>
-                        <a href="javascript:popup('tedit','<?% param.timers.${id}.id %?>',620,670,1)">
+                        <?% IF timerid %?>
+                          <?% IF allow('tedit') %?>
+                        <a href="javascript:popup('tedit','<?% timerid %?>',620,670,1)">
                             <img src="images/onoff.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit this timer") %?>" />
                         </a>
-                        <?% ELSIF allow('tnew') %?>
+                          <?% END %?>
+                          <?% IF allow('tdelete') %?>
+<!--
+                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this timer?") %?>','<?% escape(title) %?><?% IF subtitle != "";"~";escape(subtitle);END %?>','tdelete','<?% timerid %?>',620,670)">
+                            <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete timer") %?>" />
+                        </a>
+-->
+                          <?% END %?>
+                        <?% ELSE %?>
+                          <?% IF allow('tnew') %?>
                         <a href="javascript:popup('tnew','<?% id %?>',620,670,1)">
                             <img src="images/record.<?% global.imagetyp %?>" alt="" title="<?% gettext("To record") %?>" />
                         </a>
+                          <?% END %?>
                         <?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK SetState %?>
     <?% state = '' %?>
-    <?% IF param.runningTimer.exists(id) %?>
+    <?% IF running %?>
         <?% state = "running" %?>
-    <?% ELSIF param.timers.exists(id) %?>
-      <?% UNLESS param.timers.${id}.activ %?>
+    <?% ELSIF timerid %?>
+      <?% UNLESS recording %?>
         <?% state = "deactive" %?>
       <?% ELSE %?>
         <?% state = "active" %?>
@@ -63,8 +73,9 @@
             <td class="fieldtext<?% IF state != "";" ";state;END %?>">
               <table class="fieldinline" summary="">
                 <tr>
-                    <td class="fieldinline" style="white-space: nowrap">
-                       <?% date.format(start,"%x %H:%M",locale) %?>
+                    <td class="fieldinline">
+                       <?% day %?><br />
+                       <?% start %?>-<?% stop %?>
                     </td>
                     <td class="fieldinline push">
                         <?% INCLUDE widgets/tooltip.inc cmd="display" eventid=id linkid=id ttp_offset=-200 %?>
@@ -86,10 +97,11 @@
 <h1><?% gettext("Top Ten entrys") %?></h1>
     <?% FOREACH zeile = data %?>
         <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;description=zeile.3;channel_id=zeile.4;start=zeile.5;video=zeile.6;audio=zeile.7;rank=zeile.8;level=zeile.9;count=zeile.10 %?>
-        <?% chid_enc = reentities(channel_id) %?>
-        <?% channel = param.channels.$chid_enc.POS %?>
-        <?% sender = param.channels.$chid_enc.Name %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;start=zeile.5;stop=zeile.6;day = zeile.7;description=zeile.8;
+            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            video=zeile.13;audio=zeile.14;rank=zeile.15;level=zeile.16;quantity=zeile.17;
+            %?>
         <?% PROCESS ItemAsArea %?>
     <?% END %?>
 <?% END %?>
