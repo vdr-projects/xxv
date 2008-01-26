@@ -1,6 +1,6 @@
 <?php
 /**
-* @version $Id $
+* @version $Id$
 * @package Xtreme eXtension for VDR
 * @copyright Copyright (C) 2007 xxv team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
