@@ -208,10 +208,11 @@
     </form>
     <form action="">
         <p>
-            <select size="5" name='data' onchange="di('?cmd=sch&amp;__cgrp=<?% cgi.param('__cgrp') %?>&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">
+            <?% zeiten = param.periods.split(','); %?>
+            <select size="<?% zeiten.size + 3 %?>" name='data' onchange="di('?cmd=sch&amp;__cgrp=<?% cgi.param('__cgrp') %?>&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">
             <?% today = [] %?>
             <?% tomor = [] %?>
-        <?% FOREACH zeit = param.periods.split(','); %?>
+        <?% FOREACH zeit = zeiten %?>
             <?% tom = 0 %?>
             <?% PERL %?>
                 use Date::Manip;
@@ -230,8 +231,14 @@
                 today.push(z);
             END %?>
         <?% END %?>
+            <optgroup label="<?% date.format(today.0, "%A", locale) %?>">
         <?% FOREACH z = today %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
-        <?% FOREACH z = tomor %?><option value="<?% z %?>"><?% date.format(z, "%H:%M (%a), locale") %?></option><?% END %?> 
+            </optgroup>
+        <?% IF tomor.size > 0 %?>
+            <optgroup label="<?% date.format(tomor.0, "%A", locale) %?>">
+        <?% FOREACH z = tomor %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
+            </optgroup>
+        <?% END %?>
             </select>
 <?% IF allow('erestart') %?>
       <br />

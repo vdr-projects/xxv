@@ -144,9 +144,18 @@
             <?% gettext('Channel',30) %?><br />
             <select name='__channel'>
                 <option value="0"><?% gettext('All channels') %?></option>
-            <?% FOREACH chan = param.channels %?>
-                <option value="<?% chan.last %?>" <?% IF cgi.param('__channel') == chan.last %?>selected<?% END %?>><?% chan.first %?></option>
-            <?% END %?>
+                <?% FOREACH ch = param.channels %?>
+                  <?% IF ch.2 && ch.2 != channelgroup %?>
+                    <?% IF channelgroup %?>
+                    </optgroup>
+                    <?% END %?>
+                    <optgroup label="<?% channelgroup = ch.2;ch.2 %?>">
+                <?% END %?>
+                    <option value="<?% ch.1 %?>"<?% ' selected="selected"' IF cgi.param('__channel') == ch.1 %?>><?% ch.0 %?></option>
+                <?% END %?>
+                <?% IF channelgroup %?>
+                  </optgroup>
+                <?% END %?>
             </select>
             <br /><br />
             <input type='submit' value='<?% gettext('Search') %?>' />
