@@ -14,6 +14,8 @@
 // Set flag that this is a parent file
 define( '_VALID_MOS', 1 );
 
+ini_set("memory_limit", "16M") ; 
+
 // Pull in the NuSOAP code
 require_once('popularity/nusoap.php');
 
@@ -45,159 +47,159 @@ function opendatabase() {
 ////////////////////////////////////////////////////////////////////////////////
 // Register the method to expose
 $server->register('getUsrKey',                // method name
-    array('k'    => 'xsd:string'),            // user key
-    array('return' => 'xsd:string'),          // output parameters
-    'urn:t10',                                // namespace
-    'urn:t10#getUsrKey',                      // soapaction
-    'rpc',                                    // style
-    'encoded',                                // use
-    'A connection test for clients.'          // documentation
+  array('k'    => 'xsd:string'),            // user key
+  array('return' => 'xsd:string'),          // output parameters
+  'urn:t10',                                // namespace
+  'urn:t10#getUsrKey',                      // soapaction
+  'rpc',                                    // style
+  'encoded',                                // use
+  'A connection test for clients.'          // documentation
 );
 // A connection test for clients.
 function getUsrKey($k) {
-    $usrkey = $k;
-    return $usrkey;
+  $usrkey = $k;
+  return $usrkey;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register the method to expose
-$server->register('getServerTime',           // method name
-    array('k'    => 'xsd:string'),           // user key
-    array('return' => 'xsd:int'),            // output parameters
-    'urn:t10',                               // namespace
-    'urn:t10#getServerTime',                 // soapaction
-    'rpc',                                   // style
-    'encoded',                               // use
-    'Return the time from server.'           // documentation
+$server->register('getServerTime',         // method name
+  array('k'    => 'xsd:string'),           // user key
+  array('return' => 'xsd:int'),            // output parameters
+  'urn:t10',                               // namespace
+  'urn:t10#getServerTime',                 // soapaction
+  'rpc',                                   // style
+  'encoded',                               // use
+  'Return the time from server.'           // documentation
 );
 // Return the time from server
 function getServerTime($k) {
 
-    $database = opendatabase();
+  $database = opendatabase();
 
-    $query = "SELECT UNIX_TIMESTAMP(NOW())";
-		$database->setQuery( $query );
-		$servertime = $database->loadResult();
+  $query = "SELECT UNIX_TIMESTAMP(NOW())";
+	$database->setQuery( $query );
+	$servertime = $database->loadResult();
 
-    return $servertime;
+  return $servertime;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register the method to expose
-$server->register('getEventLevel',           // method name
-    array('k' => 'xsd:string',               // user key 
-          'e' => 'xsd:int'),                 // eventid
-    array('return' => 'xsd:float'),          // output parameters
-    'urn:t10',                               // namespace
-    'urn:t10#getEventLevel',                 // soapaction
-    'rpc',                                   // style
-    'encoded',                               // use
-    'Return the average level from event.'   // documentation
+$server->register('getEventLevel',         // method name
+  array('k' => 'xsd:string',               // user key 
+        'e' => 'xsd:int'),                 // eventid
+  array('return' => 'xsd:float'),          // output parameters
+  'urn:t10',                               // namespace
+  'urn:t10#getEventLevel',                 // soapaction
+  'rpc',                                   // style
+  'encoded',                               // use
+  'Return the average level from event.'   // documentation
 );
 // Return the average level from Event
 function getEventLevel($k,$e) {
 
-    $database = opendatabase();
+  $database = opendatabase();
 
-    $query = "SELECT AVG(level)"
-			. " FROM #__popularity"
-			. " WHERE id = " . $database->Quote( (int) $e ) 
-			;
-		$database->setQuery( $query );
-		$average = $database->loadResult();
+  $query = "SELECT AVG(level)"
+		. " FROM #__popularity"
+		. " WHERE id = " . $database->Quote( (int) $e ) 
+		;
+	$database->setQuery( $query );
+	$average = $database->loadResult();
 
-    return $average;
+  return $average;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register the method to expose
 $server->register('setEventLevel',           // method name
-    array('k' => 'xsd:string',               // user key
-          'e' => 'xsd:int',                  // eventid    
-          'l' => 'xsd:int',                  // level 
-          's' => 'xsd:int'),                 // stoptime
-    array('return' => 'xsd:int'),            // output parameters
-    'urn:t10',                               // namespace
-    'urn:t10#setEventLevel',                 // soapaction
-    'rpc',                                   // style
-    'encoded',                               // use
-    'Set a level to event.'                  // documentation
+  array('k' => 'xsd:string',               // user key
+        'e' => 'xsd:int',                  // eventid    
+        'l' => 'xsd:int',                  // level 
+        's' => 'xsd:int'),                 // stoptime
+  array('return' => 'xsd:int'),            // output parameters
+  'urn:t10',                               // namespace
+  'urn:t10#setEventLevel',                 // soapaction
+  'rpc',                                   // style
+  'encoded',                               // use
+  'Set a level to event.'                  // documentation
 );
 // Set a level to event.
 function setEventLevel($k,$e,$l,$s) {
 
-    if((int)$l <= 0) {
-      $l = 0;
-    } else {
-      if((int)$l >= 10) {
-        $l = 10;
-      }
+  if((int)$l <= 0) {
+    $l = 0;
+  } else {
+    if((int)$l >= 10) {
+      $l = 10;
     }
+  }
 
-    $database = opendatabase();
+  $database = opendatabase();
 
-		$query = "REPLACE INTO #__popularity"
-		. " (user, id, level, stoptime)"
-		. " VALUES ( " . $database->Quote( $k ) . ", "
-		                     . (int)$e . ", "
-		                     . (int)$l . ", "
-		. " FROM_UNIXTIME( " . (int)$s . " )"
-    . " )"
-		;
-		$database->setQuery( $query );
-    if (!$database->query()) {
-  	  die($database->stderr(true));
-      return 1;
-		}
+	$query = "REPLACE INTO #__popularity"
+	. " (user, id, level, stoptime)"
+	. " VALUES ( " . $database->Quote( $k ) . ", "
+	                     . (int)$e . ", "
+	                     . (int)$l . ", "
+	. " FROM_UNIXTIME( " . (int)$s . " )"
+  . " )"
+	;
+	$database->setQuery( $query );
+  if (!$database->query()) {
+	  die($database->stderr(true));
     return 1;
+	}
+  return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register the method to expose
-$server->register('deleteEvent',           // method name
-    array('k' => 'xsd:string',             // user key 
-          'e' => 'xsd:int'),               // eventid    
-    array('return' => 'xsd:int'),          // output parameters
-    'urn:t10',                             // namespace
-    'urn:t10#deleteEvent',                 // soapaction
-    'rpc',                                 // style
-    'encoded',                             // use
-    'Delete an event from database.'       // documentation
+$server->register('deleteEvent',         // method name
+  array('k' => 'xsd:string',             // user key 
+        'e' => 'xsd:int'),               // eventid    
+  array('return' => 'xsd:int'),          // output parameters
+  'urn:t10',                             // namespace
+  'urn:t10#deleteEvent',                 // soapaction
+  'rpc',                                 // style
+  'encoded',                             // use
+  'Delete an event from database.'       // documentation
 );
 // Delete an event from database.
 function deleteEvent($k,$e) {
 
-    $database = opendatabase();
+  $database = opendatabase();
 
-    $query = "DELETE"
-			. " FROM #__popularity"
-			. " WHERE id = " . $database->Quote( (int) $e )
-			. " AND user = " . $database->Quote( $k )
-			;
-		$database->setQuery( $query );
-    if (!$database->query()) {
-  	  die($database->stderr(true));
-      return 0;
-		}
+  $query = "DELETE"
+		. " FROM #__popularity"
+		. " WHERE id = " . $database->Quote( (int) $e )
+		. " AND user = " . $database->Quote( $k )
+		;
+	$database->setQuery( $query );
+  if (!$database->query()) {
+	  die($database->stderr(true));
+    return 0;
+	}
 
-    return 1;
+  return 1;
 }
 
 // Delete expired events from selected database.
 function expired($database) {
 
-    $query = "DELETE"
-			. " FROM #__popularity"
-			. " WHERE stoptime < NOW()"
-			;
-		$database->setQuery( $query );
-    if (!$database->query()) {
-  	  die($database->stderr(true));
-      return 0;
-		}
+  $query = "DELETE"
+	  . " FROM #__popularity"
+	  . " WHERE stoptime < NOW()"
+	  ;
+  $database->setQuery( $query );
+  if (!$database->query()) {
+    die($database->stderr(true));
+    return 0;
+  }
 
-    return 1;
+  return 1;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -222,28 +224,28 @@ function clear($k) {
 ////////////////////////////////////////////////////////////////////////////////
 
 $server->wsdl->addComplexType(
-    'v', //EventLevel
-    'complexType',
-    'struct',
-    'all',
-    '',
-    array(
-        'e' => array('name'=>'e','type'=>'xsd:int'),  // eventid
-        'l' => array('name'=>'l','type'=>'xsd:float') // level
-    )
+  'v', //EventLevel
+  'complexType',
+  'struct',
+  'all',
+  '',
+  array(
+    'e' => array('name'=>'e','type'=>'xsd:int'),  // eventid
+    'l' => array('name'=>'l','type'=>'xsd:float') // level
+  )
 );
 
 $server->wsdl->addComplexType(
-    'a', //EventLevelArray
-    'complexType',
-    'array',
-    '',
-    'SOAP-ENC:Array',
-    array(),
-    array(
-        array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'tns:v[]')
-    ),
-    'tns:v'
+  'a', //EventLevelArray
+  'complexType',
+  'array',
+  '',
+  'SOAP-ENC:Array',
+  array(),
+  array(
+    array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'tns:v[]')
+  ),
+  'tns:v'
 );
 
 // Register the method to expose
@@ -259,109 +261,106 @@ $server->register('getEventLevels',        // method name
 // Return the average Levels from Events.
 function getEventLevels($k) {
 
-    $database = opendatabase();
+  $database = opendatabase();
 
-    if(!expired($database)) {
-      return 0;
+  if(!expired($database)) {
+    return 0;
+  }
+
+  $result = array();
+  $query = "SELECT id, AVG(level) as level"
+  . " FROM #__popularity"
+  . " GROUP BY id"
+  ;
+  $database->setQuery( $query );
+  $rows = $database->loadObjectList();
+  if(!empty($rows)) {
+    foreach ($rows as $row) {
+      $result[] = array(
+      'e' => $row->id,
+      'l' => $row->level
+      );
     }
-
-    $query = "SELECT id, AVG(level) as level"
-			. " FROM #__popularity"
-			. " GROUP BY id"
-			;
-		$database->setQuery( $query );
-		$rows = $database->loadObjectList();
-  	if(empty($rows)) {
-				return 0;
-		}
-
-    $result = array();
-		foreach ($rows as $row) {
-        $result[] = array(
-                   'e' => $row->id,
-                   'l' => $row->level
-                   );
-		}
-    return $result;
+  }
+  return $result;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 $server->wsdl->addComplexType(
-    't', //topten
-    'complexType',
-    'struct',
-    'all',
-    '',
-    array(
-        'e' => array('name'=>'e','type'=>'xsd:int'),    // eventid
-        'l' => array('name'=>'l','type'=>'xsd:float'),  // level
-        'c' => array('name'=>'c','type'=>'xsd:int'),    // count
-        'r' => array('name'=>'r','type'=>'xsd:float')   // rank
-    )
+  't', //topten
+  'complexType',
+  'struct',
+  'all',
+  '',
+  array(
+    'e' => array('name'=>'e','type'=>'xsd:int'),    // eventid
+    'l' => array('name'=>'l','type'=>'xsd:float'),  // level
+    'c' => array('name'=>'c','type'=>'xsd:int'),    // count
+    'r' => array('name'=>'r','type'=>'xsd:float')   // rank
+  )
 );
 
 $server->wsdl->addComplexType(
-    'b',
-    'complexType',
-    'array',
-    '',
-    'SOAP-ENC:Array',
-    array(),
-    array(
-        array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'tns:t[]')
-    ),
-    'tns:t'
+  'b',
+  'complexType',
+  'array',
+  '',
+  'SOAP-ENC:Array',
+  array(),
+  array(
+    array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'tns:t[]')
+  ),
+  'tns:t'
 );
 
 // Register the method to expose
 $server->register('getTopTen',             // method name
-    array('k' => 'xsd:string',             // user key
-          'l' => 'xsd:int'),               // level
-    array('return' => 'tns:b'),            // output parameters
-    'urn:t10',                             // namespace
-    'urn:t10#getTopTen',                   // soapaction
-    'rpc',                                 // style
-    'encoded',                             // use
-    'Return the topten list.'              // documentation
+  array('k' => 'xsd:string',             // user key
+        'l' => 'xsd:int'),               // level
+  array('return' => 'tns:b'),            // output parameters
+  'urn:t10',                             // namespace
+  'urn:t10#getTopTen',                   // soapaction
+  'rpc',                                 // style
+  'encoded',                             // use
+  'Return the topten list.'              // documentation
 );
 // Return the topten list.
 function getTopTen($k,$l) {
 
-    $database = opendatabase();
+  $database = opendatabase();
 
-    if(!expired($database)) {
-      return 0;
+  if(!expired($database)) {
+    return 0;
+  }
+
+  if((int)$l <= 1) {
+    $l = 1;
+  }
+  if((int)$l >= 1000) {
+    $l = 1000;
+  }
+
+  $result = array();
+  $query = "SELECT id as i, AVG(level) as l, COUNT(*) as c, AVG(level)*COUNT(*) as r"
+  . " FROM #__popularity"
+  . " GROUP BY id ORDER by r DESC" 
+  ;
+
+  $database->setQuery( $query, 0 , (int) $l);
+  $rows = $database->loadObjectList();
+  if(!empty($rows)) {
+    foreach ($rows as $row) {
+    $result[] = array(
+      'e' => $row->i,
+      'l' => $row->l,
+      'c' => $row->c,
+      'r' => $row->r
+      );
     }
-
-    if((int)$l <= 1) {
-      $l = 1;
-    }
-    if((int)$l >= 1000) {
-      $l = 1000;
-    }
-
-    $query = "SELECT id, AVG(level) as l, COUNT(*) as c, AVG(level)*COUNT(*) as r"
-			. " FROM #__popularity"
-			. " GROUP BY id ORDER by r DESC LIMIT " . (int) $l
-			;
-		$database->setQuery( $query );
-		$rows = $database->loadObjectList();
-  	if(empty($rows)) {
-				return 0;
-		}
-
-    $result = array();
-		foreach ($rows as $row) {
-        $result[] = array(
-                   'e' => $row->id,
-                   'l' => $row->l,
-                   'c' => $row->c,
-                   'r' => $row->r
-                   );
-		}
-    return $result;
+  }
+  return $result;
 }
 
 
@@ -369,34 +368,34 @@ function getTopTen($k,$l) {
 // Register the method to expose
 /*
 $server->register('createtable',           // method name
-    array('k'    => 'xsd:string'),         // user key
-    array('return' => 'xsd:int'),          // output parameters
-    'urn:t10',                             // namespace
-    'urn:t10#createtable',                 // soapaction
-    'rpc',                                 // style
-    'encoded',                             // use
-    'create table into database.'          // documentation
+  array('k'    => 'xsd:string'),         // user key
+  array('return' => 'xsd:int'),          // output parameters
+  'urn:t10',                             // namespace
+  'urn:t10#createtable',                 // soapaction
+  'rpc',                                 // style
+  'encoded',                             // use
+  'create table into database.'          // documentation
 );
 // Delete an event from database.
 function createtable($k) {
 
-    $database = opendatabase();
+  $database = opendatabase();
 
-    $query = "CREATE TABLE IF NOT EXISTS #__popularity ("
-			. " user varchar(16) NOT NULL default '',"
-			. " id int unsigned NOT NULL default '0',"
-			. " level int default NULL,"
-			. " stoptime datetime NOT NULL,"
-			. " UNIQUE KEY `event` (`user`,`id`)"
-			. " )"
-    ;
-		$database->setQuery( $query );
-    if (!$database->query()) {
-  	  die($database->stderr(true));
-      return 0;
-		}
+  $query = "CREATE TABLE IF NOT EXISTS #__popularity ("
+		. " user varchar(16) NOT NULL default '',"
+		. " id int unsigned NOT NULL default '0',"
+		. " level int default NULL,"
+		. " stoptime datetime NOT NULL,"
+		. " UNIQUE KEY `event` (`user`,`id`)"
+		. " )"
+  ;
+	$database->setQuery( $query );
+  if (!$database->query()) {
+	  die($database->stderr(true));
+    return 0;
+	}
 
-    return 1;
+  return 1;
 }
 */
 ////////////////////////////////////////////////////////////////////////////////
