@@ -384,7 +384,7 @@ function createtable($k) {
   $query = "CREATE TABLE IF NOT EXISTS #__popularity ("
 		. " user varchar(16) NOT NULL default '',"
 		. " id int unsigned NOT NULL default '0',"
-		. " level int default NULL,"
+		. " level tinyint unsigned default NULL,"
 		. " stoptime datetime NOT NULL,"
 		. " UNIQUE KEY `event` (`user`,`id`)"
 		. " )"
