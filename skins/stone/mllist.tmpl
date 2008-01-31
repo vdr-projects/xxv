@@ -17,9 +17,7 @@
 <?% ######################################################################## %?>
 <?% BLOCK item %?>
 <?% IF value %?>
-  <a href="?cmd=mlsearch&__search&__selfields=<?% topic %?>&__searchitem=<?% value %?>">
-    <?% value %?>
-  </a>
+<a href="?cmd=mlsearch&amp;__search&amp;__selfields=<?% topic %?>&amp;__searchitem=<?% value %?>"><?% value %?></a>
 <?% END %?>
 <?% END %?>
 <?% ######################################################################## %?>
@@ -40,9 +38,9 @@
           <tr>
             <td class="fieldtext">
               <div class="media">
-                <a href="?cmd=mldisplay&amp;data=<?% id %?>" class="fieldinline">
-                  <img class="media" src='<?% IF param.usecache == "y" %?>?cmd=mlcache&__source=<?% END %?><?% imgurl %?>'>
-                  </a>
+                <a href="?cmd=mldisplay&amp;data=<?% id %?>">
+                  <img class="media" src='<?% IF param.usecache == "y" %?>?cmd=mlcache&amp;__source=<?% END %?><?% imgurl %?>' />
+                </a>
               </div>
             </td>
           </tr>
@@ -59,9 +57,9 @@
           <tr>
             <td class="fieldtext">
               <div class="recordingdescription">
-                <a href="?cmd=mldisplay&amp;data=<?% id %?>" class="fieldinline">
-                  <?% chop(description,35,3) %?>
-                 </a>
+                  <a href="?cmd=mldisplay&amp;data=<?% id %?>" class="fieldinline">
+                      <?% chop(description,35,3) %?>
+                  </a>
               </div>
             </td>
           </tr>

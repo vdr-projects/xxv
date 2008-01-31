@@ -76,7 +76,7 @@ margin:0;
 padding:0;
 }
 
-img.recording,img.recorddetails {
+img.recording,img.recorddetails,img.media {
 width:160px;
 }
 
@@ -100,15 +100,13 @@ img.cover {
 width:120px;
 }
 
-img.media {
-height:180px;
-}
-
 div.media {
-width:190px;
+width:200px;
+height:250px;
 vertical-align:middle;
 text-align:center;
 display:table-cell;
+overflow:hidden;
 }
 
 img.actor {
