@@ -1004,7 +1004,7 @@ sub deleteChannel {
         $self->readData($watcher,$console);
 
         $console->redirect({url => '?cmd=clist', wait => 1})
-            if(ref $console and $console->typ eq 'HTML');
+            if(ref $console and $console->typ eq 'HTML' and !$self->{svdrp}->err);
     } else {
         con_err($console, gettext("No channel defined for deletion!"));
     }

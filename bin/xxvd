@@ -40,7 +40,7 @@ use Locale::gettext;
 
 $|++;
 
-my $REV = &getRev() || (split(/ /, '$Revision$'))[1];
+my $REV = (split(/ /, '$Revision$'))[1];
 my $MODULES;
 my $VERSION = '1.1';
 my $VDRVERSION = 0;
@@ -276,7 +276,7 @@ sub init {
         my $moduleName = 'XXV::MODULES::'.(split('\.',(split('/', $module))[-1]))[0];
 
         # make an object for the module
-	    eval "use $moduleName";
+	      eval "use $moduleName";
         error $@ if $@;
         my $modul = $moduleName->new(
             -config => $Config,
@@ -284,12 +284,18 @@ sub init {
             -paths  => $PATHS,
         );
 
-        $MODULES->{$moduleName} = $modul if(ref $modul);
-        debug sprintf("Load modul %s(%s)",
+        if(ref $modul) {
+          $MODULES->{$moduleName} = $modul;
+          my $modRev = $modul->{MOD}->{Version};
+          debug sprintf("Load modul %s(%s)",
             $moduleName,
-            (ref $MODULES->{$moduleName})
-                ? $MODULES->{$moduleName}->{MOD}->{Version}
-                : 'failed');
+            $modRev);
+          $REV = $modRev
+            if($modRev > $REV);
+
+        } else {
+          panic sprintf("Load modul %s failed!",$moduleName);
+        }
 
     }
     &after();
@@ -430,18 +436,6 @@ sub getModule {
     }
 
     return $MODULES->{$modname};
-}
-
-# ------------------
-sub getRev {
-# ------------------
-    my $sourcedir = $PATHS->{HTMLDIR};
-    if(-d $sourcedir and -d $sourcedir.'/.svn' and `which svnversion` ne "") {
-        my $rev = `svnversion -n $sourcedir`;
-        return $rev;
-    } else {
-        return 0;
-    }
 }
 
 # ------------------

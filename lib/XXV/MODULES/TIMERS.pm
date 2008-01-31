@@ -1471,15 +1471,6 @@ where
 }
 
 # ------------------
-sub getEvents {
-# ------------------
-    my $obj = shift || return error('No object defined!');
-    my $sql = "SELECT SQL_CACHE id, flags & 1 as activ, eventid from TIMERS where eventid > 0";
-    my $erg = $obj->{dbh}->selectall_hashref($sql, 'eventid');
-    return $erg;
-}
-
-# ------------------
 sub getEpgDesc {
 # ------------------
     my $obj = shift || return error('No object defined!');

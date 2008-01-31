@@ -1,3 +1,183 @@
+1.. - Feature release
+--------------------------------------------------------------------------------
+
+Database:
+* Database: Change method of version control, use comment from table, instead table 'VERSION'
+* contrib/upgrade-xxv-db.sql dump always database before update executed
+* Improve SQL-Queries
+  Merge twice SQL to single query (CHANNELS/EPG/TIMERS/RECORDS)
+  Query name from channels with single SQL-Query - MOVETIMER/CHRONICLE: mtl/chrl/chrs
+  Remove double query to select fields from SQL Query
+* Handle field names from table now with special character, remove prior workaround
+* Bug #12986, upgrade failed if remote mysql server used
+
+AUTOTIMER:
+* Speed up background scan, compare now only changed und added epg-events
+* add startdate/stopdate to limit search for time ranges
+* Fuzzy compare between matching event and exists timers, recordings, chronicle. see mysql/soundex
+* alist: move time formating from template to perl code
+* Allow search without topic, e.g. any event inside time range
+* Hide 'use pdc/vps' if TIMER::use pdc disabled
+* Show lookup at waiter, after epg update
+* Create only one timer if single event requested
+* Allow simple wildcard search with single *  (replace regex '.*')
+* Bug #12960 - AUTOTIMER with VPS/PDC ignore user settings
+* Bug #12611 - Don't redirect on query result page
+* Bug #12623 - Avoid lost table TEMPEPG if database connection interrupted
+* Bug #12960 - dont create timer with pdc, if TIMER::use pdc disabled
+* Detect exists timer with changed starttime inside pretime and aftertime from timers
+* Don't create timer with same data
+* Don't sort fields of result output
+* Double create timer if starttime less then 60 seconds changed
+* Show matched title 
+* Show pdc/vps-time if use on dumped table
+* Status report now with translated field headers
+* aedit: choices with group of channels
+* alist: show matched timer as tooltip
+
+CHANNELS: 
+* Don't redirect if deletion of channel failed
+
+CHRONICLE:
+* Request #3911 : chrs: Enhance search with logical operators
+* Bug #12605 : Search with paragraphs
+
+CONFIG:
+* Warn if real modul name missed
+
+EPG:
+* search: program timer from selected events by joined list
+* rename VPS to PDC, Programme Delivery Control
+* now/next/schema: show weekday as group
+* program/search: choices with group of channels
+* display: use channelid for web cast
+* small improve reading data
+* search: Allow simple wildcard search with single *
+* search: redesign avoid SQL-Injection
+* Move time formating from template to perl code
+
+EVENT:
+* Dump date with local format
+
+GRAB:
+* Load image direct from svdrp to memory, and send it direct to socket.
+* Support multi line overlay
+* Simply variable names of overlay
+* Check range of parameter width/height
+
+HTTPD/Skins:
+* Block recursive file access
+* Fix typo at binary access
+* Optimize code
+* Remove binary from url as parameter, now defined at cmdobj, inside modul header
+* Show 'Internal Server Error' if requested modul is'nt loaded
+* Add Player with selectable widget (vlc/default media)
+* Ajax: Add support for JSON version 2.0
+* Ajax: Ignore now unknown formats
+* drop widget url
+* html/xstyle: some times missing footer
+* html/xstyle: Dont use referer for redirect, after display result.
+* html: remove double html encoded field header
+* xstyle: Fix searchbox+cancel => call command <undef> 
+* stone/stone_flat/deltab: Add more images (mute,loud,quiet)
+* stone/stone_flat/deltab: add skin.cfg / global.preferedlocal as default button for Switch inside VDR or web cast
+* stone/stone_flat/deltab: remove skin.cfg / global.playbackmode
+* stone/stone_flat/deltab: format images to common size
+* stone/stone_flat/deltab: marks was'nt visable
+* stone/stone_flat/deltab: redirect: close frame automated after 3 seconds
+* stone/stone_flat/deltab: rdisplay failed on short recordings (Illegal division by zero)
+
+MOVETIMER:
+* New modul: MOVETIMER - This modul move timers between channels.
+* Add redirect if move timer updated
+* movetimeredit: Show channels groups 
+
+MEDIALIB:
+* stone/snow/.. Add image if no actor image present
+* stone/snow/.. Align image at middle
+* html/xstyle use common style for navcontainer
+
+MUSIC:
+* Cover lookup, more strict
+* check object methods
+* remove proxy from playlist building, use proxy only to playing files
+* Warn if socket blocked
+* mlist: don't force cover update
+
+NEWS:
+* Select category name inseed integer value
+* Dump channel on messages about epg-events
+* Reformated output on edited timers
+* RSS: Show category on message
+* RSS: send with utc time from message
+
+RECORDS:
+* Use Linux::Inotify2, to detect new recordings
+* Add command to recover deleted recordings
+* Use MD5 for mapping preview images
+* Start playback with startup time
+* Optimize scan directory
+* Rename to RECORDS::interval to RECORDS::reading in minutes, 
+  use as backup secondary update interval, if inotify failed.
+* Bug #13014 : vfat-Recordings with '/' can't assign
+* a little optimize at analyze function
+* Update preview images if duration or addtime changed
+  Create images later, if recording just started
+  Don't use 2nd try to generate preview images
+* Option 'undefined channel' was'nt showed
+* Redirect encode url
+* reorder info.vdr routines
+* write title and subtitle into info.vdr after editing
+* Show message after editing recording
+* Update if marks.vdr changed
+* redit: choices with group of channels
+* rdelete: redirect to parent folder, instead root folder
+* rdisplay: add input field for start time
+* rdisplay: hide setstart if time on legend bigger then duration
+* rlist/rdisplay: Fix isn't numeric in sprintf at Filters.pm
+* rcut/rplay: redirect to rdisplay
+* rupdate: remove double redirect
+
+SHARE:
+* Rewrite - holding data now into database
+* set useragent optionally
+* Bug #13022 : Fix typo 
+
+STATUS: 
+* Fix some filter warning (is'nt numeric)
+
+STREAM:
+* Add HTTPD Streaming for recording, with starttime
+* Add embed player of playback (selectable widget)
+
+TIMERS:
+* Use MD5 to reference timer
+* tnew with fast=1 create timer from event, without prompt
+* tedit: choices with group of channels
+* Parse date with locale format
+* Search lookup also into description 
+* drop workaround getOldDeactivTimer - 'Search for old and deactivated Timers and delete this'
+* Bug #12971 : html/xstyle: javascript to toggle timer failed
+* On VPS assign event based vpsstarttime
+* use date format from VDR 1.4, %Y-%m-%d
+* Move time formating from template to perl code
+
+VTX:
+* Embedded vtx-font inside modul, drop graphics from VTXPATH
+
+Common fixes:
+* Lot's of typo and update translations
+* Change language, change now any locale settings
+* Warn now if requested modul is'nt loaded
+* Drop support for older then vdr 1.3.44
+* cleanup etc/xxvd.cfg.example, skin.cfg
+* tools: add con_err,con_msg to dump message on console and log file
+* tools: refactoring date function, add date format with weekday
+* tools: fix multiline messages
+
+
+
+
 1.0.1 - Maintenance release
 --------------------------------------------------------------------------------
 

@@ -19,12 +19,12 @@
                 <?% sel = '' %?>
                 <?% dis = '' %?>
                 <?% FOREACH valch = values %?>
-					          <?% IF (valch == l.1 || valch == l.0) %?>
+					          <?% IF valch == l.1 %?>
                     <?% sel = ' selected="selected"';LAST %?>
                     <?% END %?>
                 <?% END %?>
                 <?% FOREACH valch = data.disabled %?>
-					          <?% IF (valch == l.1 || valch == l.0) %?>
+					          <?% IF valch == l.1 %?>
                     <?% dis = ' disabled="disabled"';LAST %?>
                     <?% END %?>
                 <?% END %?>
