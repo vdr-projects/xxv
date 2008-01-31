@@ -87,7 +87,7 @@ width:185px;
 height:120px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 img.epgimages {
@@ -110,7 +110,7 @@ div.media {
 width:190px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 img.actor {
@@ -121,7 +121,7 @@ div.actor {
 width:190px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 
@@ -352,8 +352,7 @@ height:20px;
 color:#000;
 font-size:11px;
 font-weight:700;
-padding-left:2px;
-padding-right:2px;
+padding:0 2px 0 2px;
 }
 
 div.fieldtext {
@@ -368,8 +367,7 @@ vertical-align:top;
 background:url(images/darkfield.gif) repeat-y;
 color:#000;
 font-size:11px;
-padding-left:3px;
-padding-right:3px;
+padding:0 3px 0 3px;
 }
 
 td.fieldbottom {
@@ -405,8 +403,7 @@ height:20px;
 color:#000;
 font-size:12px;
 font-weight:700;
-padding-left:4px;
-padding-right:4px;
+padding:0 4px 0 4px;
 overflow:hidden;
 white-space:nowrap;
 }
@@ -426,7 +423,7 @@ height:1px;
 }
 
 #sidebar ul {
- list-style: none;
+ list-style:none;
  clear:both;
  margin:0;
  padding:0;
@@ -437,11 +434,10 @@ height:1px;
 }
 
 #sidebar li.label {
-  width:100px;
-  padding-left:5px;
-  padding-right:5px;
-  overflow:hidden;
-  white-space:nowrap;
+width:100px;
+padding:0 5px 0 5px;
+overflow:hidden;
+white-space:nowrap;
 }
 
 table.areatable {
@@ -464,8 +460,7 @@ height:20px;
 color:#000;
 font-size:12px;
 font-weight:700;
-padding-left:4px;
-padding-right:4px;
+padding:0 4px 0 4px;
 }
 
 td.areatext {
@@ -503,8 +498,7 @@ height:20px;
 color:#000;
 font-size:12px;
 font-weight:700;
-padding-left:4px;
-padding-right:4px;
+padding:0 4px 0 4px;
 }
 
 td.editortext {
@@ -534,8 +528,7 @@ height:20px;
 color:#000;
 font-size:12px;
 font-weight:700;
-padding-left:4px;
-padding-right:4px;
+padding:0 4px 0 4px;
 }
 
 td.largetext {
@@ -686,20 +679,20 @@ border-spacing:3px;
 }
 
 .suggestlink {
-padding: 2px 6px 2px 6px;
+padding:2px 6px 2px 6px;
 }
 
 .suggestover {
-background-color: #d2d2d2;
-padding: 2px 6px 2px 6px;
+background-color:#d2d2d2;
+padding:2px 6px 2px 6px;
 }
 
 .suggestbox {
 width:135px;
 visibility:hidden;
-position: absolute; 
-text-align: left; 
-background-color: #e2e2e2;
+position:absolute; 
+text-align:left; 
+background-color:#e2e2e2;
 border:1px solid #CCC;
 }
 
@@ -714,7 +707,7 @@ margin:5px;
 width:50px;
 height:100%;
 position:absolute;
-left:0px;
+left:0;
 z-index:10;
 padding:1px;
 background:url(images/blank.gif) repeat;
@@ -725,7 +718,7 @@ text-align:left;
 width:50px;
 height:100%;
 position:absolute;
-right:0px;
+right:0;
 z-index:10;
 padding:1px;		
 background:url(images/blank.gif) repeat;

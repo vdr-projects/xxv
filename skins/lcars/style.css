@@ -93,7 +93,7 @@ width:215px;
 height:120px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 img.epgimages {
@@ -116,7 +116,7 @@ div.media {
 width:190px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 img.actor {
@@ -127,7 +127,7 @@ div.actor {
 width:190px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 a img {
@@ -429,8 +429,7 @@ height:30px;
 color:#000;
 font-size:12px;
 font-weight:700;
-padding-left:2px;
-padding-right:20px;
+padding:0 20px 0 2px;
 font-variant:small-caps;
 text-align:right;
 overflow:hidden;
@@ -453,10 +452,10 @@ height:4px;
 }
 
 #sidebar ul {
- list-style: none;
- clear:both;
- margin:0;
- padding:0;
+list-style:none;
+clear:both;
+margin:0;
+padding:0;
 }
 
 #sidebar li {
@@ -464,11 +463,10 @@ height:4px;
 }
 
 #sidebar li.label {
-  width:110px;
-  padding-left:5px;
-  padding-right:5px;
-  overflow:hidden;
-  white-space:nowrap;
+width:110px;
+padding:0 5px 0 5px;
+overflow:hidden;
+white-space:nowrap;
 }
 
 table.areatable {
@@ -712,21 +710,21 @@ z-index:10;
 }
 
 .suggestlink {
-padding: 2px 6px 2px 6px;
+padding:2px 6px 2px 6px;
 }
 
 .suggestover {
-background-color: #eee6c1;
-padding: 2px 6px 2px 6px;
+background-color:#eee6c1;
+padding:2px 6px 2px 6px;
 }
 
 .suggestbox {
 z-index:1;
 width:150px;
 visibility:hidden;
-position: absolute; 
-text-align: left; 
-background-color: #ffd068;
+position:absolute; 
+text-align:left; 
+background-color:#ffd068;
 border:1px solid #c5a154;
 }
 
@@ -741,7 +739,7 @@ margin:5px;
 width:50px;
 height:100%;
 position:absolute;
-left:0px;
+left:0;
 z-index:10;
 padding:1px;
 background:url(images/blank.gif) repeat;
@@ -752,7 +750,7 @@ text-align:left;
 width:50px;
 height:100%;
 position:absolute;
-right:0px;
+right:0;
 z-index:10;
 padding:1px;		
 background:url(images/blank.gif) repeat;

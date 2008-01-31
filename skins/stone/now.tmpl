@@ -198,9 +198,11 @@
                 today.push(z);
             END %?>
         <?% END %?>
+        <?% IF today.size > 0 %?>
             <optgroup label="<?% date.format(today.0, "%A", locale) %?>">
         <?% FOREACH z = today %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
             </optgroup>
+        <?% END %?>
         <?% IF tomor.size > 0 %?>
             <optgroup label="<?% date.format(tomor.0, "%A", locale) %?>">
         <?% FOREACH z = tomor %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 

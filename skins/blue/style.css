@@ -85,7 +85,7 @@ width:190px;
 height:120px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 img.epgimages {
@@ -108,7 +108,7 @@ div.media {
 width:190px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 img.actor {
@@ -119,7 +119,7 @@ div.actor {
 width:190px;
 vertical-align:middle;
 text-align:center;
-display: table-cell;
+display:table-cell;
 }
 
 a img {
@@ -209,12 +209,12 @@ width:180px;
 }
 
 html>body #header {
-position: fixed;
+position:fixed;
 }
 
 
 html>body #sidebar {
-position: fixed;
+position:fixed;
 }
 
 #sidebar input {
@@ -350,8 +350,7 @@ height:22px;
 color:#FFF;
 font-size:12px;
 font-weight:700;
-padding-left:6px;
-padding-right:12px;
+padding:0 12px 0 6px;
 }
 
 div.fieldtext {
@@ -394,8 +393,7 @@ height:22px;
 color:#FFF;
 font-size:13px;
 font-weight:700;
-padding-left:4px;
-padding-right:10px;
+padding:0 10px 0 4px;
 overflow:hidden;
 white-space:nowrap;
 }
@@ -415,22 +413,21 @@ height:15px;
 }
 
 #sidebar ul {
- list-style: none;
- clear:both;
- margin:0;
- padding:0;
+list-style:none;
+clear:both;
+margin:0;
+padding:0;
 }
 
 #sidebar li {
- float:left;
+float:left;
 }
 
 #sidebar li.label {
-  width:120px;
-  padding-left:5px;
-  padding-right:5px;
-  overflow:hidden;
-  white-space:nowrap;
+width:120px;
+padding:0 5px 0 5px;
+overflow:hidden;
+white-space:nowrap;
 }
 
 table.areatable {
@@ -453,8 +450,7 @@ height:22px;
 color:#FFF;
 font-size:13px;
 font-weight:700;
-padding-left:4px;
-padding-right:12px;
+padding:0 12px 0 4px;
 }
 
 td.areatext {
@@ -490,8 +486,7 @@ height:22px;
 color:#FFF;
 font-size:12px;
 font-weight:700;
-padding-left:4px;
-padding-right:12px;
+padding:0 12px 0 4px;
 }
 
 td.editortext {
@@ -519,8 +514,7 @@ height:22px;
 color:#FFF;
 font-size:13px;
 font-weight:700;
-padding-left:4px;
-padding-right:12px;
+padding:0 12px 0 4px;
 }
 
 td.largetext {
@@ -666,21 +660,21 @@ z-index:10;
 }
 
 .suggestlink {
-padding: 2px 6px 2px 6px;
+padding:2px 6px 2px 6px;
 }
 
 .suggestover {
-background-color: #002c57;
-padding: 2px 6px 2px 6px;
+background-color:#002c57;
+padding:2px 6px 2px 6px;
 }
 
 .suggestbox {
 width:155px;
 visibility:hidden;
-position: absolute; 
-text-align: left; 
-background-color: #004774;
-border: 1px solid #FFF;			
+position:absolute; 
+text-align:left; 
+background-color:#004774;
+border:1px solid #FFF;			
 }		
 
 #slideframe{
@@ -694,7 +688,7 @@ margin:5px;
 width:50px;
 height:100%;
 position:absolute;
-left:0px;
+left:0;
 z-index:10;
 padding:1px;
 background:url(images/blank.gif) repeat;
@@ -705,7 +699,7 @@ text-align:left;
 width:50px;
 height:100%;
 position:absolute;
-right:0px;
+right:0;
 z-index:10;
 padding:1px;		
 background:url(images/blank.gif) repeat;
