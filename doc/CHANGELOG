@@ -14,7 +14,7 @@ Database:
 AUTOTIMER:
 * Speed up background scan, compare now only changed und added epg-events
 * add startdate/stopdate to limit search for time ranges
-* Fuzzy compare between matching event and exists timers, recordings, chronicle. see mysql/soundex
+* More fuzzy compare between matching event and exists timers, recordings, chronicle.
 * alist: move time formating from template to perl code
 * Allow search without topic, e.g. any event inside time range
 * Hide 'use pdc/vps' if TIMER::use pdc disabled

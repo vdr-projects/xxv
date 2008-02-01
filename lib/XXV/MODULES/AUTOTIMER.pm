@@ -506,20 +506,22 @@ sub _autotimerLookup {
             my $timerID = $obj->_timerexistsfuzzy($event,$a,$modT);
 
             if(scalar @done) {
+                my $title = lc($event->{file});
+                $title =~ s/[\-\ ]//g;
 
                 # Ignore timer if it already with same title recorded
-                if(grep(/^chronicle$/, @done) && $obj->_chronicleexists($event)) {
+                if(grep(/^chronicle$/, @done) && $obj->_chronicleexists($title)) {
                   lg sprintf("Don't create timer from AT(%d) '%s', because found same data on chronicle", $id, $event->{file});
                   next;
                 }
 
                 # Ignore timer if it already with same title recorded
-                if(grep(/^recording$/, @done) && $obj->_recordexists($event)){
+                if(grep(/^recording$/, @done) && $obj->_recordexists($title)){
                   lg sprintf("Don't create timer from AT(%d) '%s', because found same data on recordings", $id, $event->{file});
                   next;
                 }
                 # Ignore timer if it already a timer with same title programmed, on other place
-                if(grep(/^timer$/, @done) && $obj->_timerexiststitle($event)){
+                if(grep(/^timer$/, @done) && $obj->_timerexiststitle($title)){
                   lg sprintf("Don't create timer from AT(%d) '%s', because found same data on other timers", $id, $event->{file});
                   next;
                 }
@@ -1410,16 +1412,16 @@ sub _timerexistsfuzzy {
 sub _recordexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error('No data defined!');
+    my $title = shift  || return error('No title defined!');
 
     # Ignore timer if it already with same title recorded
     my $sql = "SELECT SQL_CACHE count(*) as cc
                 FROM RECORDS as r, OLDEPG as e
                 WHERE e.eventid = r.EventId
-                    AND CONCAT_WS('~',e.title,IF(e.subtitle<>'',e.subtitle,NULL)) SOUNDS LIKE ?";
+                    AND LOWER(REPLACE(REPLACE(CONCAT_WS('~',e.title,IF(e.subtitle<>'',e.subtitle,NULL)),'-',''),' ','')) = ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{file})
+    $sth->execute($title)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
@@ -1431,15 +1433,15 @@ sub _recordexists {
 sub _chronicleexists {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error('No data defined!');
+    my $title = shift  || return error('No title defined!');
 
     my $modCH  = main::getModule('CHRONICLE');
     return 0
       unless($modCH and $modCH->{active} eq 'y');
 
-    my $sql = "SELECT SQL_CACHE count(*) as cc from CHRONICLE where title SOUNDS LIKE ?";
+    my $sql = "SELECT SQL_CACHE count(*) as cc from CHRONICLE where LOWER(REPLACE(REPLACE(title,'-',''),' ','')) = ?";
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{file})
+    $sth->execute($title)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
@@ -1451,12 +1453,12 @@ sub _chronicleexists {
 sub _timerexiststitle {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $eventdata = shift  || return error('No data defined!');
+    my $title = shift  || return error('No title defined!');
 
-    my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where file SOUNDS LIKE ?";
+    my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where LOWER(REPLACE(REPLACE(file,'-',''),' ','')) = ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{file})
+    $sth->execute($title)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     return $erg->{cc} 
