@@ -136,8 +136,8 @@ sub printout {
     my $content;
     if($self->{browser}->{Method} ne 'HEAD') {
       if( $self->{outtype} eq 'json' ) {
-        if($self->{json}->can('to_json')) { # Version 2.0 see http://search.cpan.org/~makamaka/JSON-2.04/lib/JSON.pm#Transition_ways_from_1.xx_to_2.xx.
-          $content = $self->{json}->to_json($self->{output});
+        if($self->{json}->can('encode')) { # Version 2.0 see http://search.cpan.org/~makamaka/JSON-2.04/lib/JSON.pm#Transition_ways_from_1.xx_to_2.xx.
+          $content = $self->{json}->encode($self->{output});
         } else { # Version 1.0
           $content = $self->{json}->objToJson($self->{output});
         }

@@ -55,8 +55,8 @@ updateversion:
 DBTABLES = $(shell cat ./contrib/update-xxv | grep tables= | cut -d '=' -f 2 | sed -e s/\'//g;)
 updatesql:
 	@echo Please type the DB-Password for root:
-	@mysqldump --skip-opt -u root -p -n -d --compatible=mysql40,no_table_options xxv $(DBTABLES) -r $(TMPDIR)/$(ARCHIVE)/contrib/upgrade-xxv-db.sql
-	@sed -e "s/CREATE TABLE/CREATE TABLE IF NOT EXISTS/g" $(TMPDIR)/$(ARCHIVE)/contrib/upgrade-xxv-db.sql > ./contrib/upgrade-xxv-db.sql
+	@mysqldump --add-drop-table=FALSE --set-charset=FALSE -u root -p -n -d xxv $(DBTABLES) -r $(TMPDIR)/$(ARCHIVE)/contrib/upgrade-xxv-db.sql
+	@sed -e "s/CREATE TABLE/CREATE TABLE IF NOT EXISTS/g" -e "s/\ ENGINE=MyISAM.*;/;/g" $(TMPDIR)/$(ARCHIVE)/contrib/upgrade-xxv-db.sql > ./contrib/upgrade-xxv-db.sql
 
 setpermission:
 	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;
