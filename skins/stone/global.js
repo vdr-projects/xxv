@@ -27,7 +27,7 @@ function popupwindow(url,width,height,reloadonclose){
 
         document.getElementById("hilfsframe").style.width=width+"px";
         document.getElementById("hilfsframe").style.height=height+"px";
-        document.getElementById("hilfsframe").style.left="150px";
+        document.getElementById("hilfsframe").style.left="160px";
         document.getElementById("hilfsframe").style.top=scrPos[1]+30+"px";
         document.getElementById("cframe").src=url;
         document.getElementById("hilfsframe").style.display = "";
