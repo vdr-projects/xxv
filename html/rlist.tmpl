@@ -1,14 +1,9 @@
 <body class="frame">
-<?% USE date %?>
 <?% enableform = allow('rdelete') %?>
 <?% IF cgi.param('cmd')=='rl' || cgi.param('cmd')=='rlist' %?>
     <?% browse = cgi.param('data') %?>
 <?% END %?>
 <div id="body">
-<?% BLOCK time %?>
-<?% date.format(t,"%x %H:%M",locale) %?>
-<?% END %?>
-
 <?% BLOCK dur # d in Sekunden %?>
 <?% IF d > 1 %?>
     <?% Stunden = d div 3600 %?>
@@ -99,7 +94,7 @@
     <?% IF enableform %?>
                     <input type="checkbox" value="<?% id %?>" name="<?% fulltitle %?>" />
     <?% END %?>
-                    <?% PROCESS time t=start %?><br />
+                    <?% start %?><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?% gettext("Duration") %?>: <?% PROCESS dur d=duration %?>
             </td>
           </tr>
@@ -165,8 +160,8 @@
             <?% field %?>
             <?% IF param.sortable %?>
                 <?% IF c == 0 %?>
-                  <a href="?cmd=<?% cmd %?><?% daten %?>&__sortby=__RecordStart&__desc=0"><img src="images/asc.png"></a>
-                  <a href="?cmd=<?% cmd %?><?% daten %?>&__sortby=__RecordStart&__desc=1"><img src="images/desc.png"></a>
+                  <a href="?cmd=<?% cmd %?><?% daten %?>&__sortby=starttime&__desc=0"><img src="images/asc.png"></a>
+                  <a href="?cmd=<?% cmd %?><?% daten %?>&__sortby=starttime&__desc=1"><img src="images/desc.png"></a>
                 <?% ELSE %?>
                   <a href="?cmd=<?% cmd %?><?% daten %?>&__sortby=<?% field %?>&__desc=0"><img src="images/asc.png"></a>
                   <a href="?cmd=<?% cmd %?><?% daten %?>&__sortby=<?% field %?>&__desc=1"><img src="images/desc.png"></a>
@@ -182,7 +177,7 @@
 	    <?% total = total + duration %?>
         <tr>
             <?% IF folder > 1 %?>
-            <td colspan="4">
+            <td colspan="5">
                   <a href="?cmd=rlist&amp;data=<?% url( fulltitle ) %?>">
                   <?% IF new %?>
                   <img src="images/newfolder.png" alt="" title="<?% gettext("New recording") %?>" />
@@ -205,7 +200,7 @@
     <?% IF enableform %?>
                     <input type="checkbox" value="<?% id %?>" name="<?% fulltitle %?>" />
     <?% END %?>
-                    <?% PROCESS time t=start %?>
+                    <?% start %?>
                 <?% ELSIF c == 4 %?>
                     <?% PROCESS dur d=field %?>
                 <?% ELSIF c == 2 # title %?>
@@ -224,7 +219,7 @@
         </tr>
         <?% END %?>
 	    <tr>
-            <td colspan="4">
+            <td colspan="5">
 				<?% PROCESS printsumme width=0 %?>
             </td>
         </tr>
@@ -237,11 +232,10 @@
 <a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/desc.png"></a>&nbsp;
 <?% END %?>
         <?% gettext('Sorting') %?> :
-        <?% PROCESS SortItem row="RecordId" label=gettext('Index') %?>
-        <?% PROCESS SortItem row="title" label=gettext('Title') %?>
-        <?% PROCESS SortItem row="subtitle" label=gettext('Subtitle') %?>
-        <?% PROCESS SortItem row="__RecordStart" label=gettext('Start') %?>
-        <?% PROCESS SortItem row="duration" label=gettext('Duration') %?>
+        <?% FOREACH row = fields %?>
+        <?% NEXT IF row.match('^__') %?>
+          <?% PROCESS SortItem label=row %?>
+        <?% END %?>
 <?% END %?>
       <div>
         <?% FOREACH zeile = data %?>

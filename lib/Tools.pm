@@ -49,26 +49,29 @@ use constant WEEKDAYS => qw/Sun Mon Tue Wed Thu Fri Sat/;
 sub datum {
 # ------------------
     my $zeit = shift  || time;
-    my $typ  = shift  || 'voll';
+    my $typ  = lc(shift)  || 'voll';
 
-    if(lc($typ) eq 'voll') {
+    if($typ eq 'voll') {
         # full date depends locale e.g. 24.12.2007 12:00:00 or 12/24/2007 ...
         return strftime("%x %X", localtime($zeit)); 
-    } elsif(lc($typ) eq 'tag') {
+    } elsif($typ eq 'short') {
+        # short date depends locale e.g. 24.12.2007 12:00 or 12/24/2007 ...
+        return strftime("%x %H:%M", localtime($zeit)); 
+    } elsif($typ eq 'tag') {
         # day depends locale e.g. 24.12.2007 or 12/24/2007
         return strftime("%x", localtime($zeit));   
-    } elsif(lc($typ) eq 'weekday') {
+    } elsif($typ eq 'weekday') {
         # day depends locale e.g. Fryday ,24.12.2007
         return strftime("%A, %x", localtime($zeit));   
-    } elsif (lc($typ) eq 'int') {
+    } elsif ($typ eq 'int') {
         # 1901-01-01T00:00+00:00
         return strftime("%Y-%m-%dT%H:%M:%S%z", localtime($zeit));
-    } elsif (lc($typ) eq 'rss') {
+    } elsif ($typ eq 'rss') {
         # 23 Aug 1999 07:00:00 GMT
         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($zeit);
         return sprintf('%02d %s %04d %02d:%02d:%02d GMT',
             $mday, (MONTHS)[$mon], $year+1900, $hour, $min, $sec );
-    } elsif (lc($typ) eq 'header') {
+    } elsif ($typ eq 'header') {
         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($zeit);
         return sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
             (WEEKDAYS)[$wday],$mday,(MONTHS)[$mon],$year + 1900,$hour,$min,$sec);

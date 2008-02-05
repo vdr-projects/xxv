@@ -4,7 +4,7 @@
 # $Id$
 
 XXV = xxv
-VERSION = 1.1
+VERSION = 1.2
 
 ### The name of the distribution archive:
 
@@ -15,7 +15,7 @@ TMPDIR = /tmp
 ### The subdirectories:
 
 ### Targets:
-INCLUDE = bin contrib doc etc html share lib locale wml README INSTALL Makefile install.sh
+INCLUDE = bin contrib doc etc html share lib locale wml README INSTALL Makefile install.sh install-debian.sh
 EXCLUDE = "*~" "*.bak" "*.org" "*.diff" "xxvd.pid" "$(XXV)-*.tgz"
 
 

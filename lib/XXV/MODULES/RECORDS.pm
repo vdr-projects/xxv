@@ -1498,6 +1498,7 @@ sub list {
 
     my $deep = 1;
     my $folder = scalar (my @a = split('/',$obj->{videodir})) + 1;
+    my $term;
 
     my $where = "e.eventid = r.eventid";
     if($text) {
@@ -1509,32 +1510,31 @@ sub list {
         $text =~ s/%/\\%/sg;
         $where .= qq|
 AND (
-      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE '$text'
+      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE ?
       OR
-      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE '$text~%'
+      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE ?
 )
 |;
-
+      push(@{$term},$text);
+      push(@{$term},$text . '~%');
     }
 
     my %f = (
-        'Id' => gettext('Service'),
+        'RecordMD5' => gettext('Index'),
         'Title' => gettext('Title'),
         'Subtitle' => gettext('Subtitle'),
-        'Duration' => gettext('Duration')
+        'Duration' => gettext('Duration'),
+        'starttime' => gettext('Start time')
     );
-
-    my $start = "e.starttime";
-    $start = "UNIX_TIMESTAMP(e.starttime)" if($console->typ eq "HTML");
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as \'$f{'Id'}\',
+    r.RecordMD5 as \'$f{'RecordMD5'}\',
     r.eventid as __EventId,
     e.title as \'$f{'Title'}\',
     e.subtitle as \'$f{'Subtitle'}\',
     SUM(e.duration) as \'$f{'Duration'}\',
-    $start as __RecordStart,
+    UNIX_TIMESTAMP(e.starttime) as \'$f{'starttime'}\',
     SUM(State) as __New,
     r.Type as __Type,
     COUNT(*) as __Group,
@@ -1548,23 +1548,32 @@ WHERE
     $where 
 GROUP BY
     SUBSTRING_INDEX(r.Path, '/', IF(Length(e.subtitle)<=0, $folder + 1, $folder))
+ORDER BY __IsRecording asc, 
 |;
 
-    my $fields = fields($obj->{dbh}, $sql);
 
-    my $sortby = "__fulltitle";
-    $sortby = '__RecordStart'
-        if($text);
+    my $sortby = $text ? "starttime" : "__fulltitle";
+    if(exists $params->{sortby}) {
+      while(my($k, $v) = each(%f)) {
+        if($params->{sortby} eq $k or $params->{sortby} eq $v) {
+          $sortby = $k;
+          last;
+        }
+      }
+    }
+    $sql .= $sortby;
+    $sql .= " desc"
+        if(exists $params->{desc} && $params->{desc} == 1);
 
-    $sortby = $params->{sortby}
-        if(exists $params->{sortby} && grep(/^$params->{sortby}$/i,@{$fields}));
-    $sql .= "order by __IsRecording asc, $sortby";
-    if(exists $params->{desc} && $params->{desc} == 1) {
-        $sql .= " desc"; }
-    else {
-        $sql .= " asc"; }
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute(@{$term})
+      or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $fields = $sth->{'NAME'};
+    my $erg = $sth->fetchall_arrayref();
+    map {
+        $_->[5] = datum($_->[5],'short');
+    } @$erg;
     unshift(@$erg, $fields);
 
     my $param = {
@@ -1593,23 +1602,21 @@ sub search {
     my $term = $query->{term};
 
     my %f = (
-        'Id' => gettext('Service'),
+        'RecordMD5' => gettext('Index'),
         'Title' => gettext('Title'),
         'Subtitle' => gettext('Subtitle'),
-        'Duration' => gettext('Duration')
+        'Duration' => gettext('Duration'),
+        'starttime' => gettext('Start time')
     );
-
-    my $start = "e.starttime";
-    $start = "UNIX_TIMESTAMP(e.starttime)" if($console->typ eq "HTML");
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as \'$f{'Id'}\',
+    r.RecordMD5 as \'$f{'RecordMD5'}\',
     r.eventid as __EventId,
     e.title as \'$f{'Title'}\',
     e.subtitle as \'$f{'Subtitle'}\',
     e.duration as \'$f{'Duration'}\',
-    $start as __RecordStart ,
+    UNIX_TIMESTAMP(e.starttime) as \'$f{'starttime'}\',
     r.State as __New,
     r.Type as __Type,
     0 as __Group,
@@ -1622,23 +1629,32 @@ FROM
 WHERE
     e.eventid = r.eventid
 	AND ( $search )
+ORDER BY 
 |;
 
-    my $fields = fields($obj->{dbh}, $sql);
+    my $sortby = "starttime";
+    if(exists $params->{sortby}) {
+      while(my($k, $v) = each(%f)) {
+        if($params->{sortby} eq $k or $params->{sortby} eq $v) {
+          $sortby = $k;
+          last;
+        }
+      }
+    }
+    $sql .= $sortby;
+    $sql .= " desc"
+        if(exists $params->{desc} && $params->{desc} == 1);
 
-    my $sortby = "e.starttime";
-    $sortby = $params->{sortby}
-        if(exists $params->{sortby} && grep(/^$params->{sortby}$/i,@{$fields}));
-    $sql .= "order by $sortby";
-    if(exists $params->{desc} && $params->{desc} == 1) {
-        $sql .= " desc"; }
-    else {
-        $sql .= " asc"; }
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
       or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
+    map {
+        $_->[5] = datum($_->[5],'short');
+    } @$erg;
     unshift(@$erg, $fields);
 
     my $param = {
@@ -2116,7 +2132,7 @@ sub status {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordId as __Id,
+    r.RecordMD5 as __Id,
     r.eventid as __EventId,
     e.title,
     e.subtitle,

@@ -1159,10 +1159,10 @@ sub list {
         'Activ' => gettext('Activ'),
         'Search' => gettext('Search'),
         'Channels' => gettext('Channels'),
-        'Start' => gettext('Start'),
-        'Stop' => gettext('Stop'),
+        'Start' => gettext('Start time'),
+        'Stop' => gettext('Stop time'),
         'Dir' => gettext('Directory'),
-        'Min' => gettext('Minimum length'),
+        'MinLength' => gettext('Minimum length'),
     );
 
     my $sql = qq|
@@ -1174,26 +1174,31 @@ sub list {
       Dir as \'$f{'Dir'}\',
       Start as \'$f{'Start'}\',
       Stop as \'$f{'Stop'}\',
-      MinLength as \'$f{'Min'}\'
+      MinLength as \'$f{'MinLength'}\'
     FROM
       AUTOTIMER
     $search
+    ORDER BY
     |;
 
-    my $fields = fields($obj->{dbh}, $sql);
-
-    my $sortby = gettext("Search");
-    $sortby = $params->{sortby}
-        if(exists $params->{sortby} && grep(/^$params->{sortby}$/i,@{$fields}));
-    $sql .= " order by $sortby";
-    if(exists $params->{desc} && $params->{desc} == 1) {
-        $sql .= " desc"; }
-    else {
-        $sql .= " asc"; }
+    my $sortby = "Search";
+    if(exists $params->{sortby}) {
+      while(my($k, $v) = each(%f)) {
+        if($params->{sortby} eq $k or $params->{sortby} eq $v) {
+          $sortby = $k;
+          last;
+        }
+      }
+    }
+    $sql .= $sortby;
+    $sql .= " desc"
+        if(exists $params->{desc} && $params->{desc} == 1);
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
       or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     map {
         $_->[5] = fmttime($_->[5]);

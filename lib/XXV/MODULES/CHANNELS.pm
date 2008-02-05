@@ -434,32 +434,70 @@ sub list {
     my $id      = shift || '';
     my $params = shift;
 
+    my %f = (
+        'Id' => gettext('Service'),
+        'Name' => gettext('Name'),
+        'Frequency' => gettext('Transponder frequency'),
+        'Parameters' => gettext('Parameters'),
+        'Source' => gettext('Signal source'),
+        'Srate' => gettext('Symbol rate'),
+        'VPID' => gettext('Video PID'),
+        'APID' => gettext('Audio PID'),
+        'TPID' => gettext('Teletext PID'),
+        'CA' => gettext('Conditional access'),
+        'SID' => gettext('SID'),
+        'NID' => gettext('NID'),
+        'RID' => gettext('RID'),
+        'GRP' => gettext('Channel group'),
+        'POS' => gettext('Position'),
+    );
+
     my $sql = qq|
 SELECT SQL_CACHE 
-    c.*, cg.Name as __GrpName
+    c.Id as \'$f{'Id'}\',
+    c.Name as \'$f{'Name'}\',
+    c.Frequency as \'$f{'Frequency'}\',
+    c.Parameters as \'$f{'Parameters'}\',
+    c.Source as \'$f{'Source'}\',
+    c.Srate as \'$f{'Srate'}\',
+    c.VPID as \'$f{'VPID'}\',
+    c.APID as \'$f{'APID'}\',
+    c.TPID as \'$f{'TPID'}\',
+    c.CA as \'$f{'CA'}\',
+    c.SID as \'$f{'SID'}\',
+    c.NID as \'$f{'NID'}\',
+    c.TID as \'$f{'TID'}\',
+    c.RID as \'$f{'RID'}\',
+    c.GRP as \'$f{'GRP'}\',
+    c.POS as \'$f{'POS'}\',
+    cg.Name as __GrpName
 from
     CHANNELS as c,
     CHANNELGROUPS as cg
-where
-    c.Name like ?
-    and
-    c.GRP = cg.Id
+WHERE
+    c.Name LIKE ?
+    AND c.GRP = cg.Id
+ORDER BY
 |;
 
-    my $fields = fields($obj->{dbh}, $sql);
-
     my $sortby = "POS";
-    $sortby = $params->{sortby}
-        if(exists $params->{sortby} && grep(/^$params->{sortby}$/i,@{$fields}));
-    $sql .= "order by $sortby";
+    if(exists $params->{sortby}) {
+      while(my($k, $v) = each(%f)) {
+        if($params->{sortby} eq $k or $params->{sortby} eq $v) {
+          $sortby = $k;
+          last;
+        }
+      }
+    }
+    $sql .= $sortby;
     $sql .= " desc"
         if(exists $params->{desc} && $params->{desc} == 1);
-
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute('%'.$id.'%')
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
+    my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unshift(@$erg, $fields);
     $console->table($erg,{sortable => 1 });
