@@ -139,10 +139,10 @@
             <td style="padding:0px;" width="20"><a href="?cmd=<?% cmd %?><?% datas %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></td>
         </tr>
 <?% END %?>
-        <?% PROCESS SortItem row="Id" label=gettext('Index',20) %?>
-        <?% PROCESS SortItem row="Search" label=gettext('Search',20) %?>
-        <?% PROCESS SortItem row="Channels" label=gettext('Channels',20) %?>
-        <?% PROCESS SortItem row="Dir" label=gettext('Group all recordings into one directory',20) %?>
+    <?% FOREACH row = fields %?>
+      <?% NEXT IF row.match('^__') %?>
+        <?% PROCESS SortItem label=chop(row,20) %?>
+      <?% END %?>
       </table>
 <?% END %?>
   <p class="section"><?% gettext("Search text",20) %?></p>

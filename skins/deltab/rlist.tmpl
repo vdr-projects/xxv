@@ -1,6 +1,5 @@
 <!-- rlist -->
 <div id="body">
-<?% USE date %?>
 <?% ######################################################################## %?>
 <?% enableform = allow('rdelete') && data.size > 1  %?>
 <?% IF cgi.param('cmd')=='rl' || cgi.param('cmd')=='rlist' %?>
@@ -14,10 +13,6 @@
         <?% orderby = cgi.param('__desc') %?>
         <?% orderby = "${sortby}&amp;__desc=${orderby}" %?>
     <?% END %?>
-<?% END %?>
-<?% ######################################################################## %?>
-<?% BLOCK time %?>
-<?% date.format(t,"%x",locale) %?>&nbsp;<?% date.format(t,"%H:%M",locale) %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK durMin # d in Minuten%?>
@@ -73,11 +68,6 @@
             mylist = [ "images/audio", global.imagetyp ];
             preview = mylist.join('.') ;
          ELSIF files.size > 0;
-#
-#           USE date;
-#           img = date.format(date.now, '%S') mod files.size;
-#           preview = files.$img;
-# 
             img = (files.size div 2);
             preview = files.$img;
          END;
@@ -157,7 +147,7 @@
         </td>
         <td>
             <a href="?cmd=rdisplay&amp;data=<?% id %?>" title="<?% title %?>">
-            <?% PROCESS time t=start%?>&nbsp;<?% PROCESS dur d=duration %?>
+            <?% start%?>&nbsp;<?% PROCESS dur d=duration %?>
             </a>
         </td>
         <td>
@@ -268,11 +258,10 @@
             <td style="padding:0px;" width="20"><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></td>
         </tr>
 <?% END %?>
-        <?% PROCESS SortItem row=fields.0 label=gettext('Index',20) %?>
-        <?% PROCESS SortItem row=fields.2 label=gettext('Title',20) %?>
-        <?% PROCESS SortItem row=fields.3 label=gettext('Subtitle',20) %?>
-        <?% PROCESS SortItem row=fields.5 label=gettext('Start',20) %?>
-        <?% PROCESS SortItem row=fields.4 label=gettext('Duration',20) %?>
+      <?% FOREACH row = fields %?>
+      <?% NEXT IF row.match('^__') %?>
+        <?% PROCESS SortItem label=chop(row,20) %?>
+      <?% END %?>
       </table>
 <?% END %?>
 <?% IF enableform %?>

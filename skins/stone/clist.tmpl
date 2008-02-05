@@ -197,16 +197,10 @@
             <li><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></li>
         </ul>
 <?% END %?>
-        <?% PROCESS SortItem row="POS" label=gettext('Position',20) %?>
-        <?% PROCESS SortItem row="Name" label=gettext('Name',20) %?>
-        <?% PROCESS SortItem row="Frequency" label=gettext('Transponder frequency',20) %?>
-        <?% PROCESS SortItem row="Parameters" label=gettext('Various parameters, depending on signal source',20) %?>
-        <?% PROCESS SortItem row="Source" label=gettext('Signal source',20) %?>
-        <!--<?% PROCESS SortItem row="Srate" label=gettext('Symbol rate',20) %?>-->
-        <?% PROCESS SortItem row="VPID" label=gettext('Video PID (VPID)',20) %?>
-        <?% PROCESS SortItem row="APID" label=gettext('Audio PID (APID)',20) %?>
-        <?% PROCESS SortItem row="TPID" label=gettext('Teletext PID (TPID)',20) %?>
-        <?% PROCESS SortItem row="CA" label=gettext('Conditional access (CA)',20) %?>
+    <?% FOREACH row = fields %?>
+      <?% NEXT IF row.match('^__') %?>
+        <?% PROCESS SortItem label=chop(row,20) %?>
+      <?% END %?>
     </td>
     </tr>
     <tr>

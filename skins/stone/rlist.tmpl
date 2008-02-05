@@ -1,6 +1,5 @@
 <!-- rlist -->
 <body class="frame">
-<?% USE date %?>
 <?% ######################################################################## %?>
 <div id="body">
 <?% ######################################################################## %?>
@@ -16,10 +15,6 @@
         <?% orderby = cgi.param('__desc') %?>
         <?% orderby = "${sortby}&amp;__desc=${orderby}" %?>
     <?% END %?>
-<?% END %?>
-<?% ######################################################################## %?>
-<?% BLOCK time %?>
-<?% date.format(t,"%x %H:%M",locale) %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK dur # d in Sekunden %?>
@@ -181,7 +176,7 @@
     	             <?% END %?>
                     <td class="push" style="vertical-align:middle; text-align:left;" >
                         <a href="javascript:popup('rdisplay','<?% id %?>',620,670,0)" class="fieldinline">
-                        <font class="description"><?% PROCESS time t=start %?><br /><?% PROCESS dur d=duration %?></font>
+                        <font class="description"><?% start %?><br /><?% PROCESS dur d=duration %?></font>
                         </a>
                     </td>
                     <td class="push">
@@ -308,11 +303,10 @@
             <li><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></li>
         </ul>
 <?% END %?>
-        <?% PROCESS SortItem row=fields.0 label=gettext('Index',20) %?>
-        <?% PROCESS SortItem row=fields.2 label=gettext('Title',20) %?>
-        <?% PROCESS SortItem row=fields.3 label=gettext('Subtitle',20) %?>
-        <?% PROCESS SortItem row=fields.5 label=gettext('Start',20) %?>
-        <?% PROCESS SortItem row=fields.4 label=gettext('Duration',20) %?>
+      <?% FOREACH row = fields %?>
+      <?% NEXT IF row.match('^__') %?>
+        <?% PROCESS SortItem label=chop(row,20) %?>
+      <?% END %?>
     </td>
     </tr>
     <tr>
