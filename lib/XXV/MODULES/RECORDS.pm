@@ -2214,35 +2214,20 @@ sub getGroupIds {
     my $obj = shift || return error('No object defined!');
     my $recid = shift || return error ('No recording defined!');
     
-    my $epgid = getDataById($recid, 'RECORDS', 'RecordMD5');
-    if(!$epgid) {
+    my $data = $obj->IdToData($recid);
+    unless($data) {
       error sprintf("Couldn't find recording '%s'!", $recid);
       return;
     }
-    my $epgdata = main::getModule('EPG')->getId($epgid->{eventid});
+    my  $text    = $data->{title};
 
-    my  $text    = $epgdata->{title};
-
-    my $deep = 1;
     my $folder = scalar (my @a = split('/',$obj->{videodir})) + 1;
+    my $deep   = scalar (my @c = split('~',$text));
+    $folder += $deep;
+    $deep += 1;
 
-    my $where  = "e.eventid = r.eventid";
-    if($text) {
-        $deep   = scalar (my @c = split('~',$text));
-        $folder += $deep;
-        $deep += 1;
-
-        $text =~ s/\'/\\\'/sg;
-        $text =~ s/%/\\%/sg;
-        $where  .= qq|
-AND (
-      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE '$text'
-      OR
-      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE '$text~%'
-)
-|;
-
-    }
+    $text =~ s/\'/\\\'/sg;
+    $text =~ s/%/\\%/sg;
 
     my $sql = qq|
 SELECT SQL_CACHE 
@@ -2251,12 +2236,20 @@ FROM
     RECORDS as r,
     OLDEPG as e
 WHERE
-    $where 
+    e.eventid = r.eventid
+AND (
+      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE ?
+      OR
+      SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE ?
+    )
 GROUP BY
     SUBSTRING_INDEX(r.Path, '/', IF(Length(e.subtitle)<=0, $folder + 1, $folder))
 |;
 
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute($text,$text .'~%')
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchall_arrayref();
 
     my $ret = [];
     for(@{$erg}) {
