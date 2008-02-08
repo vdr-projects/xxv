@@ -566,12 +566,13 @@ FROM
 WHERE|;
     $sql .= sprintf(" eventid in (%s)", join(',' => ('?') x @events));
 
+      my $data;
       my $sth = $obj->{dbh}->prepare($sql);
-      $sth->execute($obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, @events)
-        or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),join(',',@events)));
-
-      my $data = $sth->fetchall_hashref('eventid')
-        or return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),join(',',@events)));
+      if(!$sth->execute($obj->{prevminutes} * 60, $obj->{prevminutes} * 60, $obj->{afterminutes} * 60, @events)
+        || !($data = $sth->fetchall_hashref('eventid'))
+        || (scalar keys %{$data} < 1)) {
+          return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),join(',',@events)));
+      }
 
       my $count = 1;
       foreach my $eventid (keys %{$data}) {
@@ -630,9 +631,12 @@ FROM
 WHERE
     id = ?
 |);
-        $sth->execute($timerid)
-            or return $console->err(sprintf(gettext("Timer '%s' does not exist in the database!"),$timerid));
-        $timerData = $sth->fetchrow_hashref();
+
+      if(!$sth->execute($timerid)
+        || !($timerData = $sth->fetchrow_hashref())
+        || (scalar keys %{$timerData} < 1)) {
+          return $console->err(sprintf(gettext("Timer '%s' does not exist in the database!"),$timerid));
+      }
     } elsif (ref $data eq 'HASH') {
         $timerData = $data;
     }
