@@ -56,7 +56,7 @@ sub module {
                     if($value eq 'y') {
                       my $module = main::getModule('EVENTS');
                       unless($module or $module->{active} eq 'y') {
-                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                        return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'EVENTS');
                       }
                     }
                     return $value;

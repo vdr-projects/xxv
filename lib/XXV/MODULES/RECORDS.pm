@@ -2156,7 +2156,7 @@ ORDER BY
     unshift(@$erg, $fields);
     return {
         message => sprintf(gettext('%d new recordings since last report time %s'),
-                             (scalar @$erg -1), scalar localtime($lastReportTime)),
+                             (scalar @$erg -1), datum($lastReportTime)),
         table   => $erg,
     };
 }

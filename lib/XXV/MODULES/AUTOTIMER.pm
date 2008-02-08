@@ -222,7 +222,7 @@ ORDER BY
 
     return {
         message => sprintf(gettext('Autotimer has programmed %d new timer(s) since last report to %s'),
-            (scalar @$erg - 1), scalar localtime($lastReportTime)),
+            (scalar @$erg - 1), datum($lastReportTime)),
         table   => $erg,
     };
 }

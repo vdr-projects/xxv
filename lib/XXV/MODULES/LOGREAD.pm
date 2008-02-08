@@ -155,7 +155,7 @@ sub logger {
         type    => $logname,
         logfile => $logfile,
         Size    => convert($size),
-        LastChanged => scalar localtime($mtime),
+        LastChanged => datum($mtime),
         full    => $params->{full},
         color   => $obj->{logfiles}->{$logname}->{display},
         maxlet  => $obj->{logfiles}->{$logname}->{maxlet},

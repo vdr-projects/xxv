@@ -105,7 +105,7 @@ sub findfirst {
     my $console = shift || return error('No console defined!');
 
     my $basedir = $self->{dir}
-        || return $self->pagedump($console,gettext("Directory is for modul vtx not registered!"),"");
+        || return $self->pagedump($console,gettext("There none base directory is defined!"),"");
 
 	my $mod = main::getModule ('CHANNELS');
 	my $channels =[];
@@ -220,7 +220,7 @@ sub channel
 #               warn($dump);
 #      }
 
-        $console->message(sprintf(gettext("Channel \'%s\' for modul vtx registered."),$channelname))
+        $console->message(sprintf(gettext("Channel \'%s\' selected."),$channelname))
             if ($console->{TYP} ne 'HTML') ;
     } else {
         $self->pagedump($console,sprintf(gettext("No data found for \'%s\'!"),$channelname),"");

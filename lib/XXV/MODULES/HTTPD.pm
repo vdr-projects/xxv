@@ -161,7 +161,7 @@ sub init {
     # globals
     my $channels;
 
-    $obj->{STATUS}->{'starttime'} = scalar localtime;
+    $obj->{STATUS}->{'starttime'} = time;
 
     # make socket
 	my $socket = IO::Socket::INET->new(
@@ -434,10 +434,10 @@ sub ModulNotLoaded {
 # ------------------
     my $obj     = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
-    my $modul = shift || return error('No modul defined!');
+    my $module = shift || return error('No module defined!');
 
     $console->statusmsg(500,
-          ,sprintf(gettext("Modul '%s' is'nt loaded!"),$modul),
+          ,sprintf(gettext("Module '%s' is'nt loaded!"),$module),
           ,gettext("Internal Server Error"));
 }
 
@@ -521,7 +521,7 @@ sub status {
 
     return {
         message => sprintf(gettext('Traffic on HTTPD socket since %s: transmitted: %s - received: %s - connections: %d.'),
-            $obj->{STATUS}->{'starttime'}, 
+            datum($obj->{STATUS}->{'starttime'}), 
             convert($obj->{STATUS}->{'sendbytes'}), 
             convert($obj->{STATUS}->{'readbytes'}),
             $obj->{STATUS}->{'connects'} ),

@@ -35,17 +35,17 @@ sub module {
                 check       => sub {
                     my $value = shift;
                     my $erg = $obj->init
-                        or return undef, gettext("Can't initialize news modul!")
+                        or return undef, gettext("Can't initialize news module!")
                             if($value eq 'y' and not exists $obj->{INITE});
                     return $value;
                     if($value eq 'y') {
                       my $emodule = main::getModule('EVENTS');
                       if(!$emodule or $emodule->{active} ne 'y') {
-                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'EVENTS');
+                        return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'EVENTS');
                       }
                       my $rmodule = main::getModule('REPORT');
                       if(!$rmodule or $rmodule->{active} ne 'y') {
-                        return undef, sprintf(gettext("Modul can't activated! This modul depends modul %s."),'REPORT');
+                        return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'REPORT');
                       }
                     }
                 },
@@ -183,7 +183,7 @@ sub new {
 
     # The Initprocess
     my $erg = $self->init
-        or return error("Can't initialize news modul!")
+        or return error("Can't initialize news module!")
             if($self->{active} eq 'y');
 
     $self->{TYP} = 'text/plain';

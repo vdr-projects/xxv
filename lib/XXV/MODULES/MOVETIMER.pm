@@ -14,7 +14,7 @@ sub module {
       Prereq => {
           # 'Perl::Module' => 'Description',
       },
-      Description => gettext('This modul move timers between channels.'),
+      Description => gettext('This module move timers between channels.'),
       Version => (split(/ /, '$Revision$'))[1],
       Date => (split(/ /, '$Date$'))[1],
       Author => 'Andreas Brachold',

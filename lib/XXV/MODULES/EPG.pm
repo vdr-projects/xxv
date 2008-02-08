@@ -153,7 +153,7 @@ sub status {
 
     return {
         message => sprintf(gettext('EPG table contains %d entries and since the last login on %s %d new entries.'),
-            $total, scalar localtime($lastReportTime), $newEntrys),
+            $total, datum($lastReportTime), $newEntrys),
     };
 }
 
