@@ -4,7 +4,7 @@
 <h1><?% gettext("Protocol of the activities") %?></h1>
 
 <?% FOREACH name = data.keys.sort %?>
-    <h2><?% gettext("Report for Modul");" " %?>
+    <h2><?% gettext("Report for module") %?>&nbsp;
         <?% name %?></h2>
     <?% IF name == 'RECORDS';
             link = '?cmd=rdisplay&data=';
