@@ -302,8 +302,8 @@ sub parseTemplateFile {
 sub out {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $text = shift || 'no Text for Output';
-    my $type = shift || 'text/html';
+    my $text = shift;
+    my $type = shift;
     my %args = @_;
 
     unless(defined $self->{header}) {
@@ -311,7 +311,7 @@ sub out {
         $self->{output_header} = $self->header($type, \%args);
     }
 
-    $self->{output} .= $text,"\r\n"
+    $self->{output} .= $text
       if($text);
 }
 
@@ -602,24 +602,29 @@ sub datei {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $file = shift || return error('No file defined!');
-    my $typ = shift;
+    my $mimetyp = shift;
 
     my %args = ();
 
     my $fst = stat($file);
     unless($fst and ($fst->mode & 00400)) { # mode & S_IRUSR
-      error sprintf("Couldn't stat file '%s' : %s",$file,$!);
-      return $self->status404($file,$!);
+      my $error = $!;
+      error sprintf("Couldn't stat file '%s' : %s",$file,$error);
+      return $self->status404($file,$error);
     }
     my $size = $fst->size;
 
-    $typ = $self->{mime}->{lc((split('\.', $file))[-1])}
-      unless($typ);
-    $typ = "application/octet-stream"
-      unless($typ);
-
-    $self->{nopack} = 1
-        if($typ =~ /image\// || $typ =~ /video\//);
+    $mimetyp = $self->{mime}->{lc((split('\.', $file))[-1])}
+      unless($mimetyp);
+    my $typ;
+    if($mimetyp && $mimetyp->[0]) {
+      $typ = $mimetyp->[0];
+      $self->{nopack} = 1 
+        if($mimetyp->[1] && $mimetyp->[1] eq 'nopack');
+    } else {
+      $typ = "application/octet-stream";
+      $self->{nopack} = 1;
+    }
 
     # header only if caching
     $args{'ETag'} = sprintf('%x-%x-%x',$fst->ino, $size, $fst->mtime);
@@ -628,9 +633,10 @@ sub datei {
             && $args{'ETag'} eq $self->{browser}->{'Match'});
 
     $args{'Last-Modified'} = datum($fst->mtime,'header');
-    $args{'attachment'} = basename($file);
+    $args{'attachment'} = basename($file)
+      if($mimetyp->[2] && $mimetyp->[2] eq 'attachment');
     $args{'Content-Length'} = $size
-        if($self->{nopack});
+      if($self->{nopack});
 
     if($size > (32768 * 16)) { ## Only files bigger then 512k
         lg sprintf("stream file : '%s' (%s)",$file,convert($size));

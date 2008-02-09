@@ -1406,13 +1406,17 @@ sub image {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $data = shift || return error('No file defined!');
+    my $data = shift;
 
-    $console->err(gettext("Sorry, get image is'nt supported"))
+    return $console->err(gettext("Sorry, get image is'nt supported"))
       if ($console->{TYP} ne 'HTML');
 
     # data like black3F
     $data =~ s/[^a-z0-9A-F]//g; # Remove unwantet character
+
+    # data lookup failed
+    return $console->status404('NULL','Wrong image parameter') 
+      unless($data);
 
     # Split data
     my $color = $data;

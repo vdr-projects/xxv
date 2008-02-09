@@ -13,24 +13,26 @@ $| = 1;
 use strict;
 
 my $mime = {
-    png  => "image/png",
-    gif  => "image/gif",
-    jpg  => "image/jpeg",
-    css  => "text/css",
-    ico  => "image/x-icon",
-    js   => "application/x-javascript",
-    m3u  => "audio/x-mpegurl",
-    mp3  => "audio/x-mp3",
-    wav  => "audio/x-wav",
-    ogg  => "application/x-ogg",
-    rss  => "application/xhtml+xml",
-    avi  => "video/avi",
-    mp4  => "video/mp4",
-    mpg  => "video/x-mpeg",
-    mpeg => "video/x-mpeg",
-    mov  => "video/quicktime",
-    wmv  => "video/x-ms-wmv",
-    flv  => "video/x-flv"
+    htm  => ["text/html",               '',      ''],
+    html => ["text/html",               '',      ''],
+    png  => ["image/png",               'nopack','attachment'],
+    gif  => ["image/gif",               'nopack','attachment'],
+    jpg  => ["image/jpeg",              'nopack','attachment'],
+    css  => ["text/css",                ''      ,'attachment'],
+    ico  => ["image/x-icon",            'nopack','attachment'],
+    js   => ["application/x-javascript",''      ,'attachment'],
+    m3u  => ["audio/x-mpegurl",         'nopack','attachment'],
+    mp3  => ["audio/x-mp3",             'nopack','attachment'],
+    wav  => ["audio/x-wav",             'nopack','attachment'],
+    ogg  => ["application/x-ogg",       'nopack','attachment'],
+    rss  => ["application/xhtml+xml",   '',      'attachment'],
+    avi  => ["video/avi",               'nopack','attachment'],
+    mp4  => ["video/mp4",               'nopack','attachment'],
+    mpg  => ["video/x-mpeg",            'nopack','attachment'],
+    mpeg => ["video/x-mpeg",            'nopack','attachment'],
+    mov  => ["video/quicktime",         'nopack','attachment'],
+    wmv  => ["video/x-ms-wmv",          'nopack','attachment'],
+    flv  => ["video/x-flv",             'nopack','attachment']
 };
 
 # This module method must exist for XXV
@@ -271,20 +273,12 @@ sub communicator
                 or exists $console->{USER}->{Level})) {
 
         $console->setCall('nothing');
-        if(($data->{Request} eq '/' or $data->{Request} =~ /\.html$/) and not $data->{Query}) {
+        if($data->{Request} eq '/' and not $data->{Query}) {
             # Send the first page (index.html)
-            my $page = $data->{Request};
-            $page =~ s/\.\.\///g;
-            $page =~ s/\/\.\.//g;
-            $page =~ s/\/+/\//g;
-            if($page eq '/') {
-                if(-r sprintf('%s/index.tmpl', $htmlRootDir)) {
-                    $console->index;
-                } else {
-                    $console->datei(sprintf('%s/index.html', $htmlRootDir));
-                }
+            if(-r sprintf('%s/index.tmpl', $htmlRootDir)) {
+                $console->index;
             } else {
-                $console->datei(sprintf('%s%s', $htmlRootDir, $page));
+                $console->datei(sprintf('%s/index.html', $htmlRootDir));
             }
         } elsif(my $typ = $mime->{lc((split('\.', $data->{Request}))[-1])}) {
             # Send multimedia files (this must registered in $mime!)
@@ -313,7 +307,7 @@ sub communicator
                 $request =~ s/.*tempimages\//$tmp\//;
                 $console->datei($request, $typ);
             } else {
-                $console->datei(sprintf('%s%s', $htmlRootDir, $request), $typ);
+                $console->datei($htmlRootDir . $request, $typ);
             }
         } else {
             $obj->handleInput($watcher, $console, $cgi);
@@ -377,7 +371,7 @@ sub parseRequest {
    	my $data = {};
     my $line;
     while (defined($line = &_readline($socket))) {
-        if(!$line || $line =~ /^\r\n$/) {
+        if(!$line || $line eq "\r\n") {
     			last;
         } elsif(!$data->{Method} && $line =~ /^(\w+) (\/[\w\.\/\-\:\%]*)([\?[\w=&\.\+\%-\:\!]*]*)[\#\d ]+HTTP\/1.\d/) {
     			($data->{Method}, $data->{Request}, $data->{Query}) = ($1, $2, $3 ? substr($3, 1, length($3)) : undef);
@@ -409,12 +403,13 @@ sub parseRequest {
       }
    
 	$data->{Request} =~ s/%([a-f0-9][a-f0-9])/pack("C", hex($1))/ieg
-  if($data->{Request});
+    if($data->{Request});
+  if($data->{Method}) {
     if($data->{Method} eq 'GET' 
       or $data->{Method} eq 'HEAD') {
       #dumper($data);
       return $data;
-  } elsif($data->{Method} eq 'POST') {
+    } elsif($data->{Method} eq 'POST') {
       if(int($data->{ContentLength})>0) {
         my $post;
         my $bytes = sysread($socket,$post,$data->{ContentLength});
@@ -424,10 +419,11 @@ sub parseRequest {
       }
       #dumper($data);
       return $data;
-	} else {
-      return undef;
-	}
-
+    } else {
+      lg sprintf("Unsupported HTTP Method : %s",$data->{Method});
+    }
+  }
+  return undef;
 }
 # ------------------
 sub ModulNotLoaded {
