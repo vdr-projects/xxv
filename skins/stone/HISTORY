@@ -1,3 +1,5 @@
+1.2
+
 * In Datei "skin.cfg" entfällt der Parameter "global.playbackmode", 
   Neu "global.preferedlocal" um als "Default" eher lokal oder Web angezeigt wird
     now   - switch/livestream - Umschalten im VDR / Live TV Stream
