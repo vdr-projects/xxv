@@ -1,3 +1,17 @@
+1.2 - Stable release
+--------------------------------------------------------------------------------
+
+* Fix typos
+* debian-install.sh missed by pakaging
+* HTTPD: deliver static html pages never as attachment
+* RECORDS: rdelete group of recording, join double SQL-query to single query
+* REPORT: dump date with common format
+* TIMER: Warn if try to edit a none exist timer.
+* VTX: get font failed with wrong parameter
+* alist/clist/rlist: reorder sorting parameter, remove double sql query
+* report: RECORDS - status message with wrong id
+* rlist: move time formating from template to perl code
+
 1.1 - Feature release (Release candidate)
 --------------------------------------------------------------------------------
 
