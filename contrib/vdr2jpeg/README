@@ -5,7 +5,7 @@ vdr2jpeg are used from xxv to generated preview images of recordings.
 
 Requirements
 -------------
-ffmpeg-svn (tested with r9303)
+ffmpeg-svn (tested with r12129)
 
 Recommended
 ------------

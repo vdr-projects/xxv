@@ -2,7 +2,7 @@
 #
 # Makefile -- for building vdr2jpeg
 #
-# Copyright (c) 2005-2007 Andreas Brachold
+# Copyright (c) 2005-2008 Andreas Brachold
 #
 # This code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

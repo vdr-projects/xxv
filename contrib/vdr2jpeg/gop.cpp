@@ -1,7 +1,7 @@
 /*
  * Simple program to grab images from VDR Recording
  *
- * Copyright(c) 2005-2007 Andreas Brachold
+ * Copyright(c) 2005-2008 Andreas Brachold
  * 
  * demux ported from vdrsync.pl : Copyright(c) 2005 Peter Sebbel 
  *

@@ -1,7 +1,7 @@
 /*
  * Simple program to grab images from VDR Recording
  *
- * Copyright(c) 2007 Andreas Brachold
+ * Copyright(c) 2007-2008 Andreas Brachold
  *
  * This code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

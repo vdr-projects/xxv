@@ -1,7 +1,7 @@
 /*
  * Simple program to grab images from VDR Recording
  *
- * Copyright (c) 2005-2007 Andreas Brachold
+ * Copyright (c) 2005-2008 Andreas Brachold
  * 
  * based on FFmpeg main Copyright (c) 2000-2003 Fabrice Bellard
  *
@@ -1352,7 +1352,7 @@ bool decode (const char* szMPVfile, /* const tPackedList & packed, */
         AVFormatContext *s = output_files[i];
 
         if (!(s->oformat->flags & AVFMT_NOFILE))
-	    url_fclose(&s->pb);
+	    url_fclose(s->pb);
 	for(j=0;j<s->nb_streams;j++)
 	    av_free(s->streams[j]);
         av_free(s);

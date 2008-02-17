@@ -1,3 +1,6 @@
+0.1.0
+    update to build with ffmpeg-svn (r12129)
+    refactoring modules
 0.0.12
     show versionsnumber on help screen
     small fix to build with ffmpeg-svn (r10260)
