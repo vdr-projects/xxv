@@ -604,7 +604,11 @@ sub search {
     }
 
     my $erg = [];
-    if($search) {
+
+    unless($search) {
+      $console->err(gettext("There none text to search defined!"));
+      return 0;
+    }
 
     # Channelsearch
     if($params->{channel}) {
@@ -679,21 +683,43 @@ sub search {
         starttime
         |;
 
-        my $sth = $obj->{dbh}->prepare($sql);
-        $sth->execute(@{$search->{term}})
-          or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
-        my $fields = $sth->{'NAME'};
-        $erg = $sth->fetchall_arrayref();
-        map {
-            $_->[7] = datum($_->[7],'weekday');
-        } @$erg;
+    my $rows;
+    if($console->{cgi} && $console->{cgi}->param('limit')) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+        $rsth->execute(@{$search->{term}})
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
 
-        unshift(@$erg, $fields);
+      # Add limit query
+      if($console->{cgi}->param('start')) {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      } else {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      }
     }
+
+    my $sth = $obj->{dbh}->prepare($sql);
+    $sth->execute(@{$search->{term}})
+      or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    my $fields = $sth->{'NAME'};
+    $erg = $sth->fetchall_arrayref();
+
+    unless($console->typ eq 'AJAX') {
+      map {
+          $_->[7] = datum($_->[7],'weekday');
+      } @$erg;
+
+      unshift(@$erg, $fields);
+    }
+
     my $modC = main::getModule('CHANNELS');
     $console->table($erg,  {
                             channels => $modC->ChannelWithGroup('Name,Pos'),
-    });
+                            rows => $rows
+                           }
+    );
 }
 
 # ------------------
@@ -760,21 +786,42 @@ where
 order by
     starttime
 |;
+
+    my $rows;
+    if($console->{cgi} && $console->{cgi}->param('limit')) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+        $rsth->execute($cid)
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+
+      # Add limit query
+      if($console->{cgi}->param('start')) {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      } else {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      }
+    }
+
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($cid)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    map {
-        $_->[5] = datum($_->[5],'weekday');
-    } @$erg;
 
-    unshift(@$erg, $fields);
+    unless($console->typ eq 'AJAX') {
+      map {
+          $_->[5] = datum($_->[5],'weekday');
+      } @$erg;
 
+      unshift(@$erg, $fields);
+    }
 
     $console->table($erg, {
                             channels => $mod->ChannelWithGroup('Name,POS'),
                             current => $mod->ChannelToPos($cid),
+                            rows => $rows
                           }
                     );
 }

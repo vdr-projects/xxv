@@ -311,9 +311,11 @@ sub usage {
     }
 
     my $ret;
-    push(@$ret, sprintf(gettext("%sThis is the xxv %s server.\nPlease use the following commands:\n"),
-        ($hint ? "$hint\n\n" : ''), $console->typ));
-
+    if($console->typ ne 'AJAX') {
+      push(@$ret, sprintf(gettext("%sThis is the xxv %s server.\nPlease use the following commands:\n"),
+          ($hint ? "$hint\n\n" : ''), $console->typ));
+    }
+    $console->setCall('help');
     my $mods = main::getModules();
     my @realModName;
 
@@ -329,16 +331,16 @@ sub usage {
         foreach my $cmdName (sort keys %{$modCfg->{Commands}}) {
             push(@$ret,
                 [
-                    (split('::', $modName))[-1],
                     $modCfg->{Commands}->{$cmdName}->{short},
                     $cmdName,
+                    (split('::', $modName))[-1],
                     $modCfg->{Commands}->{$cmdName}->{description},
                 ]
             ) if(! $modCfg->{Commands}->{$cmdName}->{hidden} and ($u->{active} ne 'y') || $u->allowCommand($modCfg, $cmdName, $user, "1"));
         }
     }
 
-    $console->menu(
+    $console->table(
         $ret,
         {
             periods  => $mods->{'XXV::MODULES::EPG'}->{periods},

@@ -119,6 +119,8 @@ sub out {
 	
 		if($type ne 'application/xml') {
 	    $self->{output}->{data} = $data;
+	    $self->{output}->{param} = $para
+	        if($para);
 		} else {
 	    $self->{output}->{DATA} = $data;
 	    $self->{output}->{$name}->{data} = $data;

@@ -1194,9 +1194,25 @@ sub list {
     $sql .= " desc"
         if(exists $params->{desc} && $params->{desc} == 1);
 
+    my $rows;
+    if($console->{cgi} && $console->{cgi}->param('limit')) {
+      my $rsth = $obj->{dbh}->prepare($sql);
+        $rsth->execute(@{$term})
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+
+      if($console->{cgi}->param('start')) {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      } else {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      }
+    }
+
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
       or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    $rows = $sth->rows unless($rows);
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
@@ -1205,7 +1221,9 @@ sub list {
         $_->[6] = fmttime($_->[6]);
     } @$erg;
 
-    unshift(@$erg, $fields);
+    unless($console->typ eq 'AJAX') {
+      unshift(@$erg, $fields);
+    }
 
     my $channels = main::getModule('CHANNELS')->ChannelHash('Id');
     my $timers = main::getModule('TIMERS')->getTimersByAutotimer();
@@ -1215,6 +1233,7 @@ sub list {
             sortable => 1,
             channels => $channels,
             timers => $timers,
+            rows => $rows
         }
     );
 }

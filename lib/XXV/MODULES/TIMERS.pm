@@ -1268,20 +1268,42 @@ ORDER BY
     t.starttime
 |;
 
+    my $rows;
+    if($console->{cgi} && $console->{cgi}->param('limit')) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+        $rsth->execute(@{$term})
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+
+      # Add limit query
+      if($console->{cgi}->param('start')) {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      } else {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      }
+    }
+
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
       or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    $rows = $sth->rows unless($rows);
+
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    map {
-        $_->[4] = datum($_->[4],'weekday');
-    } @$erg;
+    unless($console->typ eq 'AJAX') {
+      map {
+          $_->[4] = datum($_->[4],'weekday');
+      } @$erg;
 
-    unshift(@$erg, $fields);
+      unshift(@$erg, $fields);
+    }
 
     $console->table($erg, {
         cards => $obj->{DVBCards},
 		    capacity => main::getModule('RECORDS')->{CapacityFree},
+        rows => $rows
     });
 }
 

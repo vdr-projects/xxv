@@ -446,6 +446,7 @@ sub list {
         'TPID' => gettext('Teletext PID'),
         'CA' => gettext('Conditional access'),
         'SID' => gettext('SID'),
+        'TID' => gettext('TID'),
         'NID' => gettext('NID'),
         'RID' => gettext('RID'),
         'GRP' => gettext('Channel group'),
@@ -493,14 +494,38 @@ ORDER BY
     $sql .= " desc"
         if(exists $params->{desc} && $params->{desc} == 1);
 
+    my $rows;
+    if($console->{cgi} && $console->{cgi}->param('limit')) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+        $rsth->execute('%'.$id.'%')
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+
+      # Add limit query
+      if($console->{cgi}->param('start')) {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      } else {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      }
+    }
+
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute('%'.$id.'%')
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    $rows = $sth->rows unless($rows);
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    unshift(@$erg, $fields);
-    $console->table($erg,{sortable => 1 });
+    unless($console->typ eq 'AJAX') {
+      unshift(@$erg, $fields);
+    }
+
+    $console->table($erg, {
+        sortable => 1,
+        rows => $rows
+    });
 }
 
 
