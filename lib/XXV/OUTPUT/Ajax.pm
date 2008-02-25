@@ -211,18 +211,35 @@ sub msg {
     my $data = shift || 0;
     my $err  = shift || 0;
 
-
+    my $state = $err ? 'error' : 'success';
     my $msg;
-    if(! $err and $data) {
-        $msg = $data;
+    if(ref $data eq 'ARRAY') {
+      $msg = join("\r\n",@{$data});
     } else {
-        $msg = sprintf('ERROR:%s (%s)', $data);
+      $msg = $data;
     }
 
-    $self->out( $msg, 0, 'msg' );
+    $self->out( $msg, { state => $state }, 'msg' );
 
     $self->{call} = '';
 }
+
+# ------------------
+sub message {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $data = shift || 0;
+    return $self->msg($data);
+}
+
+# ------------------
+sub err {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $data = shift || 0;
+    return $self->msg($data,1);
+}
+
 
 # ------------------
 sub typ {

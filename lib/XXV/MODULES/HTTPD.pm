@@ -273,12 +273,20 @@ sub communicator
                 or exists $console->{USER}->{Level})) {
 
         $console->setCall('nothing');
-        if($data->{Request} eq '/' and not $data->{Query}) {
+        if(not $data->{Query} and 
+              ($data->{Request} eq '/' or -d sprintf('%s/%s', $htmlRootDir,$data->{Request}))) {
+            my $request = $htmlRootDir;
+            $request .= '/';
+            $request .= $data->{Request};
+            $request .= '/';
+            $request =~ s/\.\.\///g;
+            $request =~ s/\/\.\.//g;
+            $request =~ s/\/+/\//g;
             # Send the first page (index.html)
-            if(-r sprintf('%s/index.tmpl', $htmlRootDir)) {
+            if(-r sprintf('%sindex.tmpl', $request)) {
                 $console->index;
             } else {
-                $console->datei(sprintf('%s/index.html', $htmlRootDir));
+                $console->datei(sprintf('%sindex.html', $request));
             }
         } elsif(my $typ = $mime->{lc((split('\.', $data->{Request}))[-1])}) {
             # Send multimedia files (this must registered in $mime!)
@@ -597,19 +605,22 @@ sub checkvalue {
     my $value = join(':',@query);
 
     my $erg;
+    my $iserror;
     # e.g. isdir:/tmp
     if($check eq "isdir") {
       if(-d $value) {
-        $erg = "SUCCESS: directory found.";
+        $erg = gettext("Directory found.");
       } else {
-        $erg = "ERROR: directory not found.";
+        $erg = gettext("Directory not found.");
+        $iserror = 1;
       }
     # e.g. isfile:/bla/foobar
     } elsif($check eq "isfile") {
       if(-r $value) {
-        $erg = "SUCCESS: file found.";
+        $erg = gettext("File found.");
       } else {
-        $erg = "ERROR: file not found.";
+        $erg = gettext("File not found.");
+        $iserror = 1;
       }
     # e.g. getip:localhost
     } elsif($check eq "getip") {
@@ -617,14 +628,16 @@ sub checkvalue {
       if($aton) {
         $erg = inet_ntoa($aton);
       } else {
-        $erg = "ERROR: host does not exist.";
+        $erg = gettext("Host does not exist.");
+        $iserror = 1;
       }
     # Unknown query
     } else {
-      $erg = "ERROR: Query : " . $check . " not supported.";
+      $erg = sprintf(gettext("Query : '%s' not supported."),$check);
+      $iserror = 1;
     }
 
-    return $console->msg($erg)
+    return $console->msg($erg, $iserror)
         if(ref $console);
 }
 

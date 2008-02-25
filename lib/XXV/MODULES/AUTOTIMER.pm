@@ -1047,8 +1047,9 @@ sub autotimerDelete {
 
     my $sql = sprintf('DELETE FROM AUTOTIMER where Id in (%s)', join(',' => ('?') x @timers)); 
     my $sth = $obj->{dbh}->prepare($sql);
-    if(!$sth->execute(@timers)) {
-        error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $rows = $sth->execute(@timers);
+    if(!$rows || $rows eq "0E0") {
+        error sprintf("Couldn't execute query: %s.",$sth->errstr) unless($rows);
         $console->err(sprintf gettext("The autotimer '%s' does not exist in the database."), join(',', @timers));
         return 0;
     }

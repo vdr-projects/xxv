@@ -148,12 +148,14 @@ function checkValue (valobj, msgname, cmd, wrongMsg, goodMsg) {
         var wrongMsg = sData[2];
         var goodMsg = sData[3];
 
-        if(oXML.responseText.search('ERROR') > -1) {
-            msg.className = 'error';
-            msg.innerHTML = wrongMsg.replace('%s', oXML.responseText);
-        } else {
+        var o = eval("("+oXML.responseText+")");
+        if(o && o.data && typeof(o.data) == 'string' 
+             && o.param && o.param.state && o.param.state == 'success') {
             msg.className = 'good';
-            msg.innerHTML = goodMsg.replace('%s', oXML.responseText);
+            msg.innerHTML = goodMsg.replace('%s', o.data);
+        } else {
+            msg.className = 'error';
+            msg.innerHTML = wrongMsg.replace('%s', o.data);
         }
     };
 
@@ -162,7 +164,7 @@ function checkValue (valobj, msgname, cmd, wrongMsg, goodMsg) {
     msgobj.innerHTML = 'Check value ...';
 
     if(inputvalue) {
-        var url = "?cmd=checkvalue&data=" + cmd + ":" + inputvalue + "&ajax=text";
+        var url = "?cmd=checkvalue&data=" + cmd + ":" + inputvalue + "&ajax=json";
         var aconn = new XHRequest();
         if(!aconn)
           return false;
