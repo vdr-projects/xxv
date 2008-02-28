@@ -331,7 +331,7 @@ q|------- !PROBLEM! ----------
 Upps, you have a incompatible or corrupted database.
 Table %s has version '%s'. It's expected version '%s'.
 Please check database e.g. with mysqlcheck --all-databases --fast --silent
-or use the script contrib/upgrade-xxv.sh to upgrade the database!
+or use the script contrib/update-xxv to upgrade the database!
 ----------------------------|#'
                     ,$table
                     ,$tableversion ? $tableversion : 0
