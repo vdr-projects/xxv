@@ -12,14 +12,18 @@
     <?% Stunden | format('%d') %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?>
 <?% END %?>
 <?% END %?>
-
+<?% ######################################################################## %?>
 <?% BLOCK image %?>
-    <?% files = param.getPreview(id) %?>
-    <?% IF type == 'RADIO' %?>
-	<img src="images/radio.png" width="200" title="<?% gettext('Radio recording') %?>" />
-    <?% ELSE %?>
-	<img src="<?% files.last || "images/movie.png" %?>" width="200" title="<?% gettext('Television recording') %?>" />
-    <?% END %?>
+	<?% files = preview.split(',') %?>
+  <?% IF type == 'RADIO' %?>
+    <img src="images/radio.png" alt="" title="<?% gettext('Radio recording') %?>" />
+  <?% ELSIF files.size > 0;
+      img = (files.size div 2);
+      frame = files.$img %?>
+    <img src="?cmd=ri&data=<?% id %?>_<?% frame %?>" alt="" width="200" title="<?% gettext('Television recording') %?>" />
+  <?% ELSE %?>
+    <img src="images/movie.png" alt="" width="200" title="<?% gettext('Television recording') %?>" />
+  <?% END; %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% total = 0 %?>
@@ -242,7 +246,7 @@
             <!-- Item: <?% FOREACH x = zeile %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
             <?%- id=zeile.0;eventid=zeile.1;title=zeile.2.split('~').last;subtitle=zeile.3;
              duration=zeile.4;start=zeile.5;new=zeile.6;type=zeile.7;folder=zeile.8;fulltitle=zeile.9;
-             isrecording=zeile.10;desc=zeile.11;foldertitle=fulltitle.split('~').last -%?>
+             isrecording=zeile.10;desc=zeile.11;preview=zeile.12;foldertitle=fulltitle.split('~').last -%?>
 		    <?% total = total + duration %?>
 			<?% IF old.defined && old != ( folder > 1 ?  2 : 1 ) %?>
       <div style="clear:both"></div>

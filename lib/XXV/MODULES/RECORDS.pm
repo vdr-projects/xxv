@@ -170,6 +170,12 @@ sub module {
                 callback    => sub{ $obj->suggest(@_) },
                 DenyClass   => 'rlist',
             },
+            rimage => {
+                hidden      => 'yes',
+                short       => 'ri',
+                callback    => sub{ $obj->image(@_) },
+                binary      => 'cache'
+            }
         },
         RegEvent    => {
             'deleteRecord' => {
@@ -269,7 +275,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 27; # Must be increment if rows of table changed
+    my $version = 28; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($obj->{dbh},'RECORDS',$version,1)) {
@@ -289,6 +295,7 @@ sub _init {
           FileSize int unsigned default '0', 
           Marks text,
           Type enum('TV', 'RADIO', 'UNKNOWN') default 'TV',
+          preview text NOT NULL,
           addtime timestamp,
           PRIMARY KEY  (eventid),
           UNIQUE KEY  (eventid)
@@ -614,9 +621,11 @@ sub readData {
                   unless($console) {
                       $db_data->{$h}->{addtime} = time;
                       # Make preview and remove older Preview images
-                      my $command = $obj->videoPreview( $db_data->{$h}, 1);
-                      push(@{$obj->{JOBS}}, $command)
-                        if($command && not grep(/\Q$command/g,@{$obj->{JOBS}}));
+                      my $job = $obj->videoPreview( $db_data->{$h}, 1);
+                      if($job) {
+                        push(@{$obj->{JOBS}}, $job);
+                        $obj->_updatePreview($job->{RecordMD5}, $db_data->{$h}->{preview});
+                      }
                   }
                   $obj->_updateEvent($db_data->{$h});
                   $obj->_updateFileSize($db_data->{$h});
@@ -707,9 +716,19 @@ sub readData {
             $obj->{dbh}->{InactiveDestroy} = 1;
 
             while(scalar @jobs > 0) {
-                my $command = shift (@jobs);
-                lg sprintf('Call command "%s"', $command );
-                my $erg = system("nice -n 19 $command");
+                my $job = shift (@jobs);
+
+                my $preview = [];
+                lg sprintf('Call command "%s"', $job->{command});
+                my $erg = system(sprintf('nice -n 19 %s', $job->{command}));
+                my @images = glob(sprintf('%s/[0-9]*.jpg', $job->{previewdir}));
+                foreach(@images) {
+                  my $frame = basename($_);
+                  $frame =~ s/\.jpg$//ig;
+                  push(@{$preview},$frame);
+                  last if(scalar @{$preview} >= $obj->{previewcount});
+                }
+                $obj->_updatePreview($job->{RecordMD5},$preview);
             }
             exit 0;
         }
@@ -807,8 +826,8 @@ sub insert {
     my $sth = $obj->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
-        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type, addtime )
-     VALUES (?,?,?,?,?,?,?,?,?,?, NOW())
+        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type, preview, addtime )
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW())
     |);
 
     $attr->{Marks} = ""
@@ -825,6 +844,7 @@ sub insert {
         $attr->{FileSize},
         $attr->{Marks},
         $attr->{Type},
+        $attr->{preview}
     );
 }
 
@@ -853,6 +873,16 @@ sub _updateState {
     return $sth->execute($attr->{id},$attr->{state},$oldattr->{RecordMD5});
 }
 
+# ------------------
+sub _updatePreview {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $RecordMD5 = shift || return error ('No data defined!');
+    my $preview = shift || return error ('No data to replace!');
+    my $images = join(',',@{$preview});
+    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET preview=?, addtime=NOW() where RecordMD5=?');
+    return $sth->execute($images,$RecordMD5);
+}
 # ------------------
 sub _updateFileSize {
 # ------------------
@@ -908,9 +938,8 @@ sub analyze {
     }
 
     # Make Preview
-    my $command = $obj->videoPreview( $info );
-    push(@{$obj->{JOBS}}, $command)
-        if($command && not grep(/\Q$command/g,@{$obj->{JOBS}}));
+    my $job = $obj->videoPreview( $info );
+    push(@{$obj->{JOBS}}, $job) if($job);
 
     my $ret = {
         RecordMD5 => $info->{RecordMD5},
@@ -928,6 +957,9 @@ sub analyze {
     };
     $ret->{Marks} = join(',', @{$info->{marks}})
         if(ref $info->{marks} eq 'ARRAY');
+    $ret->{preview} = join(',', @{$info->{preview}})
+        if(ref $info->{preview} eq 'ARRAY');
+
     return $ret;
 }
 
@@ -1153,6 +1185,8 @@ sub videoPreview {
     my $info    = shift || return error ('No information defined!');
     my $rebuild = shift || 0;
 
+    $info->{preview} = [];
+
     if ($obj->{previewcommand} eq 'Nothing') {
         return 0;
     }
@@ -1176,9 +1210,16 @@ sub videoPreview {
 
     my $count = $obj->{previewcount};
     # Stop here if enough files present
-    my @images = glob("$outdir/*.jpg");
-    return 0
-      if(scalar @images >= $count && !$rebuild);
+    my @images = glob("$outdir/[0-9]*.jpg");
+    if(scalar @images >= $count && !$rebuild) {
+      foreach(@images) {
+        my $frame = basename($_);
+        $frame =~ s/\.jpg$//ig;
+        push(@{$info->{preview}},$frame);
+        last if(scalar @{$info->{preview}} >= $obj->{previewcount});
+      }
+      return 0;
+    }
 
     my $startseconds = ($obj->{timers}->{prevminutes} * 60) * 2;
     my $endseconds = ($obj->{timers}->{afterminutes} * 60) * 2;
@@ -1257,7 +1298,11 @@ sub videoPreview {
       'vdr2jpeg'       => sprintf("%s -r %s -f %s -x %d -o %s >> %s 2>&1",
                               $obj->{previewbinary}, qquote($vdir), join(' -f ', @frames), $scalex, qquote($outdir), qquote($log)),
     };
-    return $mversions->{$obj->{previewcommand}};
+    return {
+      command    => $mversions->{$obj->{previewcommand}},
+      previewdir => $outdir,
+      RecordMD5  => $info->{RecordMD5}
+    }
 }
 
 
@@ -1383,7 +1428,8 @@ SELECT SQL_CACHE
     (SELECT Name
       FROM CHANNELS as c
       WHERE e.channel_id = c.Id
-      LIMIT 1) as Channel
+      LIMIT 1) as Channel,
+    preview
 from
     RECORDS as r,OLDEPG as e
 where
@@ -1409,7 +1455,6 @@ where
     $obj->_loadreccmds;
 
     my $param = {
-        previews => $obj->getPreviewFiles($erg->{RecordId}),
         reccmds => [@{$obj->{reccmds}}],
     };
 
@@ -1540,7 +1585,8 @@ SELECT SQL_CACHE
     COUNT(*) as __Group,
     SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) as __fulltitle,
     IF(COUNT(*)>1,0,1) as __IsRecording,
-    e.description as __description
+    e.description as __description,
+    preview as __preview
 FROM
     RECORDS as r,
     OLDEPG as e
@@ -1565,16 +1611,36 @@ ORDER BY __IsRecording asc,
     $sql .= " desc"
         if(exists $params->{desc} && $params->{desc} == 1);
 
+    my $rows;
+    if($console->{cgi} && $console->{cgi}->param('limit')) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+        $rsth->execute(@{$term})
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+
+      # Add limit query
+      if($console->{cgi}->param('start')) {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      } else {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      }
+    }
+
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
       or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    map {
+
+    unless($console->typ eq 'AJAX') {
+      map {
         $_->[5] = datum($_->[5],'short');
-    } @$erg;
-    unshift(@$erg, $fields);
+      } @$erg;
+      unshift(@$erg, $fields);
+    }
 
     my $param = {
         sortable => 1,
@@ -1583,7 +1649,7 @@ ORDER BY __IsRecording asc,
         total => $obj->{CapacityTotal},
         free => $obj->{CapacityFree},
         previewcommand => $obj->{previewlistthumbs},
-        getPreview => sub{ return $obj->getPreviewFiles(@_) },
+        rows => $rows
     };
     return $console->table($erg, $param);
 }
@@ -1622,7 +1688,8 @@ SELECT SQL_CACHE
     0 as __Group,
     CONCAT_WS('~',e.title,e.subtitle) as __fulltitle,
     1 as __IsRecording,
-    e.description as __description
+    e.description as __description,
+    preview as __preview
 FROM
     RECORDS as r,
     OLDEPG as e
@@ -1645,6 +1712,22 @@ ORDER BY
     $sql .= " desc"
         if(exists $params->{desc} && $params->{desc} == 1);
 
+    my $rows;
+    if($console->{cgi} && $console->{cgi}->param('limit')) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+        $rsth->execute(@{$term})
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+
+      # Add limit query
+      if($console->{cgi}->param('start')) {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      } else {
+        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      }
+    }
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute(@{$term})
@@ -1652,10 +1735,13 @@ ORDER BY
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    map {
+
+    unless($console->typ eq 'AJAX') {
+      map {
         $_->[5] = datum($_->[5],'short');
-    } @$erg;
-    unshift(@$erg, $fields);
+      } @$erg;
+      unshift(@$erg, $fields);
+    }
 
     my $param = {
         sortable => 1,
@@ -1664,7 +1750,7 @@ ORDER BY
         total => $obj->{CapacityTotal},
         free => $obj->{CapacityFree},
         previewcommand => $obj->{previewcommand},
-        getPreview => sub{ return $obj->getPreviewFiles(@_) },
+        rows => $rows
     };
     return $console->table($erg, $param);
 }
@@ -2189,26 +2275,6 @@ sub IdToPath {
 }
 
 # ------------------
-sub getPreviewFiles {
-# ------------------
-    my $obj = shift  || return error('No object defined!');
-    my $md5 = shift || return error('No eventid defined!');
-
-    # look for pictures
-    my $outdir = sprintf('%s/%s_shot', $obj->{previewimages}, $md5);
-    if(my @previews = glob("$outdir/[0-9]*.jpg")) {
-        splice(@previews,$obj->{previewcount},scalar(@previews))
-            if(scalar(@previews) > $obj->{previewcount});
-        map {
-            $_ =~ s/^$obj->{previewimages}/previewimages/
-        } @previews;
-        return \@previews;
-    } else {
-        return undef;
-    }
-}
-
-# ------------------
 sub getGroupIds {
 # ------------------
     my $obj = shift || return error('No object defined!');
@@ -2551,5 +2617,28 @@ sub frametofile {
   	close FH;
 
     return (undef,undef);
+}
+
+
+# ------------------
+sub image {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $record = shift;
+
+    return $console->err(gettext("Sorry, get image is'nt supported"))
+      if ($console->{TYP} ne 'HTML');
+
+    return $console->status404('NULL','Wrong image parameter') 
+      unless($record);
+
+    my @rec  = split(/_/, $record);
+
+    return $console->status404('NULL','Wrong image parameter') 
+      if(scalar @rec != 2 );
+
+    return $console->datei(sprintf('%s/%s_shot/%08d.jpg', $obj->{previewimages}, $rec[0], int($rec[1])));
 }
 1;

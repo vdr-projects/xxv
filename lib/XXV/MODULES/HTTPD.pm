@@ -302,14 +302,6 @@ sub communicator
                 } else {
                   $obj->ModulNotLoaded($console,'EPG');
                 }
-            } elsif($request =~ /previewimages\//) {
-                my $recMod = main::getModule('RECORDS');
-                if($recMod) {
-                  $request =~ s/.*previewimages\//$recMod->{previewimages}\//;
-                  $console->datei($request, $typ);
-                } else {
-                  $obj->ModulNotLoaded($console,'RECORDS');
-                }
             } elsif($request =~ /tempimages\//) {
                 my $tmp = $userMod->userTmp;
                 $request =~ s/.*tempimages\//$tmp\//;
