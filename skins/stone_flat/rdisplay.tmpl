@@ -4,17 +4,9 @@
 <?% subtitle = data.SubTitle %?>
 <?% id = data.RecordId %?>
 <?% allowplay = 1 IF allow('rplay') or allow('playrecord') %?>
-
-<?%-  IF data.Type == 'RADIO';
-    files = "images/audio.${global.imagetyp}";
-    ELSIF param.previews.size <= 0;
-    files = "images/movie.${global.imagetyp}";
-    ELSE;
-    files = param.previews; 
-    END;
--%?>
-
 <?% IF ! global.bodyinc.defined;global.bodyinc = 1 %?>
+
+<?% files = data.preview.split(',') %?>
 <script language="javascript" type="text/javascript">
 <!--
   var pics = <?% files.size %?>;
@@ -44,28 +36,27 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK image %?>
-<?% IF files.size %?>
+  <?% IF data.Type == 'RADIO' %?>
+    <img class="recorddetails" src="images/audio.<?% global.imagetyp %?>" alt="" title="<?% gettext('Radio recording') %?>" />
+  <?% ELSIF files.size > 0; %?>
 	<div id="slideframe">
         <?% IF files.size > 3 %?>
 		<div id="slideleft"><img src="images/back.<?% global.imagetyp %?>" title="<?% gettext("Back") %?>" alt="" /></div>
 		<div id="slideright"><img src="images/forward.<?% global.imagetyp %?>" title="<?% gettext("Next") %?>" alt="" /></div>
         <?% END %?>
 		<div id="slidelist" style="left:<?% IF files.size <= 3 %?><?% 280 - (160 * ( files.size / 2 ) )  %?><?% ELSE %?>0<?% END %?>px; width:<?% files.size * 200 %?>px;" >
-  		<?% FOREACH f = files %?>
-  		  <?% i = f.split('/').-1 %?>
-  		  <?% x = ( i.split('\.').0 ) / 25 %?>
-        <?% IF allowplay %?>
-          <a href="javascript:setstart('<?% PROCESS hfs d=x %?>')" >
-        <?% END %?>
-            <img class="recorddetails" src="<?% f %?>" alt="" title="<?% PROCESS hfs d=x %?>" />
-        <?% IF allowplay %?>
-          </a>
-        <?% END %?>
-    	<?% END %?>
+        <?% FOREACH frame = files %?>
+          <?% d = ( frame ) / 25 %?>
+          <?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs %?>')" ><?% END %?>
+          <img src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" title="<?% PROCESS hfs %?>" />
+          <?% IF allowplay %?></a><?% END %?>
+				<?% END %?>
 			<div id="slideend"></div>
 		</div>
 	</div>
-<?% END %?>
+  <?% ELSE %?>
+    <img class="recorddetails" src="images/movie.<?% global.imagetyp %?>" alt="" title="<?% gettext('Television recording') %?>" />
+  <?% END; %?>
 <?% END %?>
 
 <?% quest=data.Title;IF data.SubTitle.length > 0;quest=data.SubTitle;END %?>

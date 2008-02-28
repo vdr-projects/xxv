@@ -47,25 +47,16 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK image %?>
-	<?%- files = param.getPreview(id);
-         IF type == 'RADIO';
-            mylist = [ "images/audio", global.imagetyp ];
-            preview = mylist.join('.') ;
-         ELSIF files.size > 0;
-#
-#           USE date;
-#           img = date.format(date.now, '%S') mod files.size;
-#           preview = files.$img;
-# 
-            img = (files.size div 2);
-            preview = files.$img;
-         END;
-         IF preview.length <= 0;
-            mylist = [ "images/movie", global.imagetyp ];
-            preview = mylist.join('.') ;
-         END;
-    -%?>
-	<img class="recording" src="<?% preview %?>" alt="" />
+	<?% files = preview.split(',') %?>
+  <?% IF type == 'RADIO' %?>
+    <img class="recording" src="<?% "images/audio.${global.imagetyp}" %?>" alt="" />
+  <?% ELSIF files.size > 0;
+      img = (files.size div 2);
+      frame = files.$img %?>
+    <img class="recording" src="?cmd=ri&data=<?% id %?>_<?% frame %?>" alt="" />
+  <?% ELSE %?>
+    <img class="recording" src="<?% "images/movie.${global.imagetyp}" %?>" alt="" />
+  <?% END; %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
@@ -222,6 +213,7 @@
           fulltitle=zeile.9;
           isrecording=zeile.10;
           description=zeile.11;
+          preview=zeile.12;
           foldertitle=fulltitle.split('&#x7e;').last;
           IF foldertitle == " ";  foldertitle=fulltitle.split('&#x7e;').last(2).join(" "); END;
     -%?>

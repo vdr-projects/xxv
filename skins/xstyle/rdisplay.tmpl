@@ -55,6 +55,9 @@
     </table>
 <?% END %?>
 
+<?% BLOCK hfs # d in Sekunden %?>
+  <?% d div 3600 %?>:<?% d div 60 mod 60 | format('%02d') %?>:<?% d mod 60 | format('%02d') %?>
+<?% END %?>
 <?% BLOCK dur # d in Sekunden %?>
 <?% IF d > 1 %?>
     <?% Stunden = d div 3600 %?>
@@ -119,19 +122,22 @@
 </tr>
 <tr>
     <td>
+	<?% files = data.preview.split(',') %?>
+  <?% IF data.Type == 'RADIO' %?>
+    <img src="images/radio.png" alt="" title="<?% gettext('Radio recording') %?>" />
+  <?% ELSIF files.size > 0; %?>
         <table border="0" align='left'>
+    <?% FOREACH frame = files %?>
+        <tr>
         <td>
-        <?% FOREACH bild = param.previews %?>
-            <img src="<?% bild %?>" width="168" vspace='1'><br>
-        <?% END %?>
-        <?% IF ! param.previews.size && data.Type == 'TV' %?>
-        	<img src="images/movie.png" width="200" title="<?% gettext('Movierecord') %?>" />
-        <?% END %?>
-        <?% IF data.Type == 'RADIO' %?>
-        	<img src="images/radio.png" width="200" title="<?% gettext('Radiorecord') %?>" />
-        <?% END %?>
+          <img src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" width="200" title="<?% gettext('Television recording') %?> : <?% x=frame / 25;PROCESS hfs d=x %?>" />
         </td>
+        </tr>
+    <?% END %?>
         </table>
+  <?% ELSE %?>
+    <img src="images/movie.png" alt="" width="200" title="<?% gettext('Television recording') %?>" />
+  <?% END; %?>
     </td><td>
         <table border="0">
         <th colspan=2>

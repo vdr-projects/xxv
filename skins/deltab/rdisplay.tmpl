@@ -4,17 +4,6 @@
 <?% subtitle = data.SubTitle %?>
 <?% id = data.RecordId %?>
 <?% allowplay = 1 IF allow('rplay') or allow('playrecord') %?>
-<?%-  IF data.Type == 'RADIO';
-          mylist = [ "images/audio", global.imagetyp ];
-          files =  [ mylist.join('.') ];
-       ELSIF param.previews.size <= 0;
-          mylist = [ "images/movie", global.imagetyp ];
-          files = mylist.join('.');
-       ELSE;
-          files = param.previews; 
-       END;
-  -%?>
-
 <script language="javascript" type="text/javascript">
 <!--
   function setstart(wert) {
@@ -38,15 +27,17 @@
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK image %?>
-						<?% IF files.size %?>
+	<?% files = data.preview.split(',') %?>
+  <?% IF data.Type == 'RADIO' %?>
+    <img class="recorddetails" src="images/audio.<?% global.imagetyp %?>" alt="" title="<?% gettext('Radio recording') %?>" />
+  <?% ELSIF files.size > 0; %?>
 						<table summary="">
 							<tr>
 								<td>
-									<?% FOREACH f = files %?>
-            		  <?% i = f.split('/').-1 %?>
-            		  <?% x = ( i.split('\.').0 ) / 25 %?>
-                  <?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs d=x %?>')" ><?% END %?>
-                  <img class="recorddetails" src="<?% f %?>" alt="" title="<?% PROCESS hfs d=x %?>" />
+                 <?% FOREACH frame = files %?>
+            		  <?% x = ( frame ) / 25 %?>
+                 <?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs d=x %?>')" ><?% END %?>
+                  <img src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" title="<?% PROCESS hfs d=x %?>" />
                   <?% IF allowplay %?></a><?% END %?>
                 <?% IF (loop.count) mod 5 == 0 && loop.count != loop.size %?>
  	    					</td>
@@ -58,7 +49,9 @@
 								</td>
 							</tr>
 						</table>
-						<?% END %?>
+  <?% ELSE %?>
+    <img class="recorddetails" src="images/movie.<?% global.imagetyp %?>" alt="" title="<?% gettext('Television recording') %?>" />
+  <?% END; %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK marks %?>
