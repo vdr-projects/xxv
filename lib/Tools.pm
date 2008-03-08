@@ -5,6 +5,10 @@ package Tools;
 use FindBin qw($RealBin);
 use lib sprintf("%s", $RealBin);
 use lib sprintf("%s/../lib", $RealBin);
+use Locale::gettext qw/!gettext/;
+use utf8;
+#use encoding 'utf8';
+use Encode;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -21,6 +25,8 @@ our $LOG        = sub{ warn @_ };
 our $BENCH      = {};
 our $LOGCALLB   = sub{ };
 our $DBH        = {};
+our $LOCALE;
+our $CHARSET;
 
 # PAL use 25, NTFS use 30 frames per seconds
 use constant FRAMESPERSECOND => 25; 
@@ -29,7 +35,7 @@ use constant FRAMESPERSECOND => 25;
  &getFromSocket &fields &load_file &save_file &tableUpdated &buildsearch 
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
  &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url
- &con_err &con_msg &text2frame &frame2hms);
+ &con_err &con_msg &text2frame &frame2hms &gettext &setcharset);
 
 
 # ------------------
@@ -624,7 +630,9 @@ sub entities {
     $s =~ s/>/&gt;/g;
     $s =~ s/</&lt;/g;
     $s =~ s/\"/&quot;/g;
-    $s =~ s/([^a-zA-Z0-9&%;:,\.\!\?\(\)\_\|\'\r\n ])/sprintf("&#x%02x;",ord($1))/eg;
+    if($CHARSET ne 'UTF-8') {
+      $s =~ s/([^a-zA-Z0-9&%;:,\.\!\?\(\)\_\|\'\r\n ])/sprintf("&#x%02x;",ord($1))/eg;
+    }
     $s =~ s/\r\n/<br \/>/g;
 
     return $s;
@@ -635,7 +643,9 @@ sub reentities {
 # ------------------
     my $s = shift || return '';
 
-    $s =~ s/\&\#x([a-fA-F0-9][a-fA-F0-9])\;/pack("C", hex($1))/eg;
+    if($CHARSET ne 'UTF-8') {
+      $s =~ s/\&\#x([a-fA-F0-9][a-fA-F0-9])\;/pack("C", hex($1))/eg;
+    }
     $s =~ s/&amp;/&/g;
     $s =~ s/&gt;/>/g;
     $s =~ s/&lt;/</g;
@@ -728,6 +738,32 @@ sub frame2hms() {
     my $hour = CORE::int($time/3600);
 
     return sprintf('%d:%02d:%02d.%02d', $hour, $min, $sec, $frame); 
+}
+
+sub setcharset($) {
+    $CHARSET = shift;
+}
+
+################################################################################
+# Translate text 
+sub gettext($) {
+    my $text = shift;
+
+    unless($CHARSET) {
+        my ($stack, $evalon) = &stackTrace;
+        print $stack if($evalon != 1);
+    }
+
+    unless($LOCALE) {
+        $LOCALE = Locale::gettext->domain_raw("xxv");
+        $LOCALE->codeset($CHARSET);
+    }
+    if($CHARSET eq 'UTF-8') {
+      return $LOCALE->get($text);
+    } else {
+      $text = $LOCALE->get($text);
+      return encode($CHARSET,$text);
+    }
 }
 
 1;

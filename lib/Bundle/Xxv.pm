@@ -29,6 +29,7 @@ DBD::mysql
 DBI
 Digest::MD5
 Digest::HMAC_MD5
+Encode
 Event
 GD
 Getopt::Long

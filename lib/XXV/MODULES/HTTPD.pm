@@ -1,6 +1,5 @@
 package XXV::MODULES::HTTPD;
 
-use Locale::gettext;
 use XXV::OUTPUT::Html;
 use XXV::OUTPUT::Ajax;
 use File::Basename;
@@ -39,7 +38,7 @@ my $mime = {
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'HTTPD',
         Prereq => {
@@ -54,7 +53,7 @@ sub module {
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
-        Status => sub{ $obj->status(@_) },
+        Status => sub{ $self->status(@_) },
         Preferences => {
             active => {
                 description => gettext('Activate this service'),
@@ -85,7 +84,7 @@ sub module {
                 default     => 'default',
                 type        => 'list',
                 required    => gettext('This is required!'),
-                choices     => sub{ return $obj->findskins },
+                choices     => sub{ return $self->findskins },
             },
             StartPage => {
                 description => gettext('Startup screen'),
@@ -114,7 +113,7 @@ sub module {
         Commands => {
             checkvalue => {
                 hidden      => 'yes',
-                callback    => sub{ $obj->checkvalue(@_) },
+                callback    => sub{ $self->checkvalue(@_) },
             },
         },
     };
@@ -130,6 +129,8 @@ sub new {
 
     # paths
     $self->{paths} = delete $attr{'-paths'};
+
+    $self->{charset} = delete $attr{'-charset'};
 
 	# who am I
     $self->{MOD} = $self->module;
@@ -158,18 +159,18 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     # globals
     my $channels;
 
-    $obj->{STATUS}->{'starttime'} = time;
+    $self->{STATUS}->{'starttime'} = time;
 
     # make socket
 	my $socket = IO::Socket::INET->new(
-		Listen		=> $obj->{Clients},
-		LocalPort	=> $obj->{Port},
-    LocalAddr => $obj->{Interface},
+		Listen		=> $self->{Clients},
+		LocalPort	=> $self->{Port},
+    LocalAddr => $self->{Interface},
 		Reuse		=> 1
     ) or return error("Couldn't create socket: $!");
 
@@ -186,7 +187,7 @@ sub init {
             # make "channel" number
             my $channel=++$channels;
 
-            $obj->{STATUS}->{'connects'}++;
+            $self->{STATUS}->{'connects'}++;
 
             # install a communicator
             Event->io(
@@ -195,37 +196,36 @@ sub init {
                 poll => 'r',
                 cb => sub {
                     my $watcher = shift;
-                    $obj->communicator($watcher);
+                    $self->communicator($watcher);
                     }
             );
         },
-    ) if($obj->{active} eq 'y');
+    ) if($self->{active} eq 'y');
 
     return 1;
 }
 
-sub communicator 
-{
-    my $obj = shift || return error('No object defined!');
+sub communicator {
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
 
     # read new line and report it
     my $handle=$watcher->w->fd;
 
-    my $data = $obj->parseRequest($handle,(defined $obj->{LOGOUT} && $obj->{LOGOUT} == 1 ));
+    my $data = $self->parseRequest($handle,(defined $self->{LOGOUT} && $self->{LOGOUT} == 1 ));
     unless($data) {
-        undef $obj->{LOGOUT};
+        undef $self->{LOGOUT};
         $watcher->w->cancel;
         $handle->close();
         undef $watcher;
         return 1;
     }
-    undef $obj->{LOGOUT}
-        if(exists $obj->{LOGOUT});
+    undef $self->{LOGOUT}
+        if(exists $self->{LOGOUT});
 
     my $ip = getip($handle);
-    my $htmlRootDir = sprintf('%s/%s', $obj->{paths}->{HTMLDIR}, $obj->{HtmlRoot});
-		my $htmlDefDir = sprintf('%s/%s', $obj->{paths}->{HTMLDIR}, 'default');
+    my $htmlRootDir = sprintf('%s/%s', $self->{paths}->{HTMLDIR}, $self->{HtmlRoot});
+		my $htmlDefDir = sprintf('%s/%s', $self->{paths}->{HTMLDIR}, 'default');
 
     my $query = $data->{Query};                     
     if($data->{Method} eq 'POST' && $data->{Post}) {
@@ -242,22 +242,23 @@ sub communicator
             -cgi    => $cgi,
             -browser=> $data,
             -output => $outputtype,
-            -debug  => ($obj->{Debug} eq 'y' ? 1 : 0),
-
+            -debug  => ($self->{Debug} eq 'y' ? 1 : 0),
+            -charset=> $self->{charset},
         );
     } else {
         # Is a Html Request
         $console = XXV::OUTPUT::Html->new(
             -handle => $handle,
-            -dbh    => $obj->{dbh},
+            -dbh    => $self->{dbh},
             -htmdir => $htmlRootDir,
 						-htmdef => $htmlDefDir,
             -cgi    => $cgi,
             -mime   => $mime,
             -browser=> $data,
-            -paths  => $obj->{paths},
-            -start  => $obj->{StartPage},
-            -debug  => ($obj->{Debug} eq 'y' ? 1 : 0),
+            -paths  => $self->{paths},
+            -start  => $self->{StartPage},
+            -debug  => ($self->{Debug} eq 'y' ? 1 : 0),
+            -charset=> $self->{charset},
         );
     }
 
@@ -300,7 +301,7 @@ sub communicator
                   $request =~ s/.*epgimages\//$epgMod->{epgimages}\//;
                   $console->datei($request, $typ);
                 } else {
-                  $obj->ModulNotLoaded($console,'EPG');
+                  $self->ModulNotLoaded($console,'EPG');
                 }
             } elsif($request =~ /tempimages\//) {
                 my $tmp = $userMod->userTmp;
@@ -310,11 +311,11 @@ sub communicator
                 $console->datei($htmlRootDir . $request, $typ);
             }
         } else {
-            $obj->handleInput($watcher, $console, $cgi);
+            $self->handleInput($watcher, $console, $cgi);
         }
 
     } else {
-      $obj->ModulNotLoaded($console,'USER');
+      $self->ModulNotLoaded($console,'USER');
     }
     $console->footer() if($console->{inclFooter});
     $console->printout();
@@ -337,7 +338,7 @@ sub communicator
           "-" #$data->{http_useragent} ? $data->{http_useragent} : ""
         );
 
-    $obj->{STATUS}->{'sendbytes'} += $console->{'sendbytes'};
+    $self->{STATUS}->{'sendbytes'} += $console->{'sendbytes'};
 
     $watcher->w->cancel;
     undef $watcher;
@@ -363,7 +364,7 @@ sub _readline {
 # ------------------
 sub parseRequest {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $socket = shift || return error('No handle defined!');
     my $logout = shift || 0;
 
@@ -399,7 +400,7 @@ sub parseRequest {
     		} else {
           #dumper($line);
     		}
-        $obj->{STATUS}->{'readbytes'} += length($line);
+        $self->{STATUS}->{'readbytes'} += length($line);
       }
    
 	$data->{Request} =~ s/%([a-f0-9][a-f0-9])/pack("C", hex($1))/ieg
@@ -415,7 +416,7 @@ sub parseRequest {
         my $bytes = sysread($socket,$post,$data->{ContentLength});
         $data->{Post} = $post
           if($bytes && $data->{ContentLength} == $bytes);
-        $obj->{STATUS}->{'readbytes'} += $bytes;
+        $self->{STATUS}->{'readbytes'} += $bytes;
       }
       #dumper($data);
       return $data;
@@ -428,7 +429,7 @@ sub parseRequest {
 # ------------------
 sub ModulNotLoaded {
 # ------------------
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $module = shift || return error('No module defined!');
 
@@ -440,7 +441,7 @@ sub ModulNotLoaded {
 # ------------------
 sub handleInput {
 # ------------------
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cgi     = shift || return error('No CGI object defined!');
@@ -482,17 +483,17 @@ sub handleInput {
       } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
           $console->status403($err);
       } else {
-          $obj->usage($watcher, $console, undef, $err);
+          $self->usage($watcher, $console, undef, $err);
       } 
     } else {
-      $obj->ModulNotLoaded($console,'USER');
+      $self->ModulNotLoaded($console,'USER');
     }
 }
 
 # ------------------
 sub usage {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $modulename = shift;
@@ -502,7 +503,7 @@ sub usage {
     if ($m){
       return $m->usage($watcher,$console,$modulename,$hint);
     } else {
-      $obj->ModulNotLoaded($console,'CONFIG');
+      $self->ModulNotLoaded($console,'CONFIG');
     }
 
 }
@@ -510,17 +511,17 @@ sub usage {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift || return;
     my $lastReportTime = shift || 0;
 
     return {
         message => sprintf(gettext('Traffic on HTTPD socket since %s: transmitted: %s - received: %s - connections: %d.'),
-            datum($obj->{STATUS}->{'starttime'}), 
-            convert($obj->{STATUS}->{'sendbytes'}), 
-            convert($obj->{STATUS}->{'readbytes'}),
-            $obj->{STATUS}->{'connects'} ),
+            datum($self->{STATUS}->{'starttime'}), 
+            convert($self->{STATUS}->{'sendbytes'}), 
+            convert($self->{STATUS}->{'readbytes'}),
+            $self->{STATUS}->{'connects'} ),
     };
 
 }
@@ -529,7 +530,7 @@ sub status {
 sub findskins
 # ------------------
 {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $found;
     find({ wanted => sub{
               if(-d $File::Find::name
@@ -543,9 +544,9 @@ sub findskins
            follow => 1,
            follow_skip => 2,
         },
-        $obj->{paths}->{HTMLDIR}
+        $self->{paths}->{HTMLDIR}
     );
-    error "Couldn't find useful HTML Skin at : $obj->{paths}->{HTMLDIR}"
+    error "Couldn't find useful HTML Skin at : $self->{paths}->{HTMLDIR}"
         if(scalar $found == 0);
     return sort { lc($a->[0]) cmp lc($b->[0]) } @{$found};
 }
@@ -553,16 +554,16 @@ sub findskins
 # ------ unzip ------------
 # Name: unzip
 # Desc: Uncompress Files in gz format
-# Usag: my $res = $obj->unzip(file.gz);
-# Test: my $res = $obj->unzip('t/abc.gz');
+# Usag: my $res = $self->unzip(file.gz);
+# Test: my $res = $self->unzip('t/abc.gz');
 #       return 1 if(load_file($res) eq 'abc');
 # ------ unzip ------------
 sub unzip {
-    my $obj  = shift || return error('No object defined!');
+    my $self  = shift || return error('No object defined!');
     my $file = shift || return error('No file defined!');
 
     my $gz = gzopen($file, "rb")
-         or return $obj->msg(undef, sprintf(gettext("Could not open file '%s'! : %s"), $file, &gzerror ));
+         or return $self->msg(undef, sprintf(gettext("Could not open file '%s'! : %s"), $file, &gzerror ));
 
     my $text;
     while($gz->gzread(my $buffer) > 0) {
@@ -586,7 +587,7 @@ sub unzip {
 # getip:localhost
 sub checkvalue {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || return error('No data defined!');

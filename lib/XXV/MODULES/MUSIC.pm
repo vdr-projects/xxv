@@ -2,7 +2,6 @@ package XXV::MODULES::MUSIC;
 use strict;
 
 use Tools;
-use Locale::gettext;
 use File::Basename;
 use File::Path;
 use File::Find;

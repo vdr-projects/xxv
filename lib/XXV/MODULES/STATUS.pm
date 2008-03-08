@@ -4,7 +4,6 @@ use strict;
 use Tools;
 use Socket;
 use Sys::Hostname;
-use Locale::gettext;
 use File::Basename;
 use File::Find;
 

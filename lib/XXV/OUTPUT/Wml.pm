@@ -3,7 +3,6 @@
 use strict;
 
 use vars qw($AUTOLOAD);
-use Locale::gettext;
 use Tools;
 use File::Path;
 use Pod::Html;
@@ -12,7 +11,7 @@ use Pod::Html;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'Wml',
         Prereq => {
@@ -30,18 +29,18 @@ sub module {
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || {};
     my $params = shift || 0;
 
     my $name = (split('::', $AUTOLOAD))[-1];
     return  if($name eq 'DESTROY');
 
-    my $output = $obj->parseTemplate($name, $data, $params);
+    my $output = $self->parseTemplate($name, $data, $params);
 
-    $obj->out( $output );
+    $self->out( $output );
 
-    $obj->{call} = '';
+    $self->{call} = '';
 }
 
 
@@ -82,6 +81,9 @@ sub new {
     $self->{browser} = $attr{'-browser'}
         || return error('No browser given!');
 
+    $self->{charset} = $attr{'-charset'}
+        || 'ISO-8859-1';
+
 #    $self->{start} = $attr{'-start'}
 #        || return error('No StartPage given!');
 
@@ -106,12 +108,12 @@ sub new {
 # ------------------
 sub parseTemplate {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return error('No name defined!');
     my $data = shift || return error('No data defined!');
     my $params = shift || {};
 
-    my $t = $obj->{tt};
+    my $t = $self->{tt};
     my $u = main::getModule('USER');
 
     # you can use two templates, first is a user defined template
@@ -119,26 +121,27 @@ sub parseTemplate {
     # i.e. call the htmlhelp command the htmlhelp.tmpl
     # SpecialTemplate:  ./wmlRoot/usage.tmpl
     # StandardTemplate: ./wmlRoot/widgets/menu.tmpl
-    my $widget_first  = sprintf('%s.tmpl', (exists $obj->{call}) ? $obj->{call} : 'nothing');
+    my $widget_first  = sprintf('%s.tmpl', (exists $self->{call}) ? $self->{call} : 'nothing');
     my $widget_second = sprintf('widgets/%s.tmpl', $name);
-    my $widget = (-e sprintf('%s/%s', $obj->{wmldir}, $widget_first) ? $widget_first : $widget_second);
-    my $user = ($u->{active} eq 'y' && $obj->{USER}->{Name} ? $obj->{USER}->{Name} : "nobody" );
+    my $widget = (-e sprintf('%s/%s', $self->{wmldir}, $widget_first) ? $widget_first : $widget_second);
+    my $user = ($u->{active} eq 'y' && $self->{USER}->{Name} ? $self->{USER}->{Name} : "nobody" );
     my $output;
     my $vars = {
-        cgi     => $obj->{cgi},
+        cgi     => $self->{cgi},
         call    => $name,
         data    => $data,
         type    => ref $data,
-        info    => $obj->browser,
+        info    => $self->browser,
         param   => $params,
         pid     => $$,
         debug   => 1,
         user    => $user,
+        charset => $self->{charset},
         allow   => sub{
-            my($cmdobj, $cmdname, $se, $err) = $u->checkCommand($obj, $_[0],"1");
+            my($cmdobj, $cmdname, $se, $err) = $u->checkCommand($self, $_[0],"1");
             return 1 if($cmdobj);
         },
-	    basedir => $obj->{wmldir},
+	    basedir => $self->{wmldir},
         entities => sub{ return entities($_[0]) },
         # translate string, usage : gettext(foo,truncate) or gettext(foo)
         # value for truncate are optional
@@ -175,34 +178,35 @@ sub parseTemplate {
 # ------------------
 sub out {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $text = shift || 'no Text for Output';
     my $type = shift || 'text/vnd.wap.wml';
     my %args = @_;
 
-    my $q = $obj->{cgi};
-    unless(defined $obj->{header}) {
+    my $q = $self->{cgi};
+    unless(defined $self->{header}) {
         # HTTP Header
-        $obj->{handle}->print(
-            $obj->header($type, \%args)
+        $self->{handle}->print(
+            $self->header($type, \%args)
         );
     }
 
-    $obj->{handle}->print( $text,"\r\n" );
+    $self->{handle}->print( $text,"\r\n" );
 }
 
 # ------------------
 sub header {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $typ = shift || return error ('No Type!' );
     my $arg = shift || {};
 
-    $obj->{header} = 1;
-    return $obj->{cgi}->header(
+    $self->{header} = 1;
+    return $self->{cgi}->header(
         -type   =>  $typ,
         -status  => "200 OK",
-        -expires => ($typ =~ 'text/vnd.wap.wml' || (defined $obj->{nocache} && $obj->{nocache})) ? "now" : "+12h",
+        -expires => ($typ =~ 'text/vnd.wap.wml' || (defined $self->{nocache} && $self->{nocache})) ? "now" : "+12h",
+        -charset => $self->{charset},
         %{$arg},
     );
 }
@@ -210,45 +214,45 @@ sub header {
 # ------------------
 sub statusmsg {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $msg = shift || return error ('No Msg!');
     my $status = shift || return error ('No Status!');
 
-    unless(defined $obj->{header}) {
-        $obj->{nopack} = 1;
-        $obj->{header} = 1;
-        my $data = $obj->{cgi}->header(
+    unless(defined $self->{header}) {
+        $self->{nopack} = 1;
+        $self->{header} = 1;
+        my $data = $self->{cgi}->header(
             -type   =>  'text/vnd.wap.wml',
             -status  => $status,
             -expires => "now",
         );
-        $obj->out($data);
+        $self->out($data);
     }
 
     my @title = split ('\n', $status);
-    $obj->start(undef,{ title => $title[0] });
-    $obj->err($msg);
-    $obj->footer();
+    $self->start(undef,{ title => $title[0] });
+    $self->err($msg);
+    $self->footer();
 }
 
 # ------------------
 # Send HTTP Status 401 (Authorization Required)
 sub login {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $msg = shift || '';
 
-    $obj->statusmsg($msg,"401 Authorization Required\nWWW-Authenticate: Basic realm=\"xxvd\"");
+    $self->statusmsg($msg,"401 Authorization Required\nWWW-Authenticate: Basic realm=\"xxvd\"");
 }
 
 # ------------------
 # Send HTTP Status 403 (Access Forbidden)
 sub status403 {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $msg = shift  || '';
 
-    $obj->statusmsg($msg,"403 Forbidden");
+    $self->statusmsg($msg,"403 Forbidden");
 }
 
 
@@ -256,26 +260,26 @@ sub status403 {
 # Send HTTP Status 404 (File not found)
 sub status404 {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $file = shift || return error('No file defined!');
     my $why = shift || "";
 
     lg sprintf("Couldn't open file '%s' : %s!",$file,$why);
 
-    $file =~ s/$obj->{wmldir}\///g; # Don't post wml root, avoid spy out
+    $file =~ s/$self->{wmldir}\///g; # Don't post wml root, avoid spy out
 
-    $obj->statusmsg(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),"404 File not found");
+    $self->statusmsg(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),"404 File not found");
 }
 
 # ------------------
 sub question {
 # ------------------
-    my $obj         = shift || return error('No object defined!');
+    my $self         = shift || return error('No object defined!');
     my $titel       = shift || 'undef';
     my $questions   = shift || return error('No data defined!');
     my $erg         = shift || 0;
 
-    my $q = $obj->{cgi};
+    my $q = $self->{cgi};
     my $quest;
 
     # Check Data
@@ -303,7 +307,7 @@ sub question {
             }
 
             if($error) {
-                $obj->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
+                $self->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
                 last;
             }
         }
@@ -313,61 +317,61 @@ sub question {
         }
     }
 
-    $obj->formStart($titel);
+    $self->formStart($titel);
     if(ref $questions eq 'ARRAY') {
-        my $q = $obj->{cgi};
+        my $q = $self->{cgi};
         @$quest = @$questions;
         while (my ($name, $data) = splice(@$quest, 0, 2)) {
             my $type = delete $data->{typ};
             $data->{msg} =~ s/\n/<br \/>/sig if($data->{msg});
             $data->{NAME} = '__'.$name;
             $type ||= 'string';
-            $obj->$type($data);
+            $self->$type($data);
         }
     } else {
         my $type = delete $questions->{typ};
         $questions->{NAME} = '__'.$type;
         $type ||= 'string';
-        $obj->$type($questions);
+        $self->$type($questions);
     }
-    $obj->formEnd;
+    $self->formEnd;
     return undef;
 }
 
 # ------------------
 sub image {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $file = shift || return error('No file defined!');
-    my $typ = shift  || $obj->{mime}->{lc((split('\.', $file))[-1])}
+    my $typ = shift  || $self->{mime}->{lc((split('\.', $file))[-1])}
         or return error("No Type in Mimehash or File: $file");
 
     my $data = load_file($file)
-        or return $obj->status404($file,$!);
+        or return $self->status404($file,$!);
 
-    $obj->out($data, $typ);
+    $self->out($data, $typ);
 }
 
 # ------------------
 sub datei {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $file = shift || return error('No file defined!');
 
     my $data = load_file($file)
-        or return $obj->status404($file,$!);
+        or return $self->status404($file,$!);
 
-    $obj->out($data, 'text/vnd.wap.wml');
+    $self->out($data, 'text/vnd.wap.wml');
 }
 
 # ------------------
 sub pod {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $modname = shift || return error('No modul name defined!');
     $modname = ucfirst($modname) if($modname eq 'GENERAL');
 
-    my $podfile = sprintf('%s/%s.pod', $obj->{paths}->{PODPATH}, $modname);
+    my $podfile = sprintf('%s/%s.pod', $self->{paths}->{PODPATH}, $modname);
     my $tmpdir = main::getModule('USER')->userTmp;
     my $outfile = sprintf('%s/%s_%d.pod', $tmpdir, $modname, time);
 
@@ -381,49 +385,49 @@ sub pod {
 
     my $html = load_file($outfile);
     $html = $1 if($html =~ /\<body.*?\>(.+?)\<\/body\>/si);
-    $obj->link({
+    $self->link({
         text => gettext("Back to configuration page."),
-        url => $obj->{browser}->{Referer},
+        url => $self->{browser}->{Referer},
     });
-    $obj->message($html);
+    $self->message($html);
 }
 
 # ------------------
 sub typ {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    return $obj->{TYP};
+    my $self = shift || return error('No object defined!');
+    return $self->{TYP};
 }
 
 # ------------------
 sub setCall {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return error('No name defined!');
 
-    $obj->{call} = $name;
-    return $obj->{call};
+    $self->{call} = $name;
+    return $self->{call};
 }
 
 # ------------------
 sub browser {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    return $obj->{browser};
+    my $self = shift || return error('No object defined!');
+    return $self->{browser};
 }
 
 # Special Version from Message (with error handling)
 # ------------------
 sub msg {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || {};
     my $err = shift;
 
     unless($err) {
-        $obj->message($data);
+        $self->message($data);
     } else {
-        $obj->err($data);
+        $self->err($data);
     }
 }
 

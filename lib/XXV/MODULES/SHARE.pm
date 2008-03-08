@@ -2,7 +2,6 @@ package XXV::MODULES::SHARE;
 use strict;
 
 use Tools;
-use Locale::gettext;
 use vars qw($AUTOLOAD);
 
 

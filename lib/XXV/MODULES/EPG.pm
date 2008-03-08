@@ -2,8 +2,6 @@ package XXV::MODULES::EPG;
 use strict;
 
 use Tools;
-use File::Basename;
-use Locale::gettext;
 
 # This module method must exist for XXV
 # ------------------

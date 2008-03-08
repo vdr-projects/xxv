@@ -8,7 +8,6 @@ use File::Copy;
 use File::Path;
 use File::Basename;
 use File::stat;
-use Locale::gettext;
 use Linux::Inotify2;
 
 $SIG{CHLD} = 'IGNORE';

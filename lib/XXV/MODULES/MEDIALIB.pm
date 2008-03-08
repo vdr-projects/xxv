@@ -3,7 +3,6 @@ package XXV::MODULES::MEDIALIB;
 use strict;
 
 use Tools;
-use Locale::gettext;
 use Data::Dumper;
 use File::Path;
 

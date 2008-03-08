@@ -4,7 +4,7 @@ use strict;
 
 use XXV::OUTPUT::Console;
 use Tools;
-use Locale::gettext;
+
 
 # This module method must exist for XXV
 # ------------------

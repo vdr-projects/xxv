@@ -3,7 +3,6 @@ package XXV::MODULES::CHANNELS;
 use strict;
 
 use Tools;
-use Locale::gettext;
 use File::stat;
 
 # This module method must exist for XXV
@@ -148,6 +147,8 @@ sub new {
 
     # paths
     $self->{paths} = delete $attr{'-paths'};
+
+    $self->{charset} = delete $attr{'-charset'};
 
 	# who am I
     $self->{MOD} = $self->module;

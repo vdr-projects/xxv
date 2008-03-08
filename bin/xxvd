@@ -36,7 +36,7 @@ my $PATHS = {
 use Tools;
 use POSIX qw(locale_h);
 use Cwd 'abs_path';
-use Locale::gettext;
+use Locale::gettext qw/!gettext/;;
 
 $|++;
 
@@ -52,21 +52,23 @@ my $killer       = 0;
 my $version      = 0;
 my $verbose      = 3;
 my $nofork       = 0;
+my $useutf8      = 0;
+my $charset;
+
+my $Prereq = {
+  'Event'                 => 'Event loop processing',
+  'Getopt::Long'          => 'Extended processing of command line options ',
+  'Config::Tiny'          => 'Read/Write .ini style files with as little code as possible',
+  'DBI'                   => 'Database independent interface for Perl ',
+  'DBD::mysql'            => 'MySQL driver for the Perl5 Database Interface (DBI)',
+  'Proc::Killfam'         => 'kill a list of pids, and all their sub-children',
+};
 
 # ------------------
 sub module {
 # ------------------
     my $args = {
         Name => 'General',
-        Prereq => {
-            'Event'                 => 'Event loop processing',
-            'Getopt::Long'          => 'Extended processing of command line options ',
-            'Config::Tiny'          => 'Read/Write .ini style files with as little code as possible',
-            'DBI'                   => 'Database independent interface for Perl ',
-            'DBD::mysql'            => 'MySQL driver for the Perl5 Database Interface (DBI)',
-            'Proc::Killfam'         => 'kill a list of pids, and all their sub-children',
-#           'Proc::ProcessTable'    => 'Perl interface to the unix process table',
-        },
         Description => gettext('This is the main program xxvd.'),
         Version => $VERSION,
         Date => (split(/ /, '$Date$'))[1],
@@ -147,14 +149,12 @@ sub module {
 # THE MAIN PROGRAM --------------------------------- TOP
 my @PARAMETER = @ARGV;
 
-# General ist'n spezi
-$MODULES->{'XXV::MODULES::General'}->{MOD} = &module;
-
 # Try to eval requirements
 map {
     eval "use $_";
-    warn("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
-} keys %{$MODULES->{'XXV::MODULES::General'}->{MOD}->{Prereq}};
+    print("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
+} keys %{$Prereq};
+
 
 # Options
 GetOptions (
@@ -170,10 +170,11 @@ GetOptions (
     "contrib=s"    => \$PATHS->{CONTRIB},
     "newsmods=s"   => \$PATHS->{NEWSMODS},
     "newstmpl=s"   => \$PATHS->{NEWSTMPL},
-    "kill"         => \$killer,     # kill old xxvd
     "verbose=s"    => \$verbose,    # debug output level
+    "utf8"         => \$useutf8,    # Use encoding utf8 as data charset.
     "version"      => \$version,    # print version
     "nofork"       => \$nofork,     # switch fork off, for better debugging
+    "kill"         => \$killer,     # kill old xxvd
 );
 
 # Strip last slash
@@ -224,8 +225,9 @@ unless($Config){
     exit(1);
 }
 
+
 # Install i18n system
-&init_locale($Config, $PATHS);
+$charset = &init_locale($Config, $PATHS, $useutf8);
 
 # Install logging
 &init_logging($PATHS);
@@ -244,10 +246,14 @@ if($cfgUsrFile ne $cfgFile) {
 &init_signal_handler($PATHS);
 
 # Connect the DB
-my $DBH = &init_db_connect($Config) || die;
+my $DBH = &init_db_connect($Config, $charset) || die;
+
+
+# General ist'n spezi
+$MODULES->{'XXV::MODULES::General'}->{MOD} = &module;
 
 # Ok initialize the moduls
-&init($PATHS->{MODPATH});
+&init($PATHS->{MODPATH},$charset);
 
 &docu;
 
@@ -267,6 +273,8 @@ while(Event::loop(1)) {};
 sub init {
 # ------------------
     my $modules = shift || return error('No modul path defined!');
+    my $charset = shift || return error('No charset defined!');
+
     my @mods = glob($modules.'/*.pm');
     unless(scalar @mods) {
       panic(sprintf("None usable modules found at '%s'",$modules));
@@ -282,6 +290,7 @@ sub init {
             -config => $Config,
             -dbh    => $DBH,
             -paths  => $PATHS,
+            -charset  => $charset
         );
 
         if(ref $modul) {
@@ -389,6 +398,7 @@ sub getDbh {
     my $dsn = shift || return error('No database parameter defined!');
     my $usr = shift || return error('No user defined!');
     my $pwd = shift || '';
+    my $charset = shift || return error('No charset defined!');
 
     my $dbh = DBI->connect($dsn, $usr, $pwd,{
                       PrintError => 1,
@@ -397,6 +407,22 @@ sub getDbh {
 
     if($dbh) {
       debug sprintf('Connect to database: %s successful.', $dsn);
+
+      if ($charset) {
+  		    my $NAMES = {
+			      'UTF-8' => 'utf8',
+			      'ISO-8859-1' => 'latin1',
+			      'ISO-8859-2' => 'latin2',
+			      'ISO-8859-5' => 'latin5',
+			      'ISO-8859-7' => 'latin7',
+			      'ISO-8859-15' => 'latin1',
+      		};
+          my $n = $NAMES->{$charset} || 'latin1';
+          if (!($dbh->do("SET NAMES '" . $n . "'"))) {
+              panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
+          }
+      }
+
       $dbh->{'mysql_auto_reconnect'} = 1;
     } else {
         panic sprintf("Could not connect to database: %s :", $dsn, $DBI::errstr);
@@ -602,20 +628,33 @@ sub getDBVersion {
 sub init_locale {
 # ------------------
     my $cfg = shift || return error('No configuration defined!');
-    my $pat = shift || return error('No path defined!');
-    # TODO set to installed folder like /usr/share/locale
-    # set /usr/share/locale/de/LC_MESSAGES/xxv.mo
-    # Message catalogs will be expected at the pathnames dirname/locale/cate-
-    # gory/domainname.mo,  where  locale  is  a locale name and category is a
-    # locale facet such as LC_MESSAGES.
-    bindtextdomain ('xxv', abs_path($pat->{LOCDIRNAME}));
-    bind_textdomain_codeset('xxv', 'ISO-8859-15');
-    textdomain ('xxv');
+    my $paths = shift || return error('No path defined!');
+    my $useutf8 = shift;
+
+    my $charset;
+    # use I18N::Langinfo qw(langinfo CODESET);
+    # $charset = langinfo(CODESET);
+    if($useutf8){
+      $charset = 'UTF-8';
+    } else {
+      $charset = 'ISO-8859-1';
+    }
+    setcharset($charset);
+
     if(defined $cfg->{General}->{Language}) {
         setlocale (LC_ALL, $cfg->{General}->{Language});
     } else {
         setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"'
     }
+
+    # TODO set to installed folder like /usr/share/locale
+    # set /usr/share/locale/de/LC_MESSAGES/xxv.mo
+    # Message catalogs will be expected at the pathnames dirname/locale/cate-
+    # gory/domainname.mo,  where  locale  is  a locale name and category is a
+    # locale facet such as LC_MESSAGES.
+    bindtextdomain ('xxv', abs_path($paths->{LOCDIRNAME}));
+
+    return $charset;
 }
 
 # ------------------
@@ -642,6 +681,7 @@ sub init_logging {
             $year+1900, $mon+1,$mday,  $hour, $min, $sec );
 
         open(LOGGER, ">>", $loggerfile) or return;
+        binmode(LOGGER, ":utf8") if($useutf8);
         print LOGGER sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $msg);
         close LOGGER;
     };
@@ -664,7 +704,7 @@ sub init_template {
         debug 'Fast template support is enabled!';
     } else {
         use Template;
-        warn gettext(qq|
+        warn qq|
 
 ----- WARNING! ----
 Upps, you use a very slowly version from Template!
@@ -678,7 +718,7 @@ with cpan:
 with debian:
     apt-get install libtemplate-perl
 
-|);
+|;
     }
 }
 
@@ -710,12 +750,14 @@ sub init_signal_handler {
 sub init_db_connect {
 # ------------------
     my $cfg = shift || return error('No configuration defined!');
+    my $charset = shift || return error('No charset defined!');
 
     # Connect to Database
     my $dbh = &getDbh(
         $cfg->{General}->{DSN},
         $cfg->{General}->{USR},
         $cfg->{General}->{PWD},
+        $charset
         ) or return error "Couldn't connect to database";
 
     # Set DBH for Toolsmodule

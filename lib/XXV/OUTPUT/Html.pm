@@ -3,7 +3,6 @@ package XXV::OUTPUT::Html;
 use strict;
 
 use vars qw($AUTOLOAD);
-use Locale::gettext;
 use Tools;
 use XXV::OUTPUT::HTML::WAIT;
 use File::Path;
@@ -98,6 +97,9 @@ sub new {
     $self->{debug} = $attr{'-debug'}
         || 0;
 
+    $self->{charset} = $attr{'-charset'}
+        || 'ISO-8859-1';
+
     $self->{TYP} = 'HTML';
 
     # Forward name of Server for CGI::server_software
@@ -190,6 +192,7 @@ sub parseTemplateFile {
         pid     => $$,
         debug   => $self->{debug},
         user    => $user,
+        charset => $self->{charset},
         # query the current locale
         locale  => main::getGeneralConfig->{Language},
         allow   => sub{
@@ -369,7 +372,8 @@ sub header {
     return $self->{cgi}->header(
         -type   =>  $typ,
         -status  => "200 OK",
-        -expires => ($typ =~ 'text/html' || (defined $self->{nocache} && $self->{nocache})) ? "now" : "+7d",
+        -expires => ($typ =~ 'text/html' || (defined $self->{nocache} && $self->{nocache})) ? "now" : "+30d",
+        -charset => $self->{charset},
         %{$arg},
     );
 }
@@ -567,6 +571,7 @@ sub wait {
     my $waiter =  XXV::OUTPUT::HTML::WAIT->new(
         -cgi => $self->{cgi},
         -handle => $self->{handle},
+        -charset => $self->{charset},
         -callback => sub{
             my ($min, $max, $cur, $steps, $nextmessage, $eta) = @_;
             my $out = $self->parseTemplate(

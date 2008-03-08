@@ -131,6 +131,7 @@ perlModules()
 	checkPerlModule DBI
 	checkPerlModule Digest::MD5
 	checkPerlModule Digest::HMAC_MD5
+	checkPerlModule Encode
 	checkPerlModule Event
 	checkPerlModule GD
 	checkPerlModule Getopt::Long

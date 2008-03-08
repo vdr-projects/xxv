@@ -2,7 +2,6 @@ package XXV::MODULES::ROBOT;
 use strict;
 
 use Tools;
-use Locale::gettext;
 
 $SIG{CHLD} = 'IGNORE';
 

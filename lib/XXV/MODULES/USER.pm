@@ -3,7 +3,6 @@ package XXV::MODULES::USER;
 use strict;
 
 use Tools;
-use Locale::gettext;
 use File::Path;
 
 

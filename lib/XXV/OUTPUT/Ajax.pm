@@ -4,7 +4,6 @@ use strict;
 
 #use Template;
 use vars qw($AUTOLOAD);
-use Locale::gettext;
 use Tools;
 
 $SIG{CHLD} = 'IGNORE';
@@ -73,20 +72,24 @@ sub new {
     $self->{outtype} = $attr{'-output'}
         || return error('No output type given!');
 
+    $self->{charset} = $attr{'-charset'}
+        || 'ISO-8859-15';
+
 		$self->{types} = {
 			'xml' => 'application/xml',
 #			'json' => 'application/json; charset=utf-8', # json with utf-8
 #			'json' => 'application/json; charset=iso-8859-1', # json with iso-8859
-			'json' => 'text/html',
+#			'json' => 'text/html',
 			'text' => 'text/plain',
 		};
+    $self->{types}->{'json'} = sprintf('application/json; charset=%s',$self->{charset});
 
 		# New JSON Object if required
 		if($self->{outtype} eq 'json') {
 			$self->{json} = JSON->new()
         || return error("Can't create JSON instance!");
 		}	elsif($self->{outtype} eq 'xml') {
-      $self->{xml} = XML::Simple->new()
+      $self->{xml} = XML::Simple->new( NumericEscape => $self->{charset} eq 'UTF-8' ? 0 : 1 )
         || return error("Can't create XML instance!");
     }	elsif($self->{outtype} eq 'text') {
         # ...
@@ -140,8 +143,10 @@ sub printout {
     if($self->{browser}->{Method} ne 'HEAD') {
       if( $self->{outtype} eq 'json' ) {
         if($self->{json}->can('encode')) { # Version 2.0 see http://search.cpan.org/~makamaka/JSON-2.04/lib/JSON.pm#Transition_ways_from_1.xx_to_2.xx.
+          $self->{json}->utf8(1) if($self->{charset} eq 'UTF-8');
           $content = $self->{json}->encode($self->{output});
         } else { # Version 1.0
+          $JSON::UTF8=1 if($self->{charset} eq 'UTF-8');
           $content = $self->{json}->objToJson($self->{output});
         }
       } elsif($self->{outtype} eq 'xml') {
@@ -188,6 +193,7 @@ sub header {
         -type   =>  $typ,
         -status  => "200 OK",
         -expires => "now",
+        -charset => $self->{charset},
         %{$arg},
     );
 }

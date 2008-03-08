@@ -1,6 +1,5 @@
 package XXV::MODULES::INTERFACE;
 
-use Locale::gettext;
 use XXV::OUTPUT::Dump;
 use Tools;
 

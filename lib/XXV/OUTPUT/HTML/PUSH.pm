@@ -15,8 +15,8 @@ XXV::OUTPUT::HTML::PUSH - A Push for http system
     use XXV::OUTPUT::HTML::PUSH;
 
     my $pusher =  XXV::OUTPUT::HTML::PUSH->new(
-        -cgi => $obj->{cgi},        # The CGI Object from Lincoln Stein
-        -handle => $obj->{handle},  # The handle to printout the http Stuff
+        -cgi => $self->{cgi},        # The CGI Object from Lincoln Stein
+        -handle => $self->{handle},  # The handle to printout the http Stuff
     );
 
     $pusher->start();       # Start the Push Process
@@ -43,52 +43,56 @@ sub new {
     $self->{cgi} = $attr{'-cgi'}
         || return error('No CGI Object defined!');
 
-	return $self;
+    $self->{charset} = $attr{'-charset'}
+        || 'ISO-8859-1';
+
+  return $self;
 }
 
 # ------------------
 sub start {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $out = shift ||  0;
-    $obj->{handle}->print($obj->{cgi}->multipart_init(-boundary=>'----here we go!'));
-    $obj->print($out) if($out);
+    $self->{handle}->print($self->{cgi}->multipart_init(-boundary=>'----here we go!'));
+    $self->print($out) if($out);
 }
 
 # ------------------
 sub print {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $msg = shift  || return;
     my $type = shift || 'text/html';
 
-    $obj->{handle}->print($obj->{cgi}->multipart_start(-type=>$type));
-    $obj->{handle}->print($msg."\n");
-    $obj->{handle}->print($obj->{cgi}->multipart_end);
+    $self->{handle}->print($self->{cgi}->multipart_start(-type=>$type));
+    $self->{handle}->print($msg."\n");
+    $self->{handle}->print($self->{cgi}->multipart_end);
 }
 
 # ------------------
 sub follow_print {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $msg = shift  || return;
     my $type = shift || 'text/html';
 
-    unless($obj->{header}) {
-        $obj->{handle}->print($obj->{cgi}->multipart_start(-type=>$type));
-        $obj->{header} = 1;
+    unless($self->{header}) {
+        $self->{handle}->print($self->{cgi}->multipart_start(-type=>$type));
+        $self->{header} = 1;
     }
-    $obj->{handle}->print($msg."\n");
+    $self->{handle}->print($msg."\n");
 }
 
 # ------------------
 sub stop {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
-    $obj->{handle}->print($obj->{cgi}->multipart_end);
-    $obj->{handle}->print($obj->{cgi}->header(
+    my $self = shift  || return error('No object defined!');
+    $self->{handle}->print($self->{cgi}->multipart_end);
+    $self->{handle}->print($self->{cgi}->header(
         -type   =>  'text/html',
         -status  => "200 OK",
+        -charset => $self->{charset},
     ));
 }
 

@@ -3,7 +3,6 @@ package XXV::MODULES::TIMERS;
 use strict;
 use Tools;
 use POSIX ":sys_wait_h", qw(strftime mktime);
-use Locale::gettext;
 
 # This module method must exist for XXV
 # ------------------

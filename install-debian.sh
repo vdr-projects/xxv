@@ -35,6 +35,7 @@ apt-get install \
   libdbi-perl \
   libmd5-perl \
   libdigest-hmac-perl \
+  libencode-perl \
   libevent-perl \
   libgd-gd2-noxpm-perl libgd-graph-perl libgd-graph3d-perl libgd-text-perl \
   txt2html \

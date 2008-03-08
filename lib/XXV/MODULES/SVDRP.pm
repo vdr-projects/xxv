@@ -1,7 +1,6 @@
 package XXV::MODULES::SVDRP;
 
 use Tools;
-use Locale::gettext;
 use strict;
 
 

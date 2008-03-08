@@ -2,9 +2,9 @@ package XXV::MODULES::VTX;
 
 use strict;
 
+use Tools;
 use File::Find;
 use FileHandle;
-use Locale::gettext;
 
 ################################################################################
 # This module method must exist for XXV

@@ -1,6 +1,5 @@
 package XXV::MODULES::WAPD;
 
-use Locale::gettext;
 use XXV::OUTPUT::Wml;
 use File::Basename;
 use File::Find;
@@ -21,7 +20,7 @@ my $mime = {
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'WAPD',
         Prereq => {
@@ -65,7 +64,7 @@ sub module {
                 default     => 'wml',
                 type        => 'list',
                 required    => gettext('This is required!'),
-                choices     => $obj->findskins,
+                choices     => $self->findskins,
             },
 #            StartPage => {
 #                description => gettext('Startup screen'),
@@ -99,6 +98,8 @@ sub new {
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
+    $self->{charset} = delete $attr{'-charset'};
+
 	# who am I
     $self->{MOD} = $self->module;
 
@@ -127,16 +128,16 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     # globals
     my $channels;
 
     # make socket
 	my $socket = IO::Socket::INET->new(
-		Listen		=> $obj->{Clients},
-		LocalPort	=> $obj->{Port},
-    LocalAddr => $obj->{Interface},
+		Listen		=> $self->{Clients},
+		LocalPort	=> $self->{Port},
+    LocalAddr => $self->{Interface},
 		Reuse		=> 1
     ) or return error("Couldn't create socket: $!");
 
@@ -164,30 +165,31 @@ sub init {
                     # read new line and report it
                     my $handle=$watcher->w->fd;
 
-                    my $data = $obj->parseRequest($handle,(defined $obj->{LOGOUT} && $obj->{LOGOUT} == 1 ));
+                    my $data = $self->parseRequest($handle,(defined $self->{LOGOUT} && $self->{LOGOUT} == 1 ));
                     unless($data) {
-                        undef $obj->{LOGOUT};
+                        undef $self->{LOGOUT};
                         $watcher->w->cancel;
                         $handle->close();
                         undef $watcher;
                         return 1;
                     }
 
-                    undef $obj->{LOGOUT}
-                        if(exists $obj->{LOGOUT});
+                    undef $self->{LOGOUT}
+                        if(exists $self->{LOGOUT});
 
-                    my $WMLRootDir = sprintf('%s/%s', $obj->{paths}->{HTMLDIR}, $obj->{WMLRoot});
+                    my $WMLRootDir = sprintf('%s/%s', $self->{paths}->{HTMLDIR}, $self->{WMLRoot});
                     my $cgi = CGI->new( $data->{Query} );
 
                     my $console = XXV::OUTPUT::Wml->new(
                         -handle => $handle,
-                        -dbh    => $obj->{dbh},
+                        -dbh    => $self->{dbh},
                         -wmldir => $WMLRootDir,
                         -cgi    => $cgi,
                         -mime   => $mime,
                         -browser=> $data,
-                        -paths  => $obj->{paths},
-#						-start  => $obj->{StartPage},
+                        -paths  => $self->{paths},
+                        -charset=> $self->{charset},
+#						-start  => $self->{StartPage},
                     );
 
                     my $userMod = main::getModule('USER');
@@ -221,10 +223,10 @@ sub init {
                             $console->image(sprintf('%s%s', $WMLRootDir, $data->{Request}), $typ);
                         } elsif( $cgi->param('binary') ) {
                             # Send multimedia files (if param binary)
-                            $obj->handleInput($watcher, $console, $cgi);
+                            $self->handleInput($watcher, $console, $cgi);
                         } else {
                             $console->start();
-                            $obj->handleInput($watcher, $console, $cgi);
+                            $self->handleInput($watcher, $console, $cgi);
                             $console->footer();
                         }
                     }
@@ -235,7 +237,7 @@ sub init {
             );
 
         },
-    ) if($obj->{active} eq 'y');
+    ) if($self->{active} eq 'y');
 
     return 1;
 
@@ -244,7 +246,7 @@ sub init {
 # ------------------
 sub parseRequest {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $hdl = shift || return error('No handle defined!');
     my $logout = shift || 0;
 
@@ -282,7 +284,7 @@ sub parseRequest {
 # ------------------
 sub handleInput {
 # ------------------
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cgi     = shift || return error ('No CGI Object');
@@ -318,7 +320,7 @@ sub handleInput {
     } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
         return $console->status403($err);
     } else {
-        return $obj->usage($watcher, $console, undef, $err);
+        return $self->usage($watcher, $console, undef, $err);
     }
 }
 
@@ -326,7 +328,7 @@ sub handleInput {
 # ------------------
 sub usage {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     return main::getModule('CONFIG')->usage(@_);
 }
 
@@ -334,7 +336,7 @@ sub usage {
 sub findskins
 # ------------------
 {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $found;
     find({ wanted => sub{
                 if(-d $File::Find::name and -e $File::Find::name.'/wapd.tmpl' ) {
@@ -345,9 +347,9 @@ sub findskins
            follow => 1,
            follow_skip => 2,
         },
-        $obj->{paths}->{HTMLDIR}
+        $self->{paths}->{HTMLDIR}
     );
-    error "Couldn't find useful WML Skin at : $obj->{paths}->{HTMLDIR}"
+    error "Couldn't find useful WML Skin at : $self->{paths}->{HTMLDIR}"
         if(scalar $found == 0);
     return $found;
 }

@@ -3,7 +3,6 @@ use strict;
 
 use Tools;
 use POSIX qw(locale_h);
-use Locale::gettext;
 
 # News Modules have only three methods
 # init - for intervall or others

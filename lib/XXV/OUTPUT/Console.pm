@@ -6,7 +6,6 @@ BEGIN{
 
 use strict;
 
-use Locale::gettext;
 use Term::ReadLine;
 use Tools;
 use vars qw($AUTOLOAD);

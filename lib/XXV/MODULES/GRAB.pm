@@ -2,7 +2,6 @@ package XXV::MODULES::GRAB;
 use strict;
 
 use Tools;
-use Locale::gettext;
 use File::Basename;
 use File::Find;
 

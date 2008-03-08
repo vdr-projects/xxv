@@ -3,7 +3,6 @@ package XXV::MODULES::LOGREAD;
 use strict;
 
 use Tools;
-use Locale::gettext;
 use XXV::OUTPUT::HTML::PUSH;
 
 $|++;

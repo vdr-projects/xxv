@@ -3,7 +3,6 @@ package XXV::MODULES::AUTOTIMER;
 use strict;
 
 use Tools;
-use Locale::gettext;
 
 # ------------------
 # Name:  module

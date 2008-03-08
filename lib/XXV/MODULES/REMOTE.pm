@@ -3,7 +3,7 @@ package XXV::MODULES::REMOTE;
 use strict;
 
 use Tools;
-use Locale::gettext;
+
 # This module method must exist for XXV
 # ------------------
 sub module {
