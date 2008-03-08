@@ -214,7 +214,9 @@ sub news {
     my $lev   = $obj->scala($levname)
         || return error('Problem to analyze level!');
 
-    my  $url = sprintf("http://%s:%s/", $obj->{host}, main::getModule('HTTPD')->{Port});
+    my $hmod = main::getModule('HTTPD') or return;
+
+    my  $url = sprintf("http://%s:%s/", $obj->{host}, $hmod->{Port});
         $url = sprintf("%s?cmd=%s&data=%s", $url, $cmd, $id)
             if($cmd && $id);
 

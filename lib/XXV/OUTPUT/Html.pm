@@ -474,7 +474,6 @@ sub question {
     my $questions   = shift || return error ('No data defined!');
     my $erg         = shift || 0;
 
-    my $q = $self->{cgi};
     my $quest;
 
     # Check Data
@@ -523,7 +522,6 @@ sub question {
 
     $self->formStart($titel);
     if(ref $questions eq 'ARRAY') {
-        my $q = $self->{cgi};
         @$quest = @$questions;
         my $c=0;
         while (my ($name, $data) = splice(@$quest, 0, 2)) {

@@ -121,6 +121,7 @@ sub out {
 	    $self->{output}->{data} = $data;
 	    $self->{output}->{param} = $para
 	        if($para);
+#dumper($self->{output});
 		} else {
 	    $self->{output}->{DATA} = $data;
 	    $self->{output}->{$name}->{data} = $data;
@@ -202,6 +203,114 @@ sub headerNoAuth {
         -type    => $typ,
         -status  => "401 Authorization Required\nWWW-Authenticate: Basic realm=\"xxvd\""
     );
+}
+
+# ------------------
+sub question {
+# ------------------
+    my $self         = shift || return error('No object defined!');
+    my $titel       = shift || 'undef';
+    my $questions   = shift || return error ('No data defined!');
+    my $erg         = shift || 0;
+
+    my $quest;
+
+    # Check Data
+    if(ref $erg eq 'HASH' and ref $questions eq 'ARRAY' and exists $erg->{action}) {
+        my $error;
+        @$quest = @$questions;
+        while (my ($name, $data) = splice(@$quest, 0, 2)) {
+
+            $data->{typ} = 'string'
+              unless($data->{typ});
+
+            # Required value ...
+            $error = $data->{req}
+                if($data->{req} and not $erg->{$name});
+
+            # Check Callback
+            if(exists $data->{check} and ref $data->{check} eq 'CODE' and not $error) {
+                ($erg->{$name}, $error) = $data->{check}($erg->{$name}, $data, $erg);
+            }
+
+            # Check on directory
+            if($data->{typ} eq 'dir' and $data->{required} and not -d $erg->{$name}) {
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("Directory '%s' does not exist!"), $erg->{$name}));
+            }
+
+            # Check on file
+            if($data->{typ} eq 'file' and $data->{required} and not -e $erg->{$name}) {
+                ($erg->{$name}, $error) = (undef, sprintf(gettext("File '%s' does not exist!"), $erg->{$name}));
+            }
+
+            # Check on password (is not set the take the old password)
+            if($data->{typ} eq 'password' and not $erg->{$name}) {
+                $erg->{$name} = $data->{def};
+            }
+
+            if($error) {
+                $self->err(sprintf(gettext("Error '%s' (%s) : %s!"), $data->{msg}, $name, $error));
+                return undef;
+            }
+        }
+        unless($error) {
+            delete $erg->{action};
+            return $erg;
+        }
+    }
+
+  my $out = [];
+  if(ref $questions eq 'ARRAY') {
+    @$quest = @$questions;
+    while (my ($name, $data) = splice(@$quest, 0, 2)) {
+      my $type = $data->{typ} || 'string';
+      my $def ;
+      if(ref $data->{def} eq 'CODE') {
+        $def = $data->{def}();
+      } elsif(ref $data->{def} eq 'ARRAY') {
+        $def = join(',',@{$data->{def}});
+      } else {
+        $def = $data->{def};
+      } 
+      my $choices ;
+      if($data->{choices}) {
+        if(ref $data->{choices} eq 'CODE') {
+          $choices = $data->{choices}();
+        } else {
+          $choices = $data->{choices};
+        }
+        if(ref $choices eq 'ARRAY') {
+          #$choices = join(',',@$choices);
+        } 
+      }
+
+      push(@$out,[$name,$data->{msg},$type,$def,$data->{req} ? 1 : 0,$data->{readonly} ? 1 : 0,$choices]);
+    }
+    $self->out( $out, 0 , 'question' );
+  } else {
+    my $type = $questions->{typ} || 'string';
+    my $def ;
+    if(ref $questions->{def} eq 'CODE') {
+      $def = $questions->{def}();
+    } elsif(ref $questions->{def} eq 'ARRAY') {
+      $def = join(',',@{$questions->{def}});
+    } else {
+      $def = $questions->{def};
+    } 
+
+    my $choices ;
+    if($questions->{choices}) {
+        if(ref $questions->{choices} eq 'CODE') {
+          $choices = $questions->{choices}();
+        } else {
+          $choices = $questions->{choices};
+        }
+    }
+
+    push(@$out,[$type,$questions->{msg},$type,$def,$questions->{req} ? 1 : 0,$questions->{readonly} ? 1 : 0,$choices]);
+    $self->out( $out, 0 , 'question' );
+  }
+  return undef;
 }
 
 # ------------------

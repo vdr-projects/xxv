@@ -707,11 +707,11 @@ You can also fine tune your search :
             def   => sub {
                             my $value = $epg->{InFields} || ['title','subtitle'];
                             my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
-                            my @ret;
+                            my $ret;
                             foreach my $v (@vals) {
-                                push(@ret,$in{$v});
+                                push(@$ret,$in{$v});
                             }
-                            return @ret;
+                            return $ret;
                           },
             check   => sub{
                 my $value = shift || return;
@@ -757,11 +757,11 @@ You can also fine tune your search :
             def   => sub {
                             my $value = $epg->{Done};
                             my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
-                            my @ret;
+                            my $ret;
                             foreach my $v (@vals) {
-                                push(@ret,$do{$v});
+                                push(@$ret,$do{$v});
                             }
-                            return @ret;
+                            return $ret;
                           },
             check   => sub{
                 my $value = shift || '';
@@ -834,11 +834,11 @@ You can also fine tune your search :
             def   => sub {
                             my $value = $epg->{Weekdays} || ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
                             my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
-                            my @ret;
+                            my $ret;
                             foreach my $v (@vals) {
-                                push(@ret,$wd{$v});
+                                push(@$ret,$wd{$v});
                             }
-                            return @ret;
+                            return $ret;
                           },
             check   => sub{
                 my $value = shift || [$wd{'Mon'}, $wd{'Tue'}, $wd{'Wed'}, $wd{'Thu'}, $wd{'Fri'}, $wd{'Sat'}, $wd{'Sun'}];

@@ -1764,7 +1764,7 @@ sub delete {
     my $record  = shift || return con_err($console,gettext("No recording defined for deletion! Please use rdelete 'id'."));
     my $answer  = shift || 0;
 
-    my @rcs  = split(/_/, $record);
+    my @rcs  = split(/[^0-9a-fl\:]/, $record);
     my $todelete;
     my $md5delete;
     my %rec;
