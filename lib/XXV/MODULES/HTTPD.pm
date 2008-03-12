@@ -84,7 +84,7 @@ sub module {
                 default     => 'default',
                 type        => 'list',
                 required    => gettext('This is required!'),
-                choices     => sub{ return $self->findskins },
+                choices     => sub{ return $self->findskins(); },
             },
             StartPage => {
                 description => gettext('Startup screen'),
@@ -531,14 +531,14 @@ sub findskins
 # ------------------
 {
     my $self = shift || return error('No object defined!');
-    my $found;
+    my @skins;
     find({ wanted => sub{
               if(-d $File::Find::name
                     and ( -e $File::Find::name.'/index.tmpl'
                       or  -e $File::Find::name.'/index.html')
               ) {
                     my $l = basename($File::Find::name);
-                    push(@{$found},[$l,$l]);
+                    push(@skins,[$l,$l]);
                 }
            },
            follow => 1,
@@ -546,9 +546,10 @@ sub findskins
         },
         $self->{paths}->{HTMLDIR}
     );
-    error "Couldn't find useful HTML Skin at : $self->{paths}->{HTMLDIR}"
-        if(scalar $found == 0);
-    return sort { lc($a->[0]) cmp lc($b->[0]) } @{$found};
+    error "Couldn't find useable HTML Skin at : $self->{paths}->{HTMLDIR}"
+        unless(scalar @skins);
+    @skins = sort { lc($a->[0]) cmp lc($b->[0]) } @skins;
+    return \@skins;
 }
 
 # ------ unzip ------------

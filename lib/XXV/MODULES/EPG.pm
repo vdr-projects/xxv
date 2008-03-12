@@ -602,122 +602,129 @@ sub search {
     }
 
     my $erg = [];
+    my $rows = 0;
 
-    unless($search) {
-      $console->err(gettext("There none text to search defined!"));
-      return 0;
-    }
+    if($search) {
 
-    # Channelsearch
-    if($params->{channel}) {
-        $search->{query} .= ' AND c.POS = ?';
-        push(@{$search->{term}},$params->{channel});
-    }
+      # Channelsearch
+      if($params->{channel}) {
+          $search->{query} .= ' AND c.POS = ?';
+          push(@{$search->{term}},$params->{channel});
+      }
 
-    # Videoformat search
-    if($params->{Videoformat} && $params->{Videoformat} eq 'widescreen') {
-        $search->{query} .= ' AND e.video like "%%16:9%%"';
-    }
+      # Videoformat search
+      if($params->{Videoformat} && $params->{Videoformat} eq 'widescreen') {
+          $search->{query} .= ' AND e.video like "%%16:9%%"';
+      }
 
-    # Audioformat search
-    # XXX: Leider kann man an den Audioeintrag nicht richtig erkennnen
-    # hab erst zu spät erkannt das diese Info aus dem tvm2vdr kommen ;(
-#    if($params->{Audioformat} eq 'dts') {
-#        $search->{query} .= ' AND e.audio like "%%Digital%%"';
-#    }
+      # Audioformat search
+      # XXX: Leider kann man an den Audioeintrag nicht richtig erkennnen
+      # hab erst zu spät erkannt das diese Info aus dem tvm2vdr kommen ;(
+  #    if($params->{Audioformat} eq 'dts') {
+  #        $search->{query} .= ' AND e.audio like "%%Digital%%"';
+  #    }
 
-    # MinLength search
-    if($params->{MinLength}) {
-        $search->{query} .= ' AND e.duration >= ?';
-        push(@{$search->{term}},($params->{MinLength}*60));
-    }
+      # MinLength search
+      if($params->{MinLength}) {
+          $search->{query} .= ' AND e.duration >= ?';
+          push(@{$search->{term}},($params->{MinLength}*60));
+      }
 
-    my %f = (
-        'id' => gettext('Service'),
-        'title' => gettext('Title'),
-        'channel' => gettext('Channel'),
-        'start' => gettext('Start'),
-        'stop' => gettext('Stop'),
-        'day' => gettext('Day')
-    );
+      my %f = (
+          'id' => gettext('Service'),
+          'title' => gettext('Title'),
+          'channel' => gettext('Channel'),
+          'start' => gettext('Start'),
+          'stop' => gettext('Stop'),
+          'day' => gettext('Day')
+      );
 
-    my $sql = qq|
-    SELECT SQL_CACHE 
-        e.eventid as \'$f{'id'}\',
-        e.title as \'$f{'title'}\',
-        e.subtitle as __Subtitle,
-        c.Name as \'$f{'channel'}\',
-        c.POS as __Pos,
-        DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
-        DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
-        UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
-        e.description as __description,
-        IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
-        ( SELECT 
-            t.id
-            FROM TIMERS as t
-            WHERE t.eventid = e.eventid
-            LIMIT 1) as __timerid,
-        ( SELECT 
-            (t.flags & 1) 
-            FROM TIMERS as t
-            WHERE t.eventid = e.eventid
-            LIMIT 1) as __timeractiv,
-        ( SELECT 
-            NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
-            FROM TIMERS as t
-            WHERE t.eventid = e.eventid
-            LIMIT 1) as __running,
-        e.video as __video,
-        e.audio as __audio
-    from
-        EPG as e,
-        CHANNELS as c
-    where
-        e.channel_id = c.Id
-        AND ( $search->{query} )
-        AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
-    order by
-        starttime
-        |;
+      my $sql = qq|
+      SELECT SQL_CACHE 
+          e.eventid as \'$f{'id'}\',
+          e.title as \'$f{'title'}\',
+          e.subtitle as __Subtitle,
+          c.Name as \'$f{'channel'}\',
+          c.POS as __Pos,
+          DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
+          DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
+          UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
+          e.description as __description,
+          IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
+          ( SELECT 
+              t.id
+              FROM TIMERS as t
+              WHERE t.eventid = e.eventid
+              LIMIT 1) as __timerid,
+          ( SELECT 
+              (t.flags & 1) 
+              FROM TIMERS as t
+              WHERE t.eventid = e.eventid
+              LIMIT 1) as __timeractiv,
+          ( SELECT 
+              NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
+              FROM TIMERS as t
+              WHERE t.eventid = e.eventid
+              LIMIT 1) as __running,
+          e.video as __video,
+          e.audio as __audio
+      from
+          EPG as e,
+          CHANNELS as c
+      where
+          e.channel_id = c.Id
+          AND ( $search->{query} )
+          AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
+      order by
+          starttime
+          |;
 
-    my $rows;
-    if($console->{cgi} && $console->{cgi}->param('limit')) {
-      # Query total count of rows
-      my $rsth = $obj->{dbh}->prepare($sql);
-        $rsth->execute(@{$search->{term}})
-          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
-      $rows = $rsth->rows;
+      my $sth;
+      my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+      if($limit > 0) {
+        # Query total count of rows
+        my $rsth = $obj->{dbh}->prepare($sql);
+           $rsth->execute(@{$search->{term}})
+            or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+        $rows = $rsth->rows;
+        if($rows <= $limit) {
+          $sth = $rsth;
+        } else {
+          # Add limit query
+          if($console->{cgi}->param('start')) {
+            $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+            $sql .= "," . $limit;
+          } else {
+            $sql .= " LIMIT " . $limit;
+          }
+        }
+      }
 
-      # Add limit query
-      if($console->{cgi}->param('start')) {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
-        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
-      } else {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+      unless($sth) {
+        $sth = $obj->{dbh}->prepare($sql);
+        $sth->execute(@{$search->{term}})
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        $rows = $sth->rows unless($rows);
+      }
+
+      my $fields = $sth->{'NAME'};
+      $erg = $sth->fetchall_arrayref();
+
+      unless($console->typ eq 'AJAX') {
+        map {
+            $_->[7] = datum($_->[7],'weekday');
+        } @$erg;
+
+        unshift(@$erg, $fields);
       }
     }
-
-    my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute(@{$search->{term}})
-      or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
-    my $fields = $sth->{'NAME'};
-    $erg = $sth->fetchall_arrayref();
-
-    unless($console->typ eq 'AJAX') {
-      map {
-          $_->[7] = datum($_->[7],'weekday');
-      } @$erg;
-
-      unshift(@$erg, $fields);
+    my $info = {
+      rows => $rows
+    };
+    if($console->typ eq 'HTML') {
+      $info->{channels} = main::getModule('CHANNELS')->ChannelWithGroup('Name,POS');
     }
-
-    my $modC = main::getModule('CHANNELS');
-    $console->table($erg,  {
-                            channels => $modC->ChannelWithGroup('Name,Pos'),
-                            rows => $rows
-                           }
-    );
+    $console->table($erg, $info );
 }
 
 # ------------------
@@ -786,25 +793,34 @@ order by
 |;
 
     my $rows;
-    if($console->{cgi} && $console->{cgi}->param('limit')) {
+    my $sth;
+    my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+    if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);
-        $rsth->execute($cid)
+         $rsth->execute($cid)
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
-
-      # Add limit query
-      if($console->{cgi}->param('start')) {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
-        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      if($rows <= $limit) {
+        $sth = $rsth;
       } else {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
       }
     }
 
-    my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($cid)
-        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    unless($sth) {
+      $sth = $obj->{dbh}->prepare($sql);
+      $sth->execute($cid)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
+
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
 
@@ -816,12 +832,14 @@ order by
       unshift(@$erg, $fields);
     }
 
-    $console->table($erg, {
-                            channels => $mod->ChannelWithGroup('Name,POS'),
-                            current => $mod->ChannelToPos($cid),
-                            rows => $rows
-                          }
-                    );
+    my $info = {
+      rows => $rows
+    };
+    if($console->typ eq 'HTML') {
+      $info->{channels} = $mod->ChannelWithGroup('Name,POS');
+      $info->{current} = $mod->ChannelToPos($cid);
+    }
+    $console->table($erg, $info );
 }
 
 # ------------------

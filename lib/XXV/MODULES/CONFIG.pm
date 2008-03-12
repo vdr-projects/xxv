@@ -338,15 +338,15 @@ sub usage {
             ) if(! $modCfg->{Commands}->{$cmdName}->{hidden} and ($u->{active} ne 'y') || $u->allowCommand($modCfg, $cmdName, $user, "1"));
         }
     }
-
-    $console->table(
-        $ret,
-        {
-            periods  => $mods->{'XXV::MODULES::EPG'}->{periods},
-            CHANNELS => $mods->{'XXV::MODULES::CHANNELS'}->ChannelArray('Name'),
-            CONFIGS  => [ sort @realModName ],
-        },
-    );
+    my $info = {
+      rows => scalar @$ret
+    };
+    if($console->typ eq 'HTML') {
+      $info->{periods} = $mods->{'XXV::MODULES::EPG'}->{periods};
+      $info->{CHANNELS} =  $mods->{'XXV::MODULES::CHANNELS'}->ChannelArray('Name');
+      $info->{CONFIGS} = [ sort @realModName ];
+    }
+    $console->table( $ret, $info );
 }
 
 1;

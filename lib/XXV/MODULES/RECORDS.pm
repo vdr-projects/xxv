@@ -1610,26 +1610,35 @@ ORDER BY __IsRecording asc,
     $sql .= " desc"
         if(exists $params->{desc} && $params->{desc} == 1);
 
+
     my $rows;
-    if($console->{cgi} && $console->{cgi}->param('limit')) {
+    my $sth;
+    my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+    if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);
-        $rsth->execute(@{$term})
+         $rsth->execute(@{$term})
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
-
-      # Add limit query
-      if($console->{cgi}->param('start')) {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
-        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      if($rows <= $limit) {
+        $sth = $rsth;
       } else {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
       }
     }
 
-    my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute(@{$term})
-      or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    unless($sth) {
+      $sth = $obj->{dbh}->prepare($sql);
+      $sth->execute(@{$term})
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
@@ -1712,25 +1721,33 @@ ORDER BY
         if(exists $params->{desc} && $params->{desc} == 1);
 
     my $rows;
-    if($console->{cgi} && $console->{cgi}->param('limit')) {
+    my $sth;
+    my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+    if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);
-        $rsth->execute(@{$term})
+         $rsth->execute(@{$term})
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
-
-      # Add limit query
-      if($console->{cgi}->param('start')) {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
-        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+      if($rows <= $limit) {
+        $sth = $rsth;
       } else {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
       }
     }
 
-    my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute(@{$term})
-      or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    unless($sth) {
+      $sth = $obj->{dbh}->prepare($sql);
+      $sth->execute(@{$term})
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
