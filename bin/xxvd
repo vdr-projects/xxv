@@ -29,6 +29,7 @@ my $PATHS = {
     FONTPATH    => "$RealBin/../share/fonts/ttf-bitstream-vera",
     NEWSMODS    => "$RealBin/../lib/XXV/OUTPUT/NEWS",
     NEWSTMPL    => "$RealBin/../share/news",
+    XMLTV       => "$RealBin/../share/xmltv",
     CONTRIB     => "$RealBin/../contrib",
 };
 # -------------------------------
@@ -170,6 +171,7 @@ GetOptions (
     "contrib=s"    => \$PATHS->{CONTRIB},
     "newsmods=s"   => \$PATHS->{NEWSMODS},
     "newstmpl=s"   => \$PATHS->{NEWSTMPL},
+    "xmltv=s"      => \$PATHS->{XMLTV},
     "verbose=s"    => \$verbose,    # debug output level
     "utf8"         => \$useutf8,    # Use encoding utf8 as data charset.
     "version"      => \$version,    # print version

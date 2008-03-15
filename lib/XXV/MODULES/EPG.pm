@@ -234,6 +234,7 @@ sub _init {
         |);
     }
 
+    $obj->{before_updated} = [];
     $obj->{after_updated} = [];
 
     # Repair later Data ...
@@ -268,10 +269,14 @@ sub startReadEpgData {
     my $watcher = shift;
     my $console = shift;
 
+    debug sprintf('The read on epg data start now!');
+
     my $waiter;
     if(ref $console && $console->typ eq 'HTML') {
         $waiter = $console->wait(gettext("Read EPG data ..."),0,1000,'no');
     }
+
+    $obj->_before_updated($watcher,$console,$waiter);
 
     # Read data over SVDRP
     my $vdata = $obj->{svdrp}->command('LSTE');
@@ -279,7 +284,6 @@ sub startReadEpgData {
       $_ =~ s/^\d{3}.//;
       $_ =~ s/[\r|\n]$//;
     } @$vdata;
-    debug sprintf('The read on epg data start now!');
 
 
     # Adjust waiter max value now.
@@ -304,6 +308,36 @@ sub startReadEpgData {
 
         $console->redirect({url => '?cmd=now', wait => 1})
             if($console->typ eq 'HTML');
+    }
+}
+
+# Routine um Callbacks zu registrieren die vor dem Aktualisieren der EPG Daten 
+# ausgeführt werden
+# ------------------
+sub before_updated {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $cb = shift || return error('No callback defined!');
+    my $log = shift || 0;
+
+    push(@{$obj->{before_updated}}, [$cb, $log]);
+}
+
+# Ausführen der Registrierten Callbacks vor dem Aktualisieren der EPG Daten
+# ------------------
+sub _before_updated {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift;
+    my $console = shift;
+    my $waiter = shift;
+
+    foreach my $CB (@{$obj->{before_updated}}) {
+        next unless(ref $CB eq 'ARRAY');
+        lg $CB->[1]
+            if($CB->[1]);
+        &{$CB->[0]}($watcher,$console,$waiter)
+            if(ref $CB->[0] eq 'CODE');
     }
 }
 
@@ -737,7 +771,14 @@ sub program {
 
     my $mod = main::getModule('CHANNELS');
 
+    my $search;
+    if($console->{cgi}->param('filter')) {
+      $search = buildsearch("e.title,e.subtitle,e.description",$console->{cgi}->param('filter'));
+      $search->{query} .= ' AND ';
+    }
+
     my $cid;
+    $search->{query} .= ' e.channel_id = ?';
     if($channel =~ /^\d+$/sig) {
         $cid = $mod->PosToChannel($channel)
             or return con_err($console, sprintf(gettext("This channel '%s' does not exist in the database!"),$channel));
@@ -745,6 +786,9 @@ sub program {
         $cid = $mod->NameToChannel($channel)
             or return con_err($console, sprintf(gettext("This channel '%s' does not exist in the database!"),$channel));
     }
+    push(@{$search->{term}},$cid);
+
+
 
     my %f = (
         'id' => gettext('Service'),
@@ -786,8 +830,8 @@ from
     EPG as e, CHANNELS as c
 where
     e.channel_id = c.Id
+    AND ( $search->{query} )
     AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
-    AND e.channel_id = ?
 order by
     starttime
 |;
@@ -798,7 +842,7 @@ order by
     if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);
-         $rsth->execute($cid)
+         $rsth->execute(@{$search->{term}})
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
       if($rows <= $limit) {
@@ -816,7 +860,7 @@ order by
 
     unless($sth) {
       $sth = $obj->{dbh}->prepare($sql);
-      $sth->execute($cid)
+      $sth->execute(@{$search->{term}})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       $rows = $sth->rows unless($rows);
     }

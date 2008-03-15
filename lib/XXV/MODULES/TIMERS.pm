@@ -798,7 +798,7 @@ WHERE
         },
         'description' => {
             msg       =>  gettext('Description'),
-            typ       => $timerData->{description} ? 'string' : 'hidden',
+            typ       => $timerData->{description} ? 'textfield' : 'hidden',
             def       => $timerData->{description},
             readonly  => 1
         }

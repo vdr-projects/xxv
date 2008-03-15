@@ -40,6 +40,7 @@ MODULES = ../lib/XXV/MODULES/AUTOTIMER.pm \
   ../lib/XXV/MODULES/USER.pm \
   ../lib/XXV/MODULES/VTX.pm \
   ../lib/XXV/MODULES/WAPD.pm \
+  ../lib/XXV/MODULES/XMLTV.pm \
   ../lib/XXV/OUTPUT/Ajax.pm \
   ../lib/XXV/OUTPUT/Console.pm \
   ../lib/XXV/OUTPUT/Dump.pm \

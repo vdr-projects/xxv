@@ -2004,19 +2004,22 @@ WHERE
             },
         },
         'description' => {
+            typ   => 'textfield',
             msg   => gettext("Description"),
             def   => $status->{description} || '',
         },
     		'video' => {
+            typ   => 'textfield',
             msg   => gettext('Video'),
             def   => $status->{video},
         },
     		'audio' => {
+            typ   => 'textfield',
             msg   => gettext('Audio'),
             def   => $status->{audio},
         },
         'marks' => {
-            param => {type => 'text'},
+            typ   => 'textfield',
             msg   => gettext("Cut marks"),
             def   => $marks || '',
         },

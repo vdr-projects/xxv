@@ -189,7 +189,8 @@ sub command {
     $telnet->close();
 
     foreach my $command (@commands) {
-      event(sprintf('Call command "%s" on svdrp %s.', $command, $obj->{ERROR} ? " failed" : "successful")) 
+      my @lines = (split(/[\r\n]/, $command));
+      event(sprintf('Call command "%s" on svdrp %s.', $lines[0], $obj->{ERROR} ? " failed" : "successful")) 
         if($command ne "quit");
     }
     return \@$data;

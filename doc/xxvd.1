@@ -15,7 +15,7 @@ XXV \- means "Xtreme eXtension for VDR" and is a central service for the adminis
 \fBxxvd\fR \kx
 .if (\nx>(\n(.l/2)) .nr x (\n(.l/5)
 'in \n(.iu+\nxu
-[\fB--configfile=\fR \fIFILE\fR] [\fB--logfile=\fR \fIFILE\fR] [\fB--pidfile=\fR \fIFILE\fR] [\fB--localedir=\fR \fIDIRECTORY\fR] [\fB--moduledir=\fR \fIDIRECTORY\fR] [\fB--docudir=\fR \fIDIRECTORY\fR] [\fB--poddir=\fR \fIDIRECTORY\fR] [\fB--htmldir=\fR \fIDIRECTORY\fR] [\fB--fontdir=\fR \fIDIRECTORY\fR] [\fB--newsmods=\fR \fIDIRECTORY\fR] [\fB--newstmpl=\fR \fIDIRECTORY\fR] [\fB--verbose=\fR \fILEVEL\fR] [\fB--utf8\fR] [\fB--version\fR] [\fB--nofork\fR] [\fB--kill\fR]
+[\fB--configfile=\fR \fIFILE\fR] [\fB--logfile=\fR \fIFILE\fR] [\fB--pidfile=\fR \fIFILE\fR] [\fB--localedir=\fR \fIDIRECTORY\fR] [\fB--moduledir=\fR \fIDIRECTORY\fR] [\fB--docudir=\fR \fIDIRECTORY\fR] [\fB--poddir=\fR \fIDIRECTORY\fR] [\fB--htmldir=\fR \fIDIRECTORY\fR] [\fB--fontdir=\fR \fIDIRECTORY\fR] [\fB--newsmods=\fR \fIDIRECTORY\fR] [\fB--newstmpl=\fR \fIDIRECTORY\fR] [\fB--xmltv=\fR \fIDIRECTORY\fR] [\fB--verbose=\fR \fILEVEL\fR] [\fB--utf8\fR] [\fB--version\fR] [\fB--nofork\fR] [\fB--kill\fR]
 'in \n(.iu-\nxu
 .ad b
 'hy
@@ -68,6 +68,9 @@ XXV use some external scripts in \*(T<\fIDIRECTORY\fR\*(T>.
 .TP 
 --newstmpl=\fIDIRECTORY\fR
 XXV searches for news templates in \*(T<\fIDIRECTORY\fR\*(T>.
+.TP 
+--xmltv=\fIDIRECTORY\fR
+In this \*(T<\fIDIRECTORY\fR\*(T> XXV searchs usable files or templates to import epg data from xmltv sources.
 .TP 
 --verbose=\fILEVEL\fR
 Select the verbose \fILEVEL\fR of the logged 

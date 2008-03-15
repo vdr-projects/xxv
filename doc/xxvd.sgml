@@ -48,6 +48,7 @@
       <arg><option>--fontdir=</option><replaceable>DIRECTORY</replaceable></arg>
       <arg><option>--newsmods=</option><replaceable>DIRECTORY</replaceable></arg>
       <arg><option>--newstmpl=</option><replaceable>DIRECTORY</replaceable></arg>
+      <arg><option>--xmltv=</option><replaceable>DIRECTORY</replaceable></arg>
       <arg><option>--verbose=</option><replaceable>LEVEL</replaceable></arg>
       <arg><option>--utf8</option></arg>
       <arg><option>--version</option></arg>
@@ -143,6 +144,12 @@
         <term>--newstmpl=<replaceable class="parameter">DIRECTORY</replaceable></term>
         <listitem>
           <para>&dhpackage; searches for news templates in <filename>DIRECTORY</filename>.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>--xmltv=<replaceable class="parameter">DIRECTORY</replaceable></term>
+        <listitem>
+          <para>In this <filename>DIRECTORY</filename> &dhpackage; searchs usable files or templates to import epg data from xmltv sources.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
