@@ -1,4 +1,4 @@
-<!-- string -->
+<!-- textfield -->
 <tr>
     <td class="<?% (param.count mod 2) == 0 ? 'light' : 'dark' %?>" >
         <?% data.msg %?>
@@ -10,7 +10,8 @@
         <?% val %?>
         </span>
         <?% ELSE %?>
-            <input type="text" name="<?% data.NAME %?>" value="<?% val %?>" <?% FOREACH p = param.tags; "$p ";END %?>>
+            <textarea cols='50' rows='5' name="<?% data.NAME %?>" <?% FOREACH p = param.tags; "$p ";END %?>><?% val | replace("<br />","
+")%?></textarea>
         <?% END %?>
     </td>
 </tr>
