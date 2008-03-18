@@ -95,7 +95,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{LastReportTime} = time;
@@ -111,7 +111,7 @@ sub new {
     );
 
     # The Initprocess
-    my $erg = $self->init or return error('Problem to initialize modul!');
+    my $erg = $self->init or return error('Problem to initialize module!');
 
     # Initiat after load modules ...
     main::after( sub{
@@ -152,7 +152,7 @@ sub init {
         );
 
         unless($mod) {
-            error sprintf('Problem to load modul %s!',$moduleName);
+            error sprintf('Load news module %s failed!',$moduleName);
             next;
         }
 
@@ -160,7 +160,7 @@ sub init {
 
         main::addModule($moduleName, $obj->{NEWSMODS}->{$moduleName});
 
-        debug sprintf("Load news modul %s(%s)\n",
+        debug sprintf("Load news module %s(%s)\n",
             $moduleName,
             (ref $obj->{NEWSMODS}->{$moduleName})
                 ? $obj->{NEWSMODS}->{$moduleName}->{MOD}->{Version}

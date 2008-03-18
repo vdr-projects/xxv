@@ -153,7 +153,7 @@ my @PARAMETER = @ARGV;
 # Try to eval requirements
 map {
     eval "use $_";
-    print("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
+    print("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
 } keys %{$Prereq};
 
 
@@ -298,14 +298,14 @@ sub init {
         if(ref $modul) {
           $MODULES->{$moduleName} = $modul;
           my $modRev = $modul->{MOD}->{Version};
-          debug sprintf("Load modul %s(%s)",
+          debug sprintf("Load module %s(%s)",
             $moduleName,
             $modRev);
           $REV = $modRev
             if($modRev > $REV);
 
         } else {
-          panic sprintf("Load modul %s failed!",$moduleName);
+          panic sprintf("Load module %s failed!",$moduleName);
         }
 
     }

@@ -176,7 +176,7 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
+        return panic("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
@@ -321,7 +321,7 @@ sub researchMedia {
         if ( $params->{source} eq 'dvdpalace' ) {
             
             eval "use MediaLibParser::DVDPalace";
-            return panic("\nCouldn't load modul: $_\nPlease install this modul on your system:\nperl -MCPAN -e 'install $_'") if($@);
+            return panic("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
             
             my $mlp = MediaLibParser::DVDPalace->new(
                         'lookup_result' => $params->{title},
@@ -391,7 +391,7 @@ sub importMedia {
        
         if ( $params->{source} eq 'dvdpalace' ) {
             eval "use MediaLibParser::DVDPalace";
-            return panic("\nCouldn't load modul: MediaLibParser::DVDPalace") if($@);
+            return panic("\nCouldn't load perl module: MediaLibParser::DVDPalace") if($@);
             
             my $mlp = MediaLibParser::DVDPalace->new(
                         'url_media' => $params->{import},
@@ -804,7 +804,7 @@ sub _saveActors {
         lg( sprintf("Looking for image of %s", $name ));
 
         eval "use MediaLibParser::IMDb";
-        return panic("\nCouldn't load modul: MediaLibParser::DVDPalace") if($@);
+        return panic("\nCouldn't load perl module: MediaLibParser::DVDPalace") if($@);
 
         my $mlp = MediaLibParser::IMDb->new(
                     'lookup_actor' => $name,
