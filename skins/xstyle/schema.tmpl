@@ -13,7 +13,9 @@ sec_height = 0.1;
 
 <script language="javascript" type="text/javascript">
 <!--
+
     <?% INCLUDE javascript/records.js %?>
+
 -->
 </script>
 
@@ -221,7 +223,7 @@ top: <?% (startt * sec_height)  %?>px;
     <div id=eventbox_time style="height:95%">
     <?% epgStart %?><br/><?% epgStop %?><br/>
 
-    <?% INCLUDE 'bloecke/event_links.tmpl' data=e umbruch='<br/>' switch=1 %?>
+    <?% INCLUDE 'bloecke/event_links.tmpl' data=e umbruch='<br/>' switch=1 timerid=e.14 %?>
 
     </div>
     <div id=eventbox_title>

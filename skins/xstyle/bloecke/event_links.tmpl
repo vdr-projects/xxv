@@ -3,8 +3,8 @@
 <a href="?cmd=display&data=<?% epgId %?>" title='<?% gettext("Detailed program information") %?>'><img src="images/view_event.png"></a><?% umbruch %?>
     <?% END %?>
 <a href="?cmd=search&amp;data=<?% url( data.1 ) %?>"><img src="images/repeat.png" title="<?% gettext("Search for repeats") %?>"></a><?% umbruch %?>
-    <?% IF data.10 && allow('tedit') %?>
-<a href="?cmd=tedit&amp;data=<?% data.10 %?>"><img src="images/record_blue.png" title="<?% gettext("Edit this timer") %?>" /></a><?% umbruch %?>
+    <?% IF timerid && allow('tedit') %?>
+<a href="?cmd=tedit&amp;data=<?% timerid %?>"><img src="images/record_blue.png" title="<?% gettext("Edit this timer") %?>" /></a><?% umbruch %?>
     <?% ELSIF allow('tnew') %?>
 <a href="?cmd=tnew&amp;data=<?% data.0 %?>"><img src="images/record.png" title="<?% gettext("To record") %?>" name='recordlink' id='<?% data.0 %?>' /></a><?% umbruch %?>
     <?% END %?>
