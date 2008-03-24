@@ -31,7 +31,7 @@
 #include "gop.h"
 
 
-static const char *VERSION        = "0.1.0";
+static const char *VERSION        = "0.1.1";
 
 void help(int argc, char *argv[])
 {

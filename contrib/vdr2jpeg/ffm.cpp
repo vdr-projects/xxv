@@ -31,18 +31,10 @@
 #include "ffm.h"
 
 extern "C" {
-
-#ifdef FFMDIR
 #include <avutil.h>
 #include <avcodec.h>
 #include <avformat.h>
 #include <swscale.h>
-#else
-#include <ffmpeg/avutil.h>
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
-#include <ffmpeg/swscale.h>
-#endif
 }
 
 static int frame_width = 0;

@@ -30,7 +30,7 @@
 #DEBUG = 1
 
 # Build full static paket, if ffmpeg build without --enable-shared
-# you must defined FFMDIR 
+# you should defined FFMDIR 
 #STATIC = 1
 
 # Place where vdr2jpeg should installed
