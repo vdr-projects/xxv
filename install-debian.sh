@@ -40,7 +40,7 @@ apt-get install \
   libgd-gd2-noxpm-perl libgd-graph-perl libgd-graph3d-perl libgd-text-perl \
   txt2html \
   libhtml-tree-perl \
-  libjson-perl 
+  libjson-perl \
   libwww-perl \
   liblinux-inotify2-perl \
   liblocale-gettext-perl \

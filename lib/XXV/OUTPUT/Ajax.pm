@@ -1,8 +1,8 @@
 package XXV::OUTPUT::Ajax;
 
 use strict;
-
-#use Template;
+use utf8;
+use Encode;
 use vars qw($AUTOLOAD);
 use Tools;
 
@@ -76,13 +76,10 @@ sub new {
         || 'ISO-8859-15';
 
 		$self->{types} = {
-			'xml' => 'application/xml',
-#			'json' => 'application/json; charset=utf-8', # json with utf-8
-#			'json' => 'application/json; charset=iso-8859-1', # json with iso-8859
-#			'json' => 'text/html',
-			'text' => 'text/plain',
+			'xml'  => 'application/xml; charset='. $self->{charset},
+ 			'json' => 'application/json; charset='. $self->{charset},
+			'text' => 'text/plain; charset='. $self->{charset},
 		};
-    $self->{types}->{'json'} = sprintf('application/json; charset=%s',$self->{charset});
 
 		# New JSON Object if required
 		if($self->{outtype} eq 'json') {
@@ -121,18 +118,48 @@ sub out {
     $self->{sendbytes}+= length($data);
 	
 		if($type ne 'application/xml') {
-	    $self->{output}->{data} = $data;
-	    $self->{output}->{param} = $para
+	    $self->{output}->{data} = $self->_prepare($data);
+	    $self->{output}->{param} = $self->_prepare($para)
 	        if($para);
 #dumper($self->{output});
 		} else {
-	    $self->{output}->{DATA} = $data;
-	    $self->{output}->{$name}->{data} = $data;
-	    $self->{output}->{$name}->{params} = $para
+	    $self->{output}->{DATA} = $self->_prepare($data);;
+	    $self->{output}->{$name}->{data} = $self->_prepare($data);
+	    $self->{output}->{$name}->{params} = $self->_prepare($para)
 	        if($para);
 		}
 }
 
+################################################################################
+# prepare every element to use same charset 'UTF-8'
+sub _prepare {
+    my $self = shift  || return error('No object defined!');
+    my $data = shift  || return '';
+    return $data unless($self->{charset} eq 'UTF-8');
+
+    if(ref $data eq 'HASH') {
+        foreach my $name (keys %$data) {
+            if(ref $data->{$name}) {
+                $self->_prepare($data->{$name});
+            } else {
+                if($data->{$name} && !utf8::is_utf8($data->{$name})) {
+                  utf8::upgrade($data->{$name});
+                }
+            }
+        }
+    } elsif (ref $data eq 'ARRAY') {
+        foreach (@$data) {
+            if(ref $_) {
+                $self->_prepare($_);
+            } else {
+                if($_ && !utf8::is_utf8($_)) {
+                  utf8::upgrade($_);
+                }
+            }
+        }
+    }
+    return $data;
+}
 # ------------------
 sub printout {
 # ------------------
@@ -143,7 +170,6 @@ sub printout {
     if($self->{browser}->{Method} ne 'HEAD') {
       if( $self->{outtype} eq 'json' ) {
         if($self->{json}->can('encode')) { # Version 2.0 see http://search.cpan.org/~makamaka/JSON-2.04/lib/JSON.pm#Transition_ways_from_1.xx_to_2.xx.
-          $self->{json}->utf8(1) if($self->{charset} eq 'UTF-8');
           $content = $self->{json}->encode($self->{output});
         } else { # Version 1.0
           $JSON::UTF8=1 if($self->{charset} eq 'UTF-8');
