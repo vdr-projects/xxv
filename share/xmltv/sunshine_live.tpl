@@ -21,7 +21,7 @@ comedy, toptrack, on tour, dance-news</desc>
 		<title lang="de">overdrive</title>
         <desc lang="de">hörertalk zum tagesthema, album der woche, comedy, toptrack, on tour, dance-news...</desc>
     </programme>
-    <programme start="[% date("monday","16:00","+0100") %]" stop="[% date("monday","20:00","+0100") %]" channel="sunshine-live">
+    <programme start="[% date("monday","16:00","+0100") %]" stop="[% date("monday","18:00","+0100") %]" channel="sunshine-live">
 		<title lang="de">djs afterwork 1</title>
         <desc lang="de">afterwork-mix mit charly, extended version, musik-infos, dancenews...</desc>
     </programme>
@@ -56,7 +56,7 @@ comedy, toptrack, on tour, dance-news</desc>
 		<title lang="de">overdrive</title>
         <desc lang="de">hörertalk zum tagesthema, album der woche, comedy, toptrack, on tour, dance-news...</desc>
     </programme>
-    <programme start="[% date("tuesday","16:00","+0100") %]" stop="[% date("tuesday","20:00","+0100") %]" channel="sunshine-live">
+    <programme start="[% date("tuesday","16:00","+0100") %]" stop="[% date("tuesday","18:00","+0100") %]" channel="sunshine-live">
 		<title lang="de">djs afterwork 1</title>
         <desc lang="de">afterwork-mix mit charly, extended version, musik-infos, dancenews...</desc>
     </programme>
@@ -87,7 +87,7 @@ comedy, toptrack, on tour, dance-news</desc>
 		<title lang="de">overdrive</title>
         <desc lang="de">kinonews, hörertalk zum tagesthema, album der woche, comedy, toptrack, on tour, dance-news...</desc>
     </programme>
-    <programme start="[% date("wednesday","16:00","+0100") %]" stop="[% date("wednesday","20:00","+0100") %]" channel="sunshine-live">
+    <programme start="[% date("wednesday","16:00","+0100") %]" stop="[% date("wednesday","18:00","+0100") %]" channel="sunshine-live">
 		<title lang="de">djs afterwork 1</title>
         <desc lang="de">afterwork-mix mit charly, extended version, musik-infos, dancenews...</desc>
     </programme>
@@ -122,7 +122,7 @@ comedy, toptrack, on tour, dance-news</desc>
 		<title lang="de">overdrive</title>
         <desc lang="de">multimedianews, hörertalk zum tagesthema, album der woche, comedy, toptrack, on tour, dance-news...</desc>
     </programme>
-    <programme start="[% date("thursday","16:00","+0100") %]" stop="[% date("thursday","20:00","+0100") %]" channel="sunshine-live">
+    <programme start="[% date("thursday","16:00","+0100") %]" stop="[% date("thursday","18:00","+0100") %]" channel="sunshine-live">
 		<title lang="de">djs afterwork 1</title>
         <desc lang="de">afterwork-mix mit charly, extended version, musik-infos, dancenews...</desc>
     </programme>
