@@ -1864,7 +1864,7 @@ sub delete {
           }else {
             con_msg($console,$msg);
           }
-#dumper($md5delete);
+
           my $dsql = sprintf("DELETE FROM RECORDS WHERE RecordMD5 IN (%s)", join(',' => ('?') x @{$md5delete})); 
           my $dsth = $obj->{dbh}->prepare($dsql);
             $sth->execute(@{$md5delete})

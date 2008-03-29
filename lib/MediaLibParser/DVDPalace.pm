@@ -6,7 +6,6 @@ use FindBin qw($RealBin);
 use lib sprintf("%s", $RealBin);
 use lib sprintf("%s/../lib", $RealBin);
 
-use Data::Dumper;
 use MediaLibParser;
 
 our ( @ISA, @EXPORT, $VERSION );

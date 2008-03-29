@@ -72,6 +72,9 @@ sub new {
     $self->{outtype} = $attr{'-output'}
         || return error('No output type given!');
 
+    $self->{debug} = $attr{'-debug'}
+        || 0;
+
     $self->{charset} = $attr{'-charset'}
         || 'ISO-8859-15';
 
@@ -121,7 +124,6 @@ sub out {
 	    $self->{output}->{data} = $self->_prepare($data);
 	    $self->{output}->{param} = $self->_prepare($para)
 	        if($para);
-#dumper($self->{output});
 		} else {
 	    $self->{output}->{DATA} = $self->_prepare($data);;
 	    $self->{output}->{$name}->{data} = $self->_prepare($data);

@@ -397,8 +397,6 @@ sub parseRequest {
     			$data->{ContentType} = $1;
     		} elsif($line =~ /Content-Length: (\S+)/i) {
     			$data->{ContentLength} = $1;
-    		} else {
-          #dumper($line);
     		}
         $self->{STATUS}->{'readbytes'} += length($line);
       }
@@ -408,7 +406,6 @@ sub parseRequest {
   if($data->{Method}) {
     if($data->{Method} eq 'GET' 
       or $data->{Method} eq 'HEAD') {
-      #dumper($data);
       return $data;
     } elsif($data->{Method} eq 'POST') {
       if(int($data->{ContentLength})>0) {
@@ -418,7 +415,6 @@ sub parseRequest {
           if($bytes && $data->{ContentLength} == $bytes);
         $self->{STATUS}->{'readbytes'} += $bytes;
       }
-      #dumper($data);
       return $data;
     } else {
       lg sprintf("Unsupported HTTP Method : %s",$data->{Method});

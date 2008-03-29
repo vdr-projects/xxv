@@ -22,7 +22,7 @@ msgid "Password for database access"
 msgstr "Passwort für Datenbankzugriff"
 
 #--------------------
-#: ../bin/xxvd:104 ../bin/xxvd:119 ../bin/xxvd:92 ../bin/xxvd:98 ../lib/XXV/MODULES/AUTOTIMER.pm:30 ../lib/XXV/MODULES/AUTOTIMER.pm:705 ../lib/XXV/MODULES/CHANNELS.pm:28 ../lib/XXV/MODULES/CHANNELS.pm:34 ../lib/XXV/MODULES/CHANNELS.pm:779 ../lib/XXV/MODULES/CHANNELS.pm:805 ../lib/XXV/MODULES/CHANNELS.pm:818 ../lib/XXV/MODULES/CHANNELS.pm:857 ../lib/XXV/MODULES/CHANNELS.pm:883 ../lib/XXV/MODULES/CHRONICLE.pm:27 ../lib/XXV/MODULES/EPG.pm:33 ../lib/XXV/MODULES/EPG.pm:39 ../lib/XXV/MODULES/EPG.pm:45 ../lib/XXV/MODULES/EVENTS.pm:33 ../lib/XXV/MODULES/GRAB.pm:29 ../lib/XXV/MODULES/GRAB.pm:43 ../lib/XXV/MODULES/HTTPD.pm:62 ../lib/XXV/MODULES/HTTPD.pm:68 ../lib/XXV/MODULES/HTTPD.pm:74 ../lib/XXV/MODULES/HTTPD.pm:80 ../lib/XXV/MODULES/HTTPD.pm:86 ../lib/XXV/MODULES/HTTPD.pm:93 ../lib/XXV/MODULES/INTERFACE.pm:32 ../lib/XXV/MODULES/INTERFACE.pm:38 ../lib/XXV/MODULES/INTERFACE.pm:44 ../lib/XXV/MODULES/LOGREAD.pm:31 ../lib/XXV/MODULES/LOGREAD.pm:37 ../lib/XXV/MODULES/LOGREAD.pm:43 ../lib/XXV/MODULES/LOGREAD.pm:49 ../lib/XXV/MODULES/MEDIALIB.pm:33 ../lib/XXV/MODULES/MEDIALIB.pm:39 ../lib/XXV/MODULES/MEDIALIB.pm:45 ../lib/XXV/MODULES/MEDIALIB.pm:51 ../lib/XXV/MODULES/MEDIALIB.pm:57 ../lib/XXV/MODULES/MOVETIMER.pm:26 ../lib/XXV/MODULES/MOVETIMER.pm:381 ../lib/XXV/MODULES/MOVETIMER.pm:394 ../lib/XXV/MODULES/MOVETIMER.pm:403 ../lib/XXV/MODULES/MOVETIMER.pm:416 ../lib/XXV/MODULES/MUSIC.pm:39 ../lib/XXV/MODULES/MUSIC.pm:45 ../lib/XXV/MODULES/MUSIC.pm:51 ../lib/XXV/MODULES/MUSIC.pm:57 ../lib/XXV/MODULES/MUSIC.pm:68 ../lib/XXV/MODULES/MUSIC.pm:74 ../lib/XXV/MODULES/RECORDS.pm:1955 ../lib/XXV/MODULES/RECORDS.pm:1969 ../lib/XXV/MODULES/RECORDS.pm:1983 ../lib/XXV/MODULES/RECORDS.pm:2002 ../lib/XXV/MODULES/RECORDS.pm:2524 ../lib/XXV/MODULES/RECORDS.pm:2536 ../lib/XXV/MODULES/RECORDS.pm:39 ../lib/XXV/MODULES/RECORDS.pm:45 ../lib/XXV/MODULES/RECORDS.pm:51 ../lib/XXV/MODULES/RECORDS.pm:57 ../lib/XXV/MODULES/RECORDS.pm:63 ../lib/XXV/MODULES/RECORDS.pm:75 ../lib/XXV/MODULES/RECORDS.pm:91 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:40 ../lib/XXV/MODULES/REPORT.pm:29 ../lib/XXV/MODULES/REPORT.pm:45 ../lib/XXV/MODULES/ROBOT.pm:28 ../lib/XXV/MODULES/SHARE.pm:52 ../lib/XXV/MODULES/SHARE.pm:69 ../lib/XXV/MODULES/SHARE.pm:75 ../lib/XXV/MODULES/STATUS.pm:31 ../lib/XXV/MODULES/STATUS.pm:37 ../lib/XXV/MODULES/STATUS.pm:42 ../lib/XXV/MODULES/STATUS.pm:48 ../lib/XXV/MODULES/STREAM.pm:32 ../lib/XXV/MODULES/STREAM.pm:42 ../lib/XXV/MODULES/STREAM.pm:63 ../lib/XXV/MODULES/STREAM.pm:69 ../lib/XXV/MODULES/STREAM.pm:83 ../lib/XXV/MODULES/SVDRP.pm:29 ../lib/XXV/MODULES/SVDRP.pm:35 ../lib/XXV/MODULES/SVDRP.pm:41 ../lib/XXV/MODULES/TELNET.pm:29 ../lib/XXV/MODULES/TELNET.pm:35 ../lib/XXV/MODULES/TELNET.pm:41 ../lib/XXV/MODULES/TELNET.pm:47 ../lib/XXV/MODULES/TIMERS.pm:28 ../lib/XXV/MODULES/TIMERS.pm:667 ../lib/XXV/MODULES/TIMERS.pm:674 ../lib/XXV/MODULES/TIMERS.pm:677 ../lib/XXV/MODULES/TIMERS.pm:702 ../lib/XXV/MODULES/USER.pm:267 ../lib/XXV/MODULES/USER.pm:359 ../lib/XXV/MODULES/USER.pm:365 ../lib/XXV/MODULES/USER.pm:390 ../lib/XXV/MODULES/USER.pm:67 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:42 ../lib/XXV/MODULES/WAPD.pm:48 ../lib/XXV/MODULES/WAPD.pm:54 ../lib/XXV/MODULES/WAPD.pm:60 ../lib/XXV/MODULES/WAPD.pm:66 ../lib/XXV/MODULES/WAPD.pm:73 ../lib/XXV/MODULES/XMLTV.pm:31 ../lib/XXV/MODULES/XMLTV.pm:492 ../lib/XXV/MODULES/XMLTV.pm:505 ../lib/XXV/MODULES/XMLTV.pm:518 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:116 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:122 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:128 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:68 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:98 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:106 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:33 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:63 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:81 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:95 ../lib/XXV/OUTPUT/NEWS/RSS.pm:32 ../lib/XXV/OUTPUT/NEWS/RSS.pm:62 ../lib/XXV/OUTPUT/NEWS/VDR.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:59
+#: ../bin/xxvd:104 ../bin/xxvd:119 ../bin/xxvd:92 ../bin/xxvd:98 ../lib/XXV/MODULES/AUTOTIMER.pm:30 ../lib/XXV/MODULES/AUTOTIMER.pm:705 ../lib/XXV/MODULES/CHANNELS.pm:28 ../lib/XXV/MODULES/CHANNELS.pm:34 ../lib/XXV/MODULES/CHANNELS.pm:779 ../lib/XXV/MODULES/CHANNELS.pm:805 ../lib/XXV/MODULES/CHANNELS.pm:818 ../lib/XXV/MODULES/CHANNELS.pm:857 ../lib/XXV/MODULES/CHANNELS.pm:883 ../lib/XXV/MODULES/CHRONICLE.pm:27 ../lib/XXV/MODULES/EPG.pm:33 ../lib/XXV/MODULES/EPG.pm:39 ../lib/XXV/MODULES/EPG.pm:45 ../lib/XXV/MODULES/EVENTS.pm:33 ../lib/XXV/MODULES/GRAB.pm:29 ../lib/XXV/MODULES/GRAB.pm:43 ../lib/XXV/MODULES/HTTPD.pm:62 ../lib/XXV/MODULES/HTTPD.pm:68 ../lib/XXV/MODULES/HTTPD.pm:74 ../lib/XXV/MODULES/HTTPD.pm:80 ../lib/XXV/MODULES/HTTPD.pm:86 ../lib/XXV/MODULES/HTTPD.pm:93 ../lib/XXV/MODULES/INTERFACE.pm:32 ../lib/XXV/MODULES/INTERFACE.pm:38 ../lib/XXV/MODULES/INTERFACE.pm:44 ../lib/XXV/MODULES/LOGREAD.pm:31 ../lib/XXV/MODULES/LOGREAD.pm:37 ../lib/XXV/MODULES/LOGREAD.pm:43 ../lib/XXV/MODULES/LOGREAD.pm:49 ../lib/XXV/MODULES/MEDIALIB.pm:33 ../lib/XXV/MODULES/MEDIALIB.pm:39 ../lib/XXV/MODULES/MEDIALIB.pm:45 ../lib/XXV/MODULES/MEDIALIB.pm:51 ../lib/XXV/MODULES/MEDIALIB.pm:57 ../lib/XXV/MODULES/MOVETIMER.pm:26 ../lib/XXV/MODULES/MOVETIMER.pm:381 ../lib/XXV/MODULES/MOVETIMER.pm:394 ../lib/XXV/MODULES/MOVETIMER.pm:403 ../lib/XXV/MODULES/MOVETIMER.pm:416 ../lib/XXV/MODULES/MUSIC.pm:39 ../lib/XXV/MODULES/MUSIC.pm:45 ../lib/XXV/MODULES/MUSIC.pm:51 ../lib/XXV/MODULES/MUSIC.pm:57 ../lib/XXV/MODULES/MUSIC.pm:68 ../lib/XXV/MODULES/MUSIC.pm:74 ../lib/XXV/MODULES/RECORDS.pm:1955 ../lib/XXV/MODULES/RECORDS.pm:1969 ../lib/XXV/MODULES/RECORDS.pm:1983 ../lib/XXV/MODULES/RECORDS.pm:2002 ../lib/XXV/MODULES/RECORDS.pm:2524 ../lib/XXV/MODULES/RECORDS.pm:2536 ../lib/XXV/MODULES/RECORDS.pm:39 ../lib/XXV/MODULES/RECORDS.pm:45 ../lib/XXV/MODULES/RECORDS.pm:51 ../lib/XXV/MODULES/RECORDS.pm:57 ../lib/XXV/MODULES/RECORDS.pm:63 ../lib/XXV/MODULES/RECORDS.pm:75 ../lib/XXV/MODULES/RECORDS.pm:91 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:40 ../lib/XXV/MODULES/REPORT.pm:29 ../lib/XXV/MODULES/REPORT.pm:45 ../lib/XXV/MODULES/ROBOT.pm:28 ../lib/XXV/MODULES/SHARE.pm:52 ../lib/XXV/MODULES/SHARE.pm:69 ../lib/XXV/MODULES/SHARE.pm:75 ../lib/XXV/MODULES/STATUS.pm:31 ../lib/XXV/MODULES/STATUS.pm:37 ../lib/XXV/MODULES/STATUS.pm:42 ../lib/XXV/MODULES/STATUS.pm:48 ../lib/XXV/MODULES/STREAM.pm:32 ../lib/XXV/MODULES/STREAM.pm:42 ../lib/XXV/MODULES/STREAM.pm:63 ../lib/XXV/MODULES/STREAM.pm:69 ../lib/XXV/MODULES/STREAM.pm:83 ../lib/XXV/MODULES/SVDRP.pm:29 ../lib/XXV/MODULES/SVDRP.pm:35 ../lib/XXV/MODULES/SVDRP.pm:41 ../lib/XXV/MODULES/TELNET.pm:29 ../lib/XXV/MODULES/TELNET.pm:35 ../lib/XXV/MODULES/TELNET.pm:41 ../lib/XXV/MODULES/TELNET.pm:47 ../lib/XXV/MODULES/TIMERS.pm:28 ../lib/XXV/MODULES/TIMERS.pm:667 ../lib/XXV/MODULES/TIMERS.pm:674 ../lib/XXV/MODULES/TIMERS.pm:677 ../lib/XXV/MODULES/TIMERS.pm:702 ../lib/XXV/MODULES/USER.pm:267 ../lib/XXV/MODULES/USER.pm:359 ../lib/XXV/MODULES/USER.pm:365 ../lib/XXV/MODULES/USER.pm:390 ../lib/XXV/MODULES/USER.pm:67 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:42 ../lib/XXV/MODULES/WAPD.pm:48 ../lib/XXV/MODULES/WAPD.pm:54 ../lib/XXV/MODULES/WAPD.pm:60 ../lib/XXV/MODULES/WAPD.pm:66 ../lib/XXV/MODULES/WAPD.pm:73 ../lib/XXV/MODULES/XMLTV.pm:33 ../lib/XXV/MODULES/XMLTV.pm:499 ../lib/XXV/MODULES/XMLTV.pm:512 ../lib/XXV/MODULES/XMLTV.pm:525 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:116 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:122 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:128 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:68 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:98 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:106 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:33 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:63 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:81 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:95 ../lib/XXV/OUTPUT/NEWS/RSS.pm:32 ../lib/XXV/OUTPUT/NEWS/RSS.pm:62 ../lib/XXV/OUTPUT/NEWS/VDR.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:59
 msgid "This is required!"
 msgstr "Das ist erforderlich!"
 
@@ -277,12 +277,12 @@ msgid "Percent"
 msgstr "Prozent"
 
 #--------------------
-#: ../html/display.tmpl:25 ../html/rdisplay.tmpl:158 ../html/search.tmpl:54 ../lib/XXV/MODULES/AUTOTIMER.pm:179 ../lib/XXV/MODULES/AUTOTIMER.pm:446 ../lib/XXV/MODULES/CHRONICLE.pm:166 ../lib/XXV/MODULES/CHRONICLE.pm:213 ../lib/XXV/MODULES/EPG.pm:1019 ../lib/XXV/MODULES/EPG.pm:1105 ../lib/XXV/MODULES/EPG.pm:670 ../lib/XXV/MODULES/EPG.pm:796 ../lib/XXV/MODULES/EPG.pm:906 ../lib/XXV/MODULES/RECORDS.pm:1993 ../lib/XXV/MODULES/SHARE.pm:312 ../lib/XXV/MODULES/TIMERS.pm:1232 ../lib/XXV/MODULES/TIMERS.pm:895 ../lib/XXV/MODULES/XMLTV.pm:658
+#: ../html/display.tmpl:25 ../html/rdisplay.tmpl:158 ../html/search.tmpl:54 ../lib/XXV/MODULES/AUTOTIMER.pm:179 ../lib/XXV/MODULES/AUTOTIMER.pm:446 ../lib/XXV/MODULES/CHRONICLE.pm:166 ../lib/XXV/MODULES/CHRONICLE.pm:213 ../lib/XXV/MODULES/EPG.pm:1019 ../lib/XXV/MODULES/EPG.pm:1105 ../lib/XXV/MODULES/EPG.pm:670 ../lib/XXV/MODULES/EPG.pm:796 ../lib/XXV/MODULES/EPG.pm:906 ../lib/XXV/MODULES/RECORDS.pm:1993 ../lib/XXV/MODULES/SHARE.pm:312 ../lib/XXV/MODULES/TIMERS.pm:1232 ../lib/XXV/MODULES/TIMERS.pm:895 ../lib/XXV/MODULES/XMLTV.pm:670
 msgid "Channel"
 msgstr "Kanal"
 
 #--------------------
-#: ../html/display.tmpl:27 ../html/movetimerlist.tmpl:81 ../lib/XXV/MODULES/AUTOTIMER.pm:1158 ../lib/XXV/MODULES/CHANNELS.pm:439 ../lib/XXV/MODULES/CHRONICLE.pm:164 ../lib/XXV/MODULES/CHRONICLE.pm:211 ../lib/XXV/MODULES/EPG.pm:1017 ../lib/XXV/MODULES/EPG.pm:1103 ../lib/XXV/MODULES/EPG.pm:668 ../lib/XXV/MODULES/EPG.pm:794 ../lib/XXV/MODULES/EPG.pm:903 ../lib/XXV/MODULES/MOVETIMER.pm:544 ../lib/XXV/MODULES/MUSIC.pm:606 ../lib/XXV/MODULES/SHARE.pm:310 ../lib/XXV/MODULES/TIMERS.pm:1229 ../lib/XXV/MODULES/USER.pm:524 ../lib/XXV/MODULES/XMLTV.pm:656
+#: ../html/display.tmpl:27 ../html/movetimerlist.tmpl:81 ../lib/XXV/MODULES/AUTOTIMER.pm:1158 ../lib/XXV/MODULES/CHANNELS.pm:439 ../lib/XXV/MODULES/CHRONICLE.pm:164 ../lib/XXV/MODULES/CHRONICLE.pm:211 ../lib/XXV/MODULES/EPG.pm:1017 ../lib/XXV/MODULES/EPG.pm:1103 ../lib/XXV/MODULES/EPG.pm:668 ../lib/XXV/MODULES/EPG.pm:794 ../lib/XXV/MODULES/EPG.pm:903 ../lib/XXV/MODULES/MOVETIMER.pm:544 ../lib/XXV/MODULES/MUSIC.pm:606 ../lib/XXV/MODULES/SHARE.pm:310 ../lib/XXV/MODULES/TIMERS.pm:1229 ../lib/XXV/MODULES/USER.pm:524 ../lib/XXV/MODULES/XMLTV.pm:668
 msgid "Service"
 msgstr "Service"
 
@@ -1520,7 +1520,7 @@ msgstr "Nächste Seite"
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:1006 ../lib/XXV/MODULES/AUTOTIMER.pm:974 ../lib/XXV/MODULES/TIMERS.pm:721
 msgid "The day is incorrect or was in a wrong format!"
-msgstr "Der Tag ist nicht korrekt oder hatte ein falsches Format!"
+msgstr "Das eingegebene Datum ist nicht korrekt oder hatte ein falsches Format!"
 
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:1023
@@ -1620,7 +1620,7 @@ msgstr "Beschreibung: %s"
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:178 ../lib/XXV/MODULES/CHRONICLE.pm:167 ../lib/XXV/MODULES/CHRONICLE.pm:214 ../lib/XXV/MODULES/EPG.pm:673 ../lib/XXV/MODULES/EPG.pm:799 ../lib/XXV/MODULES/SHARE.pm:315 ../lib/XXV/MODULES/TIMERS.pm:1231
 msgid "Day"
-msgstr "Tag"
+msgstr "Datum"
 
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:19
@@ -1633,7 +1633,7 @@ msgid "Autotimer has programmed %d new timer(s) since last report to %s"
 msgstr "Autotimer hat %d neuen Timer programmiert, seit letztem Report an %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:27 ../lib/XXV/MODULES/CHRONICLE.pm:24 ../lib/XXV/MODULES/EVENTS.pm:30 ../lib/XXV/MODULES/HTTPD.pm:59 ../lib/XXV/MODULES/INTERFACE.pm:29 ../lib/XXV/MODULES/LOGREAD.pm:28 ../lib/XXV/MODULES/MEDIALIB.pm:30 ../lib/XXV/MODULES/MOVETIMER.pm:23 ../lib/XXV/MODULES/MUSIC.pm:36 ../lib/XXV/MODULES/REMOTE.pm:25 ../lib/XXV/MODULES/REPORT.pm:26 ../lib/XXV/MODULES/ROBOT.pm:25 ../lib/XXV/MODULES/SHARE.pm:49 ../lib/XXV/MODULES/STATUS.pm:28 ../lib/XXV/MODULES/TELNET.pm:26 ../lib/XXV/MODULES/VTX.pm:25 ../lib/XXV/MODULES/WAPD.pm:39 ../lib/XXV/MODULES/XMLTV.pm:28 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:65 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:30 ../lib/XXV/OUTPUT/NEWS/RSS.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:26
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:27 ../lib/XXV/MODULES/CHRONICLE.pm:24 ../lib/XXV/MODULES/EVENTS.pm:30 ../lib/XXV/MODULES/HTTPD.pm:59 ../lib/XXV/MODULES/INTERFACE.pm:29 ../lib/XXV/MODULES/LOGREAD.pm:28 ../lib/XXV/MODULES/MEDIALIB.pm:30 ../lib/XXV/MODULES/MOVETIMER.pm:23 ../lib/XXV/MODULES/MUSIC.pm:36 ../lib/XXV/MODULES/REMOTE.pm:25 ../lib/XXV/MODULES/REPORT.pm:26 ../lib/XXV/MODULES/ROBOT.pm:25 ../lib/XXV/MODULES/SHARE.pm:49 ../lib/XXV/MODULES/STATUS.pm:28 ../lib/XXV/MODULES/TELNET.pm:26 ../lib/XXV/MODULES/VTX.pm:25 ../lib/XXV/MODULES/WAPD.pm:39 ../lib/XXV/MODULES/XMLTV.pm:30 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:65 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:30 ../lib/XXV/OUTPUT/NEWS/RSS.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:26
 msgid "Activate this service"
 msgstr "Aktiviere diesen Dienst"
 
@@ -2922,7 +2922,7 @@ msgid "Which channel should used as source?"
 msgstr "Welcher Kanal soll als Quelle verwendet werden?"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:392 ../lib/XXV/MODULES/MOVETIMER.pm:414 ../lib/XXV/MODULES/RECORDS.pm:2000 ../lib/XXV/MODULES/STREAM.pm:169 ../lib/XXV/MODULES/TIMERS.pm:681 ../lib/XXV/MODULES/XMLTV.pm:516
+#: ../lib/XXV/MODULES/MOVETIMER.pm:392 ../lib/XXV/MODULES/MOVETIMER.pm:414 ../lib/XXV/MODULES/RECORDS.pm:2000 ../lib/XXV/MODULES/STREAM.pm:169 ../lib/XXV/MODULES/TIMERS.pm:681 ../lib/XXV/MODULES/XMLTV.pm:523
 msgid "This channel '%s' does not exist!"
 msgstr "Dieser Kanal '%s' existiert nicht in der Datenbank!"
 
@@ -4207,8 +4207,8 @@ msgstr "%d.%m.%Y"
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:701
-msgid "Enter a day (1 to 31) or weekday in format 'MTWTFSS'."
-msgstr "Tag (1 - 31) oder Wochentag im Format 'MDMDFSS' eingeben."
+msgid "Enter a day or weekday in format 'MTWTFSS'."
+msgstr "Datum oder Wochentag im Format 'MDMDFSS' eingeben."
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:74
@@ -4527,167 +4527,167 @@ msgid "Number of port to listen for wap clients"
 msgstr "Nummer des Port, um auf WAP-Clients zu lauschen"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:195
+#: ../lib/XXV/MODULES/XMLTV.pm:197
 msgid "Import epg data from xmltv sources ..."
 msgstr "Importiere EPG Daten von XMLTV Quellen"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:21
+#: ../lib/XXV/MODULES/XMLTV.pm:23
 msgid "This module import epg data from xmltv sources."
 msgstr "Dieses Modul importiert EPG Daten von XMLTV Quellen."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:255
+#: ../lib/XXV/MODULES/XMLTV.pm:257
 msgid "Import epg data for channel '%s'"
 msgstr "Importiere EPG Daten für Kanal '%s'"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:285
+#: ../lib/XXV/MODULES/XMLTV.pm:287
 msgid "Transmit data."
 msgstr "Übertrage Daten."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:305
+#: ../lib/XXV/MODULES/XMLTV.pm:307
 msgid "None data exits to import"
 msgstr "Keine Daten zum Importieren vorhanden."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:36
-msgid "Manual import epg data from xmltv sources."
-msgstr "Manueller Import der EPG Daten von XMLTV Quellen."
-
-#--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:375
+#: ../lib/XXV/MODULES/XMLTV.pm:377
 msgid "Title not available"
 msgstr "Titel nicht verfügbar"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:43
+#: ../lib/XXV/MODULES/XMLTV.pm:38
+msgid "Manual import epg data from xmltv sources."
+msgstr "Manueller Import der EPG Daten von XMLTV Quellen."
+
+#--------------------
+#: ../lib/XXV/MODULES/XMLTV.pm:45
 msgid "List rules to import epg data from xmltv sources."
 msgstr "Zeige Regeln zum Importieren von EPG-Daten von XMLTV Quellen."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:470 ../lib/XXV/MODULES/XMLTV.pm:632
+#: ../lib/XXV/MODULES/XMLTV.pm:477 ../lib/XXV/MODULES/XMLTV.pm:644
 msgid "Rule to import epg data from xmltv sources with ID '%s' does not exist in the database!"
 msgstr "Regel zum Importieren von EPG-Daten von XMLTV Quellen mit ID '%s' existiert nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:486
+#: ../lib/XXV/MODULES/XMLTV.pm:493
 msgid "Enable this rule"
 msgstr "Aktiviere Regel"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:489
+#: ../lib/XXV/MODULES/XMLTV.pm:496
 msgid "Source to import?"
 msgstr "Quelle zum Importieren?"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:496
+#: ../lib/XXV/MODULES/XMLTV.pm:503
 msgid "Limit import by this channel name inside xmltv source?"
 msgstr "Begrenze Import auf diesen Kanalnamen innerhalb der XMLTV Quelle!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:50
-msgid "Create rule to import epg data from xmltv sources."
-msgstr "Erzeuge Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
-
-#--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:504
+#: ../lib/XXV/MODULES/XMLTV.pm:511
 msgid "Assign data to channel?"
 msgstr "Weise Daten einen Kanal zu?"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:523
+#: ../lib/XXV/MODULES/XMLTV.pm:52
+msgid "Create rule to import epg data from xmltv sources."
+msgstr "Erzeuge Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
+
+#--------------------
+#: ../lib/XXV/MODULES/XMLTV.pm:530
 msgid "Parse data as template?"
 msgstr "Übersetzte Daten als Template?"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:533
+#: ../lib/XXV/MODULES/XMLTV.pm:540
 msgid "Interval to parse data?"
 msgstr "Intervall zum Lesen der Daten?"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:545
+#: ../lib/XXV/MODULES/XMLTV.pm:552
 msgid "Edit rule to import epg data from xmltv sources"
 msgstr "Bearbeite Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:546
+#: ../lib/XXV/MODULES/XMLTV.pm:553
 msgid "Create a new rule to import epg data from xmltv sources"
 msgstr "Erzeuge neue Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:554
+#: ../lib/XXV/MODULES/XMLTV.pm:561
 msgid "Rule to import epg data from xmltv sources saved!"
 msgstr "Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle gespeichert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:57
+#: ../lib/XXV/MODULES/XMLTV.pm:59
 msgid "Delete rule to import epg data from xmltv sources."
 msgstr "Lösche Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:591 ../lib/XXV/MODULES/XMLTV.pm:598
+#: ../lib/XXV/MODULES/XMLTV.pm:603 ../lib/XXV/MODULES/XMLTV.pm:610
 msgid "Couldn't insert rule to import epg data from xmltv sources in database!"
 msgstr "Konnte Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle nicht in Datenbank einfügen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:624
+#: ../lib/XXV/MODULES/XMLTV.pm:636
 msgid "Missing ID to select rules for deletion! Please use xmltvremove 'id'"
 msgstr "Vermisse ID zur Auswahl der Regel zum Löschen! Bitte verwende xmltvremove 'id'"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:636
+#: ../lib/XXV/MODULES/XMLTV.pm:648
 msgid "Rule import epg data from xmltv sources %s is deleted."
 msgstr "Regel  %s  zum Importieren von EPG-Daten aus einer XMLTV Quelle gelöscht!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:64
+#: ../lib/XXV/MODULES/XMLTV.pm:66
 msgid "Edit rule to import epg data from xmltv sources."
 msgstr "Bearbeite Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:657
+#: ../lib/XXV/MODULES/XMLTV.pm:669
 msgid "Active"
 msgstr "Aktive"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:659
+#: ../lib/XXV/MODULES/XMLTV.pm:671
 msgid "Parse data as template"
 msgstr "Übersetze Daten als Template"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:660
+#: ../lib/XXV/MODULES/XMLTV.pm:672
 msgid "Interval to parse data"
 msgstr "Intervall zum einlesen der Daten"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:661
+#: ../lib/XXV/MODULES/XMLTV.pm:673
 msgid "source to import"
 msgstr "Quelle zum Importieren"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:741
+#: ../lib/XXV/MODULES/XMLTV.pm:753
 msgid "Yes"
 msgstr "Ja"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:742
+#: ../lib/XXV/MODULES/XMLTV.pm:754
 msgid "No"
 msgstr "Nein"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:753
+#: ../lib/XXV/MODULES/XMLTV.pm:765
 msgid "Every EPG Data import"
 msgstr "Import bei jedem einlesen von EPG Daten"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:754
+#: ../lib/XXV/MODULES/XMLTV.pm:766
 msgid "Once every day"
 msgstr "Einmalig per Tag"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:755
+#: ../lib/XXV/MODULES/XMLTV.pm:767
 msgid "Once every week"
 msgstr "Einmalig per Woche"
 
@@ -4697,17 +4697,17 @@ msgid "This receive and send Ajax messages."
 msgstr "Dies empfängt und sendet AJAX Nachrichten."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Ajax.pm:244 ../lib/XXV/OUTPUT/Console.pm:303 ../lib/XXV/OUTPUT/Html.pm:503 ../lib/XXV/OUTPUT/Wml.pm:301 ../wml/widgets/dir.tmpl:8
+#: ../lib/XXV/OUTPUT/Ajax.pm:270 ../lib/XXV/OUTPUT/Console.pm:303 ../lib/XXV/OUTPUT/Html.pm:503 ../lib/XXV/OUTPUT/Wml.pm:301 ../wml/widgets/dir.tmpl:8
 msgid "Directory '%s' does not exist!"
 msgstr "Verzeichnis '%s' existiert leider nicht!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Ajax.pm:249 ../lib/XXV/OUTPUT/Console.pm:308 ../lib/XXV/OUTPUT/Html.pm:508 ../lib/XXV/OUTPUT/Wml.pm:306 ../wml/widgets/file.tmpl:8
+#: ../lib/XXV/OUTPUT/Ajax.pm:275 ../lib/XXV/OUTPUT/Console.pm:308 ../lib/XXV/OUTPUT/Html.pm:508 ../lib/XXV/OUTPUT/Wml.pm:306 ../wml/widgets/file.tmpl:8
 msgid "File '%s' does not exist!"
 msgstr "Datei '%s' existiert leider nicht!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Ajax.pm:258 ../lib/XXV/OUTPUT/Console.pm:312 ../lib/XXV/OUTPUT/Html.pm:517 ../lib/XXV/OUTPUT/Wml.pm:310
+#: ../lib/XXV/OUTPUT/Ajax.pm:284 ../lib/XXV/OUTPUT/Console.pm:312 ../lib/XXV/OUTPUT/Html.pm:517 ../lib/XXV/OUTPUT/Wml.pm:310
 msgid "Error '%s' (%s) : %s!"
 msgstr "Fehler im Feld '%s' (%s) : %s!"
 

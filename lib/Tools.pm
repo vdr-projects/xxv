@@ -7,7 +7,6 @@ use lib sprintf("%s", $RealBin);
 use lib sprintf("%s/../lib", $RealBin);
 use Locale::gettext qw/!gettext/;
 use utf8;
-#use encoding 'utf8';
 use Encode;
 
 use Data::Dumper;

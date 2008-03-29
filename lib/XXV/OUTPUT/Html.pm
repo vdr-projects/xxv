@@ -190,7 +190,8 @@ sub parseTemplateFile {
         info    => $self->browser,
         param   => $params,
         pid     => $$,
-        debug   => $self->{debug},
+        debug   => 0, # Avoid losing encoding like utf8
+        verbose => $self->{debug},
         user    => $user,
         charset => $self->{charset},
         # query the current locale

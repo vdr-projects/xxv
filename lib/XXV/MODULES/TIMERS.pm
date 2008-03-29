@@ -698,7 +698,7 @@ WHERE
                 }
                 return $value;
             },
-            msg     => gettext("Enter a day (1 to 31) or weekday in format 'MTWTFSS'."),
+            msg     => gettext("Enter a day or weekday in format 'MTWTFSS'."),
             req     => gettext("This is required!"),
             check   => sub{
                 my $value = shift || return;

@@ -538,14 +538,6 @@ sub _autotimerLookup {
                 }
             }
             if($error) {
-#error('Event : ###############################################################');
-#dumper($event);
-#error('Autotimer : ###########################################################');
-#dumper($a);
-#error('Timer : ###############################################################');
-#my $tdata = getDataByTable('TIMERS');
-#dumper($tdata);
-
                 $console->err(sprintf(gettext("Could not save timer for '%s' : %s"), $event->{file}, $error))
                   if(ref $console && $autotimerid);
             } else {

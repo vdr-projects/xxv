@@ -344,7 +344,6 @@ sub _ProcessXML {
 
   my $xdata = $self->{xml}->XMLin($text);
   # Ausgabe
-#  dumper($xdata); 
 
   return error "Missing channel" unless $xdata->{channel};
   return error "Missing program data" unless $xdata->{programme};
@@ -354,7 +353,6 @@ sub _ProcessXML {
 
   # Find XML events
   foreach my $xml (@{$xdata->{programme}})   {
-#  dumper($xml); 
 #    {
 #      'stop' => '20080317200000 +0100',
 #      'desc' => {

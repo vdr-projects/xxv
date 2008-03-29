@@ -768,7 +768,6 @@ sub insert {
 
     # MD5(File) as ID
     my $sql = sprintf('INSERT INTO MUSIC SET %s', join(', ', @setdata));
-    # dumper($sql);
     $obj->{dbh}->do( $sql );
     return 1;
 }

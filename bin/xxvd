@@ -37,7 +37,7 @@ my $PATHS = {
 use Tools;
 use POSIX qw(locale_h);
 use Cwd 'abs_path';
-use Locale::gettext qw/!gettext/;;
+use Locale::gettext qw/!gettext/;
 
 $|++;
 
@@ -78,7 +78,7 @@ sub module {
         Preferences => {
             Language => {
                 description => gettext('Interface language'),
-                type        => 'list',
+                type        => $useutf8 ? 'hidden' : 'list',
                 choices     => [
                     [gettext('English'), 'C'], # C Stand for nativ gettext language, and means en_US
                     [gettext('German'),  'de_DE'],
@@ -348,7 +348,7 @@ sub after {
 # ------------------
 sub reconfigure {
 # ------------------
-    if(defined $Config->{General}->{Language}
+    if(!$useutf8 && defined $Config->{General}->{Language}
         and $Config->{General}->{Language} ne setlocale(LC_ALL)) {
         setlocale (LC_ALL, "");# It's doesn't work without reset Language
         setlocale (LC_ALL, $Config->{General}->{Language});
@@ -423,8 +423,8 @@ sub getDbh {
           if (!($dbh->do("SET NAMES '" . $n . "'"))) {
               panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
           }
+          $dbh->{'mysql_enable_utf8'} = 1 if($n eq 'utf8');
       }
-
       $dbh->{'mysql_auto_reconnect'} = 1;
     } else {
         panic sprintf("Could not connect to database: %s :", $dsn, $DBI::errstr);
@@ -643,7 +643,7 @@ sub init_locale {
     }
     setcharset($charset);
 
-    if(defined $cfg->{General}->{Language}) {
+    if(!$useutf8 && defined $cfg->{General}->{Language}) {
         setlocale (LC_ALL, $cfg->{General}->{Language});
     } else {
         setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"'

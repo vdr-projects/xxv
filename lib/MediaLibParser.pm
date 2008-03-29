@@ -4,7 +4,6 @@ use strict;
 
 use LWP::UserAgent;
 use HTML::TreeBuilder;
-use Data::Dumper;
 
 our ( @ISA, @EXPORT, $VERSION );
 @ISA = qw(Exporter);

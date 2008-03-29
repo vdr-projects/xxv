@@ -1214,7 +1214,6 @@ ORDER BY
     starttime
 LIMIT 1
 |;
-#dumper($sql);
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($zeit, $channel)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));

@@ -3,7 +3,6 @@ package XXV::MODULES::MEDIALIB;
 use strict;
 
 use Tools;
-use Data::Dumper;
 use File::Path;
 
 # This module method must exist for XXV
@@ -316,7 +315,6 @@ sub researchMedia {
 
     if(ref $params eq 'HASH') {
         
-        #print Dumper( $params );
         my $medias;
         if ( $params->{source} eq 'dvdpalace' ) {
             
@@ -383,7 +381,6 @@ sub importMedia {
     my $id   = shift || 0;
     my $params  = shift || {};
 
-    #print Dumper($id, $params);
     $id = delete $params->{id} if defined $params->{id};
     my $range = delete $params->{range} if defined $params->{range};
 
@@ -402,7 +399,6 @@ sub importMedia {
         
         $params->{id} = $id;
         
-        #print Dumper('$params', $params);
         if ( $params->{genres} ) {
             my $gen_hash_1 = $obj->_get_videogenres_as_hash;
             my $gen_hash_2 = {
@@ -416,11 +412,8 @@ sub importMedia {
                 
                 # noch mit Genres auffuellen so wie sie auftauchen.
             };
-            #print Dumper('$gen_hash_1', $gen_hash_1);
-            #print Dumper('$gen_hash_2', $gen_hash_2);
             my $ret;
             foreach my $key ( @{$params->{genres}} ) {
-                #print Dumper('$key', $key);
                 if( defined $gen_hash_1->{$key} ) {
                     push (@$ret, $gen_hash_1->{$key}->{id});
                 } elsif ( defined $gen_hash_2->{$key} ) {
@@ -433,7 +426,6 @@ sub importMedia {
                     debug ('Unknown genre: '. $key);
                 }
             }
-            #print Dumper('$ret', $ret);
             $params->{genres} = $ret;
         }
 
@@ -445,7 +437,6 @@ sub importMedia {
     $params->{mediatype} = $obj->{defmediatype} unless defined $params->{mediatype} && $params->{mediatype} != 0;
     $params->{language} = $obj->{deflanguage} unless defined $params->{language} && $params->{language} ne '';
     
-    #print Dumper($params);
     $console->table({},
         {
             %$params,
@@ -465,7 +456,7 @@ sub searchMedia {
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
-    #print Dumper($params);
+
     my $erg = [];
     my $setcount;
 
@@ -552,7 +543,7 @@ sub editMedia {
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
-    #print Dumper($params);
+
     my $range = delete $params->{range} if defined $params->{range};
     if ( $id ) {
         my $sql = qq|
@@ -580,7 +571,6 @@ WHERE
     $params->{mediatype} = $obj->{defmediatype} unless defined $params->{mediatype} && $params->{mediatype} != 0;
     $params->{language} = $obj->{deflanguage} unless defined $params->{language} && $params->{language} ne '';
     
-    #print Dumper($params);
     $console->table({},
         {
             %$params,
@@ -792,7 +782,6 @@ sub _saveActors {
     
     $input =~ s/\r\n/\n/g;
     my @actors = split /\n/, $input;
-    #print Dumper( $input, @actors );
 
     my $rob = main::getModule('ROBOT')
         or return error('No ROBOT Module installed!');
@@ -854,7 +843,6 @@ sub _saveGenres {
     my $obj = shift || return error('No object defined!');
     my $videoid = shift || 0;
     my $genres = shift || [];
-    #print Dumper( $videoid,$genres);
     
     my $sql = sprintf("REPLACE INTO MEDIALIB_VIDEOGENRE (%s) VALUES (%s)",
             'video_id, genre_id',
@@ -927,7 +915,7 @@ WHERE
     $sth->execute(@actors)
         or return undef;
     my $erg = $sth->fetchall_hashref('name');
-    #print Dumper( $sql, $erg );
+
     foreach my $actor ( split /\n/, $input ) {
         if ( not defined $erg->{uc($actor)} ) {
             $erg->{$actor} = {
@@ -946,7 +934,6 @@ WHERE
         }
     }
     
-    #print Dumper($erg, $ret);
     return $ret;
 }
 
