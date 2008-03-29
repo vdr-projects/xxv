@@ -163,7 +163,7 @@
                         <table  summary="" width="100%">
                         <tr height="0"><th width="<?% IF param.previewcommand != 'n' %?>200<?% ELSE %?>20<?% END %?>"></th><th></th><th width="64"></th></tr>
      <?%- FOREACH zeile = data;
-          IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END;
+          IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END;
           id=zeile.0;
           eventid=zeile.1;
           title=zeile.2.split('&#x7e;').last;

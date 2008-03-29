@@ -160,7 +160,7 @@
 <h1><?% gettext("Planned recordings") %?> - <?% data.first.4 %?></h1>
 <form name="tlist" action="">
 		<?% FOREACH zeile = data %?>
-			<?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+			<?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
 			<?%- id=zeile.0;
           aktiv= ( zeile.1 ? zeile.1 mod 2 : 0 );
           sender=zeile.2;

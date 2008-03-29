@@ -65,7 +65,7 @@
               <table  summary="" width="100%">
               <tr height="0"><th width="60"></th><th></th><th width="64"></th></tr>
      <?% FOREACH zeile = data %?>
-        <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;imgurl=zeile.1;title=zeile.2;subtitle=zeile.3;year=zeile.4;director=zeile.5;description=zeile.6; %?>
         <?% PROCESS ItemAsFlat %?>
     <?% END %?>

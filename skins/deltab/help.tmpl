@@ -17,7 +17,7 @@
 <?% IF data.size > 1 %?>
 <table summary=""  width="100%">
     <?% FOREACH zeile = data %?>
-    <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
         <?% short=zeile.0;long=zeile.1;modul=zeile.2;desc=zeile.3 %?>
         <?% IF allow(long) %?>

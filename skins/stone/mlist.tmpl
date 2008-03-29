@@ -149,7 +149,7 @@
 <?% fields = data.shift %?>
 <form name="mlist" action="">
     <?% FOREACH zeile = data %?>
-        <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;artist=zeile.1;album=zeile.2;title=zeile.3;track=zeile.4;year=zeile.5;playtime=zeile.6;genre=zeile.7;comment=zeile.8 %?>
 		<?% IF !old.defined || album != old %?>
         <?% IF old.defined %?>

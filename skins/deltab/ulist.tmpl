@@ -24,7 +24,7 @@
 <?% fields = data.shift %?>
 <table summary=""  width="100%">
     <?% FOREACH zeile = data %?>
-     <?% IF debug;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+     <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
         <?% id=zeile.0;user=zeile.1;right=zeile.2 %?>
         <?% IF zeile.size <= 1 %?>
