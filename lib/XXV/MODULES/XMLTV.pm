@@ -259,7 +259,7 @@ sub _XMLTV {
 
     if($rule->{updateinterval} eq 'd' && ($rule->{updated} + 86400) > $now  ) {
       lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
-      #next;
+      next;
     } elsif($rule->{updateinterval} eq 'w' && ($rule->{updated} + (86400 * 7)) > $now ) {
       lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
       next;
