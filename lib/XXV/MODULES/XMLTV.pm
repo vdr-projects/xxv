@@ -259,7 +259,7 @@ sub _XMLTV {
 
     if($rule->{updateinterval} eq 'd' && ($rule->{updated} + 86400) > $now  ) {
       lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
-      next;
+      #next;
     } elsif($rule->{updateinterval} eq 'w' && ($rule->{updated} + (86400 * 7)) > $now ) {
       lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
       next;
@@ -270,6 +270,7 @@ sub _XMLTV {
       if($rule->{template} eq 'y') {
         $text = $self->_parse_template($text,$now);
       }
+
       my $adjust = 0;
       debug sprintf("Import xml data at %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
       my $e = $self->_ProcessXML($rule->{channel},$rule->{Name},$rule->{xmltvname},$adjust,$text);
@@ -429,7 +430,9 @@ sub _parse_template {
 		    ($hour,$min,$sec) = split(':',$_[1]);
 		    $min = 0 if(!defined $min);
 		    $sec = 0 if(!defined $sec);
-        return sprintf("%04d%02d%02d%02d%02d%02d %s",$tyear + 1900,$tmon+1,$tmday,$hour,$min,$sec,$_[2]);
+        my $tz = $_[2];
+        $tz += 100 if($isdst);
+        return sprintf("%04d%02d%02d%02d%02d%02d +%04d",$tyear + 1900,$tmon+1,$tmday,$hour,$min,$sec,$tz);
       },
   };
   my $output = '';
