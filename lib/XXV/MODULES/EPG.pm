@@ -714,7 +714,7 @@ sub search {
           |;
 
       my $sth;
-      my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+      my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
       if($limit > 0) {
         # Query total count of rows
         my $rsth = $obj->{dbh}->prepare($sql);
@@ -838,7 +838,7 @@ order by
 
     my $rows;
     my $sth;
-    my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
     if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);
@@ -1065,7 +1065,12 @@ ORDER BY
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    unshift(@$erg, $fields);
+    unless($console->typ eq 'AJAX') {
+#      map {
+#        $_->[5] = datum($_->[5],'short');
+#      } @$erg;
+      unshift(@$erg, $fields);
+    }
 
     $console->table($erg,
         {
@@ -1152,7 +1157,13 @@ ORDER BY
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    unshift(@$erg, $fields);
+
+    unless($console->typ eq 'AJAX') {
+#      map {
+#        $_->[5] = datum($_->[5],'short');
+#      } @$erg;
+      unshift(@$erg, $fields);
+    }
 
     $console->table($erg,
         {

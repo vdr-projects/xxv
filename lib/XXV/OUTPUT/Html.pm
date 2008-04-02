@@ -24,6 +24,7 @@ sub module {
 #           'Template'  => 'Front-end module to the Template Toolkit',
 #           'Compress::Zlib'  => 'Interface to zlib compression library',
             'HTML::TextToHTML' => 'convert plain text file to HTML. ',
+            'String::Escape qw(elide)' =>  'Registry of string functions, including backslash escapes'
         },
         Description => gettext('This receives and sends HTML messages.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -234,22 +235,18 @@ sub parseTemplateFile {
                   my @lines;
                   foreach my $line (@text)
                   {
-                    if ( length( $line ) > $c ) {
-                			$line = substr( $line, 0, ( $c - 3 ) ) . '...';
-                		}
+               			$line = elide( $line,$c );
                     --$l;
                     last if($l < 0);
                     push(@lines,$line);
                   }
                   $s = join("\r\n",@lines);
                 } else {
-                    if ( length( $s ) > ($c * $l) ) {
-                			$s = substr( $s, 0, ( ($c * $l) - 3 ) ) . '...';
-                		}
+              			$s = elide( $s,($c * $l) );
                 }
             } 
-            elsif ( length( $s ) > $c ) {
-        			$s = substr( $s, 0, ( $c - 3 ) ) . '...';
+            else {
+              $s = elide($s,$c);
         		}
           	return entities($s);
         	} else {
@@ -264,8 +261,7 @@ sub parseTemplateFile {
         # value for truncate are optional
         gettext => sub{
             my $t = gettext($_[0]);
-            $t = substr($t,0,$_[1]) . "..."
-                if(defined $_[1] && length($t)>$_[1]);
+       			$t = elide( $t, $_[1] ) if(defined $_[1]);
             return entities($t);
         },
         version => sub{ return main::getVersion },

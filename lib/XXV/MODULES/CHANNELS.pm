@@ -3,7 +3,6 @@ package XXV::MODULES::CHANNELS;
 use strict;
 
 use Tools;
-use File::stat;
 
 # This module method must exist for XXV
 # ------------------
@@ -13,6 +12,7 @@ sub module {
     my $args = {
         Name => 'CHANNELS',
         Prereq => {
+            'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm',
         },
         Description => gettext('This module reads new channels and stores them in the database.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -21,12 +21,6 @@ sub module {
         LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $obj->status(@_) },
         Preferences => {
-            file => {
-                description => sprintf(gettext("Path of file '%s'"),'channels.conf'),
-                default     => '/var/lib/vdr/channels.conf',
-                type        => 'file',
-                required    => gettext('This is required!'),
-            },
             interval => {
                 description => gettext('How often channels are to be updated (in seconds)'),
                 default     => 3 * 60 * 60,
@@ -196,11 +190,13 @@ sub _init {
       return 0;
     }
 
-    my $version = 26; # Must be increment if rows of table changed
+    my $version = 27; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
-    if(!tableUpdated($obj->{dbh},'CHANNELS',$version,1)
-      || !tableUpdated($obj->{dbh},'CHANNELGROUPS',$version,1)) {
+    if(!tableUpdated($obj->{dbh},'CHANNELS',$version,1)) {
+        return 0;
+    }
+    if(!tableUpdated($obj->{dbh},'CHANNELGROUPS',$version,1)) {
         return 0;
     }
 
@@ -229,9 +225,8 @@ sub _init {
 
     $obj->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS CHANNELGROUPS (
-          Id int(11) auto_increment not NULL,
+          Id int(11) not NULL,
           Name varchar(100) default 'unknown',
-          Counter int(11) default '0',
           PRIMARY KEY  (Id)
         ) COMMENT = '$version'
     |);
@@ -335,10 +330,10 @@ sub insertGrp {
     my $name = shift || 0;
 
     lg sprintf('Add new group of channels "%s".', $name);
-    my $sth = $obj->{dbh}->prepare('INSERT INTO CHANNELGROUPS SET Name=?, Counter=?');
+    my $sth = $obj->{dbh}->prepare('REPLACE INTO CHANNELGROUPS SET Name=?, Id=?');
     $sth->execute($name, $pos)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    return $sth->{mysql_insertid};
+    return $pos;
 }
 
 # ------------------
@@ -347,43 +342,55 @@ sub readData {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
-    my $file = $obj->{file} || return error ('No Channels File');
 
-    return con_err($console, sprintf(gettext("Couldn't find channels.conf as file '%s'!"),$file)) if( ! -e $file);
+    # Read channels over SVDRP
+    my $lstc = $obj->{svdrp}->command('lstc :groups');
+    my $vdata = [ grep(/^250/, @$lstc) ];
 
-    # only if file modification from last read time
-    my $mtime = (stat($file)->mtime);
+    unless(scalar @$vdata) {
+        # Delete old Records
+        $obj->{dbh}->do('DELETE FROM CHANNELS');
+        $obj->{dbh}->do('DELETE FROM CHANNELGROUPS');
+
+        my $msg = gettext('No channels available!');
+        con_err($console,$msg);
+        return;
+    }
+
+    my $md5sum = md5_hex(@$vdata);
+    # only if channels modified
     return
-      if(! ref $console and defined $obj->{LastRefreshTime} and ($mtime > $obj->{LastRefreshTime}));
+      if(! ref $console and defined $obj->{LastMD5Sum} and ($md5sum ne $obj->{LastMD5Sum}));
+    $obj->{LastMD5Sum} = $md5sum;
 
     $obj->{dbh}->do('DELETE FROM CHANNELS');
     $obj->{dbh}->do('DELETE FROM CHANNELGROUPS');
 
-    my $fh = IO::File->new("< $file") or return con_err($console, sprintf(gettext("Couldn't open file '%s'! : %s"),$file,$!));
     my $c = 0;
     my $nPos = 1;
     my $grp = 0;
-    while ( defined (my $line = <$fh>) ) {
-        $line =~ s/[\r|\n]//sig;
-        next if($line eq "");
-        my @data = split(':', $line, 13);
-        $data[-1] = (split(':', $data[-1]))[0];
+    my $channelText;
+    my $grpText;
 
-        if( $line =~ /^\:\@(\d*)\s*(.*)/ and $nPos <= $1) {
-            $nPos = $1;
-            my $grpText = $2;
+    foreach my $line (@{$vdata}) {
+
+        next if($line eq "");
+        if($line =~ /250[\-|\s]0\s/) { # Channels groups
+            ($nPos, $grpText)
+                = $line =~ /^250[\-|\s]0\s\:\@(\d+)\s(.+)/si;
             $grp = $obj->insertGrp($nPos, $grpText);
-        } elsif( $line =~ /^\:(.+)/) {
-            my $grpText = $1;
-            $grp = $obj->insertGrp($nPos, $grpText);
-        } else {
-            $grp = $obj->insertGrp(1, gettext("Channels"))
-                if(!$grp);
-            $c++
-                if(scalar @data > 4 && $obj->insert(\@data, $nPos++, $grp));
+         } else {
+            # Insert dummy group
+            $grp = $obj->insertGrp(1, gettext("Channels")) if(!$grp);
+
+            ($nPos, $channelText)
+                = $line =~ /^250[\-|\s](\d+)\s(.+)/si;
+            my @data = split(':', $channelText, 13);
+            $data[-1] = (split(':', $data[-1]))[0];
+
+            $c++ if(scalar @data > 4 && $obj->insert(\@data, $nPos++, $grp));
         }
     }
-    $fh->close;
 
     # Cool we have new Channels!
     my $LastChannel = $obj->_LastChannel;
@@ -404,7 +411,6 @@ sub readData {
                                 } else {
                                     $a cmp $b } } keys %CA;
 
-    $obj->{LastRefreshTime} = $mtime;
     return 1;
 }
 # ------------------
@@ -496,7 +502,8 @@ ORDER BY
         if(exists $params->{desc} && $params->{desc} == 1);
 
     my $rows;
-    if($console->{cgi} && $console->{cgi}->param('limit')) {
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
+    if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);
         $rsth->execute('%'.$id.'%')
@@ -506,9 +513,9 @@ ORDER BY
       # Add limit query
       if($console->{cgi}->param('start')) {
         $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
-        $sql .= "," . CORE::int($console->{cgi}->param('limit'));
+        $sql .= "," . $limit;
       } else {
-        $sql .= " LIMIT " . CORE::int($console->{cgi}->param('limit'));
+        $sql .= " LIMIT " . $limit;
       }
     }
 

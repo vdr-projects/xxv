@@ -370,7 +370,7 @@ sub _notify_readData {
   my $e = shift;
   lg sprintf "notify events for %s:%d received: %x", $e->fullname, $e->cookie, $e->mask;
 
-  if((time - $obj->{lastupdate}) > 15  # Only if last update prior 15 seconds (avoid callback chill)
+  if((time - $obj->{lastupdate}) > 3  # Only if last update prior 3 seconds (avoid callback chill)
      && $obj->readData()) {
 
         $obj->{lastupdate} = time;
@@ -1613,7 +1613,7 @@ ORDER BY __IsRecording asc,
 
     my $rows;
     my $sth;
-    my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
     if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);
@@ -1722,7 +1722,7 @@ ORDER BY
 
     my $rows;
     my $sth;
-    my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
     if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);

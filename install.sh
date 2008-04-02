@@ -152,6 +152,7 @@ perlModules()
 	checkPerlModule Proc::ProcessTable
 	checkPerlModule SOAP::Lite
 	checkPerlModule SOAP::Transport::HTTP
+	checkPerlModule String::Escape
 	checkPerlModule Template
 	checkPerlModule Time::Local
 	checkPerlModule Time::HiRes

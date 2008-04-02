@@ -163,6 +163,8 @@ sub new {
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
+    $self->{charset} = delete $attr{'-charset'};
+
 	# who am I
     $self->{MOD} = $self->module;
 
@@ -1157,6 +1159,22 @@ sub ConnectToMuggleDB {
                     AutoCommit => 1,
                 }) || error($DBI::errstr);
         if($mdbh) {
+            my $charset = $obj->{charset};
+            if ($charset) {
+        		    my $NAMES = {
+			            'UTF-8' => 'utf8',
+			            'ISO-8859-1' => 'latin1',
+			            'ISO-8859-2' => 'latin2',
+			            'ISO-8859-5' => 'latin5',
+			            'ISO-8859-7' => 'latin7',
+			            'ISO-8859-15' => 'latin1',
+            		};
+                my $n = $NAMES->{$charset} || 'latin1';
+                if (!($mdbh->do("SET NAMES '" . $n . "'"))) {
+                    panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
+                }
+                $mdbh->{'mysql_enable_utf8'} = 1 if($n eq 'utf8');
+            }
             $mdbh->{InactiveDestroy} = 1;
             $mdbh->{mysql_auto_reconnect} = 1;
             debug sprintf('Connect to database: %s successful.', $dsn);

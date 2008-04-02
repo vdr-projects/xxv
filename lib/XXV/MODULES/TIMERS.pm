@@ -1269,7 +1269,7 @@ ORDER BY
 
     my $rows;
     my $sth;
-    my $limit = CORE::int($console->{cgi} ? $console->{cgi}->param('limit') : 0);
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
     if($limit > 0) {
       # Query total count of rows
       my $rsth = $obj->{dbh}->prepare($sql);

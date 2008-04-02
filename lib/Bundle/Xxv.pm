@@ -50,6 +50,7 @@ Proc::Killfam
 Proc::ProcessTable 
 SOAP::Lite
 SOAP::Transport::HTTP
+String::Escape
 Template
 Time::Local
 Time::HiRes
