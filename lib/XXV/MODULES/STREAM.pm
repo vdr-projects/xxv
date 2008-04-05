@@ -62,6 +62,19 @@ sub module {
                 ],
                 required    => gettext("This is required!"),
             },
+            streamtype => {
+                description => gettext('Used live stream type'),
+                type        => 'list',
+                default     => 'PES',
+                choices     => [
+                    [gettext("TS - Transport Stream"),  'TS'],
+                    [gettext('PS - Program Stream'),    'PS'],
+                    [gettext('PES - Packetized Elementary Stream'),      'PES'],
+                    [gettext('ES - Elementary Stream'),  'ES'],
+                    [gettext('External stream type'),    'Extern'],
+                ],
+                required    => gettext("This is required!"),
+            },
             width => {
                 description => gettext('Stream widget width'),
                 default     => 720,
@@ -191,7 +204,7 @@ sub livestream {
 
     my $data;
     $data = "#EXTM3U\r\n";
-    $data .= sprintf("http://%s:3000/PES/%d", $obj->{host}, $cpos);
+    $data .= sprintf("http://%s:3000/%s/%d", $obj->{host},$obj->{streamtype}, $cpos);
     $data .= "\r\n";
      
     my $arg;
