@@ -249,7 +249,10 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCouldn't load modul!: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
+        if($@) {
+          my $m = (split(/ /, $_))[0];
+          return panic("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+        }
     } keys %{$self->{MOD}->{Prereq}};
 
     # read the DB Handle
@@ -1452,12 +1455,15 @@ where
     }
 
     $obj->_loadreccmds;
+    my @reccmds = @{$obj->{reccmds}};
+    map { 
+      $_ =~ s/\s*\:.*$//;
+    } @reccmds;
 
     my $param = {
-        reccmds => [@{$obj->{reccmds}}],
+        reccmds => \@reccmds,
     };
-
-    $console->table($erg, $param);
+    $console->table($erg,$param);
 }
 
 # ------------------
@@ -2645,19 +2651,22 @@ sub image {
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $record = shift;
+    my $data = shift;
 
     return $console->err(gettext("Sorry, get image is'nt supported"))
       if ($console->{TYP} ne 'HTML');
 
     return $console->status404('NULL','Wrong image parameter') 
-      unless($record);
+      unless($data);
 
-    my @rec  = split(/_/, $record);
+    my ($recordid, $frame)
+            = $data =~ /^([0-9a-f]{32}).(.*)$/si;
 
     return $console->status404('NULL','Wrong image parameter') 
-      if(scalar @rec != 2 );
-
-    return $console->datei(sprintf('%s/%s_shot/%08d.jpg', $obj->{previewimages}, $rec[0], int($rec[1])));
+      unless($recordid && $frame);
+    if(length($frame) < 8) {
+      $frame = sprintf("%08d",$frame);
+    }
+    return $console->datei(sprintf('%s/%s_shot/%s.jpg', $obj->{previewimages}, $recordid, $frame));
 }
 1;

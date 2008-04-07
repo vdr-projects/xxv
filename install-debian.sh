@@ -54,8 +54,7 @@ apt-get install \
   libhtml-template-perl \
   liburi-perl \
   libxml-rss-perl \
-  libxml-simple-perl \
-  libstring-escape-perl
+  libxml-simple-perl
 
 echo 'start mysql server'
 /etc/init.d/mysql start

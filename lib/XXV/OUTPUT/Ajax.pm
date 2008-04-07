@@ -57,7 +57,10 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
+        if($@) {
+          my $m = (split(/ /, $_))[0];
+          return panic("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+        }
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{handle} = $attr{'-handle'}
@@ -89,7 +92,7 @@ sub new {
 			$self->{json} = JSON->new()
         || return error("Can't create JSON instance!");
 		}	elsif($self->{outtype} eq 'xml') {
-      $self->{xml} = XML::Simple->new( NumericEscape => $self->{charset} eq 'UTF-8' ? 0 : 1 )
+      $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1) )
         || return error("Can't create XML instance!");
     }	elsif($self->{outtype} eq 'text') {
         # ...

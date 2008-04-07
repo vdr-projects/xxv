@@ -149,7 +149,10 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
+        if($@) {
+          my $m = (split(/ /, $_))[0];
+          return panic("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+        }
     } keys %{$self->{MOD}->{Prereq}};
 
     # create Template object

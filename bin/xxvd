@@ -65,95 +65,16 @@ my $Prereq = {
   'Proc::Killfam'         => 'kill a list of pids, and all their sub-children',
 };
 
-# ------------------
-sub module {
-# ------------------
-    my $args = {
-        Name => 'General',
-        Description => gettext('This is the main program xxvd.'),
-        Version => $VERSION,
-        Date => (split(/ /, '$Date$'))[1],
-        LastAuthor => (split(/ /, '$Author$'))[1],
-        Author => 'Frank Herrmann <xpix at xpix.de>',
-        Preferences => {
-            Language => {
-                description => gettext('Interface language'),
-                type        => $useutf8 ? 'hidden' : 'list',
-                choices     => [
-                    [gettext('English'), 'C'], # C Stand for nativ gettext language, and means en_US
-                    [gettext('German'),  'de_DE'],
-                ],
-                default     => 'C',
-            },
-            DSN => {
-                description => gettext('Data source for the connection to the database'),
-                default     => 'DBI:mysql:database=xxv;host=localhost;port=3306',
-                type        => 'string',
-                required    => gettext("This is required!"),
-            },
-            USR => {
-                description => gettext('Password for database access'),
-                default     => 'xxv',
-                type        => 'string',
-                required    => gettext("This is required!"),
-            },
-            PWD => {
-                description => gettext('Password for database access'),
-                default     => 'xxv',
-                type        => 'password',
-                required    => gettext("This is required!"),
-                check       => sub{
-                    my $value = shift || return;
-                    # If no password given the take the old password as default
-                    if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
-                    } else {
-                        return $value->[0];
-                    }
-                },
-            },
-            initscript => {
-                description => gettext('Initialization script to restart xxv'),
-                default     => '/etc/init.d/xxvd',
-                type        => 'file',
-                required    => gettext("This is required!"),
-            },
-        },
-        Commands => {
-            doc => {
-                description => gettext('Generate the documentation into the doc directory.'),
-                short       => 'dc',
-                callback    => sub{ docu(@_) },
-                Level       => 'admin',
-            },
-            more => {
-                description => gettext('Display program information.'),
-                short       => 'mo',
-                callback    => sub{ more(@_) },
-                Level       => 'user',
-            },
-        },
-    };
-    # Only as superuser
-    if(0 == $<)
-    {
-      $args->{'Commands'}->{'restart'} = {
-                description => gettext('Call initialization script to restart the xxv system.'),
-                short       => 'restart',
-                callback    => sub{ restart(@_) },
-                Level       => 'admin',
-             };
-    }
-    return $args;
-}
-
 # THE MAIN PROGRAM --------------------------------- TOP
 my @PARAMETER = @ARGV;
 
 # Try to eval requirements
 map {
     eval "use $_";
-    print("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
+    if($@) {
+      my $m = (split(/ /, $_))[0];
+      print("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+    }
 } keys %{$Prereq};
 
 
@@ -217,6 +138,8 @@ unless($nofork) {
         exit(0);
     }
 }
+
+setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"'
 
 # Load a config
 my $CFGOBJ = Config::Tiny->new();
@@ -645,8 +568,6 @@ sub init_locale {
 
     if(!$useutf8 && defined $cfg->{General}->{Language}) {
         setlocale (LC_ALL, $cfg->{General}->{Language});
-    } else {
-        setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"'
     }
 
     # TODO set to installed folder like /usr/share/locale
@@ -682,10 +603,13 @@ sub init_logging {
         my $tt = sprintf('%04d-%02d-%02d %02d:%02d:%02d',
             $year+1900, $mon+1,$mday,  $hour, $min, $sec );
 
-        open(LOGGER, ">>", $loggerfile) or return;
-        binmode(LOGGER, ":utf8") if($useutf8);
-        print LOGGER sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $msg);
-        close LOGGER;
+        my $mode = '>>';
+        $mode .= ':utf8' if($Tools::CHARSET && $Tools::CHARSET eq 'UTF-8');
+
+        my $fh = IO::File->new($loggerfile,$mode) 
+          or return print(sprintf("Couldn't write %s : %s!",$loggerfile,$!));
+        print $fh sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $msg);
+        $fh->close;
     };
 
     # First log message
@@ -767,3 +691,86 @@ sub init_db_connect {
 
     return $dbh;
 }
+
+# ------------------
+sub module {
+# ------------------
+    my $args = {
+        Name => 'General',
+        Description => gettext('This is the main program xxvd.'),
+        Version => $VERSION,
+        Date => (split(/ /, '$Date$'))[1],
+        LastAuthor => (split(/ /, '$Author$'))[1],
+        Author => 'Frank Herrmann <xpix at xpix.de>',
+        Preferences => {
+            Language => {
+                description => gettext('Interface language'),
+                type        => $useutf8 ? 'hidden' : 'list',
+                choices     => [
+                    [gettext('English'), 'C'], # C Stand for nativ gettext language, and means en_US
+                    [gettext('German'),  'de_DE'],
+                ],
+                default     => 'C',
+            },
+            DSN => {
+                description => gettext('Data source for the connection to the database'),
+                default     => 'DBI:mysql:database=xxv;host=localhost;port=3306',
+                type        => 'string',
+                required    => gettext("This is required!"),
+            },
+            USR => {
+                description => gettext('Password for database access'),
+                default     => 'xxv',
+                type        => 'string',
+                required    => gettext("This is required!"),
+            },
+            PWD => {
+                description => gettext('Password for database access'),
+                default     => 'xxv',
+                type        => 'password',
+                required    => gettext("This is required!"),
+                check       => sub{
+                    my $value = shift || return;
+                    # If no password given the take the old password as default
+                    if($value->[0] and $value->[0] ne $value->[1]) {
+                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
+                    } else {
+                        return $value->[0];
+                    }
+                },
+            },
+            initscript => {
+                description => gettext('Initialization script to restart xxv'),
+                default     => '/etc/init.d/xxvd',
+                type        => 'file',
+                required    => gettext("This is required!"),
+            },
+        },
+        Commands => {
+            doc => {
+                description => gettext('Generate the documentation into the doc directory.'),
+                short       => 'dc',
+                callback    => sub{ docu(@_) },
+                Level       => 'admin',
+            },
+            more => {
+                description => gettext('Display program information.'),
+                short       => 'mo',
+                callback    => sub{ more(@_) },
+                Level       => 'user',
+            },
+        },
+    };
+    # Only as superuser
+    if(0 == $<)
+    {
+      $args->{'Commands'}->{'restart'} = {
+                description => gettext('Call initialization script to restart the xxv system.'),
+                short       => 'restart',
+                callback    => sub{ restart(@_) },
+                Level       => 'admin',
+             };
+    }
+    return $args;
+}
+

@@ -352,12 +352,16 @@ or use the script contrib/update-xxv to upgrade the database!
 sub load_file {
 #--------------------------------------------------------
 	my $file = shift || return error('No file defined!');
+	my $binmode = shift || 'text';
 
-    lg sprintf('Load file "%s"',
-            $file,
-        );
+  lg sprintf('Load file "%s" (%s)',$file, $binmode);
 
-	my $fh = IO::File->new("< $file")
+  my $mode = '<';
+#  if($binmode ne 'binary') {
+#    $mode .= ':utf8' if($CHARSET && $CHARSET eq 'UTF-8');
+#  }
+
+  my $fh = IO::File->new($file,$mode) 
 	    or return error(sprintf("Couldn't open %s : %s!",$file,$!));
 	my $data;
 	while ( defined (my $l = <$fh>) ) {
@@ -370,22 +374,26 @@ sub load_file {
 #--------------------------------------------------------
 sub save_file {
 #--------------------------------------------------------
-    my ($file, $data) = @_;
-	return unless($file);
+	my $file = shift || return error('No file defined!');
+	my $data = shift || '';
+	my $binmode = shift || 'text';
 
+  return unless($file);
+
+  lg sprintf('Save file %s(%s)',$file,convert(length($data)));
+  my $mode = '>';
+
+  if($binmode ne 'binary') {
     $data =~ s/\r\n/\n/sig;
+#   $mode .= ':utf8' if($CHARSET && $CHARSET eq 'UTF-8');
+  }
 
-    lg sprintf('Save file %s(%s)',
-            $file,
-            convert(length($data))
-        );
+  my $fh = IO::File->new($file,$mode) 
+  or return error(sprintf("Couldn't write %s : %s!",$file,$!));
+  print $fh $data;
+  $fh->close;
 
-	my $fhi = new IO::File("> $file")
-	    or return error(sprintf("Couldn't write %s : %s!",$file,$!));
-	print $fhi $data;
-	$fhi->close;
-
-    return $file
+  return $file
 }
 
 
@@ -629,7 +637,9 @@ sub entities {
     $s =~ s/>/&gt;/g;
     $s =~ s/</&lt;/g;
     $s =~ s/\"/&quot;/g;
-    if($CHARSET ne 'UTF-8') {
+    if($CHARSET eq 'UTF-8') {
+      $s =~ s/(\~)/sprintf("&#x%02x;",ord($1))/eg;
+    } else {
       $s =~ s/([^a-zA-Z0-9&%;:,\.\!\?\(\)\_\|\'\r\n ])/sprintf("&#x%02x;",ord($1))/eg;
     }
     $s =~ s/\r\n/<br \/>/g;
@@ -642,9 +652,7 @@ sub reentities {
 # ------------------
     my $s = shift || return '';
 
-    if($CHARSET ne 'UTF-8') {
-      $s =~ s/\&\#x([a-fA-F0-9][a-fA-F0-9])\;/pack("C", hex($1))/eg;
-    }
+    $s =~ s/\&\#x([a-fA-F0-9][a-fA-F0-9])\;/pack("C", hex($1))/eg;
     $s =~ s/&amp;/&/g;
     $s =~ s/&gt;/>/g;
     $s =~ s/&lt;/</g;

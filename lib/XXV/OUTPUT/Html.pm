@@ -24,7 +24,6 @@ sub module {
 #           'Template'  => 'Front-end module to the Template Toolkit',
 #           'Compress::Zlib'  => 'Interface to zlib compression library',
             'HTML::TextToHTML' => 'convert plain text file to HTML. ',
-            'String::Escape qw(elide)' =>  'Registry of string functions, including backslash escapes'
         },
         Description => gettext('This receives and sends HTML messages.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -233,20 +232,30 @@ sub parseTemplateFile {
                 if(scalar @text > 1)
                 {
                   my @lines;
-                  foreach my $line (@text)
+                  foreach my $z (@text)
                   {
-               			$line = elide( $line,$c );
+                    if ( length( $z ) > $c ) {
+                			$z = substr( $z, 0, ( $c - 3 ) );
+                      $z =~ s/([\x80-\xFF \.])+$//g; # remove part of unicode at last character
+                      $z .= '...';
+                		}
                     --$l;
                     last if($l < 0);
-                    push(@lines,$line);
+                    push(@lines,$z);
                   }
                   $s = join("\r\n",@lines);
                 } else {
-              			$s = elide( $s,($c * $l) );
+                    if ( length( $s ) > ($c * $l) ) {
+                			$s = substr( $s, 0, ( ($c * $l) - 3 ) );
+                      $s =~ s/([\x80-\xFF \.])+$//g; # remove part of unicode at last character
+                      $s .= '...';
+                		}
                 }
             } 
-            else {
-              $s = elide($s,$c);
+            elsif ( length( $s ) > $c ) {
+        			$s = substr( $s, 0, ( $c - 3 ) );
+              $s =~ s/([\x80-\xFF \.])+$//g; # remove part of unicode at last character
+              $s .= '...';
         		}
           	return entities($s);
         	} else {
@@ -260,9 +269,14 @@ sub parseTemplateFile {
         # translate string, usage : gettext(foo,truncate) or gettext(foo)
         # value for truncate are optional
         gettext => sub{
-            my $t = gettext($_[0]);
-       			$t = elide( $t, $_[1] ) if(defined $_[1]);
-            return entities($t);
+            my $s = gettext($_[0]);
+            if(defined $_[1] && length($s)>$_[1]) {
+              my $y;
+              $s = substr($s,0,$_[1]);
+              $s =~ s/([\x80-\xFF \.])+$//g; # remove part of unicode at last character
+              $s .= '...';
+            }
+            return entities($s);
         },
         version => sub{ return main::getVersion },
         loadfile    => sub{ return load_file(@_) },

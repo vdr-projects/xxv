@@ -57,7 +57,10 @@ sub new {
     # Try to use the Requirments
     map {
         eval "use $_";
-        return panic("\nCouldn't load perl module: $_\nPlease install this module on your system:\nperl -MCPAN -e 'install $_'") if($@);
+        if($@) {
+          my $m = (split(/ /, $_))[0];
+          return panic("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+        }
     } keys %{$self->{MOD}->{Prereq}};
 
     $self->{handle} = $attr{'-handle'}
@@ -152,7 +155,7 @@ sub parseTemplate {
             return entities($t);
         },
         version => sub{ return main::getVersion },
-        loadfile    => sub{ return load_file(@_) },
+        loadfile    => sub{ return load_file(@_, 'binary') },
         writefile   => sub{
             my $filename = shift || return error('No Filename to write');
             my $data = shift || return error('Nothing data to write');
@@ -162,7 +165,7 @@ sub parseTemplate {
             # absolut Path to file
             my $file = sprintf('%s/%s', $dir, $filename);
             # absolut Path to file
-            if(save_file($file, $data)) {
+            if(save_file($file, $data, 'binary')) {
                 # return the relative Path
                 my ($relpath) = $file =~ '/(.+?/.+?)$';
                 return sprintf('tempimages/%s', $filename);
@@ -346,7 +349,7 @@ sub image {
     my $typ = shift  || $self->{mime}->{lc((split('\.', $file))[-1])}
         or return error("No Type in Mimehash or File: $file");
 
-    my $data = load_file($file)
+    my $data = load_file($file, 'binary')
         or return $self->status404($file,$!);
 
     $self->out($data, $typ);

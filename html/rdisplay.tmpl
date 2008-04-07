@@ -104,7 +104,7 @@
         <option value='0'><?% gettext("Choose a command to edit this recording ...") %?>:</option>
     <?% FOREACH cmd = param.reccmds %?>
         <?% c = c + 1 %?>
-        <option value='<?% c %?>_<?% data.RecordId %?>'><?% cmd.split(':').first %?></option>
+        <option value='<?% c %?>_<?% data.RecordId %?>'><?% cmd %?></option>
     <?% END %?>
     </select>
 <?% END %?>
