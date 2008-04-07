@@ -279,7 +279,7 @@ sub parseTemplateFile {
             return entities($s);
         },
         version => sub{ return main::getVersion },
-        loadfile    => sub{ return load_file(@_) },
+        loadfile    => sub{ return load_file(@_,'binary') },
         writefile   => sub{
             my $filename = shift || return error('No filename defined!');
             my $data = shift || return error('No data defined!');
@@ -289,7 +289,7 @@ sub parseTemplateFile {
             # absolut Path to file
             my $file = sprintf('%s/%s', $dir, $filename);
             # absolut Path to file
-            if(save_file($file, $data)) {
+            if(save_file($file, $data,'binary')) {
                 # return the relative Path
                 my ($relpath) = $file =~ '/(.+?/.+?)$';
                 return sprintf('tempimages/%s', $filename);
@@ -656,7 +656,7 @@ sub datei {
         lg sprintf("stream file : '%s' (%s)",$file,convert($size));
         $self->_stream([$file],$size, 0, $typ, %args);
     } else {
-        my $data = load_file($file) || '';
+        my $data = load_file($file,'binary') || '';
         # send data
         $self->out($data, $typ, %args );
     }
