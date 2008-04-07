@@ -237,7 +237,7 @@
 										<select name='data' onchange="di('?cmd=rconvert&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)"> 
 											<option value='0'><?% gettext("Choose a command to edit this recording ...") %?></option>
 											<?% FOREACH cmd = param.reccmds %?>
-											<option value='<?% loop.count %?>_<?% id %?>'><?% cmd.split(':').first %?></option>
+											<option value='<?% loop.count %?>_<?% id %?>'><?% cmd %?></option>
 											<?% END %?>
 										</select>
 									</form>
