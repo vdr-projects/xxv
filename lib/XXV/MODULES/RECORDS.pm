@@ -1065,6 +1065,9 @@ sub readinfo {
             elsif($zeile =~ /^S\s+(.+)$/s) {
                 $info->{subtitle} = $1;
             }
+            elsif($zeile =~ /^V\s+(.+)$/s) {
+                $info->{vpstime} = $1;
+            }
             elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
                 $info->{video} = $1;
             }
@@ -1120,6 +1123,12 @@ sub saveinfo {
             undef $info->{channel};
           }
         }
+        elsif($zeile =~ /^V\s+(\S+)/s) {
+          if(defined $info->{vpstime} && $info->{vpstime}) {
+            $out .= "V ".  $info->{vpstime} . "\n" if($info->{vpstime});
+            undef $info->{vpstime};
+          }
+        }
         elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
           if(defined $info->{video} && $info->{video}) {
             $out .= "X 1 ".  $info->{video} . "\n" if($info->{video});
@@ -1152,6 +1161,9 @@ sub saveinfo {
     }
     if(defined $info->{description} && $info->{description}) {
       $out .= "D ".  $info->{description} . "\n";
+    }
+    if(defined $info->{vpstime} && $info->{vpstime}) {
+      $out .= "V ".  $info->{vpstime} . "\n" if($info->{vpstime});
     }
     if(defined $info->{video} && $info->{video}) {
       $out .= "X 1 ".  $info->{video} . "\n" if($info->{video});
@@ -1369,6 +1381,7 @@ sub createOldEventId {
         channel => $info->{channel} || "<undef>",
         duration => $duration,
         starttime => $start,
+        vpstime => $info->{vpstime} || 0,
         video => $info->{video} || "",
         audio => $info->{audio} || "",
     };
@@ -1380,8 +1393,8 @@ sub createOldEventId {
 
     my $sth = $obj->{dbh}->prepare(
 q|REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, 
-                      duration, tableid, starttime, video, audio, addtime) 
-  VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),?,?,NOW())|);
+                      duration, tableid, starttime, vpstime, video, audio, addtime) 
+  VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?,NOW())|);
 
     $sth->execute(
         $attr->{eventid},
@@ -1392,6 +1405,7 @@ q|REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id,
         int($attr->{duration}),
         $attr->{tableid},
         $attr->{starttime},
+        $attr->{vpstime},
         $attr->{video},
         $attr->{audio}
     );
@@ -2041,6 +2055,9 @@ WHERE
 	      $data->{title} =~s#~+#~#g;
 	      $data->{title} =~s#^~##g;
         $data->{title} =~s#~$##g;
+
+        # Keep PDC Time
+        $data->{vpstime} = $status->{vpstime} if($status->{vpstime});
 
         if($data->{title} ne $rec->{title}
           or $data->{description} ne $status->{description} 
