@@ -91,18 +91,11 @@ sub module {
                 default     => 'now',
                 type        => 'list',
                 required    => gettext('This is required!'),
-                choices     => [
-                    [ gettext('Schema'),          'schema'],
-                    [ gettext('Running now'),     'now'],
-                    [ gettext('Program guide'),   'program'],
-                    [ gettext('Autotimer'),       'alist'],
-                    [ gettext('Timers'),          'tlist'],
-                    [ gettext('Recordings'),      'rlist'],
-                    [ gettext('Music'),           'mlist'],
-                    [ gettext('Remote'),          'remote'],
-                    [ gettext('Teletext'),        'vtxpage'],
-                    [ gettext('Status'),          'sa'],
-                ],
+                choices     => sub {
+                                    my $erg = $self->_get_startpage_as_array();
+                                    map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
+                                    return $erg;
+                                 }
             },
             Debug => {
                 description => gettext('Dump additional debugging information, required only for software development.'),
@@ -127,10 +120,13 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
+
     # paths
     $self->{paths} = delete $attr{'-paths'};
-
-    $self->{charset} = delete $attr{'-charset'};
 
 	# who am I
     $self->{MOD} = $self->module;
@@ -531,8 +527,14 @@ sub findskins
 {
     my $self = shift || return error('No object defined!');
     my @skins;
-    find({ wanted => sub{
+
+    my $max_depth = $self->{paths}->{HTMLDIR} =~ tr[/][];
+
+    find({ wanted => sub {
+              my $depth = $File::Find::dir =~ tr[/][];
+
               if(-d $File::Find::name
+                    and ( $depth <= $max_depth )
                     and ( -e $File::Find::name.'/index.tmpl'
                       or  -e $File::Find::name.'/index.html')
               ) {
@@ -634,5 +636,22 @@ sub checkvalue {
         if(ref $console);
 }
 
+# ------------------
+sub _get_startpage_as_array {
+# ------------------
+    my $self = shift  || return error('No object defined!');
 
+   return [
+                    [ 'schema', gettext('Schema')],
+                    [ 'now',    gettext('Running now')],
+                    [ 'program',gettext('Program guide')],
+                    [ 'alist',  gettext('Autotimer')],
+                    [ 'tlist',  gettext('Timers')],
+                    [ 'rlist',  gettext('Recordings')],
+                    [ 'mlist',  gettext('Music')],
+                    [ 'remote', gettext('Remote')],
+                    [ 'vtxpage',gettext('Teletext')],
+                    [ 'sa',     gettext('Status')]
+                ];
+}
 1;

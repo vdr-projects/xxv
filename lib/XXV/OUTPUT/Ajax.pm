@@ -1,7 +1,6 @@
 package XXV::OUTPUT::Ajax;
 
 use strict;
-use utf8;
 use Encode;
 use vars qw($AUTOLOAD);
 use Tools;
@@ -38,10 +37,9 @@ sub AUTOLOAD {
     my $name = (split('::', $AUTOLOAD))[-1];
     return  if($name eq 'DESTROY');
 
-    $self->{nopack} = 1;
     $self->out( $data, $params, $name );
 
-    $self->{call} = '';
+    #$self->{call} = '';
 }
 
 # ------------------
@@ -50,6 +48,11 @@ sub new {
 	my($class, %attr) = @_;
 	my $self = {};
 	bless($self, $class);
+
+  $self->{charset} = delete $attr{'-charset'} || 'ISO-8859-1';
+  if($self->{charset} eq 'UTF-8'){
+    eval 'use utf8';
+  }
 
 	# who am I
     $self->{MOD} = $self->module;
@@ -78,9 +81,6 @@ sub new {
     $self->{debug} = $attr{'-debug'}
         || 0;
 
-    $self->{charset} = $attr{'-charset'}
-        || 'ISO-8859-15';
-
 		$self->{types} = {
 			'xml'  => 'application/xml; charset='. $self->{charset},
  			'json' => 'application/json; charset='. $self->{charset},
@@ -101,6 +101,13 @@ sub new {
 #      return error(sprintf("Can't create instance for typ '%s'!"),$self->{outtype});
     }
     $self->{TYP} = 'AJAX';
+
+    # Forward name of Server for CGI::server_software
+    $ENV{'SERVER_SOFTWARE'} = sprintf("xxvd %s",main::getVersion());
+    $ENV{'SERVER_PROTOCOL'} = 'HTTP/1.1';
+
+    eval "use Compress::Zlib";
+    $self->{Zlib} = ($@ ? 0 : 1);
 
 	return $self;
 }
@@ -299,6 +306,9 @@ sub question {
   my $out = [];
   if(ref $questions eq 'ARRAY') {
     @$quest = @$questions;
+  } else {
+    @$quest = [ $questions ];
+  }
     while (my ($name, $data) = splice(@$quest, 0, 2)) {
       my $type = $data->{typ} || 'string';
       my $def ;
@@ -321,33 +331,16 @@ sub question {
         } 
       }
 
+      if($type eq 'list' 
+        && $data->{options} 
+        && $data->{options} eq 'multi') {
+        $type = 'multilist';
+      }
+
       push(@$out,[$name,$data->{msg},$type,$def,$data->{req} ? 1 : 0,$data->{readonly} ? 1 : 0,$choices]);
     }
     $self->out( $out, 0 , 'question' );
-  } else {
-    my $type = $questions->{typ} || 'string';
-    my $def ;
-    if(ref $questions->{def} eq 'CODE') {
-      $def = $questions->{def}();
-    } elsif(ref $questions->{def} eq 'ARRAY') {
-      $def = join(',',@{$questions->{def}});
-    } else {
-      $def = $questions->{def};
-    } 
-
-    my $choices ;
-    if($questions->{choices}) {
-        if(ref $questions->{choices} eq 'CODE') {
-          $choices = $questions->{choices}();
-        } else {
-          $choices = $questions->{choices};
-        }
-    }
-
-    push(@$out,[$type,$questions->{msg},$type,$def,$questions->{req} ? 1 : 0,$questions->{readonly} ? 1 : 0,$choices]);
-    $self->out( $out, 0 , 'question' );
-  }
-  return undef;
+    return undef;
 }
 
 # ------------------
@@ -367,7 +360,7 @@ sub msg {
 
     $self->out( $msg, { state => $state }, 'msg' );
 
-    $self->{call} = '';
+    #$self->{call} = '';
 }
 
 # ------------------
@@ -400,8 +393,8 @@ sub setCall {
     my $self = shift || return error('No object defined!');
     my $name = shift || return error('No name defined!');
 
-    $self->{call} = $name;
-    return $self->{call};
+    #$self->{call} = $name;
+    #return $self->{call};
 }
 
 # ------------------

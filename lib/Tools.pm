@@ -6,7 +6,6 @@ use FindBin qw($RealBin);
 use lib sprintf("%s", $RealBin);
 use lib sprintf("%s/../lib", $RealBin);
 use Locale::gettext qw/!gettext/;
-use utf8;
 use Encode;
 
 use Data::Dumper;
@@ -755,11 +754,6 @@ sub setcharset($) {
 # Translate text 
 sub gettext($) {
     my $text = shift;
-
-    unless($CHARSET) {
-        my ($stack, $evalon) = &stackTrace;
-        print $stack if($evalon != 1);
-    }
 
     unless($LOCALE) {
         $LOCALE = Locale::gettext->domain_raw("xxv");

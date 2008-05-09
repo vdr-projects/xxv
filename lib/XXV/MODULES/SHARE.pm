@@ -10,22 +10,34 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub AUTOLOAD {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my $cmd = (split('::', $AUTOLOAD))[-1];
     return  if($cmd eq 'DESTROY');
 
-    # Den Hash per Hand nachpflegen
-    # bis zum nächsten Refresh ...
     if($cmd eq 'setEventLevel') {
-        $obj->StoreEventLevel($_[0],$_[1]);
-        $_[2] += $obj->{TimeOffset} if(exists $obj->{TimeOffset});
+        # Den Hash per Hand nachpflegen
+        # bis zum nächsten Refresh ...
+        $self->StoreEventLevel($_[0],$_[1]);
+        $_[2] += $self->{TimeOffset} if(exists $self->{TimeOffset});
+
+        # Den Hash in Warteschlange einfügen ...
+        foreach my $d (@{$self->{setEventLevelQueue}}) {
+          if($d->[0] == $_[0]) {
+            $d->[1] = $_[1];
+            $d->[2] = $_[2];
+            return 1;
+          }
+        }
+        push(@{$self->{setEventLevelQueue}}, [$_[0],$_[1],$_[2]] );
+        return 1;
     }
 
-    if($obj->{SOAP} && $obj->{active} eq 'y') {
-        my $erg = $obj->CmdToService($obj->{SOAP}, $cmd, $obj->{SessionId}, @_);
+    if($self->{SOAP} && $self->{active} eq 'y') {
+        my $erg = $self->CmdToService($self->{SOAP}, $cmd, $self->{randomid}, @_);
         return $erg;
     }
+    return 0;
 }
 
 
@@ -33,7 +45,7 @@ sub AUTOLOAD {
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'SHARE',
         Prereq => {
@@ -74,14 +86,18 @@ sub module {
                 type        => 'integer',
                 required    => gettext('This is required!'),
             },
+            randomid => {
+                default     => "",
+                type        => 'hidden'
+            }
         },
         Commands => {
             topten => {
                 description => gettext("Display the TopTen list of timers."),
                 short       => 't10',
-                callback    => sub{ $obj->TopTen(@_) },
-            },
-        },
+                callback    => sub{ $self->TopTen(@_) },
+            }
+        }
     };
     return $args;
 }
@@ -93,6 +109,11 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
+
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
@@ -101,6 +122,8 @@ sub new {
 
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
+
+    $self->{MOD}->{Preferences}->{randomid}->{default} = $self->generateRandomID();
 
     # all configvalues to $self without parents (important for ConfigModule)
     map {
@@ -126,21 +149,21 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    $obj->{SessionId} = $obj->generateUniqueId
-        unless($obj->{SessionId});
+    $self->{randomid} = $self->generateRandomID()
+        unless($self->{randomid});
 
     my $version = 27; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
 
     # remove old table, if updated version
-    if(!tableUpdated($obj->{dbh},'SHARE',$version,1)) {
+    if(!tableUpdated($self->{dbh},'SHARE',$version,1)) {
       return 0;
     }
 
-    $obj->{dbh}->do(qq|
+    $self->{dbh}->do(qq|
         CREATE TABLE IF NOT EXISTS SHARE (
             eventid int unsigned default '0',
             level float,
@@ -153,37 +176,44 @@ sub _init {
 
     main::after(sub{
 
-        $obj->{SOAP} = $obj->ConnectToService($obj->{SessionId},$obj->{rating});
+        $self->{SOAP} = $self->ConnectToService($self->{randomid},$self->{rating});
 
-        unless($obj->{SOAP}) {
-            error sprintf("Couldn't connect to popularity web service %s!", $obj->{rating});
+        unless($self->{SOAP}) {
+            error sprintf("Couldn't connect to popularity web service %s!", $self->{rating});
             return 0;
         } else {
-            my $servertime = $obj->getServerTime();
+            my $servertime = $self->getServerTime();
             if($servertime) {
               my $offset = time - $servertime;
               if($offset > 60 || $offset < -60) {
-                $obj->{TimeOffset} = $offset;
+                $self->{TimeOffset} = $offset;
                 lg sprintf('Popularity web service has time offset %d seconds.',$offset);
               }
             }
         }
         return 1;
-    }, "SHARE: Connect to popularity web service ...",4) if($obj->{active} eq 'y');
+    }, "SHARE: Connect to popularity web service ...",4) if($self->{active} eq 'y');
 
     main::after(sub{
-        if($obj->{SOAP}) {
-            $obj->getSoapData();
+        if($self->{SOAP}) {
+            $self->getSoapData();
             Event->timer(
-              interval => $obj->{update} * 3600,
+              interval => $self->{update} * 3600,
               prio => 6,  # -1 very hard ... 6 very low
               cb => sub{ 
-                $obj->getSoapData() 
+                $self->getSoapData();
+              },
+            );
+            Event->timer(
+              interval => ($self->{update}/12) * 1800,
+              prio => 6,  # -1 very hard ... 6 very low
+              cb => sub{ 
+                $self->flushEventLevelQueue();
               },
             );
         }
-          return 1;
-    }, "SHARE: Update data with popularity web service ...",48) if($obj->{active} eq 'y');
+        return 1;
+    }, "SHARE: Update data with popularity web service ...",48) if($self->{active} eq 'y');
 
     return 1;
 }
@@ -191,14 +221,14 @@ sub _init {
 # ------------------
 sub getSoapData {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
-    return unless($obj->{SOAP} and $obj->{active} eq 'y');
+    my $self = shift  || return error('No object defined!');
+    return unless($self->{SOAP} and $self->{active} eq 'y');
 
     lg 'Start interval to get popularity top ten events!';
-    my $topevents = $obj->getTopTen(1000);
+    my $topevents = $self->getTopTen(1000);
     my $time = time;
     foreach my $t (@$topevents) {
-      my $sth = $obj->{dbh}->prepare('REPLACE INTO SHARE(eventid, level, quantity, rank, addtime) VALUES (?,?,?,?,FROM_UNIXTIME(?))');
+      my $sth = $self->{dbh}->prepare('REPLACE INTO SHARE(eventid, level, quantity, rank, addtime) VALUES (?,?,?,?,FROM_UNIXTIME(?))');
       $sth->execute(
         $t->{e}, # eventid
         $t->{l}, # level
@@ -208,39 +238,39 @@ sub getSoapData {
       );
     }
 
-    my $dsth = $obj->{dbh}->prepare('DELETE FROM SHARE WHERE addtime != FROM_UNIXTIME(?)');
+    my $dsth = $self->{dbh}->prepare('DELETE FROM SHARE WHERE addtime != FROM_UNIXTIME(?)');
     $dsth->execute($time);
 }
 
 
 # ------------------
-sub generateUniqueId {
+sub generateRandomID {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
-    my $sessionId;
+    my $randomid;
     for(my $i=0 ; $i< 16 ;)
     {
     	my $j = chr(int(rand(127)));
 
     	if($j =~ /[a-zA-Z0-9]/)
     	{
-    		$sessionId .=$j;
+    		$randomid .=$j;
     		$i++;
     	}
     }
-    return $sessionId;
+    return $randomid;
 }
 
 # ------------------
 sub ConnectToService {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
-    my $sid = shift  || $obj->{SessionId} || return error('No session id defined!');
+    my $self = shift  || return error('No object defined!');
+    my $sid = shift  || $self->{randomid} || return error('No session id defined!');
     my $service = shift;
 
     return undef
-        if($obj->{active} ne 'y');
+        if($self->{active} ne 'y');
 
     my $version = main::getVersion();
 
@@ -256,13 +286,13 @@ sub ConnectToService {
       
     my $usrkey;
     if($webservice) {
-      $usrkey = $obj->CmdToService($webservice,'getUsrKey',$obj->{SessionId}) 
+      $usrkey = $self->CmdToService($webservice,'getUsrKey',$self->{randomid}) 
         or error "Couldn't get user key";
-      error "Response contain wrong answer" if($usrkey ne $obj->{SessionId});
+      error "Response contain wrong answer" if($usrkey ne $self->{randomid});
     }
 
     return $webservice
-       if($usrkey eq $obj->{SessionId});
+       if($usrkey eq $self->{randomid});
    
     return undef;
 }
@@ -270,7 +300,7 @@ sub ConnectToService {
 # ------------------
 sub getEventLevel {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $eid = shift  || return;
 
     my $sql = qq|
@@ -280,7 +310,7 @@ where
     eventid = ?
 |;
 
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     $sth->execute($eid)
         or return error(sprintf("Event '%s' does not exist in the database!",$eid));
     my $erg = $sth->fetchrow_hashref();
@@ -290,11 +320,11 @@ where
 # ------------------
 sub StoreEventLevel {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $eid = shift  || return;
     my $level = shift  || return;
 
-    my $sth = $obj->{dbh}->prepare('REPLACE INTO SHARE(eventid, level, quantity, rank, addtime) VALUES (?,?,1,1,NOW())');
+    my $sth = $self->{dbh}->prepare('REPLACE INTO SHARE(eventid, level, quantity, rank, addtime) VALUES (?,?,1,1,NOW())');
     $sth->execute(
       $eid, # eventid
       $level # level
@@ -304,7 +334,7 @@ sub StoreEventLevel {
 # ------------------
 sub TopTen {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $anzahl = shift || 10;
@@ -364,7 +394,7 @@ sub TopTen {
     LIMIT ?
         |;
 
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     $sth->execute($anzahl)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $fields = $sth->{'NAME'};
@@ -378,17 +408,35 @@ sub TopTen {
 }
 
 # ------------------
+sub flushEventLevelQueue {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+
+    do {
+      my @Queue = splice(@{$self->{setEventLevelQueue}},0,25);
+      if(scalar @Queue) {
+        lg(sprintf("Flush %d item from event level queue",scalar @Queue));
+        my $result = $self->setEventArray(\@Queue);
+        if($result != 1) {
+          error(sprintf("Wrong response from soap service setEventArray(%s)", $result));
+        }
+      }
+    } while (scalar @{$self->{setEventLevelQueue}});
+
+}
+
+# ------------------
 sub CmdToService {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $service = shift  || return error('No service defined!');
     my $cmd = shift  || return error('No command defined!');
     my @arg = @_;
 
-    lg(sprintf("CmdToService : %s - %s",$cmd, join(", ",@arg)));
+    lg(sprintf("Call %s from soap service : %s",$cmd, $arg[0]));
 
     my $res = eval "\$service->$cmd(\@arg)";
-    $@ ? return error('SyntaxError: $@') 
+    $@ ? return error("SyntaxError: $@") 
        : return $res;
 }
 

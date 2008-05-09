@@ -343,10 +343,10 @@ sub getDbh {
 			      'ISO-8859-15' => 'latin1',
       		};
           my $n = $NAMES->{$charset} || 'latin1';
-          if (!($dbh->do("SET NAMES '" . $n . "'"))) {
+          if (!($dbh->do("set character set '" . $n . "'"))) {
               panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
           }
-          $dbh->{'mysql_enable_utf8'} = 1 if($n eq 'utf8');
+          #$dbh->{'mysql_enable_utf8'} = 1 if($n eq 'utf8');
       }
       $dbh->{'mysql_auto_reconnect'} = 1;
     } else {
@@ -561,6 +561,7 @@ sub init_locale {
     # $charset = langinfo(CODESET);
     if($useutf8){
       $charset = 'UTF-8';
+      eval 'use utf8';
     } else {
       $charset = 'ISO-8859-1';
     }
@@ -604,7 +605,7 @@ sub init_logging {
             $year+1900, $mon+1,$mday,  $hour, $min, $sec );
 
         my $mode = '>>';
-        $mode .= ':utf8' if($Tools::CHARSET && $Tools::CHARSET eq 'UTF-8');
+        #$mode .= ':utf8' if($Tools::CHARSET && $Tools::CHARSET eq 'UTF-8');
 
         my $fh = IO::File->new($loggerfile,$mode) 
           or return print(sprintf("Couldn't write %s : %s!",$loggerfile,$!));

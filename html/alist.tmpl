@@ -65,9 +65,8 @@
                 <?% ELSIF c == 4; # Channel Field %?>
                 <td>
                     <select style="width: 100%">
-                    <?% FOREACH chid = field.split(',') %?>
-                        <?% chid_enc = reentities(chid) %?>
-                        <option><?% param.channels.$chid_enc.Name %?></option>
+                    <?% FOREACH ch = field.split(',') %?>
+                        <option><?% ch %?></option>
                     <?% END %?>
                     </select>
                 </td>

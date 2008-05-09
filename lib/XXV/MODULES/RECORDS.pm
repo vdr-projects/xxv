@@ -234,6 +234,11 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
+
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
@@ -414,14 +419,13 @@ sub parseData {
     my $dataHash = {};
 
     foreach my $record (@{$vdata}) {
-      if($record =~ /\s+\d+´\s+/) { # VDR is patched with recording length patch
-            # 250-1  01.11 15:14* 50´ Discovery~Die Rose von Kerrymore Spielfilm D/2000
-            ($id, $date, $hour, $minute, $state, $duration, $title)
+        if($record =~ /\s+\d+\xB4\s+/) { # VDR is patched with recording length patch
+          ($id, $date, $hour, $minute, $state, $duration, $title)
             = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)(.?)\s*(\d*).*?\s+(.+)/si;
         } else { # Vanilla VDR
-            # 250-1  01.11 15:14* Discovery~Die Rose von Kerrymore Spielfilm D/2000
-            ($id, $date, $hour, $minute, $state, $title)
-                = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)(.?).*?\s+(.+)/si;
+          # 250-1  01.11 15:14* Discovery~Die Rose von Kerrymore Spielfilm D/2000
+          ($id, $date, $hour, $minute, $state, $title)
+            = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)(.?).*?\s+(.+)/si;
         }
 
         unless($id) {
@@ -2229,7 +2233,7 @@ sub conv {
         );
 
     my $output;
-    if(open P, $command .' |') { # Kommando ausführen und stdout einlesen
+    if(open P, $command .' |') { # execute command and read result from stdout
       @$output = <P>;
       close P;
       if( $? >> 8 > 0) {
@@ -2377,8 +2381,8 @@ sub translate {
 
     if($vfat eq 'y')
     {
-        $title =~ s/([^üäößa-z0-9\&\!\-\s\.\@\~\,\(\)\%\+])/sprintf('#%X', ord($1))/seig;
-        $title =~ s/[^üäößa-z0-9\!\&\-\#\.\@\~\,\(\)\%\+]/_/sig;
+        $title =~ s/([^\xDC\xC4\xD6\xFC\xE4\xF6\xDFa-z0-9\&\!\-\s\.\@\~\,\(\)\%\+])/sprintf('#%X', ord($1))/seig;
+        $title =~  s/[^\xDC\xC4\xD6\xFC\xE4\xF6\xDFa-z0-9\!\&\-\#\.\@\~\,\(\)\%\+]/_/sig;
         # Windows couldn't handle '.' at the end of directory names
         $title =~ s/(\.$)/\#2E/sig;
         $title =~ s/(\.~)/\#2E~/sig;

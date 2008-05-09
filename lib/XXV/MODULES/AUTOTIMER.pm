@@ -230,9 +230,14 @@ ORDER BY
 # ------------------
 sub new {
 # ------------------
-	my($class, %attr) = @_;
-	my $self = {};
-	bless($self, $class);
+	  my($class, %attr) = @_;
+	  my $self = {};
+	  bless($self, $class);
+
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
 
     # paths
     $self->{paths} = delete $attr{'-paths'};
@@ -1220,7 +1225,26 @@ sub list {
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
+
+
+    my $exclude;
+    if($obj->{exclude}) {
+        $sql .= sprintf('NOT (%s)', $obj->{exclude});
+    }
+    my $channels = main::getModule('CHANNELS')->ChannelHash('Id',$exclude);
+
     map {
+        if($_->[3]) {
+          my @ch;
+          foreach my $c (split(',',$_->[3])) {
+            my $name = $channels->{$c} ? $channels->{$c}->{'Name'} : undef;
+            unless($name) {
+              $name = sprintf(gettext('Unknown channel : %s'),$c);
+            }
+            push(@ch, $name);
+          }
+          $_->[3] = join(',',@ch);
+        }
         $_->[5] = fmttime($_->[5]);
         $_->[6] = fmttime($_->[6]);
     } @$erg;
@@ -1234,7 +1258,6 @@ sub list {
     };
     if($console->typ eq 'HTML') {
       $info->{sortable} = '1';
-      $info->{channels} = main::getModule('CHANNELS')->ChannelHash('Id');
       $info->{timers} = main::getModule('TIMERS')->getTimersByAutotimer();
     }
     $console->table($erg, $info );

@@ -135,14 +135,17 @@ sub status {
 # ------------------
 sub new {
 # ------------------
-	my($class, %attr) = @_;
-	my $self = {};
-	bless($self, $class);
+	  my($class, %attr) = @_;
+	  my $self = {};
+	  bless($self, $class);
+
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
 
     # paths
     $self->{paths} = delete $attr{'-paths'};
-
-    $self->{charset} = delete $attr{'-charset'};
 
 	# who am I
     $self->{MOD} = $self->module;

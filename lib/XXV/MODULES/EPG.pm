@@ -162,6 +162,11 @@ sub new {
     my $self = {};
     bless($self, $class);
 
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
+
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
@@ -1008,13 +1013,26 @@ INSERT INTO NEXTEPG select
     FROM EPG as e, CHANNELS as c
     WHERE e.channel_id = c.Id
 AND e.starttime > NOW()
-AND c.GRP = ?
+|;
 
+if($cgrp ne 'all') {
+    $sqltemp .= qq|
+    AND c.GRP = ?
+|; }
+
+    $sqltemp .= qq|
 GROUP BY c.Id
 |;
+
+
     my $sthtemp = $obj->{dbh}->prepare($sqltemp);
-    $sthtemp->execute($cgrp)
+    if($cgrp ne 'all') {
+      $sthtemp->execute($cgrp)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sthtemp->errstr));
+    } else {
+      $sthtemp->execute()
+        or return con_err($console, sprintf("Couldn't execute query: %s.",$sthtemp->errstr));
+    }
 
     my %f = (
         'Service' => gettext('Service'),
@@ -1059,13 +1077,52 @@ WHERE
     AND n.channel_id = c.Id
     AND c.GRP = g.Id
     AND e.starttime = n.nexttime
-    AND c.GRP = ?
-ORDER BY
-    c.POS|;
+|;
 
-    my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($cgrp)
-        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+if($cgrp ne 'all') {
+    $sql .= qq|
+    AND c.GRP = ?
+|; }
+
+    $sql .= qq|
+ORDER BY c.POS
+|;
+
+    my $rows;
+    my $sth;
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
+    if($limit > 0) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+      if($cgrp ne 'all') {
+         $rsth->execute($cgrp)
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      } else {
+         $rsth->execute()
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      }
+      $rows = $rsth->rows;
+      if($rows <= $limit) {
+        $sth = $rsth;
+      } else {
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
+      }
+    }
+
+    unless($sth) {
+      $sth = $obj->{dbh}->prepare($sql);
+      $sth->execute(($cgrp ne 'all') ? $cgrp : undef)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
+
+
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unless($console->typ eq 'AJAX') {
@@ -1080,6 +1137,7 @@ ORDER BY
             periods => $obj->{periods},
             cgroups => $cgroups,
             channelgroup => $cgrp,
+            rows => $rows
         }
     );
 }
@@ -1151,16 +1209,53 @@ WHERE
     AND c.GRP = g.Id
     AND ? BETWEEN UNIX_TIMESTAMP(e.starttime)
     AND (UNIX_TIMESTAMP(e.starttime) + e.duration)
-    AND c.GRP = ?
-ORDER BY
-    c.POS|;
+|;
 
-    my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($zeit, $cgrp)
-        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+    my $term;
+    push(@{$term},$zeit);
+    if($cgrp ne 'all') {
+      push(@{$term},$cgrp);
+
+      $sql .= qq|
+        AND c.GRP = ?
+      |;
+    }
+
+    $sql .= qq|
+ORDER BY c.POS
+|;
+
+    my $rows;
+    my $sth;
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
+    if($limit > 0) {
+      # Query total count of rows
+      my $rsth = $obj->{dbh}->prepare($sql);
+         $rsth->execute(@{$term})
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+      if($rows <= $limit) {
+        $sth = $rsth;
+      } else {
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
+      }
+    }
+
+    unless($sth) {
+      $sth = $obj->{dbh}->prepare($sql);
+        $sth->execute(@{$term})
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
+
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-
     unless($console->typ eq 'AJAX') {
 #      map {
 #        $_->[5] = datum($_->[5],'short');
@@ -1174,6 +1269,7 @@ ORDER BY
             periods => $obj->{periods},
             cgroups => $cgroups,
             channelgroup => $cgrp,
+            rows => $rows
         }
     );
 }

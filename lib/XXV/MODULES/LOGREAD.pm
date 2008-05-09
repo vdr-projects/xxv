@@ -67,6 +67,11 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
+
     # paths
     $self->{paths} = delete $attr{'-paths'};
 

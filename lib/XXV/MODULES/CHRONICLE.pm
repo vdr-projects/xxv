@@ -54,9 +54,14 @@ sub module {
 # ------------------
 sub new {
 # ------------------
-	my($class, %attr) = @_;
-	my $self = {};
-	bless($self, $class);
+	  my($class, %attr) = @_;
+	  my $self = {};
+	  bless($self, $class);
+
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
 
     # paths
     $self->{paths} = delete $attr{'-paths'};
@@ -162,6 +167,8 @@ sub list {
     my $self = shift;
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
+    my $data = shift;
+    my $params = shift;
 
     my %f = (
         'id' => gettext('Service'),
@@ -186,16 +193,49 @@ SELECT SQL_CACHE
 FROM CHRONICLE WHERE id > 0
 ORDER BY starttime
 |;
-    my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute()
+
+    my $rows = 0;
+    my $sth;
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
+    if($limit > 0) {
+      # Query total count of rows
+      my $rsth = $self->{dbh}->prepare($sql);
+         $rsth->execute()
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+      if($rows <= $limit) {
+        $sth = $rsth;
+      } else {
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
+      }
+    }
+
+    unless($sth) {
+      $sth = $self->{dbh}->prepare($sql);
+      $sth->execute()
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
+
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    map {
-        $_->[3] = datum($_->[3],'weekday');
-    } @$erg;
-    unshift(@$erg, $fields);
-    $console->table($erg);
+
+    unless($console->typ eq 'AJAX') {
+      map {
+	$_->[3] = datum($_->[3],'weekday');
+      } @$erg;
+      unshift(@$erg, $fields);
+    }
+    my $info = {
+      rows => $rows
+    };
+    $console->table($erg,$info);
 
     return 1;
 }
@@ -207,6 +247,7 @@ sub search {
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text  = shift || return $console->err(gettext("No 'string' to search for! Please use chrsearch 'text'."));
+    my $params = shift;
 
     my $query = buildsearch("title",$text);
 
@@ -233,16 +274,51 @@ SELECT SQL_CACHE
 FROM CHRONICLE
 |;
     $sql .= sprintf("WHERE %s ORDER BY starttime",$query->{query});
-    my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute(@{$query->{term}})
+
+
+
+    my $rows = 0;
+    my $sth;
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
+    if($limit > 0) {
+      # Query total count of rows
+      my $rsth = $self->{dbh}->prepare($sql);
+         $rsth->execute(@{$query->{term}})
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+      if($rows <= $limit) {
+        $sth = $rsth;
+      } else {
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
+      }
+    }
+
+    unless($sth) {
+      $sth = $self->{dbh}->prepare($sql);
+      $sth->execute(@{$query->{term}})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
+
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    map {
-        $_->[3] = datum($_->[3],'weekday');
-    } @$erg;
-    unshift(@$erg, $fields);
-    $console->table($erg);
+
+    unless($console->typ eq 'AJAX') {
+      map {
+	$_->[3] = datum($_->[3],'weekday');
+      } @$erg;
+      unshift(@$erg, $fields);
+    }
+    my $info = {
+      rows => $rows
+    };
+    $console->table($erg,$info);
 
     return 1;
 }
@@ -262,7 +338,13 @@ sub delete {
     $sth->execute(@ids)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
 
-    return 1;
+    $console->message(sprintf gettext("Chronicle entry %s deleted."), join(',', @ids));
+    debug sprintf('Chronicle entry "%s" is deleted%s',
+        join(',', @ids),
+        ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
+        );
+    $console->redirect({url => '?cmd=chrlist', wait => 1})
+        if($console->typ eq 'HTML');
 }
 
 1;

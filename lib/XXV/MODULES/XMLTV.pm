@@ -4,7 +4,6 @@ use strict;
 use File::Find;
 use File::Basename;
 use Tools;
-use utf8;
 use Encode;
 
 # This module method must exist for XXV
@@ -81,10 +80,13 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+    $self->{charset} = delete $attr{'-charset'};
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
+
   # paths
   $self->{paths} = delete $attr{'-paths'};
-
-  $self->{charset} = delete $attr{'-charset'};
 
   # who am I
   $self->{MOD} = $self->module;
@@ -347,10 +349,11 @@ sub _ProcessXML {
   my $text = shift;
 
   my $xdata = $self->{xml}->XMLin($text);
-  # Ausgabe
 
   return error "Missing channel" unless $xdata->{channel};
   return error "Missing program data" unless $xdata->{programme};
+
+  # Create output
 
   my $epgdata = '';
 
@@ -731,7 +734,7 @@ sub findfiles
     find({ wanted => sub{
               if(-r $File::Find::name) {
                  if($File::Find::name =~ /\.xml$/sig   # Lookup for *.xml
-                   or $File::Find::name =~ /\.tpl$/sig) {  # Lookup for *.xml
+                   or $File::Find::name =~ /\.tpl$/sig) {  # Lookup for *.tpl
                     my $l = basename($File::Find::name);
                     push(@files,[$l,$l]);
                    }

@@ -58,6 +58,11 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+  $self->{charset} = delete $attr{'-charset'} || 'ISO-8859-1';
+  if($self->{charset} eq 'UTF-8'){
+    eval 'use utf8';
+  }
+
 	# who am I
     $self->{MOD} = $self->module;
 
@@ -96,9 +101,6 @@ sub new {
 
     $self->{debug} = $attr{'-debug'}
         || 0;
-
-    $self->{charset} = $attr{'-charset'}
-        || 'ISO-8859-1';
 
     $self->{TYP} = 'HTML';
 
@@ -433,6 +435,7 @@ sub statusmsg {
         $self->{output_header} = $self->{cgi}->header(
             -type   =>  $typ,
             -status  => $status,
+            -charset => $self->{charset},
             %{$arg},
         );
     }
