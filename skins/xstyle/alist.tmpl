@@ -79,9 +79,8 @@
                 <?% ELSIF c == 4; # Channel Field %?>
                 <td>
                     <?% text = "" %?>
-                    <?% FOREACH chid = field.split(',') %?>
-                        <?% chid_enc = reentities(chid) %?>
-                        <?% text = "$text ${param.channels.$chid_enc.Name}" %?>
+                    <?% FOREACH ch = field.split(',') %?>
+                        <?% text = "$text ${ch}" %?>
                         <?% LAST IF text.length > 20 %?>
                     <?% END %?>
                     <?% chop(text,20) %?>

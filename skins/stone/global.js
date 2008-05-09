@@ -90,10 +90,10 @@ function toggle(cmd,data) {
 
               var img = document.getElementById('toggle' + tid);
               if(img) {
-                if(ton) {
-                  if(tcon)
+                if(ton != '0') {
+                  if(tcon != '0')
                     className = 'problem';
-                  else if(trun)
+                  else if(trun != '0')
                       className = 'running';
                     else
                       className = '';

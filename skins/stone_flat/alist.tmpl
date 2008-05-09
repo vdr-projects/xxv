@@ -68,14 +68,7 @@
             <td class="fieldinline">
                   <font class="description<?% IF state != "";" ";state;END %?>">
                   <?% IF channels.length > 0;
-                      chlist = [ ];
-                      FOREACH chid = channels.split(',');
-                        chid_enc = reentities(chid);
-                        chid_name = param.channels.$chid_enc.Name;
-                        IF ! chid_name; chid_name = gettext('Unknown channel'); END;
-                        chlist.push( chid_name );
-                      END;
-                      chop(chlist.join(' '),50);
+                      chop(channels,50);
                       END  %?>
                   </font>
             </td>

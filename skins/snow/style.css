@@ -147,6 +147,8 @@ text-align:right;
 
 .title {
 font-size:12px;
+white-space:nowrap;
+overflow:hidden;
 }
 
 .deactive {
@@ -629,7 +631,13 @@ height:4em;
 overflow:hidden;
 }
 
-.subtitle,.description,.channel {
+.subtitle,.channel {
+font-size:10px;
+white-space:nowrap;
+overflow:hidden;
+}
+
+.description {
 font-size:10px;
 }
 

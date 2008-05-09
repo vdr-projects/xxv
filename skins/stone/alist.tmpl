@@ -69,14 +69,7 @@
                   <?% IF channels.length > 0 || directory != "" %?>
                   <font class="description<?% IF state != "";" ";state;END %?>">
                   <?% IF channels.length > 0;
-                      chlist = [ ];
-                      FOREACH chid = channels.split(',');
-                        chid_enc = reentities(chid);
-                        chid_name = param.channels.$chid_enc.Name;
-                        IF ! chid_name; chid_name = gettext('Unknown channel'); END;
-                        chlist.push( chid_name );
-                      END;
-                      chop(chlist.join(','),35) %?><br />
+                      chop(channels,35) %?><br />
                   <?% END  %?>
                   <?% IF directory != ""  %?>
                     <?% directory %?><br />

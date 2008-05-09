@@ -63,20 +63,12 @@
             <?% channel = channels.split(',') %?>
             <?% IF channel.size > 1 %?>
             <select>
-            <?% FOREACH chid = channel;
-                chid_enc = reentities(chid);
-                chid_name = param.channels.$chid_enc.Name;
-                IF ! chid_name; chid_name = gettext('Unknown channel'); END %?>
+            <?% FOREACH chid_name = channel %?>
                 <option><?% chid_name %?></option>
-                <?% END %?>
+            <?% END %?>
             </select>
             <?% ELSE;
-                IF channel.first;
-                    chid_enc = reentities(channel.first);
-                    chid_name = param.channels.$chid_enc.Name;
-                    IF ! chid_name; chid_name = gettext('Unknown channel'); END;
-                    chid_name;
-                END;
+                channel.first;
                 END  %?>
         </td>
         <td<?% IF state != "";" class='";state;"'";END %?>>
