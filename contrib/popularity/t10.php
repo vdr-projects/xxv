@@ -150,11 +150,75 @@ function setEventLevel($k,$e,$l,$s) {
 	$database->setQuery( $query );
   if (!$database->query()) {
 	  die($database->stderr(true));
-    return 1;
+    return 0;
 	}
   return 1;
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Register the method to expose
+$server->register('setEventArray',         // method name
+  array('k' => 'xsd:string',               // user key
+//      'u' => 'tns:u'
+  ),
+  array('return' => 'xsd:int'),             // output parameters
+  'urn:t10',                               // namespace
+  'urn:t10#setEventArray',                 // soapaction
+  'rpc',                                   // style
+  'encoded',                               // use
+  'Set a level to event.'                  // documentation
+);
+// Set a level to event.
+function setEventArray($k,$u) {
+
+  $c = count($u);
+  if($c <= 0 || $c > 25) {
+    return -1;
+  }
+  
+  $database = opendatabase();
+  for ( $i = 0; $i < $c; $i += 1) {
+    if( count($u[$i]) != 3) {
+      return -2;
+    }
+    $e = (int)$u[$i][0];
+    $l = (int)$u[$i][1];
+    $s = (int)$u[$i][2];
+
+    if($e <= 0) {
+      return -3;
+    }
+
+    if($l <= 0) {
+      return -4;
+    } else {
+      if($l >= 10) {
+        return -5;
+      }
+    }
+
+    if($s <= 0) {
+      return -6;
+    }
+
+    $query = "REPLACE INTO #__popularity"
+	  . " (user, id, level, stoptime)"
+	  . " VALUES ( " . $database->Quote( $k ) . ", "
+	                       . $e . ", "
+	                       . $l . ", "
+	  . " FROM_UNIXTIME( " . $s . " )"
+    . " )"
+	  ;
+	  $database->setQuery( $query );
+    if (!$database->query()) {
+	    die($database->stderr(true));
+      return 0;
+	  }
+  }
+  return 1;
+}
 ////////////////////////////////////////////////////////////////////////////////
 // Register the method to expose
 $server->register('deleteEvent',         // method name
