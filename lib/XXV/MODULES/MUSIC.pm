@@ -1159,30 +1159,27 @@ sub ConnectToMuggleDB {
         my $usr = main::getGeneralConfig->{USR};
         my $pwd = main::getGeneralConfig->{PWD};
 
+        my $charset = $obj->{charset};
         my $mdbh = DBI->connect(
                 $dsn, $usr, $pwd,
                 {   PrintError => 1,
                     AutoCommit => 1,
+                    mysql_enable_utf8 => ($charset =~ m/UTF-8/ ? 1 : 0),
+                    mysql_auto_reconnect => 1
                 }) || error($DBI::errstr);
         if($mdbh) {
-            my $charset = $obj->{charset};
-            if ($charset) {
-        		    my $NAMES = {
-			            'UTF-8' => 'utf8',
-			            'ISO-8859-1' => 'latin1',
-			            'ISO-8859-2' => 'latin2',
-			            'ISO-8859-5' => 'latin5',
-			            'ISO-8859-7' => 'latin7',
-			            'ISO-8859-15' => 'latin1',
-            		};
-                my $n = $NAMES->{$charset} || 'latin1';
-                if (!($mdbh->do("SET NAMES '" . $n . "'"))) {
-                    panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
-                }
-                $mdbh->{'mysql_enable_utf8'} = 1 if($n eq 'utf8');
+    		    my $NAMES = {
+	            'UTF-8' => 'utf8',
+	            'ISO-8859-1' => 'latin1',
+	            'ISO-8859-2' => 'latin2',
+	            'ISO-8859-5' => 'latin5',
+	            'ISO-8859-7' => 'latin7',
+	            'ISO-8859-15' => 'latin1',
+        		};
+            my $n = $NAMES->{$charset} || 'latin1';
+            if (!($mdbh->do("set character set '" . $n . "'"))) {
+                panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
             }
-            $mdbh->{InactiveDestroy} = 1;
-            $mdbh->{mysql_auto_reconnect} = 1;
             debug sprintf('Connect to database: %s successful.', $dsn);
             return $mdbh;
         } else {

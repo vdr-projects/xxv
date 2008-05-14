@@ -715,6 +715,7 @@ sub _stream {
       return 1;
     }
     elsif ($child == 0) {
+      $self->{dbh}->{InactiveDestroy} = 1;
       eval 
       { 
         local $SIG{'__DIE__'};
