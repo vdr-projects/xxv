@@ -5,11 +5,13 @@
 # Andreas Brachold <anbr at users.berlios.de>, 2004-2008
 # Tobias Grimm <tg@e-tobi.net> 2005
 #
+# $Id$
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: XXV 1.3\n"
 "POT-Creation-Date: 2005-01-12 18:55\n"
-"PO-Revision-Date: 2008-03-15 16:17+0100\n"
+"PO-Revision-Date: 2008-05-15 17:10+0200\n"
 "Last-Translator: Andreas Brachold <anbr at users.berlios.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,79 +19,79 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #--------------------
-#: ../bin/xxvd:101 ../bin/xxvd:95
-msgid "Password for database access"
-msgstr "Passwort für Datenbankzugriff"
-
-#--------------------
-#: ../bin/xxvd:104 ../bin/xxvd:119 ../bin/xxvd:92 ../bin/xxvd:98 ../lib/XXV/MODULES/AUTOTIMER.pm:30 ../lib/XXV/MODULES/AUTOTIMER.pm:705 ../lib/XXV/MODULES/CHANNELS.pm:28 ../lib/XXV/MODULES/CHANNELS.pm:34 ../lib/XXV/MODULES/CHANNELS.pm:779 ../lib/XXV/MODULES/CHANNELS.pm:805 ../lib/XXV/MODULES/CHANNELS.pm:818 ../lib/XXV/MODULES/CHANNELS.pm:857 ../lib/XXV/MODULES/CHANNELS.pm:883 ../lib/XXV/MODULES/CHRONICLE.pm:27 ../lib/XXV/MODULES/EPG.pm:33 ../lib/XXV/MODULES/EPG.pm:39 ../lib/XXV/MODULES/EPG.pm:45 ../lib/XXV/MODULES/EVENTS.pm:33 ../lib/XXV/MODULES/GRAB.pm:29 ../lib/XXV/MODULES/GRAB.pm:43 ../lib/XXV/MODULES/HTTPD.pm:62 ../lib/XXV/MODULES/HTTPD.pm:68 ../lib/XXV/MODULES/HTTPD.pm:74 ../lib/XXV/MODULES/HTTPD.pm:80 ../lib/XXV/MODULES/HTTPD.pm:86 ../lib/XXV/MODULES/HTTPD.pm:93 ../lib/XXV/MODULES/INTERFACE.pm:32 ../lib/XXV/MODULES/INTERFACE.pm:38 ../lib/XXV/MODULES/INTERFACE.pm:44 ../lib/XXV/MODULES/LOGREAD.pm:31 ../lib/XXV/MODULES/LOGREAD.pm:37 ../lib/XXV/MODULES/LOGREAD.pm:43 ../lib/XXV/MODULES/LOGREAD.pm:49 ../lib/XXV/MODULES/MEDIALIB.pm:33 ../lib/XXV/MODULES/MEDIALIB.pm:39 ../lib/XXV/MODULES/MEDIALIB.pm:45 ../lib/XXV/MODULES/MEDIALIB.pm:51 ../lib/XXV/MODULES/MEDIALIB.pm:57 ../lib/XXV/MODULES/MOVETIMER.pm:26 ../lib/XXV/MODULES/MOVETIMER.pm:381 ../lib/XXV/MODULES/MOVETIMER.pm:394 ../lib/XXV/MODULES/MOVETIMER.pm:403 ../lib/XXV/MODULES/MOVETIMER.pm:416 ../lib/XXV/MODULES/MUSIC.pm:39 ../lib/XXV/MODULES/MUSIC.pm:45 ../lib/XXV/MODULES/MUSIC.pm:51 ../lib/XXV/MODULES/MUSIC.pm:57 ../lib/XXV/MODULES/MUSIC.pm:68 ../lib/XXV/MODULES/MUSIC.pm:74 ../lib/XXV/MODULES/RECORDS.pm:1955 ../lib/XXV/MODULES/RECORDS.pm:1969 ../lib/XXV/MODULES/RECORDS.pm:1983 ../lib/XXV/MODULES/RECORDS.pm:2002 ../lib/XXV/MODULES/RECORDS.pm:2524 ../lib/XXV/MODULES/RECORDS.pm:2536 ../lib/XXV/MODULES/RECORDS.pm:39 ../lib/XXV/MODULES/RECORDS.pm:45 ../lib/XXV/MODULES/RECORDS.pm:51 ../lib/XXV/MODULES/RECORDS.pm:57 ../lib/XXV/MODULES/RECORDS.pm:63 ../lib/XXV/MODULES/RECORDS.pm:75 ../lib/XXV/MODULES/RECORDS.pm:91 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:40 ../lib/XXV/MODULES/REPORT.pm:29 ../lib/XXV/MODULES/REPORT.pm:45 ../lib/XXV/MODULES/ROBOT.pm:28 ../lib/XXV/MODULES/SHARE.pm:52 ../lib/XXV/MODULES/SHARE.pm:69 ../lib/XXV/MODULES/SHARE.pm:75 ../lib/XXV/MODULES/STATUS.pm:31 ../lib/XXV/MODULES/STATUS.pm:37 ../lib/XXV/MODULES/STATUS.pm:42 ../lib/XXV/MODULES/STATUS.pm:48 ../lib/XXV/MODULES/STREAM.pm:32 ../lib/XXV/MODULES/STREAM.pm:42 ../lib/XXV/MODULES/STREAM.pm:63 ../lib/XXV/MODULES/STREAM.pm:69 ../lib/XXV/MODULES/STREAM.pm:83 ../lib/XXV/MODULES/SVDRP.pm:29 ../lib/XXV/MODULES/SVDRP.pm:35 ../lib/XXV/MODULES/SVDRP.pm:41 ../lib/XXV/MODULES/TELNET.pm:29 ../lib/XXV/MODULES/TELNET.pm:35 ../lib/XXV/MODULES/TELNET.pm:41 ../lib/XXV/MODULES/TELNET.pm:47 ../lib/XXV/MODULES/TIMERS.pm:28 ../lib/XXV/MODULES/TIMERS.pm:667 ../lib/XXV/MODULES/TIMERS.pm:674 ../lib/XXV/MODULES/TIMERS.pm:677 ../lib/XXV/MODULES/TIMERS.pm:702 ../lib/XXV/MODULES/USER.pm:267 ../lib/XXV/MODULES/USER.pm:359 ../lib/XXV/MODULES/USER.pm:365 ../lib/XXV/MODULES/USER.pm:390 ../lib/XXV/MODULES/USER.pm:67 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:42 ../lib/XXV/MODULES/WAPD.pm:48 ../lib/XXV/MODULES/WAPD.pm:54 ../lib/XXV/MODULES/WAPD.pm:60 ../lib/XXV/MODULES/WAPD.pm:66 ../lib/XXV/MODULES/WAPD.pm:73 ../lib/XXV/MODULES/XMLTV.pm:33 ../lib/XXV/MODULES/XMLTV.pm:499 ../lib/XXV/MODULES/XMLTV.pm:512 ../lib/XXV/MODULES/XMLTV.pm:525 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:116 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:122 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:128 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:68 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:98 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:106 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:33 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:63 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:81 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:95 ../lib/XXV/OUTPUT/NEWS/RSS.pm:32 ../lib/XXV/OUTPUT/NEWS/RSS.pm:62 ../lib/XXV/OUTPUT/NEWS/VDR.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:59
-msgid "This is required!"
-msgstr "Das ist erforderlich!"
-
-#--------------------
-#: ../bin/xxvd:109 ../lib/XXV/MODULES/USER.pm:275 ../lib/XXV/MODULES/USER.pm:373 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:136 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:124
-msgid "The fields with the 1st and the 2nd password must match!"
-msgstr "Das Feld mit 1. und 2. Passwort muß gleich sein, um es zu bestätigen!"
-
-#--------------------
-#: ../bin/xxvd:116
-msgid "Initialization script to restart xxv"
-msgstr "Initialisierung-Skript zum xxv-System Neustart"
-
-#--------------------
-#: ../bin/xxvd:124
-msgid "Generate the documentation into the doc directory."
-msgstr "Generiere die Dokumentation ins doc Verzeichnis."
-
-#--------------------
-#: ../bin/xxvd:130
-msgid "Display program information."
-msgstr "Zeigt Textdateien."
-
-#--------------------
-#: ../bin/xxvd:141
-msgid "Call initialization script to restart the xxv system."
-msgstr "Rufe den Initialisierung-Skript auf, um das xxv-System neuzustarten."
-
-#--------------------
-#: ../bin/xxvd:578
+#: ../bin/xxvd:499
 msgid "Documentation has been generated in '%s'."
 msgstr "Dokumentation wurde in '%s' generiert"
 
 #--------------------
-#: ../bin/xxvd:604
+#: ../bin/xxvd:525
 msgid "The xxv system will restart now. Please try to re-login in %d seconds."
 msgstr "Das xxv-System startet jetzt neu. Versuchen Sie bitte ein erneute Anmeldung in den %d Sekunden"
 
 #--------------------
-#: ../bin/xxvd:614
+#: ../bin/xxvd:535
 msgid "Couldn't restart the xxv system! Script for initialization couldn't be executed."
 msgstr "Neustart des xxv-System nicht möglich! Skript für Initialisierung ist nicht ausführbar."
 
 #--------------------
-#: ../bin/xxvd:73
+#: ../bin/xxvd:699
 msgid "This is the main program xxvd."
 msgstr "Das ist das Hauptprogramm xxvd."
 
 #--------------------
-#: ../bin/xxvd:80
+#: ../bin/xxvd:706
 msgid "Interface language"
 msgstr "Sprache der Oberfläche"
 
 #--------------------
-#: ../bin/xxvd:83
+#: ../bin/xxvd:709
 msgid "English"
 msgstr "Englisch"
 
 #--------------------
-#: ../bin/xxvd:84
+#: ../bin/xxvd:710
 msgid "German"
 msgstr "Deutsch"
 
 #--------------------
-#: ../bin/xxvd:89
+#: ../bin/xxvd:715
 msgid "Data source for the connection to the database"
 msgstr "Name der Datenquelle für die Verbindung zur Datenbank"
+
+#--------------------
+#: ../bin/xxvd:718 ../bin/xxvd:724 ../bin/xxvd:730 ../bin/xxvd:745 ../lib/XXV/MODULES/AUTOTIMER.pm:30 ../lib/XXV/MODULES/AUTOTIMER.pm:705 ../lib/XXV/MODULES/CHANNELS.pm:28 ../lib/XXV/MODULES/CHANNELS.pm:792 ../lib/XXV/MODULES/CHANNELS.pm:818 ../lib/XXV/MODULES/CHANNELS.pm:831 ../lib/XXV/MODULES/CHANNELS.pm:870 ../lib/XXV/MODULES/CHANNELS.pm:896 ../lib/XXV/MODULES/CHRONICLE.pm:27 ../lib/XXV/MODULES/EPG.pm:33 ../lib/XXV/MODULES/EPG.pm:39 ../lib/XXV/MODULES/EPG.pm:45 ../lib/XXV/MODULES/EVENTS.pm:33 ../lib/XXV/MODULES/GRAB.pm:29 ../lib/XXV/MODULES/GRAB.pm:43 ../lib/XXV/MODULES/HTTPD.pm:62 ../lib/XXV/MODULES/HTTPD.pm:68 ../lib/XXV/MODULES/HTTPD.pm:74 ../lib/XXV/MODULES/HTTPD.pm:80 ../lib/XXV/MODULES/HTTPD.pm:86 ../lib/XXV/MODULES/HTTPD.pm:93 ../lib/XXV/MODULES/INTERFACE.pm:32 ../lib/XXV/MODULES/INTERFACE.pm:38 ../lib/XXV/MODULES/INTERFACE.pm:44 ../lib/XXV/MODULES/LOGREAD.pm:31 ../lib/XXV/MODULES/LOGREAD.pm:37 ../lib/XXV/MODULES/LOGREAD.pm:43 ../lib/XXV/MODULES/LOGREAD.pm:49 ../lib/XXV/MODULES/MEDIALIB.pm:32 ../lib/XXV/MODULES/MEDIALIB.pm:38 ../lib/XXV/MODULES/MEDIALIB.pm:44 ../lib/XXV/MODULES/MEDIALIB.pm:50 ../lib/XXV/MODULES/MEDIALIB.pm:56 ../lib/XXV/MODULES/MOVETIMER.pm:26 ../lib/XXV/MODULES/MOVETIMER.pm:389 ../lib/XXV/MODULES/MOVETIMER.pm:402 ../lib/XXV/MODULES/MOVETIMER.pm:411 ../lib/XXV/MODULES/MOVETIMER.pm:424 ../lib/XXV/MODULES/MUSIC.pm:39 ../lib/XXV/MODULES/MUSIC.pm:45 ../lib/XXV/MODULES/MUSIC.pm:51 ../lib/XXV/MODULES/MUSIC.pm:57 ../lib/XXV/MODULES/MUSIC.pm:68 ../lib/XXV/MODULES/MUSIC.pm:74 ../lib/XXV/MODULES/RECORDS.pm:1979 ../lib/XXV/MODULES/RECORDS.pm:1993 ../lib/XXV/MODULES/RECORDS.pm:2007 ../lib/XXV/MODULES/RECORDS.pm:2026 ../lib/XXV/MODULES/RECORDS.pm:2551 ../lib/XXV/MODULES/RECORDS.pm:2563 ../lib/XXV/MODULES/RECORDS.pm:39 ../lib/XXV/MODULES/RECORDS.pm:45 ../lib/XXV/MODULES/RECORDS.pm:51 ../lib/XXV/MODULES/RECORDS.pm:57 ../lib/XXV/MODULES/RECORDS.pm:63 ../lib/XXV/MODULES/RECORDS.pm:75 ../lib/XXV/MODULES/RECORDS.pm:91 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:40 ../lib/XXV/MODULES/REPORT.pm:29 ../lib/XXV/MODULES/REPORT.pm:45 ../lib/XXV/MODULES/ROBOT.pm:28 ../lib/XXV/MODULES/SHARE.pm:64 ../lib/XXV/MODULES/SHARE.pm:81 ../lib/XXV/MODULES/SHARE.pm:87 ../lib/XXV/MODULES/STATUS.pm:31 ../lib/XXV/MODULES/STATUS.pm:37 ../lib/XXV/MODULES/STATUS.pm:42 ../lib/XXV/MODULES/STATUS.pm:48 ../lib/XXV/MODULES/STREAM.pm:32 ../lib/XXV/MODULES/STREAM.pm:42 ../lib/XXV/MODULES/STREAM.pm:63 ../lib/XXV/MODULES/STREAM.pm:76 ../lib/XXV/MODULES/STREAM.pm:82 ../lib/XXV/MODULES/STREAM.pm:96 ../lib/XXV/MODULES/SVDRP.pm:29 ../lib/XXV/MODULES/SVDRP.pm:35 ../lib/XXV/MODULES/SVDRP.pm:41 ../lib/XXV/MODULES/TELNET.pm:29 ../lib/XXV/MODULES/TELNET.pm:35 ../lib/XXV/MODULES/TELNET.pm:41 ../lib/XXV/MODULES/TELNET.pm:47 ../lib/XXV/MODULES/TIMERS.pm:28 ../lib/XXV/MODULES/TIMERS.pm:681 ../lib/XXV/MODULES/TIMERS.pm:688 ../lib/XXV/MODULES/TIMERS.pm:691 ../lib/XXV/MODULES/TIMERS.pm:716 ../lib/XXV/MODULES/USER.pm:275 ../lib/XXV/MODULES/USER.pm:367 ../lib/XXV/MODULES/USER.pm:373 ../lib/XXV/MODULES/USER.pm:398 ../lib/XXV/MODULES/USER.pm:67 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:42 ../lib/XXV/MODULES/WAPD.pm:48 ../lib/XXV/MODULES/WAPD.pm:54 ../lib/XXV/MODULES/WAPD.pm:60 ../lib/XXV/MODULES/WAPD.pm:66 ../lib/XXV/MODULES/WAPD.pm:73 ../lib/XXV/MODULES/XMLTV.pm:32 ../lib/XXV/MODULES/XMLTV.pm:506 ../lib/XXV/MODULES/XMLTV.pm:519 ../lib/XXV/MODULES/XMLTV.pm:532 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:116 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:122 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:128 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:68 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:98 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:106 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:33 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:63 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:81 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:95 ../lib/XXV/OUTPUT/NEWS/RSS.pm:32 ../lib/XXV/OUTPUT/NEWS/RSS.pm:62 ../lib/XXV/OUTPUT/NEWS/VDR.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:59
+msgid "This is required!"
+msgstr "Das ist erforderlich!"
+
+#--------------------
+#: ../bin/xxvd:721 ../bin/xxvd:727
+msgid "Password for database access"
+msgstr "Passwort für Datenbankzugriff"
+
+#--------------------
+#: ../bin/xxvd:735 ../lib/XXV/MODULES/USER.pm:283 ../lib/XXV/MODULES/USER.pm:381 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:136 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:124
+msgid "The fields with the 1st and the 2nd password must match!"
+msgstr "Das Feld mit 1. und 2. Passwort muß gleich sein, um es zu bestätigen!"
+
+#--------------------
+#: ../bin/xxvd:742
+msgid "Initialization script to restart xxv"
+msgstr "Initialisierung-Skript zum xxv-System Neustart"
+
+#--------------------
+#: ../bin/xxvd:750
+msgid "Generate the documentation into the doc directory."
+msgstr "Generiere die Dokumentation ins doc Verzeichnis."
+
+#--------------------
+#: ../bin/xxvd:756
+msgid "Display program information."
+msgstr "Zeigt Textdateien."
+
+#--------------------
+#: ../bin/xxvd:767
+msgid "Call initialization script to restart the xxv system."
+msgstr "Rufe den Initialisierung-Skript auf, um das xxv-System neuzustarten."
 
 #--------------------
 #: ../html/alist.tmpl:2 ../html/asearch.tmpl:2
@@ -152,7 +154,7 @@ msgid "Search autotimer"
 msgstr "Suche Autotimer"
 
 #--------------------
-#: ../html/clist.tmpl:103 ../lib/XXV/MODULES/CHANNELS.pm:96
+#: ../html/clist.tmpl:103 ../lib/XXV/MODULES/CHANNELS.pm:90
 msgid "Create new channel"
 msgstr "Erzeugt einen neuen Kanal"
 
@@ -197,42 +199,42 @@ msgid "Delete channels"
 msgstr "Kanäle löschen"
 
 #--------------------
-#: ../html/clist.tmpl:134 ../lib/XXV/MODULES/CHANNELS.pm:440 ../lib/XXV/MODULES/CHANNELS.pm:773 ../lib/XXV/MODULES/USER.pm:525 ../lib/XXV/OUTPUT/Console.pm:167 ../lib/XXV/OUTPUT/Console.pm:230
+#: ../html/clist.tmpl:134 ../lib/XXV/MODULES/CHANNELS.pm:452 ../lib/XXV/MODULES/CHANNELS.pm:786 ../lib/XXV/MODULES/USER.pm:533 ../lib/XXV/OUTPUT/Console.pm:170 ../lib/XXV/OUTPUT/Console.pm:233
 msgid "Name"
 msgstr "Name"
 
 #--------------------
-#: ../html/clist.tmpl:135 ../lib/XXV/MODULES/CHANNELS.pm:441 ../lib/XXV/MODULES/CHANNELS.pm:785
+#: ../html/clist.tmpl:135 ../lib/XXV/MODULES/CHANNELS.pm:453 ../lib/XXV/MODULES/CHANNELS.pm:798
 msgid "Transponder frequency"
 msgstr "Frequenz des Transponder"
 
 #--------------------
-#: ../html/clist.tmpl:136 ../lib/XXV/MODULES/CHANNELS.pm:812
+#: ../html/clist.tmpl:136 ../lib/XXV/MODULES/CHANNELS.pm:825
 msgid "Various parameters, depending on signal source"
 msgstr "Verschiedene Parameter, abhängig von der Signalquelle"
 
 #--------------------
-#: ../html/clist.tmpl:137 ../html/movetimerlist.tmpl:82 ../lib/XXV/MODULES/MOVETIMER.pm:545
+#: ../html/clist.tmpl:137 ../html/movetimerlist.tmpl:82 ../lib/XXV/MODULES/MOVETIMER.pm:553
 msgid "Source"
 msgstr "Quelle"
 
 #--------------------
-#: ../html/clist.tmpl:138 ../lib/XXV/MODULES/CHANNELS.pm:837
+#: ../html/clist.tmpl:138 ../lib/XXV/MODULES/CHANNELS.pm:850
 msgid "Video PID (VPID)"
 msgstr "Video PID (VPID)"
 
 #--------------------
-#: ../html/clist.tmpl:139 ../lib/XXV/MODULES/CHANNELS.pm:851
+#: ../html/clist.tmpl:139 ../lib/XXV/MODULES/CHANNELS.pm:864
 msgid "Audio PID (APID)"
 msgstr "Audio PID (APID)"
 
 #--------------------
-#: ../html/clist.tmpl:140 ../lib/XXV/MODULES/CHANNELS.pm:863
+#: ../html/clist.tmpl:140 ../lib/XXV/MODULES/CHANNELS.pm:876
 msgid "Teletext PID (TPID)"
 msgstr "Videotext PID (TPID)"
 
 #--------------------
-#: ../html/clist.tmpl:141 ../lib/XXV/MODULES/CHANNELS.pm:877
+#: ../html/clist.tmpl:141 ../lib/XXV/MODULES/CHANNELS.pm:890
 msgid "Conditional access (CA)"
 msgstr "Zugangsberechtigungssystem (CA)"
 
@@ -242,12 +244,12 @@ msgid "Switch to channel"
 msgstr "Schalte zum Kanal"
 
 #--------------------
-#: ../html/clist.tmpl:36 ../lib/XXV/MODULES/CHANNELS.pm:943
+#: ../html/clist.tmpl:36 ../lib/XXV/MODULES/CHANNELS.pm:956
 msgid "Edit channel"
 msgstr "Kanal bearbeiten"
 
 #--------------------
-#: ../html/clist.tmpl:39 ../lib/XXV/MODULES/CHANNELS.pm:1048
+#: ../html/clist.tmpl:39 ../lib/XXV/MODULES/CHANNELS.pm:1061
 msgid "Would you like to delete this channel?"
 msgstr "Wollen Sie diesen Kanal löschen?"
 
@@ -257,7 +259,7 @@ msgid "Delete channel"
 msgstr "Kanal löschen"
 
 #--------------------
-#: ../html/clist.tmpl:94 ../lib/XXV/MODULES/AUTOTIMER.pm:1161 ../lib/XXV/MODULES/CHANNELS.pm:380
+#: ../html/clist.tmpl:94 ../lib/XXV/MODULES/AUTOTIMER.pm:1161 ../lib/XXV/MODULES/CHANNELS.pm:390
 msgid "Channels"
 msgstr "Kanäle"
 
@@ -272,17 +274,17 @@ msgid "Detailed program information"
 msgstr "Detailierte Programminformation"
 
 #--------------------
-#: ../html/display.tmpl:21 ../html/display.tmpl:44 ../lib/XXV/MODULES/EPG.pm:1108 ../lib/XXV/MODULES/EPG.pm:910
+#: ../html/display.tmpl:21 ../html/display.tmpl:44 ../lib/XXV/MODULES/EPG.pm:1174 ../lib/XXV/MODULES/EPG.pm:918
 msgid "Percent"
 msgstr "Prozent"
 
 #--------------------
-#: ../html/display.tmpl:25 ../html/rdisplay.tmpl:158 ../html/search.tmpl:54 ../lib/XXV/MODULES/AUTOTIMER.pm:179 ../lib/XXV/MODULES/AUTOTIMER.pm:446 ../lib/XXV/MODULES/CHRONICLE.pm:166 ../lib/XXV/MODULES/CHRONICLE.pm:213 ../lib/XXV/MODULES/EPG.pm:1019 ../lib/XXV/MODULES/EPG.pm:1105 ../lib/XXV/MODULES/EPG.pm:670 ../lib/XXV/MODULES/EPG.pm:796 ../lib/XXV/MODULES/EPG.pm:906 ../lib/XXV/MODULES/RECORDS.pm:1993 ../lib/XXV/MODULES/SHARE.pm:312 ../lib/XXV/MODULES/TIMERS.pm:1232 ../lib/XXV/MODULES/TIMERS.pm:895 ../lib/XXV/MODULES/XMLTV.pm:670
+#: ../html/display.tmpl:25 ../html/rdisplay.tmpl:158 ../html/search.tmpl:54 ../lib/XXV/MODULES/AUTOTIMER.pm:179 ../lib/XXV/MODULES/AUTOTIMER.pm:454 ../lib/XXV/MODULES/CHRONICLE.pm:176 ../lib/XXV/MODULES/CHRONICLE.pm:257 ../lib/XXV/MODULES/EPG.pm:1040 ../lib/XXV/MODULES/EPG.pm:1171 ../lib/XXV/MODULES/EPG.pm:678 ../lib/XXV/MODULES/EPG.pm:804 ../lib/XXV/MODULES/EPG.pm:914 ../lib/XXV/MODULES/RECORDS.pm:2017 ../lib/XXV/MODULES/SHARE.pm:345 ../lib/XXV/MODULES/TIMERS.pm:1246 ../lib/XXV/MODULES/TIMERS.pm:909 ../lib/XXV/MODULES/XMLTV.pm:677
 msgid "Channel"
 msgstr "Kanal"
 
 #--------------------
-#: ../html/display.tmpl:27 ../html/movetimerlist.tmpl:81 ../lib/XXV/MODULES/AUTOTIMER.pm:1158 ../lib/XXV/MODULES/CHANNELS.pm:439 ../lib/XXV/MODULES/CHRONICLE.pm:164 ../lib/XXV/MODULES/CHRONICLE.pm:211 ../lib/XXV/MODULES/EPG.pm:1017 ../lib/XXV/MODULES/EPG.pm:1103 ../lib/XXV/MODULES/EPG.pm:668 ../lib/XXV/MODULES/EPG.pm:794 ../lib/XXV/MODULES/EPG.pm:903 ../lib/XXV/MODULES/MOVETIMER.pm:544 ../lib/XXV/MODULES/MUSIC.pm:606 ../lib/XXV/MODULES/SHARE.pm:310 ../lib/XXV/MODULES/TIMERS.pm:1229 ../lib/XXV/MODULES/USER.pm:524 ../lib/XXV/MODULES/XMLTV.pm:668
+#: ../html/display.tmpl:27 ../html/movetimerlist.tmpl:81 ../lib/XXV/MODULES/AUTOTIMER.pm:1158 ../lib/XXV/MODULES/CHANNELS.pm:451 ../lib/XXV/MODULES/CHRONICLE.pm:174 ../lib/XXV/MODULES/CHRONICLE.pm:255 ../lib/XXV/MODULES/EPG.pm:1038 ../lib/XXV/MODULES/EPG.pm:1169 ../lib/XXV/MODULES/EPG.pm:676 ../lib/XXV/MODULES/EPG.pm:802 ../lib/XXV/MODULES/EPG.pm:911 ../lib/XXV/MODULES/MOVETIMER.pm:552 ../lib/XXV/MODULES/MUSIC.pm:614 ../lib/XXV/MODULES/SHARE.pm:343 ../lib/XXV/MODULES/TIMERS.pm:1243 ../lib/XXV/MODULES/USER.pm:532 ../lib/XXV/MODULES/XMLTV.pm:675
 msgid "Service"
 msgstr "Service"
 
@@ -312,12 +314,12 @@ msgid "Search with OFDb"
 msgstr "Suche mit OFDb"
 
 #--------------------
-#: ../html/display.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:455 ../lib/XXV/MODULES/AUTOTIMER.pm:667 ../lib/XXV/MODULES/EPG.pm:909 ../lib/XXV/MODULES/RECORDS.pm:2008 ../lib/XXV/MODULES/RECORDS.pm:2191 ../lib/XXV/MODULES/TIMERS.pm:800 ../lib/XXV/OUTPUT/Console.pm:168
+#: ../html/display.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:463 ../lib/XXV/MODULES/AUTOTIMER.pm:667 ../lib/XXV/MODULES/EPG.pm:917 ../lib/XXV/MODULES/RECORDS.pm:2032 ../lib/XXV/MODULES/RECORDS.pm:2218 ../lib/XXV/MODULES/TIMERS.pm:814 ../lib/XXV/OUTPUT/Console.pm:171
 msgid "Description"
 msgstr "Beschreibung"
 
 #--------------------
-#: ../html/display.tmpl:69 ../lib/XXV/MODULES/AUTOTIMER.pm:180 ../lib/XXV/MODULES/AUTOTIMER.pm:449 ../lib/XXV/MODULES/AUTOTIMER.pm:452 ../lib/XXV/MODULES/CHRONICLE.pm:168 ../lib/XXV/MODULES/CHRONICLE.pm:215 ../lib/XXV/MODULES/EPG.pm:1020 ../lib/XXV/MODULES/EPG.pm:1106 ../lib/XXV/MODULES/EPG.pm:671 ../lib/XXV/MODULES/EPG.pm:797 ../lib/XXV/MODULES/EPG.pm:907 ../lib/XXV/MODULES/SHARE.pm:313 ../lib/XXV/MODULES/TIMERS.pm:1233 ../lib/XXV/MODULES/TIMERS.pm:896
+#: ../html/display.tmpl:69 ../lib/XXV/MODULES/AUTOTIMER.pm:180 ../lib/XXV/MODULES/AUTOTIMER.pm:457 ../lib/XXV/MODULES/AUTOTIMER.pm:460 ../lib/XXV/MODULES/CHRONICLE.pm:178 ../lib/XXV/MODULES/CHRONICLE.pm:259 ../lib/XXV/MODULES/EPG.pm:1041 ../lib/XXV/MODULES/EPG.pm:1172 ../lib/XXV/MODULES/EPG.pm:679 ../lib/XXV/MODULES/EPG.pm:805 ../lib/XXV/MODULES/EPG.pm:915 ../lib/XXV/MODULES/SHARE.pm:346 ../lib/XXV/MODULES/TIMERS.pm:1247 ../lib/XXV/MODULES/TIMERS.pm:910
 msgid "Start"
 msgstr "Start"
 
@@ -327,12 +329,12 @@ msgid "PDC"
 msgstr "VPS"
 
 #--------------------
-#: ../html/display.tmpl:75 ../html/widgets/player.tmpl:100 ../html/widgets/player.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:181 ../lib/XXV/MODULES/AUTOTIMER.pm:450 ../lib/XXV/MODULES/AUTOTIMER.pm:453 ../lib/XXV/MODULES/CHRONICLE.pm:169 ../lib/XXV/MODULES/CHRONICLE.pm:216 ../lib/XXV/MODULES/EPG.pm:1021 ../lib/XXV/MODULES/EPG.pm:1107 ../lib/XXV/MODULES/EPG.pm:672 ../lib/XXV/MODULES/EPG.pm:798 ../lib/XXV/MODULES/EPG.pm:908 ../lib/XXV/MODULES/SHARE.pm:314 ../lib/XXV/MODULES/TIMERS.pm:1234
+#: ../html/display.tmpl:75 ../html/widgets/player.tmpl:100 ../html/widgets/player.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:181 ../lib/XXV/MODULES/AUTOTIMER.pm:458 ../lib/XXV/MODULES/AUTOTIMER.pm:461 ../lib/XXV/MODULES/CHRONICLE.pm:179 ../lib/XXV/MODULES/CHRONICLE.pm:260 ../lib/XXV/MODULES/EPG.pm:1042 ../lib/XXV/MODULES/EPG.pm:1173 ../lib/XXV/MODULES/EPG.pm:680 ../lib/XXV/MODULES/EPG.pm:806 ../lib/XXV/MODULES/EPG.pm:916 ../lib/XXV/MODULES/SHARE.pm:347 ../lib/XXV/MODULES/TIMERS.pm:1248
 msgid "Stop"
 msgstr "Stopp"
 
 #--------------------
-#: ../html/filesys.tmpl:19
+#: ../html/filesys.tmpl:18
 msgid "Total space"
 msgstr "Gesamte Speicherkapazität"
 
@@ -347,7 +349,7 @@ msgid "News"
 msgstr "Neuigkeiten"
 
 #--------------------
-#: ../html/help.tmpl:104 ../lib/XXV/MODULES/MEDIALIB.pm:1263
+#: ../html/help.tmpl:104 ../lib/XXV/MODULES/MEDIALIB.pm:1258
 msgid "History"
 msgstr "Geschichte"
 
@@ -387,7 +389,7 @@ msgid "Administration"
 msgstr "Administration"
 
 #--------------------
-#: ../html/help.tmpl:118 ../lib/XXV/MODULES/USER.pm:348
+#: ../html/help.tmpl:118 ../lib/XXV/MODULES/USER.pm:356
 msgid "User"
 msgstr "Anwender"
 
@@ -417,7 +419,7 @@ msgid "search"
 msgstr "Suchen"
 
 #--------------------
-#: ../html/help.tmpl:23 ../lib/XXV/MODULES/HTTPD.pm:96 ../lib/XXV/MODULES/WAPD.pm:75 ../wml/widgets/footer.tmpl:6
+#: ../html/help.tmpl:23 ../lib/XXV/MODULES/HTTPD.pm:646 ../lib/XXV/MODULES/WAPD.pm:75 ../wml/widgets/footer.tmpl:6
 msgid "Running now"
 msgstr "Jetzt läuft"
 
@@ -428,7 +430,7 @@ msgid "Next"
 msgstr "Nächstes"
 
 #--------------------
-#: ../html/help.tmpl:51 ../lib/XXV/MODULES/HTTPD.pm:97 ../lib/XXV/MODULES/WAPD.pm:76 ../wml/widgets/footer.tmpl:12
+#: ../html/help.tmpl:51 ../lib/XXV/MODULES/HTTPD.pm:647 ../lib/XXV/MODULES/WAPD.pm:76 ../wml/widgets/footer.tmpl:12
 msgid "Program guide"
 msgstr "Programm"
 
@@ -444,13 +446,13 @@ msgid "Programming"
 msgstr "Programmierung"
 
 #--------------------
-#: ../html/help.tmpl:61 ../lib/XXV/MODULES/HTTPD.pm:99 ../lib/XXV/MODULES/WAPD.pm:78 ../wml/tlist.tmpl:2 ../wml/tsearch.tmpl:2 ../wml/widgets/footer.tmpl:15
+#: ../html/help.tmpl:61 ../lib/XXV/MODULES/HTTPD.pm:649 ../lib/XXV/MODULES/WAPD.pm:78 ../wml/tlist.tmpl:2 ../wml/tsearch.tmpl:2 ../wml/widgets/footer.tmpl:15
 #. (12)
 msgid "Timers"
 msgstr "Timer"
 
 #--------------------
-#: ../html/help.tmpl:62 ../lib/XXV/MODULES/HTTPD.pm:98 ../lib/XXV/MODULES/WAPD.pm:77 ../wml/widgets/footer.tmpl:17
+#: ../html/help.tmpl:62 ../lib/XXV/MODULES/HTTPD.pm:648 ../lib/XXV/MODULES/WAPD.pm:77 ../wml/widgets/footer.tmpl:17
 #. (12)
 msgid "Autotimer"
 msgstr "Autotimer"
@@ -468,13 +470,13 @@ msgid "Media content"
 msgstr "Medieninhalte"
 
 #--------------------
-#: ../html/help.tmpl:68 ../lib/XXV/MODULES/HTTPD.pm:100 ../lib/XXV/MODULES/WAPD.pm:79 ../wml/widgets/footer.tmpl:18
+#: ../html/help.tmpl:68 ../lib/XXV/MODULES/HTTPD.pm:650 ../lib/XXV/MODULES/WAPD.pm:79 ../wml/widgets/footer.tmpl:18
 #. (12)
 msgid "Recordings"
 msgstr "Aufnahmen"
 
 #--------------------
-#: ../html/help.tmpl:69 ../lib/XXV/MODULES/HTTPD.pm:101 ../lib/XXV/MODULES/MEDIALIB.pm:1255 ../lib/XXV/MODULES/WAPD.pm:80
+#: ../html/help.tmpl:69 ../lib/XXV/MODULES/HTTPD.pm:651 ../lib/XXV/MODULES/MEDIALIB.pm:1250 ../lib/XXV/MODULES/WAPD.pm:80
 #. (12)
 msgid "Music"
 msgstr "Musik"
@@ -492,13 +494,13 @@ msgid "Tools"
 msgstr "Werkzeuge"
 
 #--------------------
-#: ../html/help.tmpl:75 ../lib/XXV/MODULES/HTTPD.pm:102 ../lib/XXV/MODULES/WAPD.pm:81 ../wml/widgets/footer.tmpl:19
+#: ../html/help.tmpl:75 ../lib/XXV/MODULES/HTTPD.pm:652 ../lib/XXV/MODULES/WAPD.pm:81 ../wml/widgets/footer.tmpl:19
 #. (12)
 msgid "Remote"
 msgstr "Fernbedienung"
 
 #--------------------
-#: ../html/help.tmpl:76 ../html/widgets/vtx.tmpl:3 ../lib/XXV/MODULES/HTTPD.pm:103 ../lib/XXV/MODULES/WAPD.pm:82
+#: ../html/help.tmpl:76 ../html/widgets/vtx.tmpl:3 ../lib/XXV/MODULES/HTTPD.pm:653 ../lib/XXV/MODULES/WAPD.pm:82
 #. (12)
 msgid "Teletext"
 msgstr "Videotext"
@@ -516,7 +518,7 @@ msgid "Commands"
 msgstr "Kommandos"
 
 #--------------------
-#: ../html/help.tmpl:83 ../lib/XXV/MODULES/USER.pm:527
+#: ../html/help.tmpl:83 ../lib/XXV/MODULES/USER.pm:535
 msgid "Preferences"
 msgstr "Einstellungen"
 
@@ -527,27 +529,27 @@ msgid "Edit channels"
 msgstr "Kanäle bearbeiten"
 
 #--------------------
-#: ../html/help.tmpl:93 ../html/widgets/player.tmpl:105 ../html/widgets/player.tmpl:69 ../lib/XXV/MODULES/HTTPD.pm:104 ../lib/XXV/MODULES/TIMERS.pm:1230 ../lib/XXV/MODULES/WAPD.pm:83
+#: ../html/help.tmpl:93 ../html/widgets/player.tmpl:105 ../html/widgets/player.tmpl:69 ../lib/XXV/MODULES/HTTPD.pm:654 ../lib/XXV/MODULES/TIMERS.pm:1244 ../lib/XXV/MODULES/WAPD.pm:83
 msgid "Status"
 msgstr "Status"
 
 #--------------------
-#: ../html/help.tmpl:94 ../lib/XXV/MODULES/STATUS.pm:209
+#: ../html/help.tmpl:94 ../lib/XXV/MODULES/STATUS.pm:217
 msgid "Vitals"
 msgstr "Wichtiges"
 
 #--------------------
-#: ../html/help.tmpl:95 ../lib/XXV/MODULES/STATUS.pm:273
+#: ../html/help.tmpl:95 ../lib/XXV/MODULES/STATUS.pm:281
 msgid "Memory"
 msgstr "Speicher"
 
 #--------------------
-#: ../html/help.tmpl:96 ../lib/XXV/MODULES/STATUS.pm:709
+#: ../html/help.tmpl:96 ../lib/XXV/MODULES/STATUS.pm:717
 msgid "Filesystem"
 msgstr "Filesystem"
 
 #--------------------
-#: ../html/help.tmpl:97 ../lib/XXV/MODULES/STATUS.pm:227
+#: ../html/help.tmpl:97 ../lib/XXV/MODULES/STATUS.pm:235
 msgid "Network"
 msgstr "Netzwerk"
 
@@ -612,7 +614,7 @@ msgid "TV-Episode"
 msgstr "TV-Episode"
 
 #--------------------
-#: ../html/mlcopy.tmpl:115 ../html/mldisplay.tmpl:115 ../html/mledit.tmpl:115 ../html/mlimport.tmpl:115 ../lib/XXV/MODULES/MEDIALIB.pm:1329
+#: ../html/mlcopy.tmpl:115 ../html/mldisplay.tmpl:115 ../html/mledit.tmpl:115 ../html/mlimport.tmpl:115 ../lib/XXV/MODULES/MEDIALIB.pm:1324
 msgid "Seen"
 msgstr "Gesehen"
 
@@ -622,7 +624,7 @@ msgid "Runtime"
 msgstr "Laufzeit"
 
 #--------------------
-#: ../html/mlcopy.tmpl:128 ../html/mldisplay.tmpl:30 ../html/mledit.tmpl:128 ../html/mlimport.tmpl:128 ../html/mlist.tmpl:75 ../lib/XXV/MODULES/MEDIALIB.pm:1304 ../lib/XXV/MODULES/MUSIC.pm:611
+#: ../html/mlcopy.tmpl:128 ../html/mldisplay.tmpl:30 ../html/mledit.tmpl:128 ../html/mlimport.tmpl:128 ../html/mlist.tmpl:75 ../lib/XXV/MODULES/MEDIALIB.pm:1299 ../lib/XXV/MODULES/MUSIC.pm:619
 msgid "Year"
 msgstr "Jahr"
 
@@ -632,7 +634,7 @@ msgid "Filename"
 msgstr "Dateiname"
 
 #--------------------
-#: ../html/mlcopy.tmpl:140 ../html/mldisplay.tmpl:209 ../html/mledit.tmpl:140 ../html/mlimport.tmpl:140 ../lib/XXV/MODULES/MEDIALIB.pm:1302
+#: ../html/mlcopy.tmpl:140 ../html/mldisplay.tmpl:209 ../html/mledit.tmpl:140 ../html/mlimport.tmpl:140 ../lib/XXV/MODULES/MEDIALIB.pm:1297
 msgid "Actors"
 msgstr "Schauspieler"
 
@@ -662,7 +664,7 @@ msgid "Size"
 msgstr "Größe"
 
 #--------------------
-#: ../html/mlcopy.tmpl:187 ../html/mldisplay.tmpl:201 ../html/mledit.tmpl:187 ../html/mlimport.tmpl:187 ../html/mlist.tmpl:77 ../lib/XXV/MODULES/MEDIALIB.pm:1309
+#: ../html/mlcopy.tmpl:187 ../html/mldisplay.tmpl:201 ../html/mledit.tmpl:187 ../html/mlimport.tmpl:187 ../html/mlist.tmpl:77 ../lib/XXV/MODULES/MEDIALIB.pm:1304
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -682,7 +684,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #--------------------
-#: ../html/mlcopy.tmpl:23 ../html/mledit.tmpl:23 ../html/mlimport.tmpl:23 ../lib/XXV/MODULES/AUTOTIMER.pm:177 ../lib/XXV/MODULES/AUTOTIMER.pm:443 ../lib/XXV/MODULES/AUTOTIMER.pm:665 ../lib/XXV/MODULES/CHRONICLE.pm:165 ../lib/XXV/MODULES/CHRONICLE.pm:212 ../lib/XXV/MODULES/EPG.pm:1018 ../lib/XXV/MODULES/EPG.pm:1104 ../lib/XXV/MODULES/EPG.pm:669 ../lib/XXV/MODULES/EPG.pm:795 ../lib/XXV/MODULES/EPG.pm:904 ../lib/XXV/MODULES/MEDIALIB.pm:1299 ../lib/XXV/MODULES/MUSIC.pm:609 ../lib/XXV/MODULES/RECORDS.pm:1568 ../lib/XXV/MODULES/RECORDS.pm:1680 ../lib/XXV/MODULES/SHARE.pm:311 ../lib/XXV/MODULES/TIMERS.pm:1235 ../lib/XXV/MODULES/TIMERS.pm:894
+#: ../html/mlcopy.tmpl:23 ../html/mledit.tmpl:23 ../html/mlimport.tmpl:23 ../lib/XXV/MODULES/AUTOTIMER.pm:177 ../lib/XXV/MODULES/AUTOTIMER.pm:451 ../lib/XXV/MODULES/AUTOTIMER.pm:665 ../lib/XXV/MODULES/CHRONICLE.pm:175 ../lib/XXV/MODULES/CHRONICLE.pm:256 ../lib/XXV/MODULES/EPG.pm:1039 ../lib/XXV/MODULES/EPG.pm:1170 ../lib/XXV/MODULES/EPG.pm:677 ../lib/XXV/MODULES/EPG.pm:803 ../lib/XXV/MODULES/EPG.pm:912 ../lib/XXV/MODULES/MEDIALIB.pm:1294 ../lib/XXV/MODULES/MUSIC.pm:617 ../lib/XXV/MODULES/RECORDS.pm:1592 ../lib/XXV/MODULES/RECORDS.pm:1704 ../lib/XXV/MODULES/SHARE.pm:344 ../lib/XXV/MODULES/TIMERS.pm:1249 ../lib/XXV/MODULES/TIMERS.pm:908
 msgid "Title"
 msgstr "Titel"
 
@@ -692,7 +694,7 @@ msgid "Search at"
 msgstr "Suche bei"
 
 #--------------------
-#: ../html/mlcopy.tmpl:36 ../html/mledit.tmpl:36 ../html/mlimport.tmpl:36 ../lib/XXV/MODULES/AUTOTIMER.pm:444 ../lib/XXV/MODULES/AUTOTIMER.pm:666 ../lib/XXV/MODULES/EPG.pm:905 ../lib/XXV/MODULES/MEDIALIB.pm:1300 ../lib/XXV/MODULES/RECORDS.pm:1569 ../lib/XXV/MODULES/RECORDS.pm:1681
+#: ../html/mlcopy.tmpl:36 ../html/mledit.tmpl:36 ../html/mlimport.tmpl:36 ../lib/XXV/MODULES/AUTOTIMER.pm:452 ../lib/XXV/MODULES/AUTOTIMER.pm:666 ../lib/XXV/MODULES/EPG.pm:913 ../lib/XXV/MODULES/MEDIALIB.pm:1295 ../lib/XXV/MODULES/RECORDS.pm:1593 ../lib/XXV/MODULES/RECORDS.pm:1705
 msgid "Subtitle"
 msgstr "Serientitel"
 
@@ -702,7 +704,7 @@ msgid "Create Media"
 msgstr "Medium erstellen"
 
 #--------------------
-#: ../html/mlcopy.tmpl:42 ../html/mldisplay.tmpl:78 ../html/mledit.tmpl:42 ../html/mlimport.tmpl:42 ../lib/XXV/MODULES/MEDIALIB.pm:1305
+#: ../html/mlcopy.tmpl:42 ../html/mldisplay.tmpl:78 ../html/mledit.tmpl:42 ../html/mlimport.tmpl:42 ../lib/XXV/MODULES/MEDIALIB.pm:1300
 msgid "Country"
 msgstr "Land"
 
@@ -712,12 +714,12 @@ msgid "Cover URL"
 msgstr "Cover URL"
 
 #--------------------
-#: ../html/mlcopy.tmpl:56 ../html/mldisplay.tmpl:48 ../html/mledit.tmpl:56 ../html/mlimport.tmpl:56 ../lib/XXV/MODULES/MEDIALIB.pm:1301
+#: ../html/mlcopy.tmpl:56 ../html/mldisplay.tmpl:48 ../html/mledit.tmpl:56 ../html/mlimport.tmpl:56 ../lib/XXV/MODULES/MEDIALIB.pm:1296
 msgid "Director"
 msgstr "Regisseur"
 
 #--------------------
-#: ../html/mlcopy.tmpl:64 ../html/mldisplay.tmpl:62 ../html/mledit.tmpl:64 ../html/mlimport.tmpl:64 ../lib/XXV/MODULES/MEDIALIB.pm:1308
+#: ../html/mlcopy.tmpl:64 ../html/mldisplay.tmpl:62 ../html/mledit.tmpl:64 ../html/mlimport.tmpl:64 ../lib/XXV/MODULES/MEDIALIB.pm:1303
 msgid "Language"
 msgstr "Spache"
 
@@ -742,17 +744,17 @@ msgid "spanish"
 msgstr "spanisch"
 
 #--------------------
-#: ../html/mlcopy.tmpl:82 ../html/mldisplay.tmpl:193 ../html/mledit.tmpl:82 ../html/mlimport.tmpl:82 ../lib/XXV/MODULES/MEDIALIB.pm:1303
+#: ../html/mlcopy.tmpl:82 ../html/mldisplay.tmpl:193 ../html/mledit.tmpl:82 ../html/mlimport.tmpl:82 ../lib/XXV/MODULES/MEDIALIB.pm:1298
 msgid "Plot"
 msgstr "Handlung"
 
 #--------------------
-#: ../html/mlcopy.tmpl:90 ../html/mldisplay.tmpl:102 ../html/mledit.tmpl:90 ../html/mlimport.tmpl:90 ../lib/XXV/MODULES/MEDIALIB.pm:1306
+#: ../html/mlcopy.tmpl:90 ../html/mldisplay.tmpl:102 ../html/mledit.tmpl:90 ../html/mlimport.tmpl:90 ../lib/XXV/MODULES/MEDIALIB.pm:1301
 msgid "DiskID"
 msgstr "DiskID"
 
 #--------------------
-#: ../html/mlcopy.tmpl:95 ../html/mldisplay.tmpl:92 ../html/mledit.tmpl:95 ../html/mlimport.tmpl:95 ../lib/XXV/MODULES/MEDIALIB.pm:1307
+#: ../html/mlcopy.tmpl:95 ../html/mldisplay.tmpl:92 ../html/mledit.tmpl:95 ../html/mlimport.tmpl:95 ../lib/XXV/MODULES/MEDIALIB.pm:1302
 msgid "Mediatype"
 msgstr "Medientyp"
 
@@ -813,7 +815,7 @@ msgid "Selection"
 msgstr "Auswählen"
 
 #--------------------
-#: ../html/mlist.tmpl:74 ../lib/XXV/MODULES/MUSIC.pm:607
+#: ../html/mlist.tmpl:74 ../lib/XXV/MODULES/MUSIC.pm:615
 msgid "Artist"
 msgstr "Künstler"
 
@@ -903,7 +905,7 @@ msgid "Rules to move timer between channels"
 msgstr "Regeln zum Verschieben von Timern zwischen Kanälen"
 
 #--------------------
-#: ../html/movetimerlist.tmpl:54 ../html/movetimerlist.tmpl:55 ../lib/XXV/MODULES/MOVETIMER.pm:444
+#: ../html/movetimerlist.tmpl:54 ../html/movetimerlist.tmpl:55 ../lib/XXV/MODULES/MOVETIMER.pm:452
 #. (25)
 msgid "Create a new rule to move timer"
 msgstr "Erzeuge eine neue Regel zum Verschieben von Timern"
@@ -926,22 +928,22 @@ msgid "Would you like to delete these rules?"
 msgstr "Wollen Sie diese Regeln löschen?"
 
 #--------------------
-#: ../html/movetimerlist.tmpl:7 ../lib/XXV/MODULES/MOVETIMER.pm:443
+#: ../html/movetimerlist.tmpl:7 ../lib/XXV/MODULES/MOVETIMER.pm:451
 msgid "Edit rule to move timer"
 msgstr "Regel zum Verschieben von Timern bearbeiten"
 
 #--------------------
-#: ../html/movetimerlist.tmpl:83 ../lib/XXV/MODULES/MOVETIMER.pm:546
+#: ../html/movetimerlist.tmpl:83 ../lib/XXV/MODULES/MOVETIMER.pm:554
 msgid "Destination"
 msgstr "Ziel"
 
 #--------------------
-#: ../html/movetimerlist.tmpl:84 ../lib/XXV/MODULES/MOVETIMER.pm:547 ../lib/XXV/MODULES/MOVETIMER.pm:616
+#: ../html/movetimerlist.tmpl:84 ../lib/XXV/MODULES/MOVETIMER.pm:555 ../lib/XXV/MODULES/MOVETIMER.pm:624
 msgid "Move timer"
 msgstr "Verschiebe Timer"
 
 #--------------------
-#: ../html/movetimerlist.tmpl:85 ../lib/XXV/MODULES/MOVETIMER.pm:548
+#: ../html/movetimerlist.tmpl:85 ../lib/XXV/MODULES/MOVETIMER.pm:556
 msgid "Change original timer"
 msgstr "Ändere original Timer"
 
@@ -1046,12 +1048,12 @@ msgid "Lifetime"
 msgstr "Lebenszeit"
 
 #--------------------
-#: ../html/rdisplay.tmpl:171 ../lib/XXV/MODULES/AUTOTIMER.pm:182 ../lib/XXV/MODULES/TIMERS.pm:1236
+#: ../html/rdisplay.tmpl:171 ../lib/XXV/MODULES/AUTOTIMER.pm:182 ../lib/XXV/MODULES/TIMERS.pm:1250
 msgid "Priority"
 msgstr "Priorität"
 
 #--------------------
-#: ../html/rdisplay.tmpl:65 ../html/rlist.tmpl:102 ../html/rsearch.tmpl:102 ../lib/XXV/MODULES/RECORDS.pm:1570 ../lib/XXV/MODULES/RECORDS.pm:1682
+#: ../html/rdisplay.tmpl:65 ../html/rlist.tmpl:102 ../html/rsearch.tmpl:102 ../lib/XXV/MODULES/RECORDS.pm:1594 ../lib/XXV/MODULES/RECORDS.pm:1706
 msgid "Duration"
 msgstr "Dauer"
 
@@ -1061,7 +1063,7 @@ msgid "Recording list"
 msgstr "Aufnahmeliste"
 
 #--------------------
-#: ../html/rdisplay.tmpl:78 ../lib/XXV/MODULES/RECORDS.pm:1819
+#: ../html/rdisplay.tmpl:78 ../lib/XXV/MODULES/RECORDS.pm:1843
 msgid "Would you like to delete this recording?"
 msgstr "Wollen Sie diese Aufnahme löschen?"
 
@@ -1076,7 +1078,7 @@ msgid "Cut recording"
 msgstr "Aufnahme schneiden"
 
 #--------------------
-#: ../html/rdisplay.tmpl:86 ../lib/XXV/MODULES/RECORDS.pm:2028
+#: ../html/rdisplay.tmpl:86 ../lib/XXV/MODULES/RECORDS.pm:2052
 msgid "Edit recording"
 msgstr "Aufnahme bearbeiten"
 
@@ -1186,7 +1188,7 @@ msgid "Search in fields"
 msgstr "Suchfelder"
 
 #--------------------
-#: ../html/search.tmpl:27 ../html/search.tmpl:35 ../html/search.tmpl:42 ../lib/XXV/MODULES/MEDIALIB.pm:1328
+#: ../html/search.tmpl:27 ../html/search.tmpl:35 ../html/search.tmpl:42 ../lib/XXV/MODULES/MEDIALIB.pm:1323
 msgid "All"
 msgstr "Alle"
 
@@ -1298,7 +1300,7 @@ msgid "Planned recordings"
 msgstr "Geplante Aufnahmen"
 
 #--------------------
-#: ../html/tlist.tmpl:83 ../html/tsearch.tmpl:83 ../lib/XXV/MODULES/TIMERS.pm:901
+#: ../html/tlist.tmpl:83 ../html/tsearch.tmpl:83 ../lib/XXV/MODULES/TIMERS.pm:915
 msgid "Would you like to delete this timer?"
 msgstr "Wollen Sie diesen Timer löschen?"
 
@@ -1398,7 +1400,7 @@ msgid "Host does not exist!"
 msgstr "Rechnername ist unbekannt!"
 
 #--------------------
-#: ../html/widgets/menu.tmpl:4 ../lib/XXV/OUTPUT/Console.pm:148
+#: ../html/widgets/menu.tmpl:4 ../lib/XXV/OUTPUT/Console.pm:151
 msgid "ERROR"
 msgstr "FEHLER"
 
@@ -1518,7 +1520,7 @@ msgid "Next page"
 msgstr "Nächste Seite"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:1006 ../lib/XXV/MODULES/AUTOTIMER.pm:974 ../lib/XXV/MODULES/TIMERS.pm:721
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:1006 ../lib/XXV/MODULES/AUTOTIMER.pm:974 ../lib/XXV/MODULES/TIMERS.pm:735
 msgid "The day is incorrect or was in a wrong format!"
 msgstr "Das eingegebene Datum ist nicht korrekt oder hatte ein falsches Format!"
 
@@ -1578,7 +1580,7 @@ msgid "Activ"
 msgstr "Aktiv"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:1162 ../lib/XXV/MODULES/RECORDS.pm:1571 ../lib/XXV/MODULES/RECORDS.pm:1683
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:1162 ../lib/XXV/MODULES/RECORDS.pm:1595 ../lib/XXV/MODULES/RECORDS.pm:1707
 msgid "Start time"
 msgstr "Startzeit"
 
@@ -1596,6 +1598,11 @@ msgstr "Verzeichnis"
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:1165
 msgid "Minimum length"
 msgstr "Minimale Länge"
+
+#--------------------
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:1242
+msgid "Unknown channel : %s"
+msgstr "Unbekannter Kanal : %s"
 
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:135
@@ -1618,7 +1625,7 @@ msgid "Description: %s"
 msgstr "Beschreibung: %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:178 ../lib/XXV/MODULES/CHRONICLE.pm:167 ../lib/XXV/MODULES/CHRONICLE.pm:214 ../lib/XXV/MODULES/EPG.pm:673 ../lib/XXV/MODULES/EPG.pm:799 ../lib/XXV/MODULES/SHARE.pm:315 ../lib/XXV/MODULES/TIMERS.pm:1231
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:178 ../lib/XXV/MODULES/CHRONICLE.pm:177 ../lib/XXV/MODULES/CHRONICLE.pm:258 ../lib/XXV/MODULES/EPG.pm:681 ../lib/XXV/MODULES/EPG.pm:807 ../lib/XXV/MODULES/SHARE.pm:348 ../lib/XXV/MODULES/TIMERS.pm:1245
 msgid "Day"
 msgstr "Datum"
 
@@ -1633,7 +1640,7 @@ msgid "Autotimer has programmed %d new timer(s) since last report to %s"
 msgstr "Autotimer hat %d neuen Timer programmiert, seit letztem Report an %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:27 ../lib/XXV/MODULES/CHRONICLE.pm:24 ../lib/XXV/MODULES/EVENTS.pm:30 ../lib/XXV/MODULES/HTTPD.pm:59 ../lib/XXV/MODULES/INTERFACE.pm:29 ../lib/XXV/MODULES/LOGREAD.pm:28 ../lib/XXV/MODULES/MEDIALIB.pm:30 ../lib/XXV/MODULES/MOVETIMER.pm:23 ../lib/XXV/MODULES/MUSIC.pm:36 ../lib/XXV/MODULES/REMOTE.pm:25 ../lib/XXV/MODULES/REPORT.pm:26 ../lib/XXV/MODULES/ROBOT.pm:25 ../lib/XXV/MODULES/SHARE.pm:49 ../lib/XXV/MODULES/STATUS.pm:28 ../lib/XXV/MODULES/TELNET.pm:26 ../lib/XXV/MODULES/VTX.pm:25 ../lib/XXV/MODULES/WAPD.pm:39 ../lib/XXV/MODULES/XMLTV.pm:30 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:65 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:30 ../lib/XXV/OUTPUT/NEWS/RSS.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:26
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:27 ../lib/XXV/MODULES/CHRONICLE.pm:24 ../lib/XXV/MODULES/EVENTS.pm:30 ../lib/XXV/MODULES/HTTPD.pm:59 ../lib/XXV/MODULES/INTERFACE.pm:29 ../lib/XXV/MODULES/LOGREAD.pm:28 ../lib/XXV/MODULES/MEDIALIB.pm:29 ../lib/XXV/MODULES/MOVETIMER.pm:23 ../lib/XXV/MODULES/MUSIC.pm:36 ../lib/XXV/MODULES/REMOTE.pm:25 ../lib/XXV/MODULES/REPORT.pm:26 ../lib/XXV/MODULES/ROBOT.pm:25 ../lib/XXV/MODULES/SHARE.pm:61 ../lib/XXV/MODULES/STATUS.pm:28 ../lib/XXV/MODULES/TELNET.pm:26 ../lib/XXV/MODULES/VTX.pm:25 ../lib/XXV/MODULES/WAPD.pm:39 ../lib/XXV/MODULES/XMLTV.pm:29 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:65 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:30 ../lib/XXV/OUTPUT/NEWS/RSS.pm:29 ../lib/XXV/OUTPUT/NEWS/VDR.pm:26
 msgid "Activate this service"
 msgstr "Aktiviere diesen Dienst"
 
@@ -1643,27 +1650,27 @@ msgid "Exclude channels from autotimer"
 msgstr "Schliesse Kanäle von Autotimer aus."
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:344
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:352
 msgid "Searching for autotimer ..."
 msgstr "Schaue nach Autotimer ..."
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:354
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:362
 msgid "Autotimer process created %d timers and modified %d timers."
 msgstr "Autotimervorgang hat %d Timer erzeugt und %d Timer modifiziert."
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:358
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:366
 msgid "Back to autotimer listing."
 msgstr "Zurück zur Autotimer Liste"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:427 ../lib/XXV/MODULES/AUTOTIMER.pm:432
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:435 ../lib/XXV/MODULES/AUTOTIMER.pm:440
 msgid "Search for autotimer '%s'"
 msgstr "Schaue nach Autotimer '%s'"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:440
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:448
 msgid "Found %d entries for '%s' in EPG database."
 msgstr "%d Einträge für '%s' in EPG Datenbank gefunden."
 
@@ -1788,7 +1795,7 @@ msgid "Search in this EPG fields"
 msgstr "Suche in diesen EPG-Feldern"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:723 ../lib/XXV/MODULES/AUTOTIMER.pm:773 ../lib/XXV/MODULES/AUTOTIMER.pm:850 ../lib/XXV/MODULES/USER.pm:397 ../lib/XXV/MODULES/USER.pm:404 ../lib/XXV/MODULES/USER.pm:420
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:723 ../lib/XXV/MODULES/AUTOTIMER.pm:773 ../lib/XXV/MODULES/AUTOTIMER.pm:850 ../lib/XXV/MODULES/USER.pm:405 ../lib/XXV/MODULES/USER.pm:412 ../lib/XXV/MODULES/USER.pm:428
 msgid "You can choose: %s!"
 msgstr "Sie können wählen: %s!"
 
@@ -1813,7 +1820,7 @@ msgid "Ignore retries with same title?"
 msgstr "Ignoriere Wiederholungen mit gleichen Titel?"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:789 ../lib/XXV/MODULES/TIMERS.pm:730
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:789 ../lib/XXV/MODULES/TIMERS.pm:744
 msgid "Start time in format 'HH:MM'"
 msgstr "Startzeit im Format 'HH:MM'"
 
@@ -1823,7 +1830,7 @@ msgid "You set a start time without an end time!"
 msgstr "Startzeitpunkt ohne Stoppzeitpunkt definiert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:796 ../lib/XXV/MODULES/AUTOTIMER.pm:802 ../lib/XXV/MODULES/AUTOTIMER.pm:819 ../lib/XXV/MODULES/AUTOTIMER.pm:825 ../lib/XXV/MODULES/TIMERS.pm:734 ../lib/XXV/MODULES/TIMERS.pm:740 ../lib/XXV/MODULES/TIMERS.pm:753 ../lib/XXV/MODULES/TIMERS.pm:759
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:796 ../lib/XXV/MODULES/AUTOTIMER.pm:802 ../lib/XXV/MODULES/AUTOTIMER.pm:819 ../lib/XXV/MODULES/AUTOTIMER.pm:825 ../lib/XXV/MODULES/TIMERS.pm:748 ../lib/XXV/MODULES/TIMERS.pm:754 ../lib/XXV/MODULES/TIMERS.pm:767 ../lib/XXV/MODULES/TIMERS.pm:773
 msgid "The time is incorrect!"
 msgstr "Die Zeit ist nicht korrekt!"
 
@@ -1833,7 +1840,7 @@ msgid "Show autotimer 'aid'"
 msgstr "Zeige Autotimer 'aid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:812 ../lib/XXV/MODULES/TIMERS.pm:749
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:812 ../lib/XXV/MODULES/TIMERS.pm:763
 msgid "End time in format 'HH:MM'"
 msgstr "Endzeit im Format 'HH:MM'"
 
@@ -1863,7 +1870,7 @@ msgid "Start autotimer search."
 msgstr "Autotimersuche durchführen"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:875 ../lib/XXV/MODULES/AUTOTIMER.pm:889 ../lib/XXV/MODULES/AUTOTIMER.pm:902 ../lib/XXV/MODULES/AUTOTIMER.pm:918 ../lib/XXV/MODULES/AUTOTIMER.pm:934 ../lib/XXV/MODULES/CHANNELS.pm:761 ../lib/XXV/MODULES/CHANNELS.pm:792 ../lib/XXV/MODULES/CHANNELS.pm:831 ../lib/XXV/MODULES/CHANNELS.pm:844 ../lib/XXV/MODULES/CHANNELS.pm:870 ../lib/XXV/MODULES/CHANNELS.pm:896 ../lib/XXV/MODULES/CHANNELS.pm:909 ../lib/XXV/MODULES/CHANNELS.pm:922 ../lib/XXV/MODULES/CHANNELS.pm:935 ../lib/XXV/MODULES/GRAB.pm:104 ../lib/XXV/MODULES/GRAB.pm:35 ../lib/XXV/MODULES/GRAB.pm:49 ../lib/XXV/MODULES/GRAB.pm:72 ../lib/XXV/MODULES/GRAB.pm:91 ../lib/XXV/MODULES/RECORDS.pm:1966 ../lib/XXV/MODULES/RECORDS.pm:1980 ../lib/XXV/MODULES/STREAM.pm:75 ../lib/XXV/MODULES/STREAM.pm:89 ../lib/XXV/MODULES/TIMERS.pm:775 ../lib/XXV/MODULES/TIMERS.pm:791
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:875 ../lib/XXV/MODULES/AUTOTIMER.pm:889 ../lib/XXV/MODULES/AUTOTIMER.pm:902 ../lib/XXV/MODULES/AUTOTIMER.pm:918 ../lib/XXV/MODULES/AUTOTIMER.pm:934 ../lib/XXV/MODULES/CHANNELS.pm:774 ../lib/XXV/MODULES/CHANNELS.pm:805 ../lib/XXV/MODULES/CHANNELS.pm:844 ../lib/XXV/MODULES/CHANNELS.pm:857 ../lib/XXV/MODULES/CHANNELS.pm:883 ../lib/XXV/MODULES/CHANNELS.pm:909 ../lib/XXV/MODULES/CHANNELS.pm:922 ../lib/XXV/MODULES/CHANNELS.pm:935 ../lib/XXV/MODULES/CHANNELS.pm:948 ../lib/XXV/MODULES/GRAB.pm:104 ../lib/XXV/MODULES/GRAB.pm:35 ../lib/XXV/MODULES/GRAB.pm:49 ../lib/XXV/MODULES/GRAB.pm:72 ../lib/XXV/MODULES/GRAB.pm:91 ../lib/XXV/MODULES/RECORDS.pm:1990 ../lib/XXV/MODULES/RECORDS.pm:2004 ../lib/XXV/MODULES/STREAM.pm:102 ../lib/XXV/MODULES/STREAM.pm:88 ../lib/XXV/MODULES/TIMERS.pm:789 ../lib/XXV/MODULES/TIMERS.pm:805
 msgid "Value incorrect!"
 msgstr "Der Wert ist nicht korrekt!"
 
@@ -1878,22 +1885,22 @@ msgid "Minimum play time in minutes"
 msgstr "Mindestlänge in Minuten"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:908 ../lib/XXV/MODULES/RECORDS.pm:1973 ../lib/XXV/MODULES/TIMERS.pm:765
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:908 ../lib/XXV/MODULES/RECORDS.pm:1997 ../lib/XXV/MODULES/TIMERS.pm:779
 msgid "Priority (%d ... %d)"
 msgstr "Priorität (%d ... %d)"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:914 ../lib/XXV/MODULES/TIMERS.pm:771
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:914 ../lib/XXV/MODULES/TIMERS.pm:785
 msgid "Sorry, but the maximum priority is limited to %d!"
 msgstr "Entschuldigung, aber die maximale Priorität ist auf %d begrenzt!"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:924 ../lib/XXV/MODULES/RECORDS.pm:1959 ../lib/XXV/MODULES/TIMERS.pm:781
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:924 ../lib/XXV/MODULES/RECORDS.pm:1983 ../lib/XXV/MODULES/TIMERS.pm:795
 msgid "Lifetime (%d ... %d)"
 msgstr "Lebenszeit (%d ... %d)"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:930 ../lib/XXV/MODULES/TIMERS.pm:787
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:930 ../lib/XXV/MODULES/TIMERS.pm:801
 msgid "Sorry, but the maximum life time is limited to %d!"
 msgstr "Entschuldigung, aber die maximale Lebenszeit ist auf %d begrenzt!"
 
@@ -1918,7 +1925,7 @@ msgid "Start date as YYYY-MM-DD HH:MM:SS."
 msgstr "Startdatum als DD.MM.YYYY HH:MM:SS."
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:967 ../lib/XXV/MODULES/AUTOTIMER.pm:999 ../lib/XXV/MODULES/TIMERS.pm:707
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:967 ../lib/XXV/MODULES/AUTOTIMER.pm:999 ../lib/XXV/MODULES/TIMERS.pm:721
 msgid "Language=English"
 msgstr "Language=German,DateFormat=non-US"
 
@@ -1928,57 +1935,52 @@ msgid "Stop date as YYYY-MM-DD HH:MM:SS."
 msgstr "Enddatum als DD.MM.YYYY HH:MM:SS."
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1026
+#: ../lib/XXV/MODULES/CHANNELS.pm:1039
 msgid "No channel defined for deletion! Please use cdelete 'pos'!"
 msgstr "Kanal zu löschen definiert! Bitte verwende cdelete 'pos'"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:103
-msgid "Edits a channel 'cid'"
-msgstr "Bearbeitet einen Kanal 'cid'"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1039 ../lib/XXV/MODULES/CHANNELS.pm:739
-msgid "Channel '%s' does not exist in the database!"
-msgstr "Der Kanal '%s' existiert nicht in der Datenbank!"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1073
-msgid "No channel defined for deletion!"
-msgstr "Kein Kanal zum Löschen definiert!"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1094
-msgid "New %s channel: %s on position: %d %s"
-msgstr "Neuer %s Kanal: %s auf Position: %d %s"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1096
-msgid "TV"
-msgstr "TV"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1097
-msgid "Radio"
-msgstr "Radio"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:110
+#: ../lib/XXV/MODULES/CHANNELS.pm:104
 msgid "Deletes one or more channels 'pos'"
 msgstr "Löscht einen oder mehrere Kanäle 'pos'"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1100
+#: ../lib/XXV/MODULES/CHANNELS.pm:1052 ../lib/XXV/MODULES/CHANNELS.pm:752
+msgid "Channel '%s' does not exist in the database!"
+msgstr "Der Kanal '%s' existiert nicht in der Datenbank!"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:1086
+msgid "No channel defined for deletion!"
+msgstr "Kein Kanal zum Löschen definiert!"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:1107
+msgid "New %s channel: %s on position: %d %s"
+msgstr "Neuer %s Kanal: %s auf Position: %d %s"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:1109
+msgid "TV"
+msgstr "TV"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:1110
+msgid "Radio"
+msgstr "Radio"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:1113
 msgid "(encrypted)"
 msgstr "(verschlüsselt)"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1106
+#: ../lib/XXV/MODULES/CHANNELS.pm:1119
 msgid "Found %d new channels!"
 msgstr "%d neue Kanäle gefunden!"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:136
+#: ../lib/XXV/MODULES/CHANNELS.pm:130
 msgid "The system has saved %d channels from %d groups"
 msgstr "Das System hat %d Kanäle aus %d Gruppen gespeichert"
 
@@ -1988,154 +1990,149 @@ msgid "This module reads new channels and stores them in the database."
 msgstr "Dieses Modul list neue Kanäle und speichert sie in der Datenbank."
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:25 ../lib/XXV/MODULES/LOGREAD.pm:46 ../lib/XXV/MODULES/RECORDS.pm:36 ../lib/XXV/MODULES/REMOTE.pm:37
-msgid "Path of file '%s'"
-msgstr "Pfad der Datei '%s'"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:31
+#: ../lib/XXV/MODULES/CHANNELS.pm:25
 msgid "How often channels are to be updated (in seconds)"
 msgstr "Wie oft sollen Kanäle aktualisiert werden (in Sekunden)"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:352
-msgid "Couldn't find channels.conf as file '%s'!"
-msgstr "Konnte channels.conf als Datei '%s' nicht finden!"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:362
-msgid "Couldn't open file '%s'! : %s"
-msgstr "Konnte Datei '%s' nicht öffnen! : %s"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:37
+#: ../lib/XXV/MODULES/CHANNELS.pm:31
 msgid "Insert channels with blank PID"
 msgstr "Kanäle mit leerer PID einfügen"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:397
-msgid "Write %d channels into database."
-msgstr "Schreibe %d Kanäle in die Datenbank"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:42
+#: ../lib/XXV/MODULES/CHANNELS.pm:36
 msgid "Filter channel list, set all wanted CA (Common Access)"
 msgstr "Filter Kanalliste, setze alle gesuche CA(Common Access)"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:442
-msgid "Parameters"
-msgstr "Parameter"
+#: ../lib/XXV/MODULES/CHANNELS.pm:361
+msgid "No channels available!"
+msgstr "Keine Kanäle verfügbar!"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:443 ../lib/XXV/MODULES/CHANNELS.pm:799
-msgid "Signal source"
-msgstr "Signalquelle"
+#: ../lib/XXV/MODULES/CHANNELS.pm:410
+msgid "Write %d channels into database."
+msgstr "Schreibe %d Kanäle in die Datenbank"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:444 ../lib/XXV/MODULES/CHANNELS.pm:824
-msgid "Symbol rate"
-msgstr "Symbolrate"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:445
-msgid "Video PID"
-msgstr "Video PID"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:446
-msgid "Audio PID"
-msgstr "Audio PID"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:447
-msgid "Teletext PID"
-msgstr "Videotext PID"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:448
-msgid "Conditional access"
-msgstr "Zugangsberechtigungssystem"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:449
-msgid "SID"
-msgstr "SID"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:450
-msgid "TID"
-msgstr "TID"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:451
-msgid "NID"
-msgstr "NID"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:452
-msgid "RID"
-msgstr "RID"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:453
-msgid "Channel group"
-msgstr "Kanalgruppe"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:454 ../lib/XXV/MODULES/CHANNELS.pm:754
-msgid "Position"
-msgstr "Position"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:51
+#: ../lib/XXV/MODULES/CHANNELS.pm:45
 msgid "Free-to-air"
 msgstr "Frei empfangbar"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:55
+#: ../lib/XXV/MODULES/CHANNELS.pm:454
+msgid "Parameters"
+msgstr "Parameter"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:455 ../lib/XXV/MODULES/CHANNELS.pm:812
+msgid "Signal source"
+msgstr "Signalquelle"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:456 ../lib/XXV/MODULES/CHANNELS.pm:837
+msgid "Symbol rate"
+msgstr "Symbolrate"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:457
+msgid "Video PID"
+msgstr "Video PID"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:458
+msgid "Audio PID"
+msgstr "Audio PID"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:459
+msgid "Teletext PID"
+msgstr "Videotext PID"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:460
+msgid "Conditional access"
+msgstr "Zugangsberechtigungssystem"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:461
+msgid "SID"
+msgstr "SID"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:462
+msgid "TID"
+msgstr "TID"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:463
+msgid "NID"
+msgstr "NID"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:464
+msgid "RID"
+msgstr "RID"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:465
+msgid "Channel group"
+msgstr "Kanalgruppe"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:466 ../lib/XXV/MODULES/CHANNELS.pm:767
+msgid "Position"
+msgstr "Position"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:49
 msgid "DVB card %s"
 msgstr "DVB Karte %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:71
+#: ../lib/XXV/MODULES/CHANNELS.pm:65
 msgid "Cleans out channel names, only the 'long' part is visible."
 msgstr "Bereinigt Kanalnamen, nur Teil 'long' ist sichtbar"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:772 ../lib/XXV/MODULES/CHANNELS.pm:944
-msgid "New channel"
-msgstr "Neuer Kanal"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:83
+#: ../lib/XXV/MODULES/CHANNELS.pm:77
 msgid "Read channels and write them to the database"
 msgstr "Lese Kanäle und schreibe sie in die Datenbank"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:889
-msgid "Service ID (SID)"
-msgstr "Service ID (SID)"
+#: ../lib/XXV/MODULES/CHANNELS.pm:785 ../lib/XXV/MODULES/CHANNELS.pm:957
+msgid "New channel"
+msgstr "Neuer Kanal"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:90
+#: ../lib/XXV/MODULES/CHANNELS.pm:84
 msgid "List channels from database 'cname'"
 msgstr "Zeige Kanäle der Datenbank 'cname'"
 
 #--------------------
 #: ../lib/XXV/MODULES/CHANNELS.pm:902
+msgid "Service ID (SID)"
+msgstr "Service ID (SID)"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:915
 msgid "Network ID (NID)"
 msgstr "Netzwerk ID (NID)"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:915
+#: ../lib/XXV/MODULES/CHANNELS.pm:928
 msgid "Transport stream ID (TID)"
 msgstr "Transport stream ID (TID)"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:928
+#: ../lib/XXV/MODULES/CHANNELS.pm:941
 msgid "Radio ID (RID)"
 msgstr "Radio ID (RID)"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHANNELS.pm:97
+msgid "Edits a channel 'cid'"
+msgstr "Bearbeitet einen Kanal 'cid'"
 
 #--------------------
 #: ../lib/XXV/MODULES/CHRONICLE.pm:17
@@ -2143,19 +2140,24 @@ msgid "This module saves recordings in a chronicle."
 msgstr "Dieses Modul speichert Aufnahmen in einer Chronik."
 
 #--------------------
-#: ../lib/XXV/MODULES/CHRONICLE.pm:206
+#: ../lib/XXV/MODULES/CHRONICLE.pm:249
 msgid "No 'string' to search for! Please use chrsearch 'text'."
 msgstr "Kein 'Text' zum Suchen! Bitte verwende chrsearch 'text'"
-
-#--------------------
-#: ../lib/XXV/MODULES/CHRONICLE.pm:253
-msgid "No ID to delete! Please use chrdelete 'id'"
-msgstr "Kein ID zum Löschen! Bitte verwende chrdelete 'id'"
 
 #--------------------
 #: ../lib/XXV/MODULES/CHRONICLE.pm:32
 msgid "List recording chronicle"
 msgstr "Zeige Aufnahmechronik"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHRONICLE.pm:332
+msgid "No ID to delete! Please use chrdelete 'id'"
+msgstr "Kein ID zum Löschen! Bitte verwende chrdelete 'id'"
+
+#--------------------
+#: ../lib/XXV/MODULES/CHRONICLE.pm:341
+msgid "Chronicle entry %s deleted."
+msgstr "Eintrag %s in der Chronik gelöscht."
 
 #--------------------
 #: ../lib/XXV/MODULES/CHRONICLE.pm:38
@@ -2168,34 +2170,29 @@ msgid "Delete within chronicle with 'ID'"
 msgstr "Lösche in der Chronik mit 'ID'"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:104
+#: ../lib/XXV/MODULES/CONFIG.pm:112
 msgid "Settings for XXV"
 msgstr "Einstellungen für XXV"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:119
+#: ../lib/XXV/MODULES/CONFIG.pm:127
 msgid "Save configuration"
 msgstr "Übernehme Konfiguration"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:123 ../lib/XXV/MODULES/CONFIG.pm:30
+#: ../lib/XXV/MODULES/CONFIG.pm:131 ../lib/XXV/MODULES/CONFIG.pm:30
 msgid "Saves the configuration."
 msgstr "Speichert Konfiguration"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:146 ../lib/XXV/MODULES/CONFIG.pm:221
+#: ../lib/XXV/MODULES/CONFIG.pm:154 ../lib/XXV/MODULES/CONFIG.pm:229
 msgid "Sorry, but section %s does not exist in the configuration!"
 msgstr "Verzeihung, aber der Abschnitt %s existiert nicht in der Konfiguration!"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:151
+#: ../lib/XXV/MODULES/CONFIG.pm:159
 msgid "Sorry, but the settings in module: %s do not exist!"
 msgstr "Verzeihung, aber die Einstellungen in Modul: %s existieren nicht!"
-
-#--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:162
-msgid "No description"
-msgstr "Keine Beschreibung"
 
 #--------------------
 #: ../lib/XXV/MODULES/CONFIG.pm:17
@@ -2203,27 +2200,32 @@ msgid "This module edits, writes and saves the configuration."
 msgstr "Dieses Modul bearbeitet, schreibt und übernimmt die Konfiguration."
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:172
+#: ../lib/XXV/MODULES/CONFIG.pm:170
+msgid "No description"
+msgstr "Keine Beschreibung"
+
+#--------------------
+#: ../lib/XXV/MODULES/CONFIG.pm:180
 msgid "%s manual"
 msgstr "%s Dokumentation"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:175
+#: ../lib/XXV/MODULES/CONFIG.pm:183
 msgid "Edit configuration %s"
 msgstr "Konfiguration %s bearbeiten"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:182
+#: ../lib/XXV/MODULES/CONFIG.pm:190
 msgid "Section: '%s' saving ... please wait."
 msgstr "Abschnitt: '%s' speichere .. bitte warten."
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:200
+#: ../lib/XXV/MODULES/CONFIG.pm:208
 msgid "Configuration written to '%s'."
 msgstr "Konfiguration nach '%s' geschrieben."
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:214
+#: ../lib/XXV/MODULES/CONFIG.pm:222
 msgid "Need a name of the module to display the configuration!"
 msgstr "Ich benötige einen Namen des Moduls um die Konfiguration anzuzeigen!"
 
@@ -2233,17 +2235,17 @@ msgid "Edit configuration 'section'"
 msgstr "Konfiguration bearbeiten 'Abschnitt'"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:263
+#: ../lib/XXV/MODULES/CONFIG.pm:271
 msgid "Couldn't find %s in %s!"
 msgstr "Bearbeiten war erfolgreich"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:271
+#: ../lib/XXV/MODULES/CONFIG.pm:279
 msgid "Edit successful!"
 msgstr "Bearbeiten war erfolgreich!"
 
 #--------------------
-#: ../lib/XXV/MODULES/CONFIG.pm:312
+#: ../lib/XXV/MODULES/CONFIG.pm:320
 msgid ""
 "%sThis is the xxv %s server.\n"
 "Please use the following commands:\n"
@@ -2277,12 +2279,12 @@ msgid "Modules loaded."
 msgstr "Module neugeladen."
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1173 ../lib/XXV/MODULES/VTX.pm:1348
+#: ../lib/XXV/MODULES/EPG.pm:1283 ../lib/XXV/MODULES/VTX.pm:1356
 msgid "No channel defined!"
 msgstr "Kein Kanal definiert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1346
+#: ../lib/XXV/MODULES/EPG.pm:1455
 msgid "No event id defined!"
 msgstr "Keine ID zum Event definiert!"
 
@@ -2302,7 +2304,7 @@ msgid "Location of additional EPG images."
 msgstr "Position von zusätzlichen EPG Bildern."
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:276
+#: ../lib/XXV/MODULES/EPG.pm:284
 msgid "Read EPG data ..."
 msgstr "Lese EPG Daten"
 
@@ -2312,7 +2314,7 @@ msgid "How often EPG data are to be analyzed (in seconds)"
 msgstr "Wie oft sollen EPG Daten analysiert werden (in Sekunden)"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:307
+#: ../lib/XXV/MODULES/EPG.pm:315
 msgid "%d events in database updated."
 msgstr "Es wurden %d Einträge in Datenbank aktualisiert."
 
@@ -2322,7 +2324,7 @@ msgid "Preferred program times. (eg. 12:00, 18:00)"
 msgstr "Die bevorzugten Programmzeiten (Kommagetrenne Liste)"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:398
+#: ../lib/XXV/MODULES/EPG.pm:406
 msgid "Analyze channel '%s'"
 msgstr "Untersuche Kanal '%s'"
 
@@ -2342,7 +2344,7 @@ msgid "List program for channel 'channel name'"
 msgstr "Zeige Programm für Kanal 'Kanalname'"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:551
+#: ../lib/XXV/MODULES/EPG.pm:559
 msgid "No title"
 msgstr "Kein Titel"
 
@@ -2367,7 +2369,7 @@ msgid "Display events in a schematic way"
 msgstr "Zeigt Sendungen in einer übersichtlichen Weise"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:784 ../lib/XXV/MODULES/EPG.pm:787
+#: ../lib/XXV/MODULES/EPG.pm:792 ../lib/XXV/MODULES/EPG.pm:795
 msgid "This channel '%s' does not exist in the database!"
 msgstr "Dieser Kanal '%s' existiert nicht in der Datenbank!"
 
@@ -2377,7 +2379,7 @@ msgid "Update EPG data."
 msgstr "Aktualisiere EPG Daten"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:898
+#: ../lib/XXV/MODULES/EPG.pm:906
 msgid "No ID defined to display this program! Please use display 'eid'!"
 msgstr "Keine ID einer Sendung, zur Anzeige dieses Programmes, definiert! Bitte verwende display 'eid'"
 
@@ -2387,7 +2389,7 @@ msgid "Display the current program running in the VDR"
 msgstr "Zeigt die Sendung, die im VDR läuft"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:964
+#: ../lib/XXV/MODULES/EPG.pm:972
 msgid "Event '%d' does not exist in the database!"
 msgstr "Sendung '%d' existiert nicht in der Datenbank!"
 
@@ -2467,22 +2469,22 @@ msgid "Quality from image in percent."
 msgstr "Qualität des Bildes in Prozent."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:108
+#: ../lib/XXV/MODULES/HTTPD.pm:101
 msgid "Dump additional debugging information, required only for software development."
 msgstr "Ausgeben von zusätzliche Informationen zur Fehlersuche, wird nur für die Software-Entwicklung benötigt."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:268 ../lib/XXV/MODULES/WAPD.pm:198
+#: ../lib/XXV/MODULES/HTTPD.pm:267 ../lib/XXV/MODULES/WAPD.pm:204
 msgid "You are not authorized to use this system!"
 msgstr "Sie haben keine Berechtigungen für dieses System!"
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:437
+#: ../lib/XXV/MODULES/HTTPD.pm:432
 msgid "Module '%s' is'nt loaded!"
 msgstr "Modul '%s' wurde nicht geladen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:438
+#: ../lib/XXV/MODULES/HTTPD.pm:433
 msgid "Internal Server Error"
 msgstr "Interner Serverfehler"
 
@@ -2492,44 +2494,49 @@ msgid "This module is a multisession HTTPD server."
 msgstr "Dieses Modul ist ein Mehrfachsitzung HTTPD Server."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:520
+#: ../lib/XXV/MODULES/HTTPD.pm:515
 msgid "Traffic on HTTPD socket since %s: transmitted: %s - received: %s - connections: %d."
 msgstr "Datenverkehr des HTTPD Anschlusses seit %s: gesendet: %s - empfangen: %s - Verbindungen: %d."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:567 ../lib/XXV/OUTPUT/Console.pm:675 ../lib/XXV/OUTPUT/Html.pm:809
+#: ../lib/XXV/MODULES/HTTPD.pm:568 ../lib/XXV/OUTPUT/Console.pm:678 ../lib/XXV/OUTPUT/Html.pm:824
 msgid "Could not open file '%s'! : %s"
 msgstr "Konnte Datei '%s' nicht öffnen : %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:606
+#: ../lib/XXV/MODULES/HTTPD.pm:607
 msgid "Directory found."
 msgstr "Verzeichnis gefunden."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:608
+#: ../lib/XXV/MODULES/HTTPD.pm:609
 msgid "Directory not found."
 msgstr "Verzeichnis nicht gefunden."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:614
+#: ../lib/XXV/MODULES/HTTPD.pm:615
 msgid "File found."
 msgstr "Datei gefunden."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:616
+#: ../lib/XXV/MODULES/HTTPD.pm:617
 msgid "File not found."
 msgstr "Datei nicht gefunden."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:625
+#: ../lib/XXV/MODULES/HTTPD.pm:626
 msgid "Host does not exist."
 msgstr "Host existiert nicht."
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:630
+#: ../lib/XXV/MODULES/HTTPD.pm:631
 msgid "Query : '%s' not supported."
 msgstr "Abfrage : '%s' nicht unterstützt."
+
+#--------------------
+#: ../lib/XXV/MODULES/HTTPD.pm:645
+msgid "Schema"
+msgstr "Übersicht"
 
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:65 ../lib/XXV/MODULES/TELNET.pm:32 ../lib/XXV/MODULES/WAPD.pm:45
@@ -2557,11 +2564,6 @@ msgid "Startup screen"
 msgstr "Erste Seite, die beim Anmelden zu sehen ist"
 
 #--------------------
-#: ../lib/XXV/MODULES/HTTPD.pm:95
-msgid "Schema"
-msgstr "Übersicht"
-
-#--------------------
 #: ../lib/XXV/MODULES/INTERFACE.pm:22
 msgid "This module is a multichannel soap server for second party software."
 msgstr "Dieses Modul ist ein mehrkanaliger SOAP Server für zusätzliche Software die mit xxv interagieren möchte."
@@ -2572,7 +2574,7 @@ msgid "Number of port to listen for soap clients"
 msgstr "Nummer des Port, um auf SOAP-Clients zu lauschen"
 
 #--------------------
-#: ../lib/XXV/MODULES/LOGREAD.pm:144
+#: ../lib/XXV/MODULES/LOGREAD.pm:152
 msgid "Could not read log file %s!"
 msgstr "Konnte die Log-Datei %s nicht einlesen!"
 
@@ -2592,302 +2594,307 @@ msgid "Lines to display"
 msgstr "Wieviel Zeilen anzeigen?"
 
 #--------------------
+#: ../lib/XXV/MODULES/LOGREAD.pm:46 ../lib/XXV/MODULES/RECORDS.pm:36 ../lib/XXV/MODULES/REMOTE.pm:37
+msgid "Path of file '%s'"
+msgstr "Pfad der Datei '%s'"
+
+#--------------------
 #: ../lib/XXV/MODULES/LOGREAD.pm:54
 msgid "Display the last log entries"
 msgstr "Zeigt die letzten Log-Einträge an"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:104
+#: ../lib/XXV/MODULES/MEDIALIB.pm:103
 msgid "Edit media"
 msgstr "Medium bearbeiten"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1059
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1054
 msgid "wanted"
 msgstr "Wunschliste"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:110
+#: ../lib/XXV/MODULES/MEDIALIB.pm:109
 msgid "Copy media"
 msgstr "Medium kopieren"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:116
+#: ../lib/XXV/MODULES/MEDIALIB.pm:115
 msgid "Delete media"
 msgstr "Medium löschen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1175
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1170
 msgid "Action"
 msgstr "Action"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1179
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1174
 msgid "Adventure"
 msgstr "Abenteuer"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1183
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1178
 msgid "Animation"
 msgstr "Animation"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1187
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1182
 msgid "Comedy"
 msgstr "Komödie"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1191
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1186
 msgid "Crime"
 msgstr "Krimi"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1195
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1190
 msgid "Documentary"
 msgstr "Dokumentation"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1199
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1194
 msgid "Drama"
 msgstr "Drama"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1203
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1198
 msgid "Family"
 msgstr "Familie"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1207
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1202
 msgid "Fantasy"
 msgstr "Fantasy"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1211
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1206
 msgid "Film-Noir"
 msgstr "Film-Noir"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1215
-msgid "Horror"
-msgstr "Horror"
-
-#--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1219
-msgid "Musical"
-msgstr "Musical"
-
-#--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:122
+#: ../lib/XXV/MODULES/MEDIALIB.pm:121
 msgid "Research media"
 msgstr "Medium recherchieren"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1223
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1210
+msgid "Horror"
+msgstr "Horror"
+
+#--------------------
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1214
+msgid "Musical"
+msgstr "Musical"
+
+#--------------------
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1218
 msgid "Mystery"
 msgstr "Mystery"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1227
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1222
 msgid "Romance"
 msgstr "Romanze"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1231
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1226
 msgid "Sci-Fi"
 msgstr "Sci-Fi"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1235
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1230
 msgid "Short"
 msgstr "Kurzfilm"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1239
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1234
 msgid "Thriller"
 msgstr "Thriller"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1243
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1238
 msgid "War"
 msgstr "Krieg"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1247
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1242
 msgid "Western"
 msgstr "Western"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1251
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1246
 msgid "Adult"
 msgstr "Adult"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1259
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1254
 msgid "Biography"
 msgstr "Biography"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1267
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1262
 msgid "Childs"
 msgstr "Kinder"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1271
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1266
 msgid "Splatter"
 msgstr "Splatter"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:128
+#: ../lib/XXV/MODULES/MEDIALIB.pm:127
 msgid "Get image from media cache"
 msgstr "Hole Bild aus dem Medien Cache"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1319
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1314
 msgid "#"
 msgstr "#"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1320
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1315
 msgid "ABC"
 msgstr "ABC"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1321
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1316
 msgid "DEF"
 msgstr "DEF"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1322
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1317
 msgid "GHI"
 msgstr "GHI"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1323
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1318
 msgid "JKL"
 msgstr "JKL"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1324
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1319
 msgid "MNO"
 msgstr "MNO"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1325
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1320
 msgid "PQRS"
 msgstr "PQRS"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1326
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1321
 msgid "TUV"
 msgstr "TUV"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1327
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1322
 msgid "WXYZ"
 msgstr "WXYZ"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1330
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1325
 msgid "Unseen"
 msgstr "Ungesehen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:1331
+#: ../lib/XXV/MODULES/MEDIALIB.pm:1326
 msgid "Wanted"
 msgstr "Wunschliste"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:135
+#: ../lib/XXV/MODULES/MEDIALIB.pm:134
 msgid "Save media"
 msgstr "Medium speichern"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:141
+#: ../lib/XXV/MODULES/MEDIALIB.pm:140
 msgid "Import media"
 msgstr "Medium importieren"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:147
+#: ../lib/XXV/MODULES/MEDIALIB.pm:146
 msgid "Search media"
 msgstr "Medium suchen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:22
+#: ../lib/XXV/MODULES/MEDIALIB.pm:21
 msgid "This module manages media like DVDs, VCD, etc."
 msgstr "Dieses Module verwaltet Medien wie z.B. DVD, VCD, etc."
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:302
+#: ../lib/XXV/MODULES/MEDIALIB.pm:309
 msgid "Media library has stored %d medias"
 msgstr "Medienbibliothek hat %d Medien gespeichert"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:36
+#: ../lib/XXV/MODULES/MEDIALIB.pm:35
 msgid "Cache images"
 msgstr "Bilder zwischenspeichern"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:369 ../lib/XXV/MODULES/MEDIALIB.pm:568 ../lib/XXV/MODULES/MEDIALIB.pm:676 ../lib/XXV/MODULES/MEDIALIB.pm:761
+#: ../lib/XXV/MODULES/MEDIALIB.pm:375 ../lib/XXV/MODULES/MEDIALIB.pm:567 ../lib/XXV/MODULES/MEDIALIB.pm:674 ../lib/XXV/MODULES/MEDIALIB.pm:759
 msgid "Media with ID '%s' does not exist in the database!"
 msgstr "Medium mit der ID '%s' existiert nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:42
+#: ../lib/XXV/MODULES/MEDIALIB.pm:41
 msgid "Location of coverimages."
 msgstr "Speicherplatz der Cover Bilder"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:48
+#: ../lib/XXV/MODULES/MEDIALIB.pm:47
 msgid "Number of columns in listview"
 msgstr "Anzahl der Spalten in der Medienliste"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:54
+#: ../lib/XXV/MODULES/MEDIALIB.pm:53
 msgid "Number of columns of actors in detailview"
 msgstr "Anzahl der Spalten der Schauspieler in der Detail Ansicht"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:60
+#: ../lib/XXV/MODULES/MEDIALIB.pm:59
 msgid "Default media language"
 msgstr "Standardsprache der Medien"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:65
+#: ../lib/XXV/MODULES/MEDIALIB.pm:64
 msgid "Default mediatype"
 msgstr "Standard Medientyp"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:734
+#: ../lib/XXV/MODULES/MEDIALIB.pm:732
 msgid "Media %s saved!"
 msgstr "Medium %s gespeichert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:75
+#: ../lib/XXV/MODULES/MEDIALIB.pm:74
 msgid "Default range"
 msgstr "Standardbereich"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:771
+#: ../lib/XXV/MODULES/MEDIALIB.pm:769
 msgid "Genres for Media with ID '%s' does not exist in the database!"
 msgstr "Genres für Medium mit der ID '%s' existieren nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:776
+#: ../lib/XXV/MODULES/MEDIALIB.pm:774
 msgid "Media %s is deleted."
 msgstr "Medium %s wurde gelöscht."
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:86
+#: ../lib/XXV/MODULES/MEDIALIB.pm:85
 msgid "List medias"
 msgstr "Medien auflisten"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:92
+#: ../lib/XXV/MODULES/MEDIALIB.pm:91
 msgid "Display media"
 msgstr "Medium anzeigen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MEDIALIB.pm:98
+#: ../lib/XXV/MODULES/MEDIALIB.pm:97
 msgid "Create new media"
 msgstr "Erstelle neues Medium"
 
@@ -2897,17 +2904,17 @@ msgid "This module move timers between channels."
 msgstr "Diese Modul verschiebt Timer zwischen Kanälen."
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:217
+#: ../lib/XXV/MODULES/MOVETIMER.pm:225
 msgid "Couldn't query rules to move timer from database!"
 msgstr "Konnte Regel zum Verschieben der Timer nicht aus der Datenbank abfragen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:295
+#: ../lib/XXV/MODULES/MOVETIMER.pm:303
 msgid "There none timer to move."
 msgstr "Es wurden keine Timer verschoben."
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:363 ../lib/XXV/MODULES/MOVETIMER.pm:520
+#: ../lib/XXV/MODULES/MOVETIMER.pm:371 ../lib/XXV/MODULES/MOVETIMER.pm:528
 msgid "Rule to move timer with ID '%s' does not exist in the database!"
 msgstr "Regel zum Verschieben der Timer mit ID '%s' exisitert nicht in der Datenbank!"
 
@@ -2917,27 +2924,27 @@ msgid "List rules to move timer between channels"
 msgstr "Zeige Regel zum Verschieben von Timer zwischen Kanälen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:380
+#: ../lib/XXV/MODULES/MOVETIMER.pm:388
 msgid "Which channel should used as source?"
 msgstr "Welcher Kanal soll als Quelle verwendet werden?"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:392 ../lib/XXV/MODULES/MOVETIMER.pm:414 ../lib/XXV/MODULES/RECORDS.pm:2000 ../lib/XXV/MODULES/STREAM.pm:169 ../lib/XXV/MODULES/TIMERS.pm:681 ../lib/XXV/MODULES/XMLTV.pm:523
+#: ../lib/XXV/MODULES/MOVETIMER.pm:400 ../lib/XXV/MODULES/MOVETIMER.pm:422 ../lib/XXV/MODULES/RECORDS.pm:2024 ../lib/XXV/MODULES/STREAM.pm:190 ../lib/XXV/MODULES/TIMERS.pm:695 ../lib/XXV/MODULES/XMLTV.pm:530
 msgid "This channel '%s' does not exist!"
 msgstr "Dieser Kanal '%s' existiert nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:402
+#: ../lib/XXV/MODULES/MOVETIMER.pm:410
 msgid "Which channel should used as destination?"
 msgstr "Welcher Kanal soll als Ziel verwendet werden?"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:421
+#: ../lib/XXV/MODULES/MOVETIMER.pm:429
 msgid "When should use this rule"
 msgstr "Wann soll die Regel verwendet werden"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:431
+#: ../lib/XXV/MODULES/MOVETIMER.pm:439
 msgid "How should timer handled, if changed"
 msgstr "Wie sollen Timer behandelt bei Änderungen behandelt werden"
 
@@ -2947,19 +2954,14 @@ msgid "Create rule to move timer between channels"
 msgstr "Erzeuge eine neue Regel zum Verschieben von Timern zwischen Kanälen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:452
+#: ../lib/XXV/MODULES/MOVETIMER.pm:460
 msgid "Rule to move timer saved!"
 msgstr "Regel zum Verschieben von Timern gespeichert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:489 ../lib/XXV/MODULES/MOVETIMER.pm:496
+#: ../lib/XXV/MODULES/MOVETIMER.pm:497 ../lib/XXV/MODULES/MOVETIMER.pm:504
 msgid "Couldn't insert rule move timer in database!"
 msgstr "Regel zum Verschieben von Timern konnte nicht in Datenbank eingefügt werden!"
-
-#--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:512
-msgid "Missing ID to select rules for deletion! Please use movetimerdelete 'id'"
-msgstr "Benötige ID zum Auswählen der Regel für die Löschung! Bitte verwende movetimerdelete 'id'"
 
 #--------------------
 #: ../lib/XXV/MODULES/MOVETIMER.pm:52
@@ -2967,7 +2969,12 @@ msgid "Delete rule to move timer between channels"
 msgstr "Lösche Regel zum Verschieben von Timern zwischen Kanälen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:524
+#: ../lib/XXV/MODULES/MOVETIMER.pm:520
+msgid "Missing ID to select rules for deletion! Please use movetimerdelete 'id'"
+msgstr "Benötige ID zum Auswählen der Regel für die Löschung! Bitte verwende movetimerdelete 'id'"
+
+#--------------------
+#: ../lib/XXV/MODULES/MOVETIMER.pm:532
 msgid "Rule to move timer %s is deleted."
 msgstr "Regel zum Verschieben der Timer %s wurde gelöscht."
 
@@ -2977,29 +2984,34 @@ msgid "Edit rule to move timer between channels"
 msgstr "Bearbeite Regel zum Verschieben von Timern zwischen Kanälen"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:604
+#: ../lib/XXV/MODULES/MOVETIMER.pm:612
 msgid "Allways"
 msgstr "Immer"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:605
+#: ../lib/XXV/MODULES/MOVETIMER.pm:613
 msgid "Newer"
 msgstr "Niemals"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:606
+#: ../lib/XXV/MODULES/MOVETIMER.pm:614
 msgid "If collision detected"
 msgstr "Wenn eine Kollision erkannt wurde"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:617
+#: ../lib/XXV/MODULES/MOVETIMER.pm:625
 msgid "Keep inactiv original timer"
 msgstr "Behalte den inaktiven original Timer"
 
 #--------------------
-#: ../lib/XXV/MODULES/MOVETIMER.pm:618
+#: ../lib/XXV/MODULES/MOVETIMER.pm:626
 msgid "Copy original timer"
 msgstr "Kopiere den original Timer"
+
+#--------------------
+#: ../lib/XXV/MODULES/MUSIC.pm:1002
+msgid "Lookup for cover from '%s-%s'"
+msgstr "Suche nach Plattenhüllen von '%s-%s'"
 
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:101
@@ -3007,12 +3019,12 @@ msgid "Download album covers."
 msgstr "Plattenhüllen herunterladen."
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:1067
+#: ../lib/XXV/MODULES/MUSIC.pm:1074
 msgid "New covers search was successfully!"
 msgstr "Suche nach neue Plattenhüllen war erfolgreich!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:1071 ../lib/XXV/MODULES/MUSIC.pm:1088 ../lib/XXV/MODULES/MUSIC.pm:340 ../lib/XXV/MODULES/MUSIC.pm:360 ../lib/XXV/MODULES/MUSIC.pm:400 ../lib/XXV/MODULES/MUSIC.pm:439
+#: ../lib/XXV/MODULES/MUSIC.pm:1078 ../lib/XXV/MODULES/MUSIC.pm:1095 ../lib/XXV/MODULES/MUSIC.pm:348 ../lib/XXV/MODULES/MUSIC.pm:368 ../lib/XXV/MODULES/MUSIC.pm:408 ../lib/XXV/MODULES/MUSIC.pm:447
 msgid "Back to music list"
 msgstr "Zurück zur Musikliste"
 
@@ -3022,7 +3034,7 @@ msgid "Play music file 'fid'"
 msgstr "Spiele Musikdatei 'fid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:1085
+#: ../lib/XXV/MODULES/MUSIC.pm:1092
 msgid "It is not necessary to look for new covers because already all albums possess cover!"
 msgstr "Es ist nicht notwendig, nach neuer Plattenhüllen zu suchen, weil bereits alle Alben ein Plattenhülle besitzen!"
 
@@ -3047,14 +3059,9 @@ msgid "Show album covers."
 msgstr "Zeigt Plattenhüllen."
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:1341
+#: ../lib/XXV/MODULES/MUSIC.pm:1361
 msgid "Sorry, images for cover is'nt supported"
 msgstr "Entschuldigung, Plattenhüllen werden nicht unterstützt."
-
-#--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:1380
-msgid "Sorry, couldn't get file."
-msgstr "Entschuldigung, Datei kann nicht geholt werden."
 
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:140
@@ -3062,27 +3069,32 @@ msgid "Get music file 'fid'"
 msgstr "Holt die Musikdateien'fid'"
 
 #--------------------
+#: ../lib/XXV/MODULES/MUSIC.pm:1400
+msgid "Sorry, couldn't get file."
+msgstr "Entschuldigung, Datei kann nicht geholt werden."
+
+#--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:28
 msgid "This module managed music files."
 msgstr "Dieser Modul behandelt die Musikdateien."
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:336
+#: ../lib/XXV/MODULES/MUSIC.pm:344
 msgid "Directory of the music files '%s' not found"
 msgstr "Verzeichnis mit den Musikdateien '%s' nicht gefunden"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:358
+#: ../lib/XXV/MODULES/MUSIC.pm:366
 msgid "Reread the music files ..."
 msgstr "Erneutes Einlesen der Musikdateien ..."
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:372
+#: ../lib/XXV/MODULES/MUSIC.pm:380
 msgid "Get information from music files ..."
 msgstr "Hole Informationen über die Musikdateien ..."
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:398
+#: ../lib/XXV/MODULES/MUSIC.pm:406
 msgid "No music files found!"
 msgstr "Keine Musikdateien gefunden!"
 
@@ -3092,7 +3104,7 @@ msgid "Directory with the music files"
 msgstr "Verzeichnis mit den Musikdateien"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:435
+#: ../lib/XXV/MODULES/MUSIC.pm:443
 msgid "%d new music files in database saved and %d non exists entries deleted!"
 msgstr "%d neue Musikdateien wurden in der Datenbank gespeichert und %d nicht existierende gelöscht!"
 
@@ -3102,7 +3114,7 @@ msgid "Port to listen for icecast clients."
 msgstr "Port des Server, an dem für Icecast Clients gelauscht wird."
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:510
+#: ../lib/XXV/MODULES/MUSIC.pm:518
 msgid "Sorry, playback is'nt supported"
 msgstr "Entschuldigung, Wiedergabe ist nicht möglich"
 
@@ -3112,17 +3124,17 @@ msgid "Proxy URL to music server. e.g. (http://vdr/xxv) Please remember you must
 msgstr "Proxy URL des Musikservers. z.B.(http://vdr/xxv). Denke daran das der Port des Icecast Server in die Proxykonfiguration eingetragen werden muss!"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:608
+#: ../lib/XXV/MODULES/MUSIC.pm:616
 msgid "Album"
 msgstr "Album"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:610
+#: ../lib/XXV/MODULES/MUSIC.pm:618
 msgid "Number of track"
 msgstr "Nummer des Track"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:612
+#: ../lib/XXV/MODULES/MUSIC.pm:620
 msgid "Length"
 msgstr "Dauer"
 
@@ -3142,7 +3154,7 @@ msgid "DSN for muggle database"
 msgstr "DSN für die Muggle Datenbank"
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:929
+#: ../lib/XXV/MODULES/MUSIC.pm:936
 msgid "Music database contains %d entries with %d albums from %d artists in %d genres"
 msgstr "Die Musikdatenbank enthält %d Einträge mit %d Alben von %d Künstlern in %d Genren"
 
@@ -3152,14 +3164,9 @@ msgid "Rereading of the music directory."
 msgstr "Nochmaliges Einlesen des Musikverzeichnisses."
 
 #--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:975
+#: ../lib/XXV/MODULES/MUSIC.pm:982
 msgid "Please wait, search for new covers ..."
 msgstr "Bitte warten, suche nach neuen Plattenhüllen ..."
-
-#--------------------
-#: ../lib/XXV/MODULES/MUSIC.pm:995
-msgid "Lookup for cover from '%s-%s'"
-msgstr "Suche nach Plattenhüllen von '%s-%s'"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:101
@@ -3187,19 +3194,14 @@ msgid "Edit recording 'rid'"
 msgstr "Aufnahme bearbeiten 'rid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1408
+#: ../lib/XXV/MODULES/RECORDS.pm:1429
 msgid "No recording defined for display! Please use rdisplay 'rid'"
 msgstr "Keine Aufnahme zum Anzeigen definiert! Bitte verwende rdisplay 'rid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1445 ../lib/XXV/MODULES/RECORDS.pm:1478 ../lib/XXV/MODULES/RECORDS.pm:1520 ../lib/XXV/MODULES/RECORDS.pm:1847 ../lib/XXV/MODULES/RECORDS.pm:1936 ../lib/XXV/MODULES/RECORDS.pm:2200
+#: ../lib/XXV/MODULES/RECORDS.pm:1466 ../lib/XXV/MODULES/RECORDS.pm:1502 ../lib/XXV/MODULES/RECORDS.pm:1544 ../lib/XXV/MODULES/RECORDS.pm:1871 ../lib/XXV/MODULES/RECORDS.pm:1960 ../lib/XXV/MODULES/RECORDS.pm:2227
 msgid "Recording '%s' does not exist in the database!"
 msgstr "Aufnahme '%s' existiert nicht in der Datenbank!"
-
-#--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1469 ../lib/XXV/MODULES/RECORDS.pm:1513
-msgid "No recording defined for playback! Please use rplay 'rid'."
-msgstr "Keine Aufnahme zum Wiedergabe definiert! Bitte verwende rplay 'rid'"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:147
@@ -3207,12 +3209,17 @@ msgid "Convert recording 'rid'"
 msgstr "Aufnahme konvertieren 'rid'"
 
 #--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:1493 ../lib/XXV/MODULES/RECORDS.pm:1537
+msgid "No recording defined for playback! Please use rplay 'rid'."
+msgstr "Keine Aufnahme zum Wiedergabe definiert! Bitte verwende rplay 'rid'"
+
+#--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:154
 msgid "Play recording 'rid' in the VDR."
 msgstr "Spiele Aufnahme 'rid' im VDR"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1567 ../lib/XXV/MODULES/RECORDS.pm:1679
+#: ../lib/XXV/MODULES/RECORDS.pm:1591 ../lib/XXV/MODULES/RECORDS.pm:1703
 msgid "Index"
 msgstr "Index"
 
@@ -3222,7 +3229,7 @@ msgid "Cut recording 'rid' in vdr"
 msgstr "Schneide Aufnahme 'rid' im VDR"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1780
+#: ../lib/XXV/MODULES/RECORDS.pm:1804
 msgid "No recording defined for deletion! Please use rdelete 'id'."
 msgstr "Keine Aufnahme zum Löschen definiert! Bitte verwende rdelete 'rid'."
 
@@ -3232,49 +3239,44 @@ msgid "Create event entries if a recording has been deleted."
 msgstr "Erzeuge Eventeinträge, wenn eine Aufnahme gelöscht wurde."
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1853
+#: ../lib/XXV/MODULES/RECORDS.pm:1877
 msgid "Recording '%s' to delete"
 msgstr "Aufnahme '%s' wird gelöscht"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1888
+#: ../lib/XXV/MODULES/RECORDS.pm:1912
 msgid "No recording to delete!"
 msgstr "Keine Aufnahme zum Löschen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1914
+#: ../lib/XXV/MODULES/RECORDS.pm:1938
 msgid "No recording defined for editing!"
 msgstr "Keine Aufnahme-ID zum Bearbeiten!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1953 ../lib/XXV/MODULES/RECORDS.pm:2523 ../lib/XXV/MODULES/TIMERS.pm:665
+#: ../lib/XXV/MODULES/RECORDS.pm:1977 ../lib/XXV/MODULES/RECORDS.pm:2550 ../lib/XXV/MODULES/TIMERS.pm:679
 msgid "Title of recording"
 msgstr "Titel der Aufnahme"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1990
+#: ../lib/XXV/MODULES/RECORDS.pm:2014
 msgid "Undefined"
 msgstr "Unbestimmt"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2013
+#: ../lib/XXV/MODULES/RECORDS.pm:2037
 msgid "Video"
 msgstr "Video"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2018
+#: ../lib/XXV/MODULES/RECORDS.pm:2042
 msgid "Audio"
 msgstr "Audio"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2023
+#: ../lib/XXV/MODULES/RECORDS.pm:2047
 msgid "Cut marks"
 msgstr "Schnittmarken"
-
-#--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2054 ../lib/XXV/MODULES/RECORDS.pm:2061
-msgid "Couldn't write file '%s' : %s"
-msgstr "Konnte Datei '%s' nicht schreiben : %s"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:207
@@ -3282,19 +3284,14 @@ msgid "Recording deleted: %s"
 msgstr "Aufnahme gelöscht: %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2080 ../lib/XXV/MODULES/RECORDS.pm:2098
+#: ../lib/XXV/MODULES/RECORDS.pm:2081 ../lib/XXV/MODULES/RECORDS.pm:2088
+msgid "Couldn't write file '%s' : %s"
+msgstr "Konnte Datei '%s' nicht schreiben : %s"
+
+#--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:2107 ../lib/XXV/MODULES/RECORDS.pm:2125
 msgid "Recording: '%s', couldn't move to '%s' : %s"
 msgstr "Aufnahme: '%s', konnte nicht nach '%s' verschoben werden : %s"
-
-#--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2094
-msgid "Recording: '%s', couldn't mkpath: '%s' : %s"
-msgstr "Aufnahme: '%s', konnte nicht Verzeichnis '%s' nicht erstellen : %s"
-
-#--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2105
-msgid "Recording: '%s', couldn't remove '%s' : %s"
-msgstr "Aufnahme: '%s', konnte nicht '%s' nicht entfernen : %s"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:211
@@ -3302,92 +3299,102 @@ msgid "Subtitle: %s"
 msgstr "Serientitel: %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2134 ../lib/XXV/MODULES/RECORDS.pm:2136
+#: ../lib/XXV/MODULES/RECORDS.pm:2121
+msgid "Recording: '%s', couldn't mkpath: '%s' : %s"
+msgstr "Aufnahme: '%s', konnte nicht Verzeichnis '%s' nicht erstellen : %s"
+
+#--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:2132
+msgid "Recording: '%s', couldn't remove '%s' : %s"
+msgstr "Aufnahme: '%s', konnte nicht '%s' nicht entfernen : %s"
+
+#--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:2161 ../lib/XXV/MODULES/RECORDS.pm:2163
 msgid "Recording edited!"
 msgstr "Aufnahme wurde bearbeitet!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2144
+#: ../lib/XXV/MODULES/RECORDS.pm:2171
 msgid "Recording was'nt changed!"
 msgstr "Aufnahme wurde nicht verändert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2183
+#: ../lib/XXV/MODULES/RECORDS.pm:2210
 msgid "No reccmds.conf on your system!"
 msgstr "Keine reccmds.conf auf dem System!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2188
+#: ../lib/XXV/MODULES/RECORDS.pm:2215
 msgid "Please use rconvert 'cmdid_rid'"
 msgstr "Bitte verwende rconvert 'cmdid_rid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2192
+#: ../lib/XXV/MODULES/RECORDS.pm:2219
 msgid "Command"
 msgstr "Kommando"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2199
+#: ../lib/XXV/MODULES/RECORDS.pm:2226
 msgid "Couldn't find this command ID!"
 msgstr "Kann diese Kommando-ID nicht finden!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2213
+#: ../lib/XXV/MODULES/RECORDS.pm:2240
 msgid "Call %s '%s', standard error output :"
 msgstr "Aufruf %s '%s', Standardfehlerausgabe :"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2216
+#: ../lib/XXV/MODULES/RECORDS.pm:2243
 msgid "Call %s '%s', standard output :"
 msgstr "Aufruf %s '%s', Ausgabe :"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2220
+#: ../lib/XXV/MODULES/RECORDS.pm:2247
 msgid "Sorry! Couldn't call %s '%s'! %s"
 msgstr "Entschuldigung! Konnte %s '%s' nicht aufrufen! %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2224
+#: ../lib/XXV/MODULES/RECORDS.pm:2251
 msgid "Back to recording list"
 msgstr "Zurück zur Aufnahmeliste"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2263
+#: ../lib/XXV/MODULES/RECORDS.pm:2290
 msgid "%d new recordings since last report time %s"
 msgstr "%d neue Aufnahmen seit der letzten Reportzeit %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2513
+#: ../lib/XXV/MODULES/RECORDS.pm:2540
 msgid "There none recoverable recordings!"
 msgstr "Es sind keine wiederherstellbaren Aufnahmen vorhanden!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2543
+#: ../lib/XXV/MODULES/RECORDS.pm:2570
 msgid "Recover recording"
 msgstr "Aufnahme wiederherstellen"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2549
+#: ../lib/XXV/MODULES/RECORDS.pm:2576
 msgid "Can't recover recording, maybe was this in the meantime deleted!"
 msgstr "Aufnahme konnte nicht wiederhergestellt werden, möglicherweise wurde sie in der zwischenzeit gelöscht!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2558
+#: ../lib/XXV/MODULES/RECORDS.pm:2585
 msgid "Recover recording, couldn't rename '%s' to %s : %s"
 msgstr "Wiederhergestellen der Aufnahme, konnte '%s' nicht in %s umbenennen : %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2571 ../lib/XXV/MODULES/RECORDS.pm:2573
+#: ../lib/XXV/MODULES/RECORDS.pm:2598 ../lib/XXV/MODULES/RECORDS.pm:2600
 msgid "Recording recovered!"
 msgstr "Aufnahme wiederhergestellt!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2581
+#: ../lib/XXV/MODULES/RECORDS.pm:2608
 msgid "None recording was'nt recovered!"
 msgstr "Keine Aufnahme wurde wiederhergestellt!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2650 ../lib/XXV/MODULES/VTX.pm:1411
+#: ../lib/XXV/MODULES/RECORDS.pm:2677 ../lib/XXV/MODULES/VTX.pm:1419
 msgid "Sorry, get image is'nt supported"
 msgstr "Entschuldigung, Bilder werden nicht unterstützt!"
 
@@ -3407,14 +3414,9 @@ msgid "How often recordings are to be completely read in (in hours)"
 msgstr "Wie oft sollen Aufnahmen vollständig eingelesen werden (in Stunden)"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:522
+#: ../lib/XXV/MODULES/RECORDS.pm:529
 msgid "No recordings available!"
 msgstr "Keine Aufnahmen verfügbar!"
-
-#--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:538
-msgid "Used %s, total %s%s, free %s%s"
-msgstr "Genutzt %s, Gesamt %s%s, Frei %s%s"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:54
@@ -3422,14 +3424,14 @@ msgid "Directory where recordings are stored"
 msgstr "Verzeichnis, wo die vdr Aufnahmen gespeichert sind"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:543
-msgid "Unknown disc capacity!"
-msgstr "Unbekannte Festplattenkapazität!"
+#: ../lib/XXV/MODULES/RECORDS.pm:545
+msgid "Used %s, total %s%s, free %s%s"
+msgstr "Genutzt %s, Gesamt %s%s, Frei %s%s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:593
-msgid "Update recording '%s'"
-msgstr "Aktualisiere Aufnahme '%s'"
+#: ../lib/XXV/MODULES/RECORDS.pm:550
+msgid "Unknown disc capacity!"
+msgstr "Unbekannte Festplattenkapazität!"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:60
@@ -3437,7 +3439,12 @@ msgid "Location of used program to produce thumbnails on your system."
 msgstr "Position des verwendeten Programms, zum Erzeugen der Vorschaubildern."
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:645
+#: ../lib/XXV/MODULES/RECORDS.pm:600
+msgid "Update recording '%s'"
+msgstr "Aktualisiere Aufnahme '%s'"
+
+#--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:652
 msgid "Analyze recording '%s'"
 msgstr "Untersuche Aufnahme '%s'"
 
@@ -3447,17 +3454,17 @@ msgid "The program used to create thumbnails"
 msgstr "Das verwendete Programm, um Vorschaubildern zu erzeugen"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:666
+#: ../lib/XXV/MODULES/RECORDS.pm:673
 msgid "Can't add recording '%s' into database!"
 msgstr "Konnte Aufnahme '%s' nicht in Datenbank einfügen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:669
+#: ../lib/XXV/MODULES/RECORDS.pm:676
 msgid "Can't assign recording '%s' to file!"
 msgstr "Kann Aufnahme '%s' keiner Datei zuordnen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:676
+#: ../lib/XXV/MODULES/RECORDS.pm:683
 msgid "Recording '%s' without id or unique title and date from VDR!"
 msgstr "Aufnahme '%s' ohne ID oder eindeutigen Titel und Datum vom VDR!"
 
@@ -3467,12 +3474,12 @@ msgid "None"
 msgstr "Keines"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:765
+#: ../lib/XXV/MODULES/RECORDS.pm:772
 msgid "Write %d recordings to the database."
 msgstr "Schreibe %d Aufnahmen in die Datenbank."
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:767
+#: ../lib/XXV/MODULES/RECORDS.pm:774
 msgid "Write %d recordings to the database. Couldn't assign %d recordings."
 msgstr "Schreibe nur %d Aufnahmen in die Datenbank. Kann %d Aufnahmen nicht zuordnen."
 
@@ -3482,7 +3489,7 @@ msgid "Produce how many thumbnails"
 msgstr "Wieviele Vorschaubildern erzeugen?"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:804 ../lib/XXV/MODULES/RECORDS.pm:806
+#: ../lib/XXV/MODULES/RECORDS.pm:811 ../lib/XXV/MODULES/RECORDS.pm:813
 msgid "Get information on recordings ..."
 msgstr "Hole Informationen über Aufnahmen ..."
 
@@ -3507,12 +3514,12 @@ msgid "This module emulate a remote control."
 msgstr "Dieses Modul emulieren eine Fernbedienung."
 
 #--------------------
-#: ../lib/XXV/MODULES/REMOTE.pm:176
+#: ../lib/XXV/MODULES/REMOTE.pm:184
 msgid "This cmd id does not exist!"
 msgstr "Dieses Kommando existiert nicht!"
 
 #--------------------
-#: ../lib/XXV/MODULES/REMOTE.pm:179
+#: ../lib/XXV/MODULES/REMOTE.pm:187
 msgid "Try to start command: %s with cmd: %s"
 msgstr "Versuche Start des Kommando: %s mit cmd: %s "
 
@@ -3542,12 +3549,12 @@ msgid "List the commands"
 msgstr "Liste die Kommandos"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:120
+#: ../lib/XXV/MODULES/REPORT.pm:128
 msgid "XXVD System %s started"
 msgstr "XXVD System %s gestartet"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:121
+#: ../lib/XXV/MODULES/REPORT.pm:129
 msgid "Start time: %s"
 msgstr "Startzeit: %s"
 
@@ -3557,57 +3564,57 @@ msgid "This module read in every module the status information and display this.
 msgstr "Dieses Modul, liest von jedes Modul die Statusangaben und zeigen dieses an. Dieses Modul senden diese Informationen z.B. auch als email Report."
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:260
+#: ../lib/XXV/MODULES/REPORT.pm:268
 msgid "Sorry, but none type requested!"
 msgstr "Entschuldigung, es wurde kein Typ angefordert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:265
+#: ../lib/XXV/MODULES/REPORT.pm:273
 msgid "Sorry, but this type '%s' does not exist on this system!"
 msgstr "Entschuldigung, aber dieser Typ '%s' exitistiert in diesem System nicht!"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:268
+#: ../lib/XXV/MODULES/REPORT.pm:276
 msgid "Sorry, but this module is not active!"
 msgstr "Entschuldigung, aber dieses Modul ist nicht aktiv!"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:307
+#: ../lib/XXV/MODULES/REPORT.pm:315
 msgid "All messages"
 msgstr "Alle Meldungen"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:308 ../lib/XXV/MODULES/REPORT.pm:327
+#: ../lib/XXV/MODULES/REPORT.pm:316 ../lib/XXV/MODULES/REPORT.pm:335
 msgid "Harmless"
 msgstr "Harmlos"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:309
+#: ../lib/XXV/MODULES/REPORT.pm:317
 msgid "Interesting"
 msgstr "Interessant"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:310
+#: ../lib/XXV/MODULES/REPORT.pm:318
 msgid "Very interesting"
 msgstr "Sehr interessant"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:311
+#: ../lib/XXV/MODULES/REPORT.pm:319
 msgid "Important"
 msgstr "Wichtig"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:312
+#: ../lib/XXV/MODULES/REPORT.pm:320
 msgid "Very important"
 msgstr "Sehr wichtig"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:313
+#: ../lib/XXV/MODULES/REPORT.pm:321
 msgid "None messages"
 msgstr "Keine Meldungen"
 
 #--------------------
-#: ../lib/XXV/MODULES/REPORT.pm:35 ../lib/XXV/MODULES/SHARE.pm:58 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:77 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:81 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:43 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:47 ../lib/XXV/OUTPUT/NEWS/RSS.pm:41 ../lib/XXV/OUTPUT/NEWS/RSS.pm:45 ../lib/XXV/OUTPUT/NEWS/VDR.pm:38 ../lib/XXV/OUTPUT/NEWS/VDR.pm:42
+#: ../lib/XXV/MODULES/REPORT.pm:35 ../lib/XXV/MODULES/SHARE.pm:70 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:77 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:81 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:43 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:47 ../lib/XXV/OUTPUT/NEWS/RSS.pm:41 ../lib/XXV/OUTPUT/NEWS/RSS.pm:45 ../lib/XXV/OUTPUT/NEWS/VDR.pm:38 ../lib/XXV/OUTPUT/NEWS/VDR.pm:42
 msgid "Module can't activated! This module depends module %s."
 msgstr "Modul konnte nicht aktiviert werden! Diese Modul ist abhängig vom Modul %s."
 
@@ -3642,27 +3649,27 @@ msgid "Start a robots 'rname'"
 msgstr "Startet eine Robot 'rname'"
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:316
+#: ../lib/XXV/MODULES/SHARE.pm:349
 msgid "Rank"
 msgstr "Platzierung"
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:42
+#: ../lib/XXV/MODULES/SHARE.pm:54
 msgid "This module send and read shared data from SOAP Server."
 msgstr "Dieses Modul sendet und liest gemeinsame Daten vom SOAP Server."
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:66
+#: ../lib/XXV/MODULES/SHARE.pm:78
 msgid "URL to access popularity web service."
 msgstr "URL für den Zugang zum Popularität Web Service."
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:72
+#: ../lib/XXV/MODULES/SHARE.pm:84
 msgid "How often shared data are to be updated (in hours)."
 msgstr "Wie oft sollen gemeinsame Daten aktualisiert werden (in Stunden)."
 
 #--------------------
-#: ../lib/XXV/MODULES/SHARE.pm:80
+#: ../lib/XXV/MODULES/SHARE.pm:96
 msgid "Display the TopTen list of timers."
 msgstr "Zeigt die Liste der besten zehn Timer an."
 
@@ -3692,107 +3699,107 @@ msgid "This module analyzes your system and displays the result."
 msgstr "Dieses Modul analysieren Ihr System und zeigt das Resultat an."
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:255
+#: ../lib/XXV/MODULES/STATUS.pm:263
 msgid "CPU"
 msgstr "CPU"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:256
+#: ../lib/XXV/MODULES/STATUS.pm:264
 msgid "PCI"
 msgstr "PCI"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:258
+#: ../lib/XXV/MODULES/STATUS.pm:266
 msgid "IDE"
 msgstr "IDE"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:260
+#: ../lib/XXV/MODULES/STATUS.pm:268
 msgid "SCSI"
 msgstr "SCSI"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:291
+#: ../lib/XXV/MODULES/STATUS.pm:299
 msgid "Filesystems"
 msgstr "Dateisysteme"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:373
+#: ../lib/XXV/MODULES/STATUS.pm:381
 msgid "day"
 msgstr "Tag"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:379
+#: ../lib/XXV/MODULES/STATUS.pm:387
 msgid "days"
 msgstr "Tage"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:387
+#: ../lib/XXV/MODULES/STATUS.pm:395
 msgid "hour"
 msgstr "Stunde"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:393
+#: ../lib/XXV/MODULES/STATUS.pm:401
 msgid "hours"
 msgstr "Stunden"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:401
+#: ../lib/XXV/MODULES/STATUS.pm:409
 msgid "minute"
 msgstr "Minute"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:407
+#: ../lib/XXV/MODULES/STATUS.pm:415
 msgid "minutes"
 msgstr "Minuten"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:422
+#: ../lib/XXV/MODULES/STATUS.pm:430
 msgid "Interface"
 msgstr "Schnittstelle"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:423
+#: ../lib/XXV/MODULES/STATUS.pm:431
 msgid "RxBytes"
 msgstr "RxBytes"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:424
+#: ../lib/XXV/MODULES/STATUS.pm:432
 msgid "RxPackets"
 msgstr "RxPackets"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:425
+#: ../lib/XXV/MODULES/STATUS.pm:433
 msgid "RxErrs"
 msgstr "RxErrs"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:426
+#: ../lib/XXV/MODULES/STATUS.pm:434
 msgid "RxDrop"
 msgstr "RxDrop"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:427
+#: ../lib/XXV/MODULES/STATUS.pm:435
 msgid "TxBytes"
 msgstr "TxBytes"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:428
+#: ../lib/XXV/MODULES/STATUS.pm:436
 msgid "TxPackets"
 msgstr "TxPackets"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:429
+#: ../lib/XXV/MODULES/STATUS.pm:437
 msgid "TxErrs"
 msgstr "TxErrs"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:430
+#: ../lib/XXV/MODULES/STATUS.pm:438
 msgid "TxDrop"
 msgstr "TxDrop"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:497
+#: ../lib/XXV/MODULES/STATUS.pm:505
 msgid "No on-chip cache."
 msgstr "Kein On-Chip Cache."
 
@@ -3807,22 +3814,22 @@ msgid "Save historical data, in hours"
 msgstr "Wie lang an die historischen Daten erinnert, in Stunden"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:586
+#: ../lib/XXV/MODULES/STATUS.pm:594
 msgid "Device"
 msgstr "Gerät"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:587
+#: ../lib/XXV/MODULES/STATUS.pm:595
 msgid "Model"
 msgstr "Modell"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:588 ../lib/XXV/MODULES/STATUS.pm:714
+#: ../lib/XXV/MODULES/STATUS.pm:596 ../lib/XXV/MODULES/STATUS.pm:722
 msgid "Capacity"
 msgstr "Kapazität"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:589
+#: ../lib/XXV/MODULES/STATUS.pm:597
 msgid "Cache"
 msgstr "Cache"
 
@@ -3832,27 +3839,27 @@ msgid "Show collected data as diagram?"
 msgstr "Zeige gesammelte Daten als Diagramm?"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:710
+#: ../lib/XXV/MODULES/STATUS.pm:718
 msgid "Typ"
 msgstr "Type"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:711
+#: ../lib/XXV/MODULES/STATUS.pm:719
 msgid "Space"
 msgstr "Verfügbar"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:712
+#: ../lib/XXV/MODULES/STATUS.pm:720
 msgid "Used"
 msgstr "Benutzt"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:713
+#: ../lib/XXV/MODULES/STATUS.pm:721
 msgid "Free"
 msgstr "Frei"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:715
+#: ../lib/XXV/MODULES/STATUS.pm:723
 msgid "Mount"
 msgstr "Eingehängt auf"
 
@@ -3862,12 +3869,12 @@ msgid "Display all relevant informations about this system"
 msgstr "Zeigt alle relevanten Informationen über dieses System an"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:790
+#: ../lib/XXV/MODULES/STATUS.pm:798
 msgid "PANIC! Only %s%% space left on device %s"
 msgstr "PANIK! Nur noch %s%% freier Platz auf Gerät %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/STATUS.pm:791
+#: ../lib/XXV/MODULES/STATUS.pm:799
 msgid "Device has space %s from %s used!"
 msgstr "Gerät hat Platz %s von %s verwendet!"
 
@@ -3877,29 +3884,34 @@ msgid "Display the vitals informations"
 msgstr "Zeigt die wichtigen Informationen"
 
 #--------------------
-#: ../lib/XXV/MODULES/STREAM.pm:103
+#: ../lib/XXV/MODULES/STREAM.pm:109
+msgid "Stream a recordings."
+msgstr "Aufnahme streamen."
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:116
 msgid "Stream a channel 'cid'. This required the streamdev plugin!"
 msgstr "Stream eines Kanales 'cid'. Dies erfordert das Streamdev Plugin!"
 
 #--------------------
-#: ../lib/XXV/MODULES/STREAM.pm:160
+#: ../lib/XXV/MODULES/STREAM.pm:181
 msgid "No channel defined for streaming!"
 msgstr "Kein Kanal für Streaming definiert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/STREAM.pm:163 ../lib/XXV/MODULES/STREAM.pm:259 ../lib/XXV/MODULES/STREAM.pm:266
+#: ../lib/XXV/MODULES/STREAM.pm:184 ../lib/XXV/MODULES/STREAM.pm:280 ../lib/XXV/MODULES/STREAM.pm:287
 msgid "Can't stream files!"
 msgstr "Kann Datei nicht streamen!"
-
-#--------------------
-#: ../lib/XXV/MODULES/STREAM.pm:210
-msgid "No recording defined for streaming!"
-msgstr "Keine Aufnahme für Streaming definiert!"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:22
 msgid "This module generate streams from recordings."
 msgstr "Dieses Modul erzeugt Streams von Aufnahmen."
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:231
+msgid "No recording defined for streaming!"
+msgstr "Keine Aufnahme für Streaming definiert!"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:29
@@ -3953,18 +3965,43 @@ msgstr "Eingebetteter VLC Player"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:66
+msgid "Used live stream type"
+msgstr "Verwendetes Format für Live-Stream"
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:70
+msgid "TS - Transport Stream"
+msgstr "TS - Transport Stream"
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:71
+msgid "PS - Program Stream"
+msgstr "PS - Program Stream"
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:72
+msgid "PES - Packetized Elementary Stream"
+msgstr "PES - Packetized Elementary Stream"
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:73
+msgid "ES - Elementary Stream"
+msgstr "ES - Elementary Stream"
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:74
+msgid "External stream type"
+msgstr "Externer Streamtyp"
+
+#--------------------
+#: ../lib/XXV/MODULES/STREAM.pm:79
 msgid "Stream widget width"
 msgstr "Streaming Widgetbreite"
 
 #--------------------
-#: ../lib/XXV/MODULES/STREAM.pm:80
+#: ../lib/XXV/MODULES/STREAM.pm:93
 msgid "Stream widget height"
 msgstr "Streaming Widgethöhe"
-
-#--------------------
-#: ../lib/XXV/MODULES/STREAM.pm:96
-msgid "Stream a recordings."
-msgstr "Aufnahme streamen."
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:19
@@ -3972,7 +4009,7 @@ msgid "This module serves as telnet client for sdvrp."
 msgstr "Das Modul dient als Telnet Client für sdvrp."
 
 #--------------------
-#: ../lib/XXV/MODULES/SVDRP.pm:220
+#: ../lib/XXV/MODULES/SVDRP.pm:228
 msgid "No command defined! Please use scommand 'cmd'."
 msgstr "Kein Kommando definiert! Bitte verwende scommand 'cmd'"
 
@@ -4007,7 +4044,7 @@ msgid "This module is a multisession telnet server."
 msgstr "Dieses Modul ist ein Mehrfachsitzungstelnet-Server."
 
 #--------------------
-#: ../lib/XXV/MODULES/TELNET.pm:196
+#: ../lib/XXV/MODULES/TELNET.pm:204
 msgid ""
 "Welcome to xxv system version: %s.\\r\n"
 "This is session %s.\\r\n"
@@ -4016,17 +4053,17 @@ msgstr ""
 "Das ist Sitzung %s.\\r\n"
 
 #--------------------
-#: ../lib/XXV/MODULES/TELNET.pm:205
+#: ../lib/XXV/MODULES/TELNET.pm:213
 msgid "Welcome to xxv system."
 msgstr "Willkommen im xxv-System."
 
 #--------------------
-#: ../lib/XXV/MODULES/TELNET.pm:209
+#: ../lib/XXV/MODULES/TELNET.pm:217
 msgid "Welcome to xxv system. Please Login:"
 msgstr "Willkommen im xxv-System. Bitte Anmelden:"
 
 #--------------------
-#: ../lib/XXV/MODULES/TELNET.pm:215
+#: ../lib/XXV/MODULES/TELNET.pm:223
 msgid "Sorry, but permission denied!"
 msgstr "Entschuldigung, aber Erlaubnis verweigert!"
 
@@ -4056,17 +4093,17 @@ msgid "Are you sure to exit the xxv system?"
 msgstr "Sind Sie sicher, das XXV-System zu beenden?"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:1005 ../lib/XXV/MODULES/TIMERS.pm:637 ../lib/XXV/MODULES/TIMERS.pm:927
-msgid "Timer '%s' does not exist in the database!"
-msgstr "Timer '%s' existiert nicht in der Datenbank!"
-
-#--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:101
 msgid "Delete timer 'tid'"
 msgstr "Lösche Timer 'tid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:1034
+#: ../lib/XXV/MODULES/TIMERS.pm:1019 ../lib/XXV/MODULES/TIMERS.pm:651 ../lib/XXV/MODULES/TIMERS.pm:941
+msgid "Timer '%s' does not exist in the database!"
+msgstr "Timer '%s' existiert nicht in der Datenbank!"
+
+#--------------------
+#: ../lib/XXV/MODULES/TIMERS.pm:1048
 msgid "No timer to toggle!"
 msgstr "Kein Timer zum Umschalten!"
 
@@ -4076,7 +4113,7 @@ msgid "Activate/Deactive timer 'tid'"
 msgstr "Aktiviere/Deaktiviere Timer 'tid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:1168
+#: ../lib/XXV/MODULES/TIMERS.pm:1182
 msgid "%d timer written to database."
 msgstr "%d Timer in Datenbank geschrieben."
 
@@ -4091,19 +4128,19 @@ msgid "New timer found: %s"
 msgstr "Neuer Timer gefunden: %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:1673
+#: ../lib/XXV/MODULES/TIMERS.pm:17
+msgid "This module reads timers and saves it to the database."
+msgstr "Diese Modul liest die timers.conf und speichert sie in der Datenbank."
+
+#--------------------
+#: ../lib/XXV/MODULES/TIMERS.pm:1817
 msgid "Timer title '%s' has started the recording!"
 msgstr "Timer mit Titel '%s' hat die Aufnahme gestartet!"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:1674
+#: ../lib/XXV/MODULES/TIMERS.pm:1818
 msgid "on channel: %s to %s"
 msgstr "auf Kanal: %s bis %s"
-
-#--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:17
-msgid "This module reads timers and saves it to the database."
-msgstr "Diese Modul liest die timers.conf und speichert sie in der Datenbank."
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:190
@@ -4157,8 +4194,8 @@ msgstr "Die garantierte Lebenszeit (in Tagen) einer Aufnahme, die durch diesen T
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:51
-msgid "How much DVB cards exist on this system"
-msgstr "Wieviel DVB Karten sind im System"
+msgid "List of present source of DVB cards. (eg. S19.2E,S19.2E,T,T )"
+msgstr "Liste der vorhandenen Quellen der DVB Karten. (z.B. S19.2E,S19.2E,T,T )"
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:56
@@ -4166,12 +4203,12 @@ msgid "Use Programme Delivery Control (PDC) to control start time"
 msgstr "Verwende Video Program System (VPS) zum Überwachen der Startzeit"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:573
+#: ../lib/XXV/MODULES/TIMERS.pm:587
 msgid "Event '%s' does not exist in the database!"
 msgstr "Sendung '%s' existiert nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:589 ../lib/XXV/MODULES/TIMERS.pm:809
+#: ../lib/XXV/MODULES/TIMERS.pm:603 ../lib/XXV/MODULES/TIMERS.pm:823
 msgid "New timer"
 msgstr "Neuer Timer"
 
@@ -4181,19 +4218,14 @@ msgid "Change timers if EPG entries change"
 msgstr "Timer justieren, wenn EPG Eintrag verändert wurde"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:657
+#: ../lib/XXV/MODULES/TIMERS.pm:671
 msgid "Enable this timer"
 msgstr "Aktiviere diesen Timer"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:662
+#: ../lib/XXV/MODULES/TIMERS.pm:676
 msgid "Use PDC time to control timer"
 msgstr "Verwende VPS Zeit zum Überwachen des Timers"
-
-#--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:673
-msgid "Which channel should recorded"
-msgstr "Welcher Kanal soll aufgezeichnet werden"
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:68
@@ -4201,12 +4233,17 @@ msgid "List timers 'tid'"
 msgstr "Zeige Timer 'tid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:695
+#: ../lib/XXV/MODULES/TIMERS.pm:687
+msgid "Which channel should recorded"
+msgstr "Welcher Kanal soll aufgezeichnet werden"
+
+#--------------------
+#: ../lib/XXV/MODULES/TIMERS.pm:709
 msgid "%Y-%m-%d"
 msgstr "%d.%m.%Y"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:701
+#: ../lib/XXV/MODULES/TIMERS.pm:715
 msgid "Enter a day or weekday in format 'MTWTFSS'."
 msgstr "Datum oder Wochentag im Format 'MDMDFSS' eingeben."
 
@@ -4221,7 +4258,7 @@ msgid "Read timers and write them to the database"
 msgstr "Lese Timer und schreibe sie in die Datenbank"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:808
+#: ../lib/XXV/MODULES/TIMERS.pm:822
 msgid "Edit timer"
 msgstr "Timer bearbeiten"
 
@@ -4231,7 +4268,7 @@ msgid "Create timer 'eid'"
 msgstr "Erzeuge Timer 'eid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:870
+#: ../lib/XXV/MODULES/TIMERS.pm:884
 msgid "No timer defined for deletion! Please use tdelete 'tid'."
 msgstr "Kein Timer zum Löschen definiert! Bitte verwende tdelete 'tid'."
 
@@ -4241,12 +4278,12 @@ msgid "Edit timer 'tid'"
 msgstr "Bearbeite Timer 'tid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:943
+#: ../lib/XXV/MODULES/TIMERS.pm:957
 msgid "No timer to delete!"
 msgstr "Kein Timer zum Löschen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/TIMERS.pm:955
+#: ../lib/XXV/MODULES/TIMERS.pm:969
 msgid "No timer defined to toggle! Please use ttoggle 'id'."
 msgstr "Kein Timer zum Umschalten definiert! Bitte verwende ttoggle 'tid'"
 
@@ -4269,29 +4306,24 @@ msgstr ""
 "oder es wird der selbe Parameter für jede Funktion gesetzt."
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:255 ../lib/XXV/MODULES/USER.pm:338 ../lib/XXV/MODULES/USER.pm:502
+#: ../lib/XXV/MODULES/USER.pm:263 ../lib/XXV/MODULES/USER.pm:346 ../lib/XXV/MODULES/USER.pm:510
 msgid "User account '%s' does not exist in the database!"
 msgstr "Account für Benutzer '%s' existiert nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:266 ../lib/XXV/MODULES/USER.pm:364
+#: ../lib/XXV/MODULES/USER.pm:274 ../lib/XXV/MODULES/USER.pm:372
 msgid "Password for this account"
 msgstr "Passwort für diesen Anwenderzugang"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:287
+#: ../lib/XXV/MODULES/USER.pm:295
 msgid "Personal preferences for this user: ModName::Param=value, "
 msgstr "Persönliche Einstellungen für diese Anwender: ModName::Param=wert, "
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:295 ../lib/XXV/MODULES/USER.pm:436
+#: ../lib/XXV/MODULES/USER.pm:303 ../lib/XXV/MODULES/USER.pm:444
 msgid "The parameter '%s' in module '%s' does not exist!"
 msgstr "Der Parameter '%s' in Modul '%s' existiert nicht!"
-
-#--------------------
-#: ../lib/XXV/MODULES/USER.pm:305
-msgid "Edit preferences: %s"
-msgstr "Einstellungen für diese Anwender bearbeiten: %s"
 
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:31
@@ -4299,29 +4331,29 @@ msgid "Enable user authentication"
 msgstr "Aktiviert die Anwenderauthentifizierung"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:312 ../lib/XXV/MODULES/USER.pm:482
+#: ../lib/XXV/MODULES/USER.pm:313
+msgid "Edit preferences: %s"
+msgstr "Einstellungen für diese Anwender bearbeiten: %s"
+
+#--------------------
+#: ../lib/XXV/MODULES/USER.pm:320 ../lib/XXV/MODULES/USER.pm:490
 msgid "User account saved!"
 msgstr "Anwenderzugang wurde gespeichert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:315
+#: ../lib/XXV/MODULES/USER.pm:323
 msgid "Please wait ... refreshing interface!"
 msgstr "Bitte warten ... die Anwenderoberfläche wird aktualisiert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:347
+#: ../lib/XXV/MODULES/USER.pm:355
 msgid "Administrator"
 msgstr "Verwalter"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:349
+#: ../lib/XXV/MODULES/USER.pm:357
 msgid "Guest"
 msgstr "Gast"
-
-#--------------------
-#: ../lib/XXV/MODULES/USER.pm:358
-msgid "Name of user account"
-msgstr "Name für diesen Anwenderzugang"
 
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:36
@@ -4329,19 +4361,19 @@ msgid "IP addresses with user authentification"
 msgstr "IP Adressen mit Benutzer-Authentifizierung"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:388
+#: ../lib/XXV/MODULES/USER.pm:366
+msgid "Name of user account"
+msgstr "Name für diesen Anwenderzugang"
+
+#--------------------
+#: ../lib/XXV/MODULES/USER.pm:396
 msgid "Level for this account"
 msgstr "Berechtigungen für diesen Anwenderzugang"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:408
+#: ../lib/XXV/MODULES/USER.pm:416
 msgid "Deny class of commands"
 msgstr "Verweigere Gruppierung von Kommandos"
-
-#--------------------
-#: ../lib/XXV/MODULES/USER.pm:428
-msgid "Preferences for this User: ModName::Param=value, "
-msgstr "Präferenzen für diesen Benutzer: ModName::Param=value, "
 
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:43 ../lib/XXV/MODULES/USER.pm:57
@@ -4349,34 +4381,34 @@ msgid "Your IP number (%s) is wrong! You need an IP in range (xxx.xxx.xxx.xxx/xx
 msgstr "Ihr IP Number (%s) ist falsch! Sie benötigen ein IP mit Bereich (xxx.xxx.xxx.xxx/xx)"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:444
+#: ../lib/XXV/MODULES/USER.pm:436
+msgid "Preferences for this User: ModName::Param=value, "
+msgstr "Präferenzen für diesen Benutzer: ModName::Param=value, "
+
+#--------------------
+#: ../lib/XXV/MODULES/USER.pm:452
 msgid "Maximum permitted value for lifetime with timers"
 msgstr "Maximal erlaubter Wert für Lebenszeit bei Timern"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:450 ../lib/XXV/MODULES/USER.pm:462
+#: ../lib/XXV/MODULES/USER.pm:458 ../lib/XXV/MODULES/USER.pm:470
 msgid "This value is not an integer or not between 0 and 100"
 msgstr "Dieser Wert ist keine Zahl oder liegt nicht zwischen 0 und 100"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:456
+#: ../lib/XXV/MODULES/USER.pm:464
 msgid "Maximum permitted value for priority with timers"
 msgstr "Maximal erlaubter Wert für Priorität bei Timern"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:470
+#: ../lib/XXV/MODULES/USER.pm:478
 msgid "Edit user account"
 msgstr "Bearbeiten des Anwenderzugang"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:471 ../lib/XXV/MODULES/USER.pm:72
+#: ../lib/XXV/MODULES/USER.pm:479 ../lib/XXV/MODULES/USER.pm:72
 msgid "Create new user account"
 msgstr "Erzeugt einen neuen Anwenderzugang"
-
-#--------------------
-#: ../lib/XXV/MODULES/USER.pm:498
-msgid "No user account defined for deletion! Please use udelete 'uid'."
-msgstr "Keine ID eines Anwenderzuganges zum Löschen definiert! Bitte verwende udelete 'uid'"
 
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:50
@@ -4384,17 +4416,22 @@ msgid "IP addresses without user authentification"
 msgstr "IP Adressen ohne Benutzer-Authentifizierung"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:503
+#: ../lib/XXV/MODULES/USER.pm:506
+msgid "No user account defined for deletion! Please use udelete 'uid'."
+msgstr "Keine ID eines Anwenderzuganges zum Löschen definiert! Bitte verwende udelete 'uid'"
+
+#--------------------
+#: ../lib/XXV/MODULES/USER.pm:511
 msgid "User account %s deleted."
 msgstr "Anwenderzugang %s wurde gelöscht"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:526
+#: ../lib/XXV/MODULES/USER.pm:534
 msgid "Level"
 msgstr "Ebene"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:528
+#: ../lib/XXV/MODULES/USER.pm:536
 msgid "User preferences"
 msgstr "Anwendereinstellungen"
 
@@ -4404,14 +4441,9 @@ msgid "common directory for temporary images"
 msgstr "Gemeinsames Verzeichnis für temporäre Bilder"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:768
+#: ../lib/XXV/MODULES/USER.pm:776
 msgid "Sorry, but the module %s is inactive! Enable it with %s:Preferences:active = y"
 msgstr "Entschuldigung, aber das Modul %s ist inaktiv! Aktiviere es mit %s:Preferences:active = y"
-
-#--------------------
-#: ../lib/XXV/MODULES/USER.pm:776
-msgid "You are not authorized for this function!"
-msgstr "Sie sind nicht berechtigt, diese Funktion auszuführen!"
 
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:78
@@ -4419,7 +4451,12 @@ msgid "Delete user account 'uid'"
 msgstr "Lösche eine Anwenderzugang 'uid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/USER.pm:783
+#: ../lib/XXV/MODULES/USER.pm:784
+msgid "You are not authorized for this function!"
+msgstr "Sie sind nicht berechtigt, diese Funktion auszuführen!"
+
+#--------------------
+#: ../lib/XXV/MODULES/USER.pm:791
 msgid "Sorry, couldn't understand command '%s'!\n"
 msgstr "Entschuldigung, der Befehl '%s' konnte nicht verstanden werden!\n"
 
@@ -4439,27 +4476,27 @@ msgid "List the accounts of users"
 msgstr "Zeige die Anwenderzugänge"
 
 #--------------------
-#: ../lib/XXV/MODULES/VTX.pm:1074 ../lib/XXV/MODULES/VTX.pm:1102 ../lib/XXV/MODULES/VTX.pm:1114
+#: ../lib/XXV/MODULES/VTX.pm:1082 ../lib/XXV/MODULES/VTX.pm:1110 ../lib/XXV/MODULES/VTX.pm:1122
 msgid "Couldn't read page!"
 msgstr "Die Seite konnte nicht gelesen werden!"
 
 #--------------------
-#: ../lib/XXV/MODULES/VTX.pm:108
-msgid "There none base directory is defined!"
-msgstr "Es ist kein Basisverzeichnis definiert worden!"
-
-#--------------------
-#: ../lib/XXV/MODULES/VTX.pm:1084 ../lib/XXV/MODULES/VTX.pm:447
+#: ../lib/XXV/MODULES/VTX.pm:1092 ../lib/XXV/MODULES/VTX.pm:455
 msgid "Couldn't find page!"
 msgstr "Die Seite konnte nicht gefunden werden!"
 
 #--------------------
-#: ../lib/XXV/MODULES/VTX.pm:1353
+#: ../lib/XXV/MODULES/VTX.pm:116
+msgid "There none base directory is defined!"
+msgstr "Es ist kein Basisverzeichnis definiert worden!"
+
+#--------------------
+#: ../lib/XXV/MODULES/VTX.pm:1361
 msgid "No data to search given!"
 msgstr "Keine Daten zum Suchen übergeben!"
 
 #--------------------
-#: ../lib/XXV/MODULES/VTX.pm:1381
+#: ../lib/XXV/MODULES/VTX.pm:1389
 msgid "No page with '%s' found!"
 msgstr "Keine Seite mit '%s' gefunden!"
 
@@ -4469,12 +4506,12 @@ msgid "This module display cached teletext pages from osdteletext-plugin."
 msgstr "Diese Modul zeigt gespeicherte Videotextseiten des Plugin OSDTeletext an."
 
 #--------------------
-#: ../lib/XXV/MODULES/VTX.pm:200 ../lib/XXV/MODULES/VTX.pm:226
+#: ../lib/XXV/MODULES/VTX.pm:208 ../lib/XXV/MODULES/VTX.pm:234
 msgid "No data found for '%s'!"
 msgstr "Keine Daten für '%s' gefunden!"
 
 #--------------------
-#: ../lib/XXV/MODULES/VTX.pm:223
+#: ../lib/XXV/MODULES/VTX.pm:231
 msgid "Channel '%s' selected."
 msgstr "Kanal '%s' wurde gewählt."
 
@@ -4527,222 +4564,222 @@ msgid "Number of port to listen for wap clients"
 msgstr "Nummer des Port, um auf WAP-Clients zu lauschen"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:197
+#: ../lib/XXV/MODULES/XMLTV.pm:202
 msgid "Import epg data from xmltv sources ..."
 msgstr "Importiere EPG Daten von XMLTV Quellen"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:23
+#: ../lib/XXV/MODULES/XMLTV.pm:22
 msgid "This module import epg data from xmltv sources."
 msgstr "Dieses Modul importiert EPG Daten von XMLTV Quellen."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:257
+#: ../lib/XXV/MODULES/XMLTV.pm:262
 msgid "Import epg data for channel '%s'"
 msgstr "Importiere EPG Daten für Kanal '%s'"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:287
+#: ../lib/XXV/MODULES/XMLTV.pm:293
 msgid "Transmit data."
 msgstr "Übertrage Daten."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:307
+#: ../lib/XXV/MODULES/XMLTV.pm:313
 msgid "None data exits to import"
 msgstr "Keine Daten zum Importieren vorhanden."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:377
-msgid "Title not available"
-msgstr "Titel nicht verfügbar"
-
-#--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:38
+#: ../lib/XXV/MODULES/XMLTV.pm:37
 msgid "Manual import epg data from xmltv sources."
 msgstr "Manueller Import der EPG Daten von XMLTV Quellen."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:45
+#: ../lib/XXV/MODULES/XMLTV.pm:382
+msgid "Title not available"
+msgstr "Titel nicht verfügbar"
+
+#--------------------
+#: ../lib/XXV/MODULES/XMLTV.pm:44
 msgid "List rules to import epg data from xmltv sources."
 msgstr "Zeige Regeln zum Importieren von EPG-Daten von XMLTV Quellen."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:477 ../lib/XXV/MODULES/XMLTV.pm:644
+#: ../lib/XXV/MODULES/XMLTV.pm:484 ../lib/XXV/MODULES/XMLTV.pm:651
 msgid "Rule to import epg data from xmltv sources with ID '%s' does not exist in the database!"
 msgstr "Regel zum Importieren von EPG-Daten von XMLTV Quellen mit ID '%s' existiert nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:493
+#: ../lib/XXV/MODULES/XMLTV.pm:500
 msgid "Enable this rule"
 msgstr "Aktiviere Regel"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:496
+#: ../lib/XXV/MODULES/XMLTV.pm:503
 msgid "Source to import?"
 msgstr "Quelle zum Importieren?"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:503
-msgid "Limit import by this channel name inside xmltv source?"
-msgstr "Begrenze Import auf diesen Kanalnamen innerhalb der XMLTV Quelle!"
-
-#--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:511
-msgid "Assign data to channel?"
-msgstr "Weise Daten einen Kanal zu?"
-
-#--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:52
+#: ../lib/XXV/MODULES/XMLTV.pm:51
 msgid "Create rule to import epg data from xmltv sources."
 msgstr "Erzeuge Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:530
+#: ../lib/XXV/MODULES/XMLTV.pm:510
+msgid "Limit import by this channel name inside xmltv source?"
+msgstr "Begrenze Import auf diesen Kanalnamen innerhalb der XMLTV Quelle!"
+
+#--------------------
+#: ../lib/XXV/MODULES/XMLTV.pm:518
+msgid "Assign data to channel?"
+msgstr "Weise Daten einen Kanal zu?"
+
+#--------------------
+#: ../lib/XXV/MODULES/XMLTV.pm:537
 msgid "Parse data as template?"
 msgstr "Übersetzte Daten als Template?"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:540
+#: ../lib/XXV/MODULES/XMLTV.pm:547
 msgid "Interval to parse data?"
 msgstr "Intervall zum Lesen der Daten?"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:552
+#: ../lib/XXV/MODULES/XMLTV.pm:559
 msgid "Edit rule to import epg data from xmltv sources"
 msgstr "Bearbeite Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:553
+#: ../lib/XXV/MODULES/XMLTV.pm:560
 msgid "Create a new rule to import epg data from xmltv sources"
 msgstr "Erzeuge neue Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:561
+#: ../lib/XXV/MODULES/XMLTV.pm:568
 msgid "Rule to import epg data from xmltv sources saved!"
 msgstr "Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle gespeichert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:59
+#: ../lib/XXV/MODULES/XMLTV.pm:58
 msgid "Delete rule to import epg data from xmltv sources."
 msgstr "Lösche Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:603 ../lib/XXV/MODULES/XMLTV.pm:610
+#: ../lib/XXV/MODULES/XMLTV.pm:610 ../lib/XXV/MODULES/XMLTV.pm:617
 msgid "Couldn't insert rule to import epg data from xmltv sources in database!"
 msgstr "Konnte Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle nicht in Datenbank einfügen!"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:636
+#: ../lib/XXV/MODULES/XMLTV.pm:643
 msgid "Missing ID to select rules for deletion! Please use xmltvremove 'id'"
 msgstr "Vermisse ID zur Auswahl der Regel zum Löschen! Bitte verwende xmltvremove 'id'"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:648
-msgid "Rule import epg data from xmltv sources %s is deleted."
-msgstr "Regel  %s  zum Importieren von EPG-Daten aus einer XMLTV Quelle gelöscht!"
-
-#--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:66
+#: ../lib/XXV/MODULES/XMLTV.pm:65
 msgid "Edit rule to import epg data from xmltv sources."
 msgstr "Bearbeite Regel zum Importieren von EPG-Daten aus einer XMLTV Quelle."
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:669
+#: ../lib/XXV/MODULES/XMLTV.pm:655
+msgid "Rule import epg data from xmltv sources %s is deleted."
+msgstr "Regel  %s  zum Importieren von EPG-Daten aus einer XMLTV Quelle gelöscht!"
+
+#--------------------
+#: ../lib/XXV/MODULES/XMLTV.pm:676
 msgid "Active"
 msgstr "Aktive"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:671
+#: ../lib/XXV/MODULES/XMLTV.pm:678
 msgid "Parse data as template"
 msgstr "Übersetze Daten als Template"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:672
+#: ../lib/XXV/MODULES/XMLTV.pm:679
 msgid "Interval to parse data"
 msgstr "Intervall zum einlesen der Daten"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:673
+#: ../lib/XXV/MODULES/XMLTV.pm:680
 msgid "source to import"
 msgstr "Quelle zum Importieren"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:753
+#: ../lib/XXV/MODULES/XMLTV.pm:760
 msgid "Yes"
 msgstr "Ja"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:754
+#: ../lib/XXV/MODULES/XMLTV.pm:761
 msgid "No"
 msgstr "Nein"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:765
+#: ../lib/XXV/MODULES/XMLTV.pm:772
 msgid "Every EPG Data import"
 msgstr "Import bei jedem einlesen von EPG Daten"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:766
+#: ../lib/XXV/MODULES/XMLTV.pm:773
 msgid "Once every day"
 msgstr "Einmalig per Tag"
 
 #--------------------
-#: ../lib/XXV/MODULES/XMLTV.pm:767
+#: ../lib/XXV/MODULES/XMLTV.pm:774
 msgid "Once every week"
 msgstr "Einmalig per Woche"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Ajax.pm:22
+#: ../lib/XXV/OUTPUT/Ajax.pm:21
 msgid "This receive and send Ajax messages."
 msgstr "Dies empfängt und sendet AJAX Nachrichten."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Ajax.pm:270 ../lib/XXV/OUTPUT/Console.pm:303 ../lib/XXV/OUTPUT/Html.pm:503 ../lib/XXV/OUTPUT/Wml.pm:301 ../wml/widgets/dir.tmpl:8
+#: ../lib/XXV/OUTPUT/Ajax.pm:282 ../lib/XXV/OUTPUT/Console.pm:306 ../lib/XXV/OUTPUT/Html.pm:517 ../lib/XXV/OUTPUT/Wml.pm:304 ../wml/widgets/dir.tmpl:8
 msgid "Directory '%s' does not exist!"
 msgstr "Verzeichnis '%s' existiert leider nicht!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Ajax.pm:275 ../lib/XXV/OUTPUT/Console.pm:308 ../lib/XXV/OUTPUT/Html.pm:508 ../lib/XXV/OUTPUT/Wml.pm:306 ../wml/widgets/file.tmpl:8
+#: ../lib/XXV/OUTPUT/Ajax.pm:287 ../lib/XXV/OUTPUT/Console.pm:311 ../lib/XXV/OUTPUT/Html.pm:522 ../lib/XXV/OUTPUT/Wml.pm:309 ../wml/widgets/file.tmpl:8
 msgid "File '%s' does not exist!"
 msgstr "Datei '%s' existiert leider nicht!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Ajax.pm:284 ../lib/XXV/OUTPUT/Console.pm:312 ../lib/XXV/OUTPUT/Html.pm:517 ../lib/XXV/OUTPUT/Wml.pm:310
+#: ../lib/XXV/OUTPUT/Ajax.pm:296 ../lib/XXV/OUTPUT/Console.pm:315 ../lib/XXV/OUTPUT/Html.pm:531 ../lib/XXV/OUTPUT/Wml.pm:313
 msgid "Error '%s' (%s) : %s!"
 msgstr "Fehler im Feld '%s' (%s) : %s!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:112 ../wml/widgets/message.tmpl:4 ../wml/widgets/message.tmpl:7
+#: ../lib/XXV/OUTPUT/Console.pm:115 ../wml/widgets/message.tmpl:4 ../wml/widgets/message.tmpl:7
 msgid "Message"
 msgstr "Nachricht"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:165
+#: ../lib/XXV/OUTPUT/Console.pm:168
 msgid "Module"
 msgstr "Modul"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:166
+#: ../lib/XXV/OUTPUT/Console.pm:169
 msgid "Abbreviation"
 msgstr "Abkürzung"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:187
+#: ../lib/XXV/OUTPUT/Console.pm:190
 msgid "Please use the command and one of the following sectors:\n"
 msgstr "Bitte benutzen sie das Kommando und einer der folgenden Sektoren:\n"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:203
+#: ../lib/XXV/OUTPUT/Console.pm:206
 msgid "Username?"
 msgstr "Benutzername?"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:207
+#: ../lib/XXV/OUTPUT/Console.pm:210
 msgid "Password?"
 msgstr "Passwort?"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:231
+#: ../lib/XXV/OUTPUT/Console.pm:234
 msgid "Value"
 msgstr "Wert"
 
@@ -4752,7 +4789,7 @@ msgid "This receives and sends ASCII messages"
 msgstr "Dies empfängt und sendet ASCII Nachrichten"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:363
+#: ../lib/XXV/OUTPUT/Console.pm:366
 msgid ""
 "\n"
 "Please use one of this list items:\n"
@@ -4768,32 +4805,32 @@ msgid "Sorry, but this command is not available in this interface!"
 msgstr "Entschuldigung, aber dieses Kommando ist nicht verfügbar in diesem Interface!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:473
+#: ../lib/XXV/OUTPUT/Console.pm:476
 msgid "'%s' is not an integer!"
 msgstr "'%s' ist keine Zahl!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:510
+#: ../lib/XXV/OUTPUT/Console.pm:513
 msgid "Please answer 'y'es or 'n'o: "
 msgstr "Bitte antworten sie mit 'y' für 'Ja' und 'n' für 'Nein': "
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:548
+#: ../lib/XXV/OUTPUT/Console.pm:551
 msgid "Sorry, couldn't send files in this interface."
 msgstr "Entschuldigung, aber in dieser Oberfläche können keine Dateien übertragen werden."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:557
+#: ../lib/XXV/OUTPUT/Console.pm:560
 msgid "Sorry, couldn't display images in this interface."
 msgstr "Entschuldigung, aber in dieser Oberfläche können keine Bilder anzeigen werden."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:613
+#: ../lib/XXV/OUTPUT/Console.pm:616
 msgid "You can only use one of these elements: %s"
 msgstr "Sie können nur einen von diesen Elementen verwenden: %s"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Console.pm:639 ../lib/XXV/OUTPUT/Html.pm:767
+#: ../lib/XXV/OUTPUT/Console.pm:642 ../lib/XXV/OUTPUT/Html.pm:782
 msgid "Module %s not found!"
 msgstr "Modul %s nicht gefunden!"
 
@@ -4808,37 +4845,37 @@ msgid "This receives and sends HTML messages."
 msgstr "Dies empfängt und sendet HTML Nachrichten"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:445
+#: ../lib/XXV/OUTPUT/Html.pm:459
 msgid "Authorization required"
 msgstr "Berechtigung erforderlich"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:455
+#: ../lib/XXV/OUTPUT/Html.pm:469
 msgid "Forbidden"
 msgstr "Verboten"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:469 ../lib/XXV/OUTPUT/Wml.pm:271
+#: ../lib/XXV/OUTPUT/Html.pm:483 ../lib/XXV/OUTPUT/Wml.pm:274
 msgid "Couldn't open file '%s' : %s!"
 msgstr "Kann Datei '%s' nicht öffnen : %s!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:470
+#: ../lib/XXV/OUTPUT/Html.pm:484
 msgid "Not found"
 msgstr "Nicht gefunden"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:554
+#: ../lib/XXV/OUTPUT/Html.pm:568
 msgid "Please wait ..."
 msgstr "Bitte warten ..."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:785 ../lib/XXV/OUTPUT/Wml.pm:389
+#: ../lib/XXV/OUTPUT/Html.pm:800 ../lib/XXV/OUTPUT/Wml.pm:392
 msgid "Back to configuration page."
 msgstr "Zurück zur Konfigurationsseite"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/Html.pm:816
+#: ../lib/XXV/OUTPUT/Html.pm:831
 msgid "File"
 msgstr "Datei"
 
@@ -4863,7 +4900,7 @@ msgid "Password for Jabber account"
 msgstr "Passwort des Jabberzuganges"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/JABBER.pm:279
+#: ../lib/XXV/OUTPUT/NEWS/JABBER.pm:282
 msgid "The module NEWS::JABBER is not active!"
 msgstr "Das Modul NEWS::JABBER ist nicht aktiv!"
 
@@ -4898,12 +4935,12 @@ msgid "This NEWS module generate mails for news."
 msgstr "Dieses Nachrichten Modul erzeugen Mails für Nachrichten."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:317
+#: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:320
 msgid "The module NEWS::Mail is not active!"
 msgstr "Das Modul NEWS::Mail ist nicht aktiv!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:323
+#: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:326
 msgid "A mail with the following content has been sent to your mail account!"
 msgstr "Eine Mail mit dem folgenden Inhalt, wurde an Ihrem Mailaccount gesendet!"
 
@@ -4923,22 +4960,22 @@ msgid "Mail address to describe the sender."
 msgstr "Mailadresse zum Beschreiben des Absender."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:148
+#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:151
 msgid "XXV RSS 1.0"
 msgstr "XXV RSS 1.0"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:150 ../lib/XXV/OUTPUT/NEWS/RSS.pm:175
+#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:153 ../lib/XXV/OUTPUT/NEWS/RSS.pm:178
 msgid "Important messages from your VDR/XXV"
 msgstr "Wichtige Nachrichten vom VDR/XXV"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:153
+#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:156
 msgid "XXV messages"
 msgstr "XXV Meldungen"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:173
+#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:176
 msgid "XXV RSS 2.0"
 msgstr "XXV RSS 2.0"
 
@@ -4948,27 +4985,27 @@ msgid "This NEWS module generates an RSS news feed for your RSS reader."
 msgstr "Dieses Nachrichten Modul erzeugen ein RSS Newsfeed für Ihren RSS Leser."
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:230
+#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:233
 msgid "The module NEWS::RSS is not active!"
 msgstr "Das Modul NEWS::RSS ist nicht aktiv!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:255
+#: ../lib/XXV/OUTPUT/NEWS/RSS.pm:258
 msgid "RSS item %d at %s"
 msgstr "RSS Eintrag %d um %s"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/VDR.pm:163
+#: ../lib/XXV/OUTPUT/NEWS/VDR.pm:166
 msgid "The module NEWS::VDR is not active!"
 msgstr "Das Module NEWS::VDR ist nicht aktiv!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/VDR.pm:176
+#: ../lib/XXV/OUTPUT/NEWS/VDR.pm:179
 msgid "Message was been sent to your VDR!"
 msgstr "Nachricht wurde an Ihren VDR gesendet!"
 
 #--------------------
-#: ../lib/XXV/OUTPUT/NEWS/VDR.pm:178
+#: ../lib/XXV/OUTPUT/NEWS/VDR.pm:181
 msgid "Message chould'nt been sent to your VDR!"
 msgstr "Nachricht konnte nicht an Ihren VDR gesendet werden!"
 

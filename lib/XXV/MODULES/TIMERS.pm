@@ -47,10 +47,10 @@ sub module {
                 default     => 50,
                 type        => 'integer',
             },
-            DVBCards => {
-                description => gettext('How much DVB cards exist on this system'),
-                default     => 1,
-                type        => 'integer',
+            DVBCardsTyp => {
+                description => gettext('List of present source of DVB cards. (eg. S19.2E,S19.2E,T,T )'),
+                default     => '',
+                type        => 'string',
             },
             usevpstime => {
                 description => gettext('Use Programme Delivery Control (PDC) to control start time'),
@@ -452,6 +452,12 @@ sub _init {
            return 0;
         }
 
+        # merge source from channels to enum typ of used DVB cards like S19.2E,S19.2E,T
+        $obj->{MOD}->{Preferences}->{DVBCardsTyp}->{default} = $obj->_buildDVBCardsTyp();
+        $obj->{DVBCardsTyp} = $obj->{MOD}->{Preferences}->{DVBCardsTyp}->{default}
+          if(!$obj->{DVBCardsTyp} || (length($obj->{DVBCardsTyp}) < 1));
+
+        # import data
         $obj->_readData();
 
         # Interval to read timers and put to DB
@@ -1151,7 +1157,7 @@ sub _readData {
     }
 
     # Search for overlapping Timers
-    my $overlapping = $obj->getOverlappingTimer();
+    $obj->findOverlapping();
 
     # Get timers by Autotimer
     my $aids = getDataByFields('AUTOTIMER', 'Id');
@@ -1173,7 +1179,7 @@ sub _readData {
         event(sprintf('Reread %d timers and written into database!', $c));
     }
 
-    $console->message(sprintf(gettext("%d timer written to database."), $c), {overlapping => $overlapping})
+    $console->message(sprintf(gettext("%d timer written to database."), $c))
         if(ref $console and $console->typ ne 'AJAX');
 
     return 1;
@@ -1314,8 +1320,11 @@ ORDER BY
       unshift(@$erg, $fields);
     }
 
+    my @DVBCARDS = split(',',$obj->{DVBCardsTyp});
+    my $cards = scalar @DVBCARDS;
+
     $console->table($erg, {
-        cards => $obj->{DVBCards},
+        cards => $cards,
 		    capacity => main::getModule('RECORDS')->{CapacityFree},
         rows => $rows
     });
@@ -1533,37 +1542,160 @@ where
 }
 
 # ------------------
-sub getOverlappingTimer {
+sub _buildDVBCardsTyp {
 # ------------------
-    my $obj  = shift || return error('No object defined!');
+    my $self  = shift || return error('No object defined!');
+
+    my @DVBCardsTyp;
 
     my $sql = qq|
-SELECT SQL_CACHE 
-    t.id,
-    t.priority,
-    t.starttime,
-    t.stoptime,
-    c.TID as transponderid,
-    LEFT(c.Source,1) as source
-from TIMERS as t,
-    CHANNELS as c
-where t.channel = c.Id
+    select Source from CHANNELS
+group by 
+    Source
+ORDER BY
+    Source asc
 |;
-    my $erg = $obj->{dbh}->selectall_hashref($sql, 'id');
-    my $return;
+    my $sth = $self->{dbh}->prepare($sql);
+       $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
 
-    my $sth = $obj->{dbh}->prepare("UPDATE TIMERS SET collision = ? WHERE id = ?");
-    foreach my $tid (keys %$erg) {
-        my $result = $obj->checkOverlapping($erg->{$tid});
-        if(ref $result eq 'ARRAY' and scalar @$result) {
-            my $col = join(',',@$result);
-            $sth->execute($col,$tid);
-            $return->{"timer_$tid"} = $col;
-        }
-
-
+    my $result = $sth->fetchall_arrayref();
+    foreach my $source (@$result ) {
+      push(@DVBCardsTyp,$source->[0]);
     }
-    return $return;
+    my $cards = join(',',@DVBCardsTyp);
+    lg sprintf("Found DVB card typ %s", $cards);
+    return $cards;
+}
+
+# ------------------
+sub findOverlapping {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+
+    my $CARDS;
+    my @DVBCARDS = split(',',$self->{DVBCardsTyp});
+    my $cardid = 1;
+
+    foreach my $source (@DVBCARDS) {
+      $source =~ s/^\s+//;               # no leading white space
+      $source =~ s/\s+$//;               # no trailing white space
+
+      unshift(@{$CARDS},{
+          Source => $source,
+          tid => undef,
+          stoptime => 0,
+          cardID => $cardid ++
+          #HOST => '',
+          #CA => ''
+        }
+      );
+    }
+
+#   for my $ca (@{$CARDS}) {
+#     dumper($ca);
+#   }
+
+    use constant fid => 0;
+    use constant fstart => 1;
+    use constant fstop => 2;
+    use constant fpriority => 3;
+    use constant fCardOnly => 4;
+    use constant fSource => 5;
+    use constant fTID => 6;
+    use constant fCardUsed => 7;
+    use constant fCollision => 8;
+    use constant fFile => 9;
+
+    my $sql = qq|
+SELECT t.id,
+    UNIX_TIMESTAMP(t.starttime),
+    UNIX_TIMESTAMP(t.stoptime),
+    t.priority,
+    c.CA,
+    c.Source,
+    c.TID,
+    NULL,
+    NULL,
+    file
+FROM
+    TIMERS as t, CHANNELS as c
+WHERE
+    (t.flags & 1)
+    AND t.channel = c.Id
+ORDER BY
+    t.starttime asc,
+    t.priority desc
+|;
+
+    my $sth = $self->{dbh}->prepare($sql);
+       $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $timer = $sth->fetchall_arrayref();
+
+    # try to assign timer to dvb cards
+    foreach my $ti (@{$timer}) {
+      for my $ca (@{$CARDS}) {
+        if(!($ti->[fCardUsed]) # If'nt assign
+ #          && $ca->{Host} eq $ti->[fHost] # Same host
+            && $ca->{Source} eq $ti->[fSource] # Same source
+             && (!int($ti->[fCardOnly]) || $ca->{cardID} == int($ti->[fCardOnly])) # if CA has DVB Card number
+             && (!$ca->{tid} # Unused transponder
+                || $ca->{tid} eq $ti->[fTID] # or same transponder
+                || $ti->[fstart] >= $ca->{stoptime})) { # or timer ended and card are free for next timer
+
+                $ca->{tid}       = $ti->[fTID];
+                $ca->{stoptime}  = $ti->[fstop];
+                $ti->[fCardUsed] = $ca->{cardID};
+          }
+        }
+      #lg sprintf("Title: %s use dvb card %s", $ti->[fFile], $ti->[fCardUsed] || 'none');
+    }
+
+    # check priority and mark collisions
+    my $rerun;
+    do {
+      $rerun = 0;
+      foreach my $ti (@{$timer}) {
+        unless($ti->[fCardUsed]) { # used card
+          foreach my $co (@{$timer}) {
+            if($ti->[fid] ne $co->[fid]
+                && $co->[fCardUsed] # used card
+#               && ($co->[Host] eq $ti->[fHost])      #Same Host
+                && ($co->[fSource] eq $ti->[fSource]) #Same Source
+                && ((($ti->[fstart] >= $co->[fstart]) # start >= start
+                       && ($ti->[fstart] <= $co->[fstop])) # start <= stop
+                   || (($ti->[fstop] >= $co->[fstart]) # stop >= stop
+                       && ($ti->[fstop] <= $co->[fstop])) # stop <= stop
+                   )
+                && (!int($ti->[fCardOnly]) || int($ti->[fCardOnly]) == int($co->[fCardUsed]))
+               ) 
+            {
+               if($ti->[fpriority] == $co->[fpriority]) {     # Same priority
+                  push(@{$ti->[fCollision]},sprintf('%s:%d',$co->[fid],$co->[fpriority]));
+                  push(@{$co->[fCollision]},sprintf('%s:%d',$ti->[fid],$ti->[fpriority]));
+               } elsif($ti->[fpriority] > $co->[fpriority]) { # bigger priority
+                  $ti->[fCardUsed] = delete $co->[fCardUsed];
+                  push(@{$co->[fCollision]},sprintf('%s:%d',$ti->[fid],$ti->[fpriority]));
+                  # need rerun
+                  $rerun = 1;
+               } else {                                      # lesser priority
+                  push(@{$ti->[fCollision]},sprintf('%s:%d',$co->[fid],$co->[fpriority]));
+               }
+            }
+          }
+        }
+      }
+    } while($rerun);
+
+    my $uth = $self->{dbh}->prepare("UPDATE TIMERS SET collision = ? WHERE id = ?");
+    foreach my $ti (@{$timer}) {
+      debug sprintf("%s (none free dvb card)", $ti->[fFile]) unless ($ti->[fCardUsed]);
+      if(!$ti->[fCardUsed] || ($ti->[fCollision] && scalar @{$ti->[fCollision]})) {
+          $uth->execute($ti->[fCollision] ? join(',',@{$ti->[fCollision]}) : 'None free dvb card',$ti->[fid])
+            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      }
+    }
 }
 
 # ------------------
@@ -1643,7 +1775,11 @@ ORDER BY
                push(@$coltext,$col);
            }
         }
-        if(scalar(@$coltext) > $obj->{DVBCards} - 1) {
+
+        my @DVBCARDS = split(',',$obj->{DVBCardsTyp});
+        my $cards = scalar @DVBCARDS;
+
+        if(scalar(@$coltext) > ($cards - 1)) {
             return $coltext;
         }
     }
