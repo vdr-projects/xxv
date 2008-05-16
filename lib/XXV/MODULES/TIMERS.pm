@@ -1635,8 +1635,10 @@ ORDER BY
 
     # try to assign timer to dvb cards
     foreach my $ti (@{$timer}) {
-      my $CardOnly = CORE::int($ti->[fCardOnly]);
-      $CardOnly = 0 if($CardOnly >= 16);
+      my $CardOnly = 0;
+      if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 15) {
+        $CardOnly = $1;
+      } 
       for my $ca (@{$CARDS}) {
         if(!($ti->[fCardUsed]) # If'nt assign
  #          && $ca->{Host} eq $ti->[fHost] # Same host
@@ -1660,8 +1662,10 @@ ORDER BY
       $rerun = 0;
       foreach my $ti (@{$timer}) {
         unless($ti->[fCardUsed]) { # used card
-          my $CardOnly = CORE::int($ti->[fCardOnly]);
-          $CardOnly = 0 if($CardOnly >= 16);
+          my $CardOnly = 0;
+          if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 15) {
+            $CardOnly = $1;
+          } 
           foreach my $co (@{$timer}) {
             if($ti->[fid] ne $co->[fid]
                 && $co->[fCardUsed] # used card
