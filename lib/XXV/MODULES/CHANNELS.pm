@@ -39,7 +39,7 @@ sub module {
                 options     => 'multi',
                 default     => '',
                 choices     => sub{
-                    my @knownCA;
+                    my $knownCA;
                     foreach my $CA (@{$obj->{knownCA}}) {
                         my $desc;
                         if($CA eq '0')    { $desc = gettext("Free-to-air"); }
@@ -48,9 +48,9 @@ sub module {
                            or $CA eq '3'  
                            or $CA eq '4') { $desc = sprintf(gettext("DVB card %s"),$CA);}
                         else              { $desc = sprintf("CA '%s'",$CA);      }
-                        push(@knownCA,[$desc,$CA]);
+                        push(@{$knownCA},[$desc,$CA]);
                     }
-                    return @knownCA;
+                    return $knownCA;
                 },
                 check   => sub{
                     my $value = shift;

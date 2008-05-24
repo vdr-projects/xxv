@@ -1564,7 +1564,7 @@ ORDER BY
       push(@DVBCardsTyp,$source->[0]);
     }
     my $cards = join(',',@DVBCardsTyp);
-    lg sprintf("Found DVB card typ %s", $cards);
+    lg sprintf("Founded sources of channels %s", $cards);
     return $cards;
 }
 
@@ -1636,7 +1636,7 @@ ORDER BY
     # try to assign timer to dvb cards
     foreach my $ti (@{$timer}) {
       my $CardOnly = 0;
-      if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 15) {
+      if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 16) {
         $CardOnly = $1;
       } 
       for my $ca (@{$CARDS}) {
@@ -1663,7 +1663,7 @@ ORDER BY
       foreach my $ti (@{$timer}) {
         unless($ti->[fCardUsed]) { # used card
           my $CardOnly = 0;
-          if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 15) {
+          if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 16) {
             $CardOnly = $1;
           } 
           foreach my $co (@{$timer}) {

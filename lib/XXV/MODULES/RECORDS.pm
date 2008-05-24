@@ -2552,11 +2552,11 @@ sub recover {
         typ     => 'list',
         options => 'multi',
         def   => sub {
-            my @ret;
+            my $ret;
             foreach my $v (keys %{$files}) {
-              push(@ret,$v);
+              push(@{$ret},$v);
             }
-            return @ret;
+            return $ret;
           },
         choices => $choices,
         check   => sub{

@@ -16,7 +16,7 @@ sub module {
             'GD'        => 'image manipulation routines',
             'Template'  => 'Front-end module to the Template Toolkit ',
         },
-        Description => gettext('This module grab a picture from livestream.'),
+        Description => gettext('This module grab a picture from video output.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
@@ -107,15 +107,8 @@ sub module {
             },
         },
         Commands => {
-            grab => {
-                description => gettext('Grab a picture'),
-                short       => 'gr',
-                callback    => sub{ $obj->grab(@_) },
-                Level       => 'user',
-                DenyClass   => 'remote',
-            },
             gdisplay => {
-                description => gettext('Display the picture'),
+                description => gettext('Display current picture of video output.'),
                 short       => 'gd',
                 callback    => sub{ $obj->display(@_) },
                 Level       => 'user',
@@ -191,19 +184,14 @@ sub _init {
 }
 
 # ------------------
-sub grab {
+sub _grab {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
-    my $console = shift;
+    my $width = shift || $obj->{xsize};
+    my $height = shift || $obj->{ysize};
 
     # command for get inline data (JPEG BASE64 coded)
-    my $cmd = sprintf('grab - %d %d %d',
-            $obj->{imgquality},
-            $obj->{xsize},
-            $obj->{ysize},
-    );
-
+    my $cmd = sprintf('grab - %d %d %d', $obj->{imgquality}, $width, $height);
     my $data = $obj->{svdrp}->command($cmd);
     
     my $binary;
@@ -214,12 +202,12 @@ sub grab {
       } 
     }
     # create noised image as failback. 
-    $binary = $obj->_noise() 
+    $binary = $obj->_noise($width,$height) 
       unless($binary);
 
     if($data && $binary) {
       # Make overlay on image
-      $binary = $obj->makeImgText($binary, $obj->{overlay})
+      $binary = $obj->makeImgText($binary, $obj->{overlay}, $height)
           if($obj->{overlay});
     }
     return $binary;
@@ -232,11 +220,28 @@ sub display {
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
-    my $binary = $obj->grab();
+    my $width = $console->{cgi} && $console->{cgi}->param('width') 
+              ? $console->{cgi}->param('width') 
+              : $obj->{xsize};
+    unless($width =~ /^\d+$/sig and $width >= 8 and $width < 4096) {
+      error sprintf("Image width incorrect! : %s", $width );
+      return $console->err(gettext('Value incorrect!'));
+    }
+
+    my $height = $console->{cgi} && $console->{cgi}->param('height') 
+              ? $console->{cgi}->param('height') 
+              : $obj->{ysize};
+    unless($height =~ /^\d+$/sig and $height >= 8 and $height < 4096) {
+      error sprintf("Image height incorrect! : %s", $height );
+      return $console->err(gettext('Value incorrect!'));
+    }
+
+    my $binary = $obj->_grab($width,$height);
     if($binary) { #  Datei existiert und hat eine Grösse von mehr als 0 Bytes
       $console->{nocache} = 1;
       $console->{nopack} = 1;
       my %args = ();
+      $args{'Last-Modified'} = datum(time,'header');
       $args{'attachment'} = 'grab.jpg';
       $args{'Content-Length'} = length($binary);
       return $console->out($binary, 'image/jpeg', %args );
@@ -249,6 +254,7 @@ sub makeImgText {
     my $obj = shift || return error('No object defined!');
     my $binary = shift || return error ('No data to create overlay defined!');
     my $text = shift || return error ('No text to display defined!');
+    my $height = shift || $obj->{ysize};
 
     my $image = GD::Image->newFromJpegData($binary);
     unless($image && $image->width > 8 && $image->height > 8) {
@@ -268,27 +274,31 @@ sub makeImgText {
     $obj->{tt}->process(\$text, $vars, \$output)
           or return error($obj->{tt}->error());
 
+    my $vpos = CORE::int(($height / $obj->{ysize}) * $obj->{vpos});
+    my $imgfontsize = CORE::int(($height / $obj->{ysize}) * $obj->{imgfontsize});
+
+    lg sprintf("height: %d vpos: %d imgfontsize: %d",$height,$vpos,$imgfontsize);
 
     my $font = sprintf("%s/%s",$obj->{paths}->{FONTPATH},$obj->{font});
     if($obj->{paths}->{FONTPATH} and $obj->{font} and -r $font) {
-      my $height = ($obj->{imgfontsize} + 2);
-      $height *= -1 if($obj->{vpos} > ($obj->{ysize} / 2));
+      my $h = ($imgfontsize + 2);
+      $h *= -1 if($vpos > ($height / 2));
 
-      my $offset = 0;
+      my $offset = $imgfontsize/2;
       foreach my $zeile (split(/\|/, $output)) {
-        $image->stringFT($shadow,$font,$obj->{imgfontsize},0,11,($obj->{vpos}-1)+$offset,$zeile);
-        $image->stringFT($color,$font,$obj->{imgfontsize},0,10,($obj->{vpos})+$offset,$zeile);
-        $offset += $height;
+        $image->stringFT($shadow,$font,$imgfontsize,0,11,($vpos-1)+$offset,$zeile);
+        $image->stringFT($color,$font,$imgfontsize,0,10,($vpos)+$offset,$zeile);
+        $offset += $h;
       }
     } else {
-      my $height = 12;
-      $height *= -1 if($obj->{vpos} > ($obj->{ysize} / 2));
+      my $h = ($imgfontsize + 2);
+      $h *= -1 if($vpos > ($height / 2));
 
       my $offset = 0;
       foreach my $zeile (split(/\|/, $output)) {
-        $image->string(&gdGiantFont,11, ($obj->{vpos}-1) + $offset,$zeile,$shadow); # Schatten
-        $image->string(&gdGiantFont,10, ($obj->{vpos}) + $offset,$zeile,$color);    # Text
-        $offset += $height;
+        $image->string(&gdGiantFont,11, ($vpos-1) + $offset,$zeile,$shadow); # Schatten
+        $image->string(&gdGiantFont,10, ($vpos) + $offset,$zeile,$color);    # Text
+        $offset += $h;
       }
     }
 
@@ -298,14 +308,17 @@ sub makeImgText {
 
 sub _noise {
     my $obj = shift || return error('No object defined!');
-    my $image = GD::Image->new($obj->{xsize}, $obj->{ysize},1);
+    my $width = shift || $obj->{xsize};
+    my $height = shift || $obj->{ysize};
+
+    my $image = GD::Image->new($width, $height,1);
   
     my $colors;
     push( @{$colors}, $image->colorClosest(255,255,255));
     push( @{$colors}, $image->colorClosest(128,128,128));
     push( @{$colors}, $image->colorClosest(0,0,0));
 
-    $obj->_noise_rect($image,0,0,$obj->{xsize},$obj->{ysize},$colors);
+    $obj->_noise_rect($image,0,0,$width,$height,$colors);
     my $img_data = $image->jpeg($obj->{imgquality});
     return $img_data;
 }
