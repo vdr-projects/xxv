@@ -13,7 +13,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'STREAM',
         Prereq => {
@@ -32,17 +32,17 @@ sub module {
                 required    => gettext('This is required!'),
             },
             method => {
-                description => gettext('Typ of streaming'),
+                description => gettext('Typ of stream recordings'),
                 default     => 'http',
                 type        => 'list',
                 choices     => [
                     [ gettext('HTTP Streaming'),      'http' ],
-                    [ gettext('Remote SMB/NFS share'),'smb' ],
+                    [ gettext('Remote SMB/NFS share'),'smb' ]
                 ],
                 required    => gettext('This is required!'),
             },
             mimetyp => {
-                description => gettext('Used mime type to deliver video streams'),
+                description => gettext('Used mime type of delivered playlist video streams'),
                 default     => 'video/x-mpegurl',
                 type        => 'string',
             },
@@ -61,6 +61,17 @@ sub module {
                     [gettext('Embed vlc player'),      'vlc'],
                 ],
                 required    => gettext("This is required!"),
+            },
+            LiveAccessMethod => {
+                description => gettext('Method of connect live-tv stream from recorder.'),
+                default     => 'playlist',
+                type        => 'list',
+                required    => gettext('This is required!'),
+                choices     => [
+                    [ gettext('Send playlist'),'playlist'],
+                    [ gettext('Redirect HTTP request'),'redirect'],
+                    [ gettext('Relay stream as proxy'), 'proxy']
+                ],
             },
             streamtype => {
                 description => gettext('Used live stream type'),
@@ -108,14 +119,14 @@ sub module {
             playrecord => {
                 description => gettext("Stream a recordings."),
                 short       => 'pre',
-                callback    => sub{ $obj->playrecord(@_) },
+                callback    => sub{ $self->playrecord(@_) },
                 DenyClass   => 'stream',
                 binary      => 'nocache'
             },
             livestream => {
                 description => gettext("Stream a channel 'cid'. This required the streamdev plugin!"),
                 short       => 'lst',
-                callback    => sub{ $obj->livestream(@_) },
+                callback    => sub{ $self->livestream(@_) },
                 DenyClass   => 'stream',
                 binary      => 'nocache'
             },
@@ -166,7 +177,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     1;
 }
@@ -175,7 +186,7 @@ sub init {
 # ------------------
 sub livestream {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $channel = shift || return con_err($console,gettext("No channel defined for streaming!"));
@@ -189,47 +200,65 @@ sub livestream {
     my $ch = $cmod->ToCID($channel);
     return $console->err(sprintf(gettext("This channel '%s' does not exist!"),$channel))
       unless($ch);
+    my $title = $cmod->ChannelToName($ch);
 
-    if($obj->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
+    if($self->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
       my $data = sprintf("?cmd=livestream&__player=1&data=%s",$ch);
 
       my $param = {
-          title => $cmod->ChannelToName($ch),
-          widget => $obj->{widget},
-          width  => $obj->{width},
-          height => $obj->{height},
+          title => $title,
+          widget => $self->{widget},
+          width  => $self->{width},
+          height => $self->{height},
       };
       return $console->player($data, $param);
     }
 
-    my $cpos = $cmod->ChannelToPos($ch);
+    #my $cpos = $cmod->ChannelToPos($ch);
     debug sprintf('Live stream with channel "%s"%s',
-        $cmod->ChannelToName($ch),
+        $title,
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
     $console->{nopack} = 1;
+    my $liveport = 3000;
+    my $request = sprintf("/%s/%s", $self->{streamtype}, $ch);
+    my $url = sprintf("http://%s:%d%s",$self->{host},$liveport,$request);
+    if($self->{LiveAccessMethod} eq 'redirect') {
+      debug(sprintf("Redirect to %s",$url));
+      $console->statusmsg(301,$url); 
+      return;
+    } elsif($self->{LiveAccessMethod} eq 'playlist') {
+      debug(sprintf("Send playlist with %s",$url));
+      my $data;
+      $data = "#EXTM3U\r\n";
+      $data .= $url;
+      $data .= "\r\n";
 
-    my $data;
-    $data = "#EXTM3U\r\n";
-    $data .= sprintf("http://%s:3000/%s/%d", $obj->{host},$obj->{streamtype}, $cpos);
-    $data .= "\r\n";
-     
-    my $arg;
-    $arg->{'attachment'} = sprintf("livestream-%s.m3u", $ch);
-    $arg->{'Content-Length'} = length($data);
+      my $arg;
+      $arg->{'attachment'} = sprintf("livestream-%s.m3u", $ch);
+      $arg->{'Content-Length'} = length($data);
 
-    return $console->out($data, $obj->{mimetyp}, %{$arg} );
+      return $console->out($data, $self->{mimetyp}, %{$arg} );
+    } elsif($self->{LiveAccessMethod} eq 'proxy') {
+      $console->proxy($self->{host},$liveport,$request,$self->{mimetyp}); 
+      return;
+    } else {
+      $console->err(gettext('Unknown access method!')); 
+    }
 }
 
 # ------------------
 sub playrecord {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recid   = shift || return $console->err(gettext("No recording defined for streaming!"));
     my $params  = shift;
+
+    return $console->err(gettext("Can't stream files!"))
+      unless($console->can('stream'));
 
     my $rmod = main::getModule('RECORDS');
     my $result = $rmod->IdToData($recid)
@@ -241,15 +270,15 @@ sub playrecord {
       $start = &text2frame($params->{start});
     }
 
-    if($obj->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
+    if($self->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
       my $data = sprintf("?cmd=playrecord&__player=1&data=%s",$recid);
       $data .= sprintf("&__start=%d", $start) if($start);
 
       my $param = {
           title => $result->{title},
-          widget => $obj->{widget},
-          width  => $obj->{width},
-          height => $obj->{height},
+          widget => $self->{widget},
+          width  => $self->{width},
+          height => $self->{height},
       };
       $param->{title} .= '~' . $result->{subtitle} if($result->{subtitle});
 
@@ -276,16 +305,9 @@ sub playrecord {
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    if($obj->{method} eq 'http') {
-      return $console->err(gettext("Can't stream files!"))
-        unless($console->can('stream'));
-
-      return $console->stream(\@files, $obj->{mimetyp}, $offset);
-
+    if($self->{method} eq 'http') {
+      return $console->stream(\@files, $self->{mimetyp}, $offset);
     } else {
-
-      return $console->err(gettext("Can't stream files!"))
-        unless($console->can('datei'));
 
       my $videopath = $rmod->{videodir};
 
@@ -294,7 +316,7 @@ sub playrecord {
       foreach my $file (@files) {
         $file =~ s/^$videopath//si;
         $file =~ s/^[\/|\\]//si;
-        my $URL = sprintf("%s/%s\r\n", $obj->{netvideo}, $file);
+        my $URL = sprintf("%s/%s\r\n", $self->{netvideo}, $file);
         $URL =~s/\//\\/g
         if($URL =~ /^\\\\/sig              # Samba \\host/xxx/yyy => \\host\xxx\yyy
         || $URL =~ /^[a-z]\:[\/|\\]/sig);  # Samba x:/xxx/yyy => x:\xxx\yyy
@@ -307,7 +329,7 @@ sub playrecord {
       $arg->{'attachment'} = sprintf("%s.m3u", $recid);
       $arg->{'Content-Length'} = length($data);
 
-      return $console->out($data, $obj->{mimetyp}, %{$arg} );
+      return $console->out($data, $self->{mimetyp}, %{$arg} );
     }
 }
 

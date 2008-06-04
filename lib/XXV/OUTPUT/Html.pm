@@ -24,6 +24,9 @@ sub module {
 #           'Template'  => 'Front-end module to the Template Toolkit',
 #           'Compress::Zlib'  => 'Interface to zlib compression library',
             'HTML::TextToHTML' => 'convert plain text file to HTML. ',
+            'IO::Socket::INET'  => 'Object interface for AF_INET domain sockets',
+            'IO::Select'        => 'OO interface to the select system call',
+            'IO::Handle'        => 'Supply object methods for I/O handles'
         },
         Description => gettext('This receives and sends HTML messages.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -426,6 +429,10 @@ sub statusmsg {
             if(exists $s->{$state});
 
         my $arg = {};
+
+        $arg->{'Location'} = $msg
+            if($state == 301);
+
         $arg->{'WWW-Authenticate'} = "Basic realm=\"xxvd\""
             if($state == 401);
 
@@ -760,6 +767,149 @@ sub _stream {
       exit 0;
     }
     return 0;
+}
+
+sub proxy {
+    my $self = shift || return error('No object defined!');
+    my $streamdev_host = shift || return error('No host defined!');
+    my $streamdev_port = shift || return error('No port defined!');
+    my $request = shift || return error('No request defined!');
+    my $mimetyp = shift || return error('No mimetyp defined!');
+
+    if($self->{browser}->{Method} eq 'HEAD') {
+       # Fake response, don't bother streamdev recorder
+       $self->statusmsg(200,'','',$mimetyp);
+#      Call streamdev to query channel state with HTTP-Request HEAD
+#      if($self->_proxy($handle,$streamdev_host,$streamdev_port,"HEAD " . $request . "\r\n\r\n")) {
+#        undef $self->{handle};
+#        undef $self->{output};
+#      } else {
+#        $self->status404($channelid,$!);
+#      }
+      return;
+    }
+    # Start proxy
+    my $handle = $self->{handle};
+    my $child = fork(); 
+    if ($child < 0) {
+      error("Can't create proxy process for streaming : " . $!);
+      return $self->status404($request,$!);
+    }
+    elsif ($child > 0) {
+      debug("Create proxy process for streaming");
+      $self->{'sendbytes'} = 0;
+    }
+    elsif ($child == 0) {
+      $self->{dbh}->{InactiveDestroy} = 1;
+      eval { 
+        local $SIG{'__DIE__'};
+        lg(sprintf("Send request %s",$request));
+        unless($self->_proxy($handle,$streamdev_host,$streamdev_port,"GET " . $request . "\r\n\r\n")) {
+          $handle->close();
+        }
+      };
+
+      error($@) if $@;
+      exit 0;
+    }
+
+    undef $self->{handle};
+    undef $self->{output};
+}
+
+sub _proxy {
+    my $self = shift || return error('No object defined!');
+    my $handle = shift;
+    my $streamdev_host = shift;
+    my $streamdev_port = shift;
+    my $request = shift;
+
+    my $r;
+    my $bytes;
+    my $buf="";
+    my $bExit = 0;
+    my $tousage = 0;
+    my $fromusage = 0;
+    my $peer = 0;
+
+    binmode $handle;
+    lg(sprintf("Try to connect %s:%d",$streamdev_host,$streamdev_port));
+    my $streamdev = IO::Socket::INET->new (
+           PeerAddr => $streamdev_host,
+           PeerPort => $streamdev_port);
+    unless($streamdev) {
+      error(sprintf("Could'nt connect to %s:%d",$streamdev_host,$streamdev_port));
+      return 0;
+    }
+    binmode $streamdev;
+
+    $handle->blocking(0);
+    $streamdev->blocking(0);
+
+    my $select = new IO::Select();
+    $select->add($streamdev);
+    $select->add($handle);
+
+    autoflush $streamdev;
+    autoflush $handle;
+
+    # Send HTTP Request to get data from streamdev client
+    print $streamdev $request;
+
+    # Relay data from streamdev to calling host
+    while (my @ready = $select->can_read()) {
+      foreach my $fd (@ready) {
+        $peer = 1;
+        if ($fd == $handle) {
+          do {
+            $r = 0;
+            $bytes = sysread( $handle, $buf, 1500 );
+            if($bytes) {
+              $tousage += $bytes;  
+              $peer = $streamdev->peername;
+              $r = $streamdev->send($buf,0,$peer)
+                if($peer);
+              $tousage -= $r if($r);
+            }
+#           lg(sprintf("Read host bytes %d (%d)",$bytes,$r));
+          } while $r && $bytes > 0;
+          if (!$peer || $tousage < -100000 || $tousage > 100000) {
+            $bExit = 2; 
+          }
+        }
+        elsif ($fd == $streamdev) {
+          do {
+            $r = 0;
+            $bytes = sysread( $streamdev, $buf, 1500 );
+            if($bytes) {
+              $fromusage += $bytes;  
+              my $peer = $handle->peername;
+              $r = $handle->send($buf,0,$peer)
+                if($peer);
+              $fromusage -= $r if($r);
+              }
+          } while $r && $bytes > 0;
+          if ($fromusage < -100000 || $fromusage > 100000) {
+            $bExit = 1; 
+          }
+        } else {
+          $select->remove($fd);
+          $fd->close();
+          $bExit = 1;
+        }
+      }
+     if($bExit) {
+       lg(sprintf("EOF proxy send data %s:%d (%d)",$streamdev_host,$streamdev_port, $bExit));
+       last;
+     }
+    }
+    lg(sprintf("Exit proxy send data %s:%d",$streamdev_host,$streamdev_port)) unless($bExit);
+    $select->remove($streamdev);
+    $select->remove($handle);
+
+    $streamdev->close();
+    $handle->close();
+    return 1;
 }
 
 # ------------------
