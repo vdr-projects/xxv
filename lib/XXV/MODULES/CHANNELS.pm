@@ -425,11 +425,14 @@ sub readData {
 
       # 250-0 ... it's a group delimiter
       if($line =~ /^250[\-|\s]0\s/) { 
-        if($line =~ /^250[\-|\s]0\s\:\@\d+\s/) { # Entry to specify the number of the next channel
+        if($line =~ /^250[\-|\s]0\s\:\@\d+/) { # Entry to specify the number of the next channel
           ($nPos, $grpText) = $line =~ /^250[\-|\s]0\s\:\@(\d+)\s(.+)/si;
         } else {   # Entry without specify the number of the next channel
           ($grpText) = $line =~ /^250[\-|\s]0\s\:(.+)/si;
         }
+
+        next unless($grpText); #ignore empty group delimiter like :@500
+
         if(exists $grp_data->{$nPos}) {
           if($grp_data->{$nPos}->{Name} ne $grpText) {
             $grp = $obj->insertGrp($nPos, $grpText);
@@ -438,7 +441,7 @@ sub readData {
           }
           delete $grp_data->{$nPos};
         } else {
-            $grp = $obj->insertGrp($nPos, $grpText);
+          $grp = $obj->insertGrp($nPos, $grpText);
         }
       # 250-x ... it's channel x
       } else {
