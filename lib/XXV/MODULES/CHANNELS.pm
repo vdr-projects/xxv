@@ -423,8 +423,13 @@ sub readData {
 
       next if($line eq "");
 
-      if($line =~ /250[\-|\s]0\s/) { # Channels groups
-        ($nPos, $grpText) = $line =~ /^250[\-|\s]0\s\:\@(\d+)\s(.+)/si;
+      # 250-0 ... it's a group delimiter
+      if($line =~ /^250[\-|\s]0\s/) { 
+        if($line =~ /^250[\-|\s]0\s\:\@\d+\s/) { # Entry to specify the number of the next channel
+          ($nPos, $grpText) = $line =~ /^250[\-|\s]0\s\:\@(\d+)\s(.+)/si;
+        } else {   # Entry without specify the number of the next channel
+          ($grpText) = $line =~ /^250[\-|\s]0\s\:(.+)/si;
+        }
         if(exists $grp_data->{$nPos}) {
           if($grp_data->{$nPos}->{Name} ne $grpText) {
             $grp = $obj->insertGrp($nPos, $grpText);
@@ -435,9 +440,10 @@ sub readData {
         } else {
             $grp = $obj->insertGrp($nPos, $grpText);
         }
+      # 250-x ... it's channel x
       } else {
-          # Insert first group
-          unless($grp) {
+
+          unless($grp) { # Insert a default group delimiter
             $grp = 1;
             if(exists $grp_data->{$grp}) {
               $grpText = gettext("Channels");
@@ -450,6 +456,7 @@ sub readData {
             }
           }
 
+          # parse channel line
           ($nPos, $channelText) = $line =~ /^250[\-|\s](\d+)\s(.+)/si;
 
           my @data = split(':', $channelText, 13);
