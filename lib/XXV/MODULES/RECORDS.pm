@@ -2116,7 +2116,7 @@ WHERE
             def   => $status->{aux},
         },
     		'keywords' => {
-            typ   => 'string',
+            typ   => $obj->{keywords}->{active} eq 'y' ? 'string' : 'hidden',
             msg   => gettext('Keywords'),
             def   => $status->{keywords},
         },

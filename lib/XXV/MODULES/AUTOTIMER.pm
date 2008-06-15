@@ -511,7 +511,7 @@ sub _autotimerLookup {
              'autotimer' => $id,
 #            'eventid' => $eventid
             };
-            $args->{'keywords'} = $keywords if($keywords);
+            $args->{'keywords'} = $keywords if($keywords && $obj->{keywords}->{active} eq 'y');
             $event->{aux} = $obj->{keywords}->createxml($args);
             
             # Wished timer already exist with same data from autotimer ?
@@ -1015,7 +1015,7 @@ You can also fine tune your search :
             },
         },
         'keywords' => {
-            typ     => 'string',
+            typ     => $obj->{keywords}->{active} eq 'y' ? 'string' : 'hidden',
             def     => $epg->{keywords},
             msg     => gettext('Add keywords to recording'),
         },

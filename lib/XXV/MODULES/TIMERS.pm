@@ -821,7 +821,7 @@ WHERE
             },
         },
         'keywords' => {
-            typ     => 'string',
+            typ     => $obj->{keywords}->{active} eq 'y' ? 'string' : 'hidden',
             def     => $timerData->{keywords},
             msg     => gettext('Add keywords to recording'),
         },
