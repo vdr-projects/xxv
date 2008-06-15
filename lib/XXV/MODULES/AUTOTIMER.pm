@@ -14,8 +14,7 @@ sub module {
     my $args = {
         Name => 'AUTOTIMER',
         Prereq => {
-            'Date::Manip' => 'date manipulation routines',
-            'XML::Simple' => 'Easy API to maintain XML (esp config files)'
+            'Date::Manip' => 'date manipulation routines'
         },
         Description => gettext('This module searches for EPG entries with user-defined text and creates new timers.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -264,10 +263,6 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
-    $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1)
-                                   )
-        || return error("Can't create XML instance!");
-
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize module');
 
@@ -318,6 +313,10 @@ sub _init {
     |);
 
     main::after(sub{
+        $obj->{keywords} = main::getModule('KEYWORDS');
+        unless($obj->{keywords}) {
+           return 0;
+        }
         my $modE = main::getModule('EPG');
         $modE->updated(
          sub{
@@ -513,7 +512,7 @@ sub _autotimerLookup {
 #            'eventid' => $eventid
             };
             $args->{'keywords'} = $keywords if($keywords);
-            $event->{aux} = $obj->{xml}->XMLout($args, RootName => 'xxv');
+            $event->{aux} = $obj->{keywords}->createxml($args);
             
             # Wished timer already exist with same data from autotimer ?
             next if($obj->_timerexists($event));

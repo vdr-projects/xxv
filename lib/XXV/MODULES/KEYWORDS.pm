@@ -1,6 +1,7 @@
 package XXV::MODULES::KEYWORDS;
 
 use strict;
+use Encode;
 use Tools;
 
 # ------------------
@@ -11,7 +12,7 @@ sub module {
     my $args = {
         Name => 'KEYWORDS',
         Prereq => {
-#           'XML::Simple' => 'Easy API to maintain XML (esp config files)'
+            'XML::Simple' => 'Easy API to maintain XML (esp config files)'
         },
         Description => gettext('This module manages keywords and tag within timer and recordings.'),
         Version => (split(/ /, '$Revision: 1332 $'))[1],
@@ -91,8 +92,8 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
-    #$self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1))
-    #    || return error("Can't create XML instance!");
+    $self->{xml} = XML::Simple->new( NumericEscape => 2 )
+        || return error("Can't create XML instance!");
 
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize modul!');
@@ -316,4 +317,60 @@ sub recording_keywords {
     return $rmod->_search($watcher,$console,$query->{query}.' ) AND ( r.RecordMD5 = k.md5 ',$query->{term},$params,', KEYWORDS as k');
 }
 
+# ------------------
+sub parsexml {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $aux = shift;
+
+    $aux  =~ s/(\r|\n)//sg;
+    if($aux && $aux =~ /^<.*/ ) {
+      my $args = $self->{xml}->XMLin($aux, KeepRoot => 1 );
+      if(defined $args 
+        && defined $args->{'xxv'} ) {
+          if($self->{charset} eq 'UTF-8'){
+            foreach my $k (keys %{$args->{'xxv'}}) {
+              utf8::downgrade($args->{'xxv'}->{$k});
+            }
+          } else {
+            foreach my $k (keys %{$args->{'xxv'}}) {
+              $args->{'xxv'}->{$k} = encode($self->{charset},$args->{'xxv'}->{$k});
+            }
+          }
+          return $args->{'xxv'};
+      }
+    }
+    return  undef;
+}
+
+# ------------------
+sub createxml {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $xml = shift;
+
+    my $aux = '';
+    if($xml && keys %$xml) {
+      $aux = $self->{xml}->XMLout($xml, RootName => 'xxv');
+    }
+    return $aux; 
+}
+
+# ------------------
+sub mergexml {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $aux = shift;
+    my $topic = shift;
+    my $value = shift;
+
+    my $xml = $self->parsexml($aux);
+    if($value) {
+#     utf8::upgrade($value) if(!utf8::is_utf8($value));
+      $xml->{$topic} = $value;
+    } elsif($xml->{$topic}) {
+      delete $xml->{$topic};
+    }
+    return $self->createxml($xml);
+}
 1;

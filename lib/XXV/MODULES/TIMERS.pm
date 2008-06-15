@@ -13,8 +13,7 @@ sub module {
         Name => 'TIMERS',
         Prereq => {
             'Date::Manip' => 'date manipulation routines',
-            'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm',
-            'XML::Simple' => 'Easy API to maintain XML (esp config files)'
+            'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm'
         },
         Description => gettext('This module reads timers and saves it to the database.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -395,9 +394,6 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
-    $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1))
-        || return error("Can't create XML instance!");
-
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize modul!');
 
@@ -522,23 +518,8 @@ sub _saveTimer {
 
     $data->{file} =~ s/(\r|\n)//sg;
 
-    # Add anchor for reidentify timer
-    my $root = {};
-    if(exists $data->{aux}) {
-      $data->{aux}  =~ s/(\r|\n)//sg;
-      if($data->{aux} && $data->{aux} =~ /^<.*/ ) {
-        my $args = $obj->{xml}->XMLin($data->{aux}, KeepRoot => 1 );
-        if(defined $args 
-           && defined $args->{'xxv'} ) {
-             $root = $args->{'xxv'};
-        }
-      }
-    }
-    #$root->{'autotimer'} = $data->{autotimerid} if($data->{autotimerid});
-    $root->{'keywords'} = $data->{keywords} if($data->{keywords});
-    if($root && keys %$root) {
-      $data->{aux} = $obj->{xml}->XMLout($root, RootName => 'xxv');
-    }
+    # Add Keywords to timer
+    $data->{aux} = $obj->{keywords}->mergexml($data->{aux},'keywords',$data->{keywords});
 
     my $file = $data->{file};
     $file =~ s/:/|/g;
@@ -676,26 +657,20 @@ WHERE
         || (scalar keys %{$timerData} < 1)) {
           return $console->err(sprintf(gettext("Timer '%s' does not exist in the database!"),$timerid));
       }
+
+      if(defined $timerData->{aux}) {
+        $timerData->{aux} =~ s/(\r|\n)//sig;
+
+        my $xml = $obj->{keywords}->parsexml($timerData->{aux});
+#       $timerData->{keywords} = $xml->{'autotimer'}
+#         if($xml && defined $xml->{'autotimer'} );
+        $timerData->{keywords} = $xml->{'keywords'}
+          if($xml && defined $xml->{'keywords'} );
+      }
     } elsif (ref $data eq 'HASH') {
         $timerData = $data;
     }
 
-    if(defined $timerData->{aux}) {
-      $timerData->{aux} =~ s/(\r|\n)//sig;
-
-      $timerData->{keywords} = '';
-      if($timerData->{aux} && $timerData->{aux} =~ /^<.*/ ) {
-        my $args = $obj->{xml}->XMLin($timerData->{aux}, KeepRoot => 1 );
-        if(defined $args 
-          && defined $args->{'xxv'} ) {
-            my $root = $args->{'xxv'};
-#            $aid = int($root->{'autotimer'}) 
-#              if(defined $root->{'autotimer'} );
-            $timerData->{keywords} = $root->{'keywords'} 
-              if(defined $root->{'keywords'} );
-        }
-      }
-    }
     my $modC = main::getModule('CHANNELS');
     my $con = $console->typ eq "CONSOLE";
 
@@ -1130,17 +1105,12 @@ sub _insert {
     # Tags
     my $aid;
     my $keywords;
-    if($timer->{aux} && $timer->{aux} =~ /^<.*/ ) {
-      my $args = $self->{xml}->XMLin($timer->{aux}, KeepRoot => 1 );
-      if(defined $args 
-        && defined $args->{'xxv'} ) {
-          my $root = $args->{'xxv'};
-          $aid = int($root->{'autotimer'}) 
-            if(defined $root->{'autotimer'} );
-          $keywords = $root->{'keywords'} 
-            if(defined $root->{'keywords'} );
-      }
-    }
+    my $xml = $self->{keywords}->parsexml($timer->{aux});
+    $aid = int($xml->{'autotimer'})
+      if($xml && defined $xml->{'autotimer'} );
+    $keywords = $xml->{'keywords'}
+      if($xml && defined $xml->{'keywords'} );
+
     my $sth = $self->{dbh}->prepare(
 q|REPLACE INTO TIMERS VALUES 
   (?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,?,NOW())

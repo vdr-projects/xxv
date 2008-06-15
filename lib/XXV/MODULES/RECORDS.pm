@@ -23,8 +23,7 @@ sub module {
         Prereq => {
             'Time::Local' => 'efficiently compute time from local and GMT time ',
             'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm',
-            'Linux::Inotify2' => 'scalable directory/file change notification',
-            'XML::Simple' => 'Easy API to maintain XML (esp config files)'
+            'Linux::Inotify2' => 'scalable directory/file change notification'
         },
         Description => gettext('This module manages recordings.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -264,9 +263,6 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
-    $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1))
-        || return error("Can't create XML instance!");
-
     # define framerate PAL 25, NTSC 30
     $self->{framerate} = Tools->FRAMESPERSECOND;
 
@@ -329,7 +325,6 @@ sub _init {
         unless($obj->{timers}) {
            return 0;
         }
-
         $obj->{keywords} = main::getModule('KEYWORDS');
         unless($obj->{keywords}) {
            return 0;
@@ -1104,17 +1099,11 @@ sub readinfo {
                 $info->{aux} =~ s/^\s+//;               # no leading white space
                 $info->{aux} =~ s/\s+$//;               # no trailing white space
 
-                if($info->{aux} && $info->{aux} =~ /^<.*/ ) {
-                  my $args = $obj->{xml}->XMLin($info->{aux}, KeepRoot => 1 );
-                  if(defined $args 
-                    && defined $args->{'xxv'} ) {
-                      my $root = $args->{'xxv'};
-#                     $info->{keywords} = int($root->{'autotimer'}) 
-#                       if(defined $root->{'autotimer'} );
-                      $info->{keywords} = $root->{'keywords'} 
-                        if(defined $root->{'keywords'} );
-                  }
-                }
+                my $xml = $obj->{keywords}->parsexml($info->{aux});
+        #       $info->{keywords} = $xml->{'autotimer'}
+        #         if($xml && defined $xml->{'autotimer'} );
+                $info->{keywords} = $xml->{'keywords'}
+                  if($xml && defined $xml->{'keywords'} );
             }
         }
     }
@@ -2177,27 +2166,12 @@ WHERE
                 $info->{title} = join('~',@t);
             }
 
-            my $root = {};
-            if(exists $info->{aux}) {
-              $info->{aux}  =~ s/(\r|\n)//sg;
-              if($info->{aux} && $info->{aux} =~ /^<.*/ ) {
-                my $args = $obj->{xml}->XMLin($info->{aux}, KeepRoot => 1 );
-                if(defined $args 
-                   && defined $args->{'xxv'} ) {
-                     $root = $args->{'xxv'};
-                }
-              }
-            }
-            #$root->{'autotimer'} = $data->{autotimerid} if($data->{autotimerid});
-            $root->{'keywords'} = $info->{keywords} if($info->{keywords});
-            if($root && keys %$root) {
-              $info->{aux} = $obj->{xml}->XMLout($root, RootName => 'xxv');
-            }
+            $info->{aux} = $obj->{keywords}->mergexml($info->{aux},'keywords',$info->{keywords});
 
             $obj->saveinfo($rec->{Path},$info)
                or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$rec->{Path} . '/info.vdr',$!));
 
-            $ChangeRecordingData = 1 if($data->{keywords} ne $status->{keywords});
+            $ChangeRecordingData = 1 if($info->{aux} ne $status->{aux});
             $dropEPGEntry = 1;
         }
 
@@ -2255,10 +2229,6 @@ WHERE
             $rec->{Path} = $newPath;
         }
 
-        if($dropEPGEntry || $ChangeRecordingData) {
-            $obj->{lastupdate} = 0;
-            touch($obj->{videodir}."/.update");
-        }
 
         if($dropEPGEntry) { # Delete EpgOld Entrys
             my $sth = $obj->{dbh}->prepare('DELETE FROM OLDEPG WHERE eventid = ?');
@@ -2270,10 +2240,13 @@ WHERE
             my $sth = $obj->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
             $sth->execute($recordid)
                 or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
-
-            $obj->{keywords}->remove('recording',\[$recordid]);
+            my @todel = [$recordid];
+            $obj->{keywords}->remove('recording',\@todel);
         }
-
+        if($dropEPGEntry || $ChangeRecordingData) {
+            $obj->{lastupdate} = 0;
+            touch($obj->{videodir}."/.update");
+        }
         if($dropEPGEntry || $ChangeRecordingData) {
           my $waiter;
 
