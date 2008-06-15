@@ -241,6 +241,34 @@
             <input type="text" name="data" size="18" <?% IF cgi.param('cmd')=='ts' || cgi.param('cmd')=='tsearch' %?>value="<?% cgi.param('data')%?>"<?% END %?> />
     </p>
     </form>
+
+  <?% IF param.keywords.size > 0 && allow('tk') %?>
+  <p class="section"><?% gettext("Keywords",20) %?></p>
+    <p>
+        <?% total = (param.keywordsmax - param.keywordsmin) %?>
+        <?% IF total > 5 %?>
+        <?% basis = 65 %?>
+        <?% size = 50 / total %?>
+        <?% ELSE %?>
+        <?% basis = 100 %?>
+        <?% size = 0 %?>
+        <?% END %?>
+        <?% FOREACH keyword = param.keywords %?>
+              <a href="?cmd=tk&amp;data=<?% keyword.0 %?>">
+                <font style="font-size:<?% (basis + (keyword.1 * size)) div 1 %?>%"><?% keyword.0 %?></font>
+              </a>&nbsp;
+        <?% END %?>
+    </p>
+    <form name="keywordsform" action="">
+    <p>
+        <input type="hidden" name="cmd" value="tkeywords" />
+        <input type="text" id="keytext" name="data" alt="<?% gettext("Keywords") %?>" 
+               <?% IF keywords.defined %?>value="<?% keywords %?>"<?% END %?>
+               autocomplete="off" />
+    </p>
+    </form>
+    <?% END %?>
+
 </div>
 <?% global.sidebar = 1 %?>
 

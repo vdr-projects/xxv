@@ -133,6 +133,9 @@
     <li><a href="?cmd=rrecover"><?% gettext("Recover deleted recordings") %?></a></li>
 <?% END %?>
     <li><a href="#" onClick="suche('<?% gettext("Search text") %?>', '?cmd=rsearch&data=')"><?% gettext("Search for recordings") %?></a></li>
+<?% IF allow('rkeywords') %?>
+    <li><a href="#" onClick="suche('<?% gettext("Keywords") %?>', '?cmd=rkeywords&data=')"><?% gettext("Keywords") %?></a></li>
+<?% END %?>
 </ul>
 </div>
 

@@ -313,6 +313,43 @@
         <td class="sidebottom"></td>
     </tr>
   </table>
+  <?% IF param.keywords.size > 0 && allow('rk') %?>
+  <table summary="">
+    <tr><td class="sidehead"><?% gettext("Keywords",20) %?></td></tr>
+    <tr>
+    <td class="sidetext">
+        <?% total = (param.keywordsmax - param.keywordsmin) %?>
+        <?% IF total > 5 %?>
+        <?% basis = 65 %?>
+        <?% size = 50 / total %?>
+        <?% ELSE %?>
+        <?% basis = 100 %?>
+        <?% size = 0 %?>
+        <?% END %?>
+        <?% FOREACH keyword = param.keywords %?>
+              <a href="?cmd=rk&amp;data=<?% keyword.0 %?>">
+                <font style="font-size:<?% (basis + (keyword.1 * size)) div 1 %?>%"><?% keyword.0 %?></font>
+              </a>&nbsp;
+        <?% END %?>
+    </td>
+    </tr>
+    <tr>
+    <td class="sidetext">
+    <form name="keywordsform" action="">
+        <input type="hidden" name="cmd" value="rkeywords" />
+        <input type="text" id="keytext" name="data" alt="<?% gettext("Keywords") %?>" 
+               onkeyup="suggest('rsuggestkeywords','keytext','keysuggest');" 
+               <?% IF keywords.defined %?>value="<?% keywords %?>"<?% END %?>
+               autocomplete="off" />
+        <br /><div class="suggestbox" id="keysuggest"></div>
+    </form>
+    </td>
+    </tr>
+    <tr>
+        <td class="sidebottom"></td>
+    </tr>
+  </table>
+  <?% END %?>
   <p id="sidefooter">&nbsp;</p>
 </div>
 <?% INCLUDE header.inc %?>

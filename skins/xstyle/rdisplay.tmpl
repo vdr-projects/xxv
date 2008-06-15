@@ -167,6 +167,25 @@
             </td>
         </tr>
         <?% END %?>
+        <?% allowkeywords = allow('rk') %?>
+        <?% IF param.keywords.size > 0 %?>
+				<tr>
+          <td>&nbsp;</td>
+					<td>
+                  <?% gettext('Keywords') %?>&nbsp;:&nbsp;
+                  <?% FOREACH keyword = param.keywords %?>
+                      <?% IF allowkeywords %?>
+                              <a href="?cmd=rk&amp;data=<?% keyword.0 %?>">
+                      <?% END %?>
+                                <?% keyword.0 %?>
+                      <?% IF allowkeywords %?>
+                              </a>
+                      <?% END %?>
+                      &nbsp;
+                  <?% END %?>
+		      </td>
+				</tr>
+        <?% END %?>
         <tr>
             <td>&nbsp;</td>
             <td>
