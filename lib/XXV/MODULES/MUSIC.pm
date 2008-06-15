@@ -708,6 +708,7 @@ sub list {
         getCover => sub{ return $obj->_findcoverfromcache(@_, 'relative') },
     };
 
+    $console->setCall('mlist');
     $console->table($erg, $params);
 }
 

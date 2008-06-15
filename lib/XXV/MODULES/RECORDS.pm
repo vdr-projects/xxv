@@ -23,7 +23,8 @@ sub module {
         Prereq => {
             'Time::Local' => 'efficiently compute time from local and GMT time ',
             'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm',
-            'Linux::Inotify2' => 'scalable directory/file change notification'
+            'Linux::Inotify2' => 'scalable directory/file change notification',
+            'XML::Simple' => 'Easy API to maintain XML (esp config files)'
         },
         Description => gettext('This module manages recordings.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -242,7 +243,7 @@ sub new {
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
-	# who am I
+	  # who am I
     $self->{MOD} = $self->module;
 
     # all configvalues to $self without parents (important for ConfigModule)
@@ -263,13 +264,16 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
+    $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1))
+        || return error("Can't create XML instance!");
+
     # define framerate PAL 25, NTSC 30
     $self->{framerate} = Tools->FRAMESPERSECOND;
 
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize modul!');
 
-  return $self;
+    return $self;
 }
 
 # ------------------
@@ -282,7 +286,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 28; # Must be increment if rows of table changed
+    my $version = 29; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($obj->{dbh},'RECORDS',$version,1)) {
@@ -303,6 +307,7 @@ sub _init {
           Marks text,
           Type enum('TV', 'RADIO', 'UNKNOWN') default 'TV',
           preview text NOT NULL,
+          aux text,
           addtime timestamp,
           PRIMARY KEY  (eventid),
           UNIQUE KEY  (eventid)
@@ -322,6 +327,11 @@ sub _init {
         }
         $obj->{timers} = main::getModule('TIMERS');
         unless($obj->{timers}) {
+           return 0;
+        }
+
+        $obj->{keywords} = main::getModule('KEYWORDS');
+        unless($obj->{keywords}) {
            return 0;
         }
 
@@ -525,6 +535,7 @@ sub readData {
     unless(scalar @$vdata) {
         # Delete old Records
         $obj->{dbh}->do('DELETE FROM RECORDS');
+        $obj->{keywords}->removesource('recording');
 
         my $msg = gettext('No recordings available!');
         con_err($console,$msg);
@@ -567,6 +578,7 @@ sub readData {
     my $db_data;
     if($forceUpdate) {
         $obj->{dbh}->do('DELETE FROM RECORDS');
+        $obj->{keywords}->removesource('recording');
     } else {
         # read database for compare with vdr data
         my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.RecordId as id, 
@@ -669,6 +681,9 @@ sub readData {
               if($obj->insert($info)) {
                   push(@merkMD5,$info->{RecordMD5});
                   $insertedData++;
+
+                  $obj->{keywords}->insert('recording',$info->{RecordMD5},$info->{keywords});
+
               } else {
                   push(@{$err},sprintf(gettext("Can't add recording '%s' into database!"),$info->{title}));
               }
@@ -693,12 +708,13 @@ sub readData {
         my $sth = $obj->{dbh}->prepare($sql);
         $sth->execute(@todel)
             or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+
+        $obj->{keywords}->remove('recording',\@todel);
       }
 
     my $removedData = $db_data ? scalar keys %$db_data : 0;
     debug sprintf 'Finish .. %d recordings inserted, %d recordings updated, %d recordings removed',
            $insertedData, $updatedState, $removedData;
-
 
     error sprintf("Unsupported unit '%s' to calc free capacity",$freeUnit) unless($freeUnit eq 'MB');
     # use store capacity and recordings length to calc free capacity
@@ -832,8 +848,8 @@ sub insert {
     my $sth = $obj->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
-        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type, preview, addtime )
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW())
+        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type, preview, aux, addtime )
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NOW())
     |);
 
     $attr->{Marks} = ""
@@ -850,7 +866,8 @@ sub insert {
         $attr->{FileSize},
         $attr->{Marks},
         $attr->{Type},
-        $attr->{preview}
+        $attr->{preview},
+        $attr->{aux}
     );
 }
 
@@ -959,7 +976,9 @@ sub analyze {
         eventid => $event->{eventid},
         Type  => $info->{type} || 'UNKNOWN',
         State => $recattr->{state},
-        FileSize => $info->{FileSize}
+        FileSize => $info->{FileSize},
+        aux => $info->{aux},
+        keywords => $info->{keywords}
     };
     $ret->{Marks} = join(',', @{$info->{marks}})
         if(ref $info->{marks} eq 'ARRAY');
@@ -1079,6 +1098,24 @@ sub readinfo {
                 $info->{audio} .= "\n" if($info->{audio});
                 $info->{audio} .= $1;
             }
+            elsif($zeile =~ /^@\s+(.+)$/s) {
+                $info->{aux} = $1;
+                $info->{aux} =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
+                $info->{aux} =~ s/^\s+//;               # no leading white space
+                $info->{aux} =~ s/\s+$//;               # no trailing white space
+
+                if($info->{aux} && $info->{aux} =~ /^<.*/ ) {
+                  my $args = $obj->{xml}->XMLin($info->{aux}, KeepRoot => 1 );
+                  if(defined $args 
+                    && defined $args->{'xxv'} ) {
+                      my $root = $args->{'xxv'};
+#                     $info->{keywords} = int($root->{'autotimer'}) 
+#                       if(defined $root->{'autotimer'} );
+                      $info->{keywords} = $root->{'keywords'} 
+                        if(defined $root->{'keywords'} );
+                  }
+                }
+            }
         }
     }
     return $info;
@@ -1149,6 +1186,12 @@ sub saveinfo {
             }
             undef $info->{audio};
           }
+        }
+        elsif($zeile =~ /^@\s+(.+)/s) {
+          if(defined $info->{aux} && $info->{aux}) {
+            $out .= "@ ".  $info->{aux} . "\n" if($info->{aux});
+            undef $info->{aux};
+          }
         } else {
           $out .= $zeile . "\n" if($zeile);
         }
@@ -1178,6 +1221,9 @@ sub saveinfo {
         $line =~ s/\s+$//;               
         $out .= "X 2 ". $line  . "\n" if($line);
       }
+    }
+    if(defined $info->{aux} && $info->{aux}) {
+      $out .= "@ ".  $info->{aux} . "\n" if($info->{aux});
     }
 
     return save_file($file, $out);
@@ -1478,8 +1524,11 @@ where
       $_ =~ s/\s*\:.*$//;
     } @reccmds;
 
+    my ($keywords,$keywordmax,$keywordmin) = $obj->{keywords}->list('recording',[ $erg->{'RecordId'} ]);
+
     my $param = {
         reccmds => \@reccmds,
+        keywords => $keywords
     };
     $console->table($erg,$param);
 }
@@ -1667,10 +1716,19 @@ ORDER BY __IsRecording asc,
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
 
+    my $keywords;
+    my $keywordmax;
+    my $keywordmin;
+
     unless($console->typ eq 'AJAX') {
+      my $md5;
       map {
+        push(@$md5,$_->[0]);
         $_->[5] = datum($_->[5],'short');
       } @$erg;
+
+      ($keywords,$keywordmax,$keywordmin) = $obj->{keywords}->list('recording',$md5);
+
       unshift(@$erg, $fields);
     }
 
@@ -1681,6 +1739,9 @@ ORDER BY __IsRecording asc,
         total => $obj->{CapacityTotal},
         free => $obj->{CapacityFree},
         previewcommand => $obj->{previewlistthumbs},
+        keywords => $keywords,
+        keywordsmax => $keywordmax,        
+        keywordsmin => $keywordmin,
         rows => $rows
     };
     return $console->table($erg, $param);
@@ -1696,8 +1757,21 @@ sub search {
     my $params  = shift;
 
     my $query = buildsearch("e.title,e.subtitle,e.description",$text);
-    my $search = $query->{query};
-    my $term = $query->{term};
+    return $obj->_search($watcher,$console,$query->{query},$query->{term},$params);
+}
+
+# ------------------
+sub _search {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift;
+    my $console = shift; 
+    my $search = shift; 
+    my $term = shift; 
+    my $params  = shift;
+    my $tables  = shift || '';
+
+
 
     my %f = (
         'RecordMD5' => gettext('Index'),
@@ -1725,6 +1799,7 @@ SELECT SQL_CACHE
 FROM
     RECORDS as r,
     OLDEPG as e
+    $tables
 WHERE
     e.eventid = r.eventid
 	AND ( $search )
@@ -1776,10 +1851,19 @@ ORDER BY
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
 
+    my $keywords;
+    my $keywordmax;
+    my $keywordmin;
+
     unless($console->typ eq 'AJAX') {
+      my $md5;
       map {
+        push(@$md5,$_->[0]);
         $_->[5] = datum($_->[5],'short');
       } @$erg;
+
+      ($keywords,$keywordmax,$keywordmin) = $obj->{keywords}->list('recording',$md5);
+
       unshift(@$erg, $fields);
     }
 
@@ -1790,8 +1874,13 @@ ORDER BY
         total => $obj->{CapacityTotal},
         free => $obj->{CapacityFree},
         previewcommand => $obj->{previewcommand},
+        keywords => $keywords,
+        keywordsmax => $keywordmax,        
+        keywordsmin => $keywordmin,
         rows => $rows
     };
+
+    $console->setCall('rlist');
     return $console->table($erg, $param);
 }
 
@@ -1894,6 +1983,7 @@ sub delete {
             $sth->execute(@{$md5delete})
               or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
+          $obj->{keywords}->remove('recording',$md5delete);
         }
 
         $obj->readData($watcher,$console,$waiter)
@@ -2032,6 +2122,15 @@ WHERE
             msg   => gettext("Description"),
             def   => $status->{description} || '',
         },
+    		'aux' => {
+            typ   => 'hidden',
+            def   => $status->{aux},
+        },
+    		'keywords' => {
+            typ   => 'string',
+            msg   => gettext('Keywords'),
+            def   => $status->{keywords},
+        },
     		'video' => {
             typ   => 'textfield',
             msg   => gettext('Video'),
@@ -2066,6 +2165,7 @@ WHERE
         if($data->{title} ne $rec->{title}
           or $data->{description} ne $status->{description} 
           or $data->{channel} ne $status->{channel} 
+          or $data->{keywords} ne $status->{keywords}
           or $data->{video} ne $status->{video}
           or $data->{audio} ne $status->{audio}) {
 
@@ -2077,9 +2177,27 @@ WHERE
                 $info->{title} = join('~',@t);
             }
 
+            my $root = {};
+            if(exists $info->{aux}) {
+              $info->{aux}  =~ s/(\r|\n)//sg;
+              if($info->{aux} && $info->{aux} =~ /^<.*/ ) {
+                my $args = $obj->{xml}->XMLin($info->{aux}, KeepRoot => 1 );
+                if(defined $args 
+                   && defined $args->{'xxv'} ) {
+                     $root = $args->{'xxv'};
+                }
+              }
+            }
+            #$root->{'autotimer'} = $data->{autotimerid} if($data->{autotimerid});
+            $root->{'keywords'} = $info->{keywords} if($info->{keywords});
+            if($root && keys %$root) {
+              $info->{aux} = $obj->{xml}->XMLout($root, RootName => 'xxv');
+            }
+
             $obj->saveinfo($rec->{Path},$info)
                or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$rec->{Path} . '/info.vdr',$!));
 
+            $ChangeRecordingData = 1 if($data->{keywords} ne $status->{keywords});
             $dropEPGEntry = 1;
         }
 
@@ -2152,6 +2270,8 @@ WHERE
             my $sth = $obj->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
             $sth->execute($recordid)
                 or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
+
+            $obj->{keywords}->remove('recording',\[$recordid]);
         }
 
         if($dropEPGEntry || $ChangeRecordingData) {
@@ -2690,4 +2810,5 @@ sub image {
     }
     return $console->datei(sprintf('%s/%s_shot/%s.jpg', $obj->{previewimages}, $recordid, $frame));
 }
+
 1;

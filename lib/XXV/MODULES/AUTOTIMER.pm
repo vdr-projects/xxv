@@ -15,6 +15,7 @@ sub module {
         Name => 'AUTOTIMER',
         Prereq => {
             'Date::Manip' => 'date manipulation routines',
+            'XML::Simple' => 'Easy API to maintain XML (esp config files)'
         },
         Description => gettext('This module searches for EPG entries with user-defined text and creates new timers.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -242,7 +243,7 @@ sub new {
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
-	# who am I
+	  # who am I
     $self->{MOD} = $self->module;
 
     # all configvalues to $self without parents (important for ConfigModule)
@@ -263,8 +264,9 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
-    # file
-    $self->{file} = $self->{config}->{file};
+    $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1)
+                                   )
+        || return error("Can't create XML instance!");
 
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize module');
@@ -310,6 +312,7 @@ sub _init {
           startdate datetime default NULL,
           stopdate datetime default NULL,
           count int(11) default NULL,
+          keywords text,
           PRIMARY KEY  (Id)
         ) COMMENT = '$version'
     |);
@@ -446,22 +449,22 @@ sub _autotimerLookup {
         # Only search for one at?
         if(ref $console && $autotimerid) {
             $console->message(sprintf(gettext("Found %d entries for '%s' in EPG database."), scalar keys %$events, $a->{Search}));
-            foreach my $Id (sort keys %$events) {
+            foreach my $eventid (sort keys %$events) {
 
-              my $output = [   [gettext("Title"),     $events->{$Id}->{title}] ];
-              push(@$output,   [gettext("Subtitle"),  $events->{$Id}->{subtitle}])
-                if($events->{$Id}->{subtitle});
-              push(@$output,   [gettext("Channel"),   $events->{$Id}->{channelname}]);
+              my $output = [   [gettext("Title"),     $events->{$eventid}->{title}] ];
+              push(@$output,   [gettext("Subtitle"),  $events->{$eventid}->{subtitle}])
+                if($events->{$eventid}->{subtitle});
+              push(@$output,   [gettext("Channel"),   $events->{$eventid}->{channelname}]);
 
-              if($events->{$Id}->{vpsstart} and $a->{VPS} eq 'y' and $modT->{usevpstime} eq 'y') {
-                push(@$output, [gettext("Start"),     datum($events->{$Id}->{vpsstart} )]);
-                push(@$output, [gettext("Stop"),      datum($events->{$Id}->{vpsstop}  )]);
+              if($events->{$eventid}->{vpsstart} and $a->{VPS} eq 'y' and $modT->{usevpstime} eq 'y') {
+                push(@$output, [gettext("Start"),     datum($events->{$eventid}->{vpsstart} )]);
+                push(@$output, [gettext("Stop"),      datum($events->{$eventid}->{vpsstop}  )]);
               } else {
-                push(@$output, [gettext("Start"),     datum($events->{$Id}->{starttime})]);
-                push(@$output, [gettext("Stop"),      datum($events->{$Id}->{stoptime} )]);
+                push(@$output, [gettext("Start"),     datum($events->{$eventid}->{starttime})]);
+                push(@$output, [gettext("Stop"),      datum($events->{$eventid}->{stoptime} )]);
               }
-              push(@$output,[gettext("Description"),  $events->{$Id}->{description}])
-                if($events->{$Id}->{description});
+              push(@$output,[gettext("Description"),  $events->{$eventid}->{description}])
+                if($events->{$eventid}->{description});
               $console->table($output);
             };
         }
@@ -472,8 +475,8 @@ sub _autotimerLookup {
         # Every found and save this as timer
         my $c = 0;
         my $m = 0;
-        foreach my $Id (sort keys %$events) {
-            my $event = $events->{$Id};
+        foreach my $eventid (sort keys %$events) {
+            my $event = $events->{$eventid};
 
             $event->{activ} = 'y';
             $event->{priority} = $a->{Priority};
@@ -501,10 +504,16 @@ sub _autotimerLookup {
             $event->{start} = sprintf("%02d%02d",$bhour,$bmin);
             $event->{stop}  = sprintf("%02d%02d",$ehour,$emin);
 
-            $event->{file} = $obj->_placeholder($event, $a);
+            my $keywords;
+            ($event->{file},$keywords) = $obj->_placeholder($event, $a);
 
             # Add anchor for reidentify timer
-        		$event->{aux} = sprintf('#~AT[%d]', $id);
+            my $args = {
+             'autotimer' => $id,
+#            'eventid' => $eventid
+            };
+            $args->{'keywords'} = $keywords if($keywords);
+            $event->{aux} = $obj->{xml}->XMLout($args, RootName => 'xxv');
             
             # Wished timer already exist with same data from autotimer ?
             next if($obj->_timerexists($event));
@@ -1006,6 +1015,11 @@ You can also fine tune your search :
                 return undef, gettext('The day is incorrect or was in a wrong format!');
             },
         },
+        'keywords' => {
+            typ     => 'string',
+            def     => $epg->{keywords},
+            msg     => gettext('Add keywords to recording'),
+        },
     ];
 
     # Ask Questions
@@ -1260,6 +1274,8 @@ sub list {
       $info->{sortable} = '1';
       $info->{timers} = main::getModule('TIMERS')->getTimersByAutotimer();
     }
+
+    $console->setCall('alist');
     $console->table($erg, $info );
 }
 
@@ -1554,24 +1570,26 @@ sub _placeholder {
 
     my $file;
 
+    my %at_details;
+    $at_details{'title'}            = $data->{title};
+    $at_details{'subtitle'}         = $data->{subtitle} ? $data->{subtitle} : $data->{start};
+    $at_details{'date'}             = $data->{day};
+    $at_details{'regie'}            = $1 if $data->{description} =~ m/\|Director: (.*?)\|/;
+    $at_details{'category'}         = $1 if $data->{description} =~ m/\|Category: (.*?)\|/;
+    $at_details{'genre'}            = $1 if $data->{description} =~ m/\|Genre: (.*?)\|/;
+    $at_details{'year'}             = $1 if $data->{description} =~ m/\|Year: (.*?)\|/;
+    $at_details{'country'}          = $1 if $data->{description} =~ m/\|Country: (.*?)\|/;
+    $at_details{'originaltitle'}    = $1 if $data->{description} =~ m/\|Originaltitle: (.*?)\|/;
+    $at_details{'fsk'}              = $1 if $data->{description} =~ m/\|FSK: (.*?)\|/;
+    $at_details{'episode'}          = $1 if $data->{description} =~ m/\|Episode: (.*?)\|/;
+    $at_details{'rating'}           = $1 if $data->{description} =~ m/\|Rating: (.*?)\|/;
+    $at_details{'cast'}             = $1 if $data->{description} =~ m/\|Cast: (.*?)\|/;
+
     if ($at->{Dir}) {
     	my $title = $at->{Dir};
         if($title =~ /.*%.*%.*/sig) {
-	 	   my %at_details;
-                $at_details{'title'}            = $data->{title};
-                $at_details{'subtitle'}         = $data->{subtitle} ? $data->{subtitle} : $data->{start};
-                $at_details{'date'}             = $data->{day};
-                $at_details{'regie'}            = $1 if $data->{description} =~ m/\|Director: (.*?)\|/;
-                $at_details{'category'}         = $1 if $data->{description} =~ m/\|Category: (.*?)\|/;
-                $at_details{'genre'}            = $1 if $data->{description} =~ m/\|Genre: (.*?)\|/;
-                $at_details{'year'}             = $1 if $data->{description} =~ m/\|Year: (.*?)\|/;
-                $at_details{'country'}          = $1 if $data->{description} =~ m/\|Country: (.*?)\|/;
-                $at_details{'originaltitle'}    = $1 if $data->{description} =~ m/\|Originaltitle: (.*?)\|/;
-                $at_details{'fsk'}              = $1 if $data->{description} =~ m/\|FSK: (.*?)\|/;
-                $at_details{'episode'}          = $1 if $data->{description} =~ m/\|Episode: (.*?)\|/;
-                $at_details{'rating'}           = $1 if $data->{description} =~ m/\|Rating: (.*?)\|/;
-                $title =~ s/%([\w_-]+)%/$at_details{lc($1)}/sieg;
-				$file = $title;
+          $title =~ s/%([\w_-]+)%/$at_details{lc($1)}/sieg;
+  				$file = $title;
         } else { # Classic mode DIR~TITLE~SUBTILE
           if($data->{subtitle}) {
             $file = sprintf('%s~%s~%s', $at->{Dir}, $data->{title},$data->{subtitle});
@@ -1585,12 +1603,20 @@ sub _placeholder {
 		  $file = $data->{title};
     }
 
+    my $keywords;
+    if ($at->{keywords}) {
+    	$keywords = $at->{keywords};
+      if($keywords =~ /.*%.*%.*/sig) {
+        $keywords =~ s/%([\w_-]+)%/$at_details{lc($1)}/sieg;
+      }
+    }
+
     # sind irgendweche Tags verwendet worden, die leer waren und die doppelte Verzeichnisse erzeugten?
     $file =~s#~+#~#g;
     $file =~s#^~##g;
     $file =~s#~$##g;
 
-    return $file;
+    return ($file,$keywords);
 }
 
 # ------------------

@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: xxv
 -- ------------------------------------------------------
--- Server version	5.0.32-Debian_7etch3
+-- Server version	5.0.32-Debian_7etch5
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `AUTOTIMER` (
   `startdate` datetime default NULL,
   `stopdate` datetime default NULL,
   `count` int(11) default NULL,
+  `keywords` text,
   PRIMARY KEY  (`Id`)
 );
 
@@ -151,6 +152,23 @@ CREATE TABLE IF NOT EXISTS `USER` (
   `MaxPriority` tinyint(2) default '0',
   PRIMARY KEY  (`Id`)
 );
+
+--
+-- Table structure for table `XMLTV`
+--
+
+CREATE TABLE IF NOT EXISTS `XMLTV` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `active` enum('y','n') default 'n',
+  `xmltvname` varchar(256) NOT NULL,
+  `channel` varchar(64) NOT NULL,
+  `template` enum('y','n') default 'n',
+  `updateinterval` enum('e','d','w') default 'e',
+  `source` text NOT NULL,
+  `updated` datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `channel` (`channel`)
+);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -158,4 +176,4 @@ CREATE TABLE IF NOT EXISTS `USER` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-02-03  9:07:46
+-- Dump completed on 2008-06-13  9:50:16

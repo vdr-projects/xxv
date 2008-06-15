@@ -24,6 +24,7 @@ MODULES = ../lib/XXV/MODULES/AUTOTIMER.pm \
   ../lib/XXV/MODULES/HTTPD.pm \
   ../lib/XXV/MODULES/INTERFACE.pm \
   ../lib/XXV/MODULES/LOGREAD.pm \
+  ../lib/XXV/MODULES/KEYWORDS.pm \
   ../lib/XXV/MODULES/MEDIALIB.pm \
   ../lib/XXV/MODULES/MOVETIMER.pm \
   ../lib/XXV/MODULES/MUSIC.pm \

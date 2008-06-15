@@ -18,11 +18,11 @@
 
 # Increment the version number each time the database changes!
 #
-actualVersion=26
+actualVersion=29
 
 # Specify tables to export before and import after update
 #
-tables='AUTOTIMER CHRONICLE MEDIALIB_ACTORS MEDIALIB_VIDEODATA MEDIALIB_VIDEOGENRE MOVETIMER USER' 
+tables='AUTOTIMER CHRONICLE MEDIALIB_ACTORS MEDIALIB_VIDEODATA MEDIALIB_VIDEOGENRE MOVETIMER USER XMLTV' 
 
 showTitle()
 {

@@ -13,6 +13,8 @@ sub module {
         Name => 'TIMERS',
         Prereq => {
             'Date::Manip' => 'date manipulation routines',
+            'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm',
+            'XML::Simple' => 'Easy API to maintain XML (esp config files)'
         },
         Description => gettext('This module reads timers and saves it to the database.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -73,7 +75,7 @@ sub module {
             tsearch => {
                 description => gettext("Search timers 'text'"),
                 short       => 'ts',
-                callback    => sub{ $obj->list(@_) },
+                callback    => sub{ $obj->search(@_) },
                 DenyClass   => 'tlist',
             },
             tupdate => {
@@ -313,9 +315,9 @@ sub module {
                                 my $timer  = getDataById($i, 'TIMERS', 'pos');
 
                                 my $level = 1;
-                                if($timer->{autotimerid} and ($timer->{flags} & 1)) {
+                                if($timer->{autotimerid} and ($timer->{flags} && $timer->{flags} & 1)) {
                                     $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 2 : 3);
-                                } elsif($timer->{flags} & 1) {
+                                } elsif($timer->{flags} && $timer->{flags} & 1) {
                                     $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 4 : 5);
                                 }
 
@@ -372,7 +374,7 @@ sub new {
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
-	# who am I
+	  # who am I
     $self->{MOD} = $self->module;
 
     # all configvalues to $self without parents (important for ConfigModule)
@@ -393,6 +395,9 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
+    $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1))
+        || return error("Can't create XML instance!");
+
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize modul!');
 
@@ -409,7 +414,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 28; # Must be increment if rows of table changed
+    my $version = 29; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($obj->{dbh},'TIMERS',$version,1)) {
@@ -449,6 +454,10 @@ sub _init {
         $obj->{svdrp} = main::getModule('SVDRP');
         unless($obj->{svdrp}) {
            panic ("Couldn't get modul SVDRP");
+           return 0;
+        }
+        $obj->{keywords} = main::getModule('KEYWORDS');
+        unless($obj->{keywords}) {
            return 0;
         }
 
@@ -512,7 +521,24 @@ sub _saveTimer {
     $data->{flags} |= ($data->{vps} eq 'y' ? 4 : 0);
 
     $data->{file} =~ s/(\r|\n)//sg;
-    $data->{aux}  =~ s/(\r|\n)//sg if(exists $data->{aux});
+
+    # Add anchor for reidentify timer
+    my $root = {};
+    if(exists $data->{aux}) {
+      $data->{aux}  =~ s/(\r|\n)//sg;
+      if($data->{aux} && $data->{aux} =~ /^<.*/ ) {
+        my $args = $obj->{xml}->XMLin($data->{aux}, KeepRoot => 1 );
+        if(defined $args 
+           && defined $args->{'xxv'} ) {
+             $root = $args->{'xxv'};
+        }
+      }
+    }
+    #$root->{'autotimer'} = $data->{autotimerid} if($data->{autotimerid});
+    $root->{'keywords'} = $data->{keywords} if($data->{keywords});
+    if($root && keys %$root) {
+      $data->{aux} = $obj->{xml}->XMLout($root, RootName => 'xxv');
+    }
 
     my $file = $data->{file};
     $file =~ s/:/|/g;
@@ -654,9 +680,22 @@ WHERE
         $timerData = $data;
     }
 
-    $timerData->{aux} =~ s/(\r|\n)//sig
-        if(defined $timerData->{aux});
+    if(defined $timerData->{aux}) {
+      $timerData->{aux} =~ s/(\r|\n)//sig;
 
+      $timerData->{keywords} = '';
+      if($timerData->{aux} && $timerData->{aux} =~ /^<.*/ ) {
+        my $args = $obj->{xml}->XMLin($timerData->{aux}, KeepRoot => 1 );
+        if(defined $args 
+          && defined $args->{'xxv'} ) {
+            my $root = $args->{'xxv'};
+#            $aid = int($root->{'autotimer'}) 
+#              if(defined $root->{'autotimer'} );
+            $timerData->{keywords} = $root->{'keywords'} 
+              if(defined $root->{'keywords'} );
+        }
+      }
+    }
     my $modC = main::getModule('CHANNELS');
     my $con = $console->typ eq "CONSOLE";
 
@@ -805,6 +844,11 @@ WHERE
                     return undef, gettext('Value incorrect!');
                 }
             },
+        },
+        'keywords' => {
+            typ     => 'string',
+            def     => $timerData->{keywords},
+            msg     => gettext('Add keywords to recording'),
         },
         'aux' => {
             typ     => 'hidden',
@@ -1054,7 +1098,7 @@ sub toggleTimer {
 # ------------------
 sub _insert {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $timer = shift || return;
     my $checked = shift || 0;
 
@@ -1070,15 +1114,11 @@ sub _insert {
     $timer->{file} =~ s/\|/\:/g;
 
     # NextTime
-    my $nexttime = $obj->getNextTime( $timer->{day}, $timer->{start}, $timer->{stop} )
+    my $nexttime = $self->getNextTime( $timer->{day}, $timer->{start}, $timer->{stop} )
         or return error(sprintf("Couldn't get time from this timer: %d '%s' '%s' '%s'", $timer->{pos}, $timer->{day}, $timer->{start}, $timer->{stop}));
 
-    # AutotimerId
-    my $atxt = (split('~', $timer->{aux}))[-1];
-    my $aid = $1 if(defined $atxt and $atxt =~ /AT\[(\d+)\]/);
-
     # Search for event at EPG
-    my $e = $obj->_getNextEpgId( {
+    my $e = $self->_getNextEpgId( {
           pos     => $timer->{pos},
           flags   => $timer->{flags},
           channel => $timer->{channel},
@@ -1087,12 +1127,27 @@ sub _insert {
           stop    => $nexttime->{stop},
         });
 
-    my $sth = $obj->{dbh}->prepare(
+    # Tags
+    my $aid;
+    my $keywords;
+    if($timer->{aux} && $timer->{aux} =~ /^<.*/ ) {
+      my $args = $self->{xml}->XMLin($timer->{aux}, KeepRoot => 1 );
+      if(defined $args 
+        && defined $args->{'xxv'} ) {
+          my $root = $args->{'xxv'};
+          $aid = int($root->{'autotimer'}) 
+            if(defined $root->{'autotimer'} );
+          $keywords = $root->{'keywords'} 
+            if(defined $root->{'keywords'} );
+      }
+    }
+    my $sth = $self->{dbh}->prepare(
 q|REPLACE INTO TIMERS VALUES 
-  (MD5(CONCAT(?,?,?)),?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,?,NOW())
+  (?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,?,NOW())
 |);
+    my $id = md5_hex($timer->{channel} . $nexttime->{start} . $nexttime->{stop} );
     $sth->execute( 
-         $timer->{channel},$nexttime->{start},$nexttime->{stop},
+         $id,
          $timer->{pos},
          $timer->{flags},
          $timer->{channel},
@@ -1111,8 +1166,9 @@ q|REPLACE INTO TIMERS VALUES
          $aid,
          $checked
      ) or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-}
 
+     $self->{keywords}->insert('timer',$id,$keywords);
+}
 
 # Read data
 # ------------------
@@ -1129,6 +1185,7 @@ sub _readData {
     my $oldTimers = &getDataByTable('TIMERS');
 
     $obj->{dbh}->do('DELETE FROM TIMERS');
+    $obj->{keywords}->removesource('timer');
 
     # read from svdrp
     my $tlist = $obj->{svdrp}->command('lstt');
@@ -1165,6 +1222,7 @@ sub _readData {
 
     # Get new timers by User
     if($oldTimers or exists $obj->{changedTimer}) {
+
         my $timers = $obj->getNewTimers($oldTimers);
         foreach my $timerdata (@$timers) {
             event sprintf('New timer "%s" with id: "%d"', $timerdata->{file}, $timerdata->{pos});
@@ -1219,25 +1277,55 @@ sub updated {
         }
     }
 }
+
 # ------------------
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $text    = shift || '';
+    my $id    = shift;
+    my $params  = shift;
 
 	  my $term;
-	  my $search = '';
-	  if($text and $text =~ /^[0-9a-f,_ ]+$/ and length($text) >= 32 ) {
-      my @timers  = split(/[^0-9a-f]/, $text);
+	  my $search;
+	  if($id and $id =~ /^[0-9a-f,_ ]+$/ and length($id) >= 32 ) {
+      my @timers  = split(/[^0-9a-f]/, $id);
       $search = sprintf(" AND t.id in (%s)",join(',' => ('?') x @timers));
       foreach(@timers) { push(@{$term},$_); }
-	  } elsif($text) {
-      my $query = buildsearch("t.file,(SELECT description FROM EPG as e WHERE t.eventid = e.eventid LIMIT 1)",$text);
-      $search = sprintf('AND ( %s )', $query->{query});
-      foreach(@{$query->{term}}) { push(@{$term},$_); }
 	  }
+
+    return $obj->_list($watcher,$console,$search,$term,$params);
+}
+
+# ------------------
+sub search {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift || return error('No watcher defined!');
+    my $console = shift || return error('No console defined!');
+    my $text    = shift || return $obj->list($watcher,$console);
+    my $params  = shift;
+
+	  my $term;
+	  my $search;
+    my $query = buildsearch("t.file,(SELECT description FROM EPG as e WHERE t.eventid = e.eventid LIMIT 1)",$text);
+    $search = sprintf('AND ( %s )', $query->{query});
+    foreach(@{$query->{term}}) { push(@{$term},$_); }
+
+    return $obj->_list($watcher,$console,$search,$term,$params);
+}
+
+# ------------------
+sub _list {
+# ------------------
+    my $obj = shift || return error('No object defined!');
+    my $watcher = shift;
+    my $console = shift;
+	  my $search = shift || '';
+	  my $term = shift;
+	  my $params = shift;
+	  my $table = shift || '';
 
     my %f = (
         'id' => gettext('Service'),
@@ -1273,6 +1361,7 @@ SELECT SQL_CACHE
 FROM
     TIMERS as t,
     CHANNELS as c
+    $table
 WHERE
     t.stoptime > NOW()
     AND t.channel = c.Id
@@ -1312,10 +1401,19 @@ ORDER BY
 
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
+
+    my $keywords;
+    my $keywordmax;
+    my $keywordmin;
+
     unless($console->typ eq 'AJAX') {
+      my $md5;
       map {
+          push(@$md5,$_->[0]);
           $_->[4] = datum($_->[4],'weekday');
       } @$erg;
+
+      ($keywords,$keywordmax,$keywordmin) = $obj->{keywords}->list('timer',$md5);
 
       unshift(@$erg, $fields);
     }
@@ -1323,9 +1421,13 @@ ORDER BY
     my @DVBCARDS = split(',',$obj->{DVBCardsTyp});
     my $cards = scalar @DVBCARDS;
 
+    $console->setCall('tlist');
     $console->table($erg, {
         cards => $cards,
 		    capacity => main::getModule('RECORDS')->{CapacityFree},
+        keywords => $keywords,
+        keywordsmax => $keywordmax,        
+        keywordsmin => $keywordmin,
         rows => $rows
     });
 }
@@ -2062,8 +2164,5 @@ sub suggest {
             if(ref $console && $result);
     }
 }
-
-1;
-
 
 1;
