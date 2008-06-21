@@ -273,17 +273,22 @@
     <tr><td class="sidehead"><?% gettext("Keywords",20) %?></td></tr>
     <tr>
     <td class="sidetext">
-        <?% total = (param.keywordsmax - param.keywordsmin) %?>
-        <?% IF total > 5 %?>
-        <?% basis = 65 %?>
-        <?% size = 50 / total %?>
+        <?% steps = 25 %?>
+        <?% range = (param.keywordsmax - param.keywordsmin) %?>
+        <?% IF range > 2 %?>
+          <?% factor = steps / range %?>
+          <?% basis = param.keywordsmin %?>
         <?% ELSE %?>
-        <?% basis = 100 %?>
-        <?% size = 0 %?>
+          <?% factor = 1 %?>
+          <?% basis = param.keywordsmin - steps %?>
+        <?% END %?>
+        <?% IF param.keywords.size <  steps %?>
+          <?% factor = factor * (param.keywords.size /  steps) %?>
         <?% END %?>
         <?% FOREACH keyword = param.keywords %?>
+              <?% level = 80 + (3*(((keyword.1 - basis) * factor) div 1)) %?>
               <a href="?cmd=tk&amp;data=<?% keyword.0 %?>">
-                <font style="font-size:<?% (basis + (keyword.1 * size)) div 1 %?>%"><?% keyword.0 %?></font>
+                <font style="font-size:<?% level %?>%"><?% keyword.0 %?></font>
               </a>&nbsp;
         <?% END %?>
     </td>
