@@ -1065,46 +1065,48 @@ sub readinfo {
     my $file = sprintf("%s/info.vdr", $path);
     if(-r $file) {
         my $text = load_file($file);
-        my $modC = main::getModule('CHANNELS');
-        foreach my $zeile (split(/[\r\n]/, $text)) {
-            if($zeile =~ /^D\s+(.+)/s) {
-                $info->{description} = $1;
-                $info->{description} =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
-                $info->{description} =~ s/^\s+//;               # no leading white space
-                $info->{description} =~ s/\s+$//;               # no trailing white space
-            }
-            elsif($zeile =~ /^C\s+(\S+)/s) {
-                $info->{channel} = $1;
-                $info->{type} = $modC->getChannelType($info->{channel});
-            }
-            elsif($zeile =~ /^T\s+(.+)$/s) {
-                $info->{title} = $1;
-            }
-            elsif($zeile =~ /^S\s+(.+)$/s) {
-                $info->{subtitle} = $1;
-            }
-            elsif($zeile =~ /^V\s+(.+)$/s) {
-                $info->{vpstime} = $1;
-            }
-            elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
-                $info->{video} = $1;
-            }
-            elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
-                $info->{audio} .= "\n" if($info->{audio});
-                $info->{audio} .= $1;
-            }
-            elsif($zeile =~ /^@\s+(.+)$/s) {
-                $info->{aux} = $1;
-                $info->{aux} =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
-                $info->{aux} =~ s/^\s+//;               # no leading white space
-                $info->{aux} =~ s/\s+$//;               # no trailing white space
+        if($text) {
+          my $modC = main::getModule('CHANNELS');
+          foreach my $zeile (split(/[\r\n]/, $text)) {
+              if($zeile =~ /^D\s+(.+)/s) {
+                  $info->{description} = $1;
+                  $info->{description} =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
+                  $info->{description} =~ s/^\s+//;               # no leading white space
+                  $info->{description} =~ s/\s+$//;               # no trailing white space
+              }
+              elsif($zeile =~ /^C\s+(\S+)/s) {
+                  $info->{channel} = $1;
+                  $info->{type} = $modC->getChannelType($info->{channel});
+              }
+              elsif($zeile =~ /^T\s+(.+)$/s) {
+                  $info->{title} = $1;
+              }
+              elsif($zeile =~ /^S\s+(.+)$/s) {
+                  $info->{subtitle} = $1;
+              }
+              elsif($zeile =~ /^V\s+(.+)$/s) {
+                  $info->{vpstime} = $1;
+              }
+              elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
+                  $info->{video} = $1;
+              }
+              elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
+                  $info->{audio} .= "\n" if($info->{audio});
+                  $info->{audio} .= $1;
+              }
+              elsif($zeile =~ /^@\s+(.+)$/s) {
+                  $info->{aux} = $1;
+                  $info->{aux} =~ s/\|/\r\n/g;            # pipe used from vdr as linebreak
+                  $info->{aux} =~ s/^\s+//;               # no leading white space
+                  $info->{aux} =~ s/\s+$//;               # no trailing white space
 
-                my $xml = $obj->{keywords}->parsexml($info->{aux});
-        #       $info->{keywords} = $xml->{'autotimer'}
-        #         if($xml && defined $xml->{'autotimer'} );
-                $info->{keywords} = $xml->{'keywords'}
-                  if($xml && defined $xml->{'keywords'} );
-            }
+                  my $xml = $obj->{keywords}->parsexml($info->{aux});
+          #       $info->{keywords} = $xml->{'autotimer'}
+          #         if($xml && defined $xml->{'autotimer'} );
+                  $info->{keywords} = $xml->{'keywords'}
+                    if($xml && defined $xml->{'keywords'} );
+              }
+          }
         }
     }
     return $info;

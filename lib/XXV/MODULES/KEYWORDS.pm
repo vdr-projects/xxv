@@ -325,7 +325,15 @@ sub parsexml {
 
     $aux  =~ s/(\r|\n)//sg;
     if($aux && $aux =~ /^<.*/ ) {
-      my $args = $self->{xml}->XMLin($aux, KeepRoot => 1 );
+      my $args = eval {  $self->{xml}->XMLin($aux, KeepRoot => 1 ) } ;
+      if ($@) {
+        if($Tools::VERBOSE >= 4) {
+          error sprintf("Can't parse xml data : %s - %s", $@, $aux);
+        } elsif($Tools::VERBOSE >= 2) {
+          error ("Can't parse xml data");
+        }
+        return  undef;
+      } 
       if(defined $args 
         && defined $args->{'xxv'} ) {
           if($self->{charset} eq 'UTF-8'){
