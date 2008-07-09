@@ -1221,7 +1221,7 @@ sub _brandNewChannels {
     my $rm = main::getModule('REPORT');
     $rm->news(
         sprintf(gettext('Found %d new channels!'), scalar keys %$attr),
-        join('\r\n',@lines),
+        join("\r\n",@lines),
         'clist',
         undef,
         'veryinteresting',

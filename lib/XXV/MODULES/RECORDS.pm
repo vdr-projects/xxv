@@ -2242,8 +2242,9 @@ WHERE
             my $sth = $obj->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
             $sth->execute($recordid)
                 or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
-            my @todel = [$recordid];
-            $obj->{keywords}->remove('recording',\@todel);
+            my $todel;
+            push(@$todel,$recordid);
+            $obj->{keywords}->remove('recording',$todel);
         }
         if($dropEPGEntry || $ChangeRecordingData) {
             $obj->{lastupdate} = 0;
