@@ -321,7 +321,7 @@ sub playrecord {
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    if(0 and $self->{method} eq 'http') {
+    if($self->{method} eq 'http') {
       return $console->stream(\@files, $self->{mimetyp}, $offset);
     } else {
 
