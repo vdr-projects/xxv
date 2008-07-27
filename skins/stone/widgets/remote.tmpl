@@ -40,7 +40,8 @@ var interval = 5
 var last = 0;
 
 function remote(key) {
-    post('remote',key);
+    var vdr = ( document.channelform.vdr.options ? document.channelform.vdr.options[document.channelform.vdr.options.selectedIndex].value : document.channelform.vdr.value );
+    post('remote',key + '&__vdr=' + vdr );
 <?% IF monitor %?>
     if(last + 1000 < Date.UTC()) {
         grab();
@@ -51,8 +52,9 @@ function remote(key) {
 <?% IF monitor %?>
 function grab() {
     if(document.remoteform.grabinterval.value > 0) {
-        Now = new Date();
-    	document.livepicture.src = '?cmd=gdisplay&random=' + Now.getTime();
+      Now = new Date();
+      var vdr = ( document.channelform.vdr.options ? document.channelform.vdr.options[document.channelform.vdr.options.selectedIndex].value : document.channelform.vdr.value );
+    	document.livepicture.src = '?cmd=gdisplay&__vdr='+vdr+'&random=' + Now.getTime();
     }
     last = Date.UTC();
 }
@@ -82,7 +84,7 @@ aktiv = window.setInterval("grab()", inter);
             <table class="fieldinline" summary="">
                 <tr>
                     <td class="fieldinline" valign="middle" align="center">
-                        <img alt="<?% date.now %?>" src="?cmd=gdisplay&amp;random=<?% date.now %?>" width="<?% width %?>" height="<?% height %?>" name="livepicture" />
+                        <img alt="<?% date.now %?>" src="?cmd=gdisplay&amp;random=<?% date.now %?>&amp;__vdr=<?% param.vdr %?>" width="<?% width %?>" height="<?% height %?>" name="livepicture" />
                     </td>
                 </tr>
             </table>
@@ -102,6 +104,7 @@ aktiv = window.setInterval("grab()", inter);
   </td>
 <?% END %?>
   <td>
+    <form name="channelform" action="">
         <table class="fieldtable" summary="">
         <tr><td class="fieldhead"><div class="remotehead"><?% gettext("Remote") %?></div><?% INCLUDE shutter.inc %?></td></tr>
         <tr>
@@ -284,11 +287,47 @@ aktiv = window.setInterval("grab()", inter);
                             </table>
                         </td>
                     </tr>
+                    <?% IF param.vdrlist.size > 1 %?>
+                    <tr>
+                        <td colspan="7" align="center">
+                            <select style="width:175px;" name="vdr">
+                            <?% FOREACH l = param.vdrlist %?>
+                                <option value='<?% l.1 %?>'<?% IF l.1 == param.vdr %?> selected<?% END %?>><?% l.0 %?></option>
+                            <?% END %?>
+                            </select>
+                        </td>
+                    </tr>
+                    <?% ELSE %?>
+                    <tr>
+                        <td colspan="7" align="center">
+                        <input type="hidden" name="vdr" value="<?% param.vdr %?>" />
+                        </td>
+                    </tr>
+                    <?% END %?>
+                    <tr>
+                        <td colspan="7" align="center">
+                            <select style="width:175px;" name="channels" onchange="post('switch', this.form.channels.options[this.form.channels.options.selectedIndex].value + '&amp;__vdr=' + ( this.form.vdr.options ? this.form.vdr.options[this.form.vdr.options.selectedIndex].value : this.form.vdr.value ))">
+                            <?% FOREACH l = param.channels %?>
+                            <?% IF l.2 && l.2 != optgroup %?>
+                              <?% IF optgroup %?>
+                              </optgroup>
+                              <?% END %?>
+                              <optgroup label="<?% optgroup = l.2;l.2 %?>">
+                            <?% END %?>
+                                <option value='<?% l.1 %?>'><?% l.0 %?></option>
+                            <?% END %?>
+                            <?% IF optgroup %?>
+                              </optgroup>
+                            <?% END %?>
+                            </select>
+                        </td>
+                    </tr>
                 </table>
             </td>
         </tr>
         <tr><td class="fieldbottom"></td></tr>
     </table>
+    </form>
 </td>
 </tr>
 </table>

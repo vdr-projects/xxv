@@ -28,7 +28,7 @@
     <?% PROCESS SetState %?>
     <td >
         <a style="vertical-align:bottom;" href="?cmd=program&amp;data=<?% channel %?><?% IF id > 0 %?>#E<?% id %?><?% END %?>" title="<?% gettext("Program guide for") %?>&nbsp;<?% sender %?>">
-            <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;<?% sender %?></font>
+            <font class="channel<?% IF state != "";" ";state;END %?>"><?% sender %?></font>
         </a>
     </td>
     <td>

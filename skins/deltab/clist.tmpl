@@ -31,7 +31,7 @@
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
 <?% IF allow('program') %?>
-                      <a href="?cmd=program&data=<?% POS %?>">
+                      <a href="?cmd=program&data=<?% id %?>">
                           <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Program guide") %?>" />
                       </a>
 <?% END %?>
@@ -41,7 +41,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('cdelete') %?>
-                        <a href="javascript:sure('<?% gettext("Would you like to delete this channel?") %?> : \'<?% escape( name ) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')">
+                        <a href="javascript:sure('<?% gettext("Would you like to delete this channel?") %?> : \'<?% escape( name ) %?>\' ?','?cmd=cdelete&amp;data=<?% id %?>')">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete channel") %?>" />
                         </a>
 <?% END %?>
@@ -51,7 +51,7 @@
         <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
           <td>
             <?% IF enableform %?>
-        			<input class="push" type="checkbox" value="<?% POS %?>" name="<?% name %?>" />
+        			<input class="push" type="checkbox" value="<?% id %?>" name="<?% name %?>" />
              <?% END %?>
           </td>
           <td>
@@ -109,7 +109,7 @@
         <?%- id=zeile.0;name=zeile.1;frequency=zeile.2;parameters=zeile.3;
              source=zeile.4;srate=zeile.5;VPID=zeile.6;APID=zeile.7;TPID=zeile.8;
              CA=zeile.9;SID=zeile.10;NID=zeile.11;TID=zeile.12;RID=zeile.13;GRP=zeile.14;
-             POS=zeile.15;CGRP=zeile.16; -%?>
+             POS=zeile.15;CGRP=zeile.16;HOST=zeile.17; -%?>
         <?% IF loop.count == 1 || ( !sortby.defined && ( !OLDCGRP.defined || CGRP != OLDCGRP ))  %?>
         <?% IF OLDCGRP.defined %?>
     </table>
@@ -117,7 +117,11 @@
     <?% IF !sortby.defined  %?>
         <?% OLDCGRP = CGRP %?>
     <?% END %?>
-        <?% IF CGRP.defined && loop.count != 1 %?><h2><?% CGRP %?></h2><?% END %?>
+    <?% IF not sortby.defined && OLDHOST != HOST  %?>
+    <h2><?% gettext("Video disk recorder") %?> : <?% HOST %?></h2>
+    <?% OLDHOST = HOST %?>
+    <?% END %?>
+        <?% IF CGRP.defined && loop.count != 1 %?><h3><?% CGRP %?></h3><?% END %?>
         <table summary="" width="100%">
         <tr><th width="20"></th>
             <th width="120"><?% gettext('Name') %?></th>

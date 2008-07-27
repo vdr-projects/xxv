@@ -37,7 +37,7 @@
 <a href="?cmd=cedit&amp;data=<?% id %?>" title="<?% gettext("Edit channel") %?>"><img src="images/edit.png"></a>
 <?%- END -%?>
 <?%- IF allow('cdelete') -%?>
-<a href="javascript:sure(document.KanalListe, '<?% gettext("Would you like to delete this channel?") %?>\n\'<?% escape(name) %?>\' ?','?cmd=cdelete&amp;data=<?% POS %?>')"
+<a href="javascript:sure(document.KanalListe, '<?% gettext("Would you like to delete this channel?") %?>\n\'<?% escape(name) %?>\' ?','?cmd=cdelete&amp;data=<?% id %?>')"
    title="<?% gettext("Delete channel") %?>" ><img src="images/delete.png"></a>
 </div>
 <?%- END -%?>
@@ -47,7 +47,7 @@
         <tr<?% ' bgcolor="#F5F5F5"' IF loop.count mod 2 == 0 %?>>
           <td>
             <?% IF enableform %?>
-        			<input type="checkbox" value="<?% POS %?>" name="<?% name %?>" />
+        			<input type="checkbox" value="<?% id %?>" name="<?% name %?>" />
              <?% END %?>
           </td>
           <td>
@@ -141,8 +141,14 @@
         <th align="right"></th>
     </tr>
     <?% FOREACH zeile = data %?>
-        <?% id=zeile.0;name=zeile.1;frequency=zeile.2;parameters=zeile.3;source=zeile.4;srate=zeile.5;VPID=zeile.6;APID=zeile.7;TPID=zeile.8;CA=zeile.9;SID=zeile.10;NID=zeile.11;TID=zeile.12;RID=zeile.13;GRP=zeile.14;POS=zeile.15;CGRP=zeile.16 %?>
-        <?% IF CGRP != CGRP_OLD %?>
+        <?% id=zeile.0;name=zeile.1;frequency=zeile.2;parameters=zeile.3;source=zeile.4;srate=zeile.5;VPID=zeile.6;APID=zeile.7;TPID=zeile.8;CA=zeile.9;SID=zeile.10;NID=zeile.11;TID=zeile.12;RID=zeile.13;GRP=zeile.14;POS=zeile.15;CGRP=zeile.16;HOST=zeile.17; %?>
+        <?% IF not sortby.defined && OLDHOST != HOST  %?>
+            <tr>
+                <td colspan=10 bgcolor='#CCCCCC'><b><?% gettext("Video disk recorder") %?> : <?% HOST %?></b></td>
+            <tr>
+        <?% OLDHOST = HOST %?>
+        <?% END %?>
+        <?% IF not sortby.defined && CGRP != CGRP_OLD %?>
             <tr>
                 <td colspan=10 bgcolor='#DDDDDD'><b><?% CGRP %?></b></td>
             <tr>

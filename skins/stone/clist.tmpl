@@ -9,11 +9,35 @@
         <?% sortby = cgi.param('__sortby') %?>
         <?% orderby = cgi.param('__desc') %?>
     <?% END %?>
+    <?% cmd = cgi.param('cmd') %?>
+    <?% IF cgi.param('data') %?>
+        <?% daten = url( cgi.param('data') ) %?>
+        <?% daten = "&amp;data=${daten}" %?>
+    <?% END %?>
+<?% END %?>
+    <?% IF cgi.param('start') %?>
+        <?% start = cgi.param('start') %?>
+    <?% END %?>
+<?% ######################################################################## %?>
+<?% BLOCK PageButtons %?>
+    <div style="text-align:right">
+      <?% IF ( start - global.pagelimit ) >= 0 %?>
+      <a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% sortby %?>&amp;__desc=<?% orderby %?>&amp;start=<?% start - global.pagelimit %?>&amp;limit=<?% global.pagelimit %?>" >
+        <img src="images/back.<?% global.imagetyp %?>" alt="" title="<?% gettext('Previous page') %?>" />
+      </a>
+      <?% END %?>
+      <?% IF ( start + global.pagelimit ) < param.rows %?>
+      <a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% sortby %?>&amp;__desc=<?% orderby %?>&amp;start=<?% start + global.pagelimit %?>&amp;limit=<?% global.pagelimit %?>" >
+        <img src="images/forward.<?% global.imagetyp %?>" alt="" title="<?% gettext("Next page") %?>" />
+      </a>
+      <?% END %?>
+    </div>
+    <div style="clear:both"></div>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
 <?% IF allow('program') %?>
-                      <a href="?cmd=program&data=<?% POS %?>">
+                      <a href="?cmd=program&data=<?% id %?>">
                         <img src="images/watch.<?% global.imagetyp %?>" alt="" title="<?% gettext("Program guide") %?>" />
                       </a>
 <?% END %?>
@@ -23,7 +47,7 @@
                         </a>
 <?% END %?>
 <?% IF allow('cdelete') %?>
-                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this channel?") %?>','<?% escape(name) %?>','cdelete','<?% POS %?>',620,670)">
+                        <a href="javascript:surecmd('<?% gettext("Would you like to delete this channel?") %?>','<?% escape(name) %?>','cdelete','<?% id %?>',620,670)">
                             <img src="images/delete.<?% global.imagetyp %?>" alt="" title="<?% gettext("Delete channel") %?>" />
                         </a>
 <?% END %?>
@@ -33,12 +57,12 @@
         <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
           <td class="fieldinline">
             <?% IF enableform %?>
-        			<input type="checkbox" value="<?% POS %?>" name="<?% name %?>" />
+        			<input type="checkbox" value="<?% id %?>" name="<?% name %?>" />
              <?% END %?>
           </td>
           <td class="fieldinline">
 <?% IF allow('cedit') %?>
-            <a name="<?% POS %?>" href="javascript:popup('cedit','<?% id %?>',620,670,1)">
+            <a href="javascript:popup('cedit','<?% id %?>',620,670,1)">
 <?% END %?>
             <?% POS %?>.<?% name %?>
 <?% IF allow('cedit') %?>
@@ -79,9 +103,12 @@
     <?% search = cgi.param('data') %?>
 <?% END %?>
 <h1>
+    <div style="float:left;">
     <?% gettext("Channels") %?>
     <?% IF search.defined %?> : "<?% search %?>" 
     <?% END %?>
+    </div>
+    <?% PROCESS PageButtons %?>
 </h1>
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
@@ -91,8 +118,8 @@
         <?%- id=zeile.0;name=zeile.1;frequency=zeile.2;parameters=zeile.3;
              source=zeile.4;srate=zeile.5;VPID=zeile.6;APID=zeile.7;TPID=zeile.8;
              CA=zeile.9;SID=zeile.10;NID=zeile.11;TID=zeile.12;RID=zeile.13;GRP=zeile.14;
-             POS=zeile.15;CGRP=zeile.16; -%?>
-
+             POS=zeile.15;CGRP=zeile.16;HOST=zeile.17; -%?>
+        <?% LAST IF loop.count > global.pagelimit %?>
         <?% IF loop.count == 1 || ( !sortby.defined && ( !OLDCGRP.defined || CGRP != OLDCGRP ))  %?>
         <?% IF OLDCGRP.defined %?>
                 </table>
@@ -106,6 +133,10 @@
         <?% END %?>
     <?% IF !sortby.defined  %?>
         <?% OLDCGRP = CGRP %?>
+    <?% END %?>
+    <?% IF not sortby.defined && OLDHOST != HOST  %?>
+    <h2><?% gettext("Video disk recorder") %?> : <?% HOST %?></h2>
+    <?% OLDHOST = HOST %?>
     <?% END %?>
     <?% IF enableform && not sortby.defined %?>
     <fieldset id="fieldset_<?% CGRP %?>" style="border: 0px; padding: 0px; margin: 0px;">
@@ -175,11 +206,6 @@
   </table>
 <?% END %?>
 <?% IF param.sortable.defined %?>
-    <?% cmd = cgi.param('cmd') %?>
-        <?% IF cgi.param('data') %?>
-            <?% daten = url( cgi.param('data') ) %?>
-            <?% daten = "&amp;data=${daten}" %?>
-        <?% END %?>
   <table summary="">
     <tr><td class="sidehead"><?% gettext("Sorting") %?></td></tr>
     <tr>

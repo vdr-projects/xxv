@@ -80,7 +80,6 @@
         <?% PROCESS StateImage %?>
         <?% "</a>" IF allow('ttoggle') %?>
         <a class="fieldinline" href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program:") %?><?% sender %?>" style="<?% IF state != "" %?><?% state %?><?% END %?>vertical-align:bottom;">
-            <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.&nbsp;</font>
             <font class="title<?% IF state != "";" ";state;END %?>"><?% sender %?></font>
         </a>
     </td>

@@ -17,7 +17,7 @@ padding:0 0 0 185px;
 input,select,textarea {
 font-family:Tahoma, Arial, Helvetica, sans-serif;
 color:#000;
-font-size:11px;
+font-size:12px;
 }
 
 #body {
@@ -165,12 +165,12 @@ text-align:right;
 }
 
 .title {
-font-size:11px;
+font-size:12px;
 font-weight:700;
 }
 
 .description {
-font-size:9px;
+font-size:10px;
 }
 
 .deactive {
@@ -360,13 +360,13 @@ padding:0;
 }
 
 td {
-font-size:11px;
+font-size:12px;
 }
 
 table.fieldtable {
 width:200px;
 color:#000;
-font-size:11px;
+font-size:12px;
 }
 
 div.remotehead,
@@ -410,12 +410,12 @@ width:100%;
 
 fieldinline {
 color:#000;
-font-size:11px;
+font-size:12px;
 }
 
 #fieldinline input {
 color:#000;
-font-size:8px;
+font-size:12px;
 }
 
 #sidebar table {
@@ -439,7 +439,7 @@ white-space:nowrap;
 td.sidetext {
 vertical-align:top;
 background:url(images/dark180.gif) repeat-y;
-font-size:11px;
+font-size:12px;
 padding:4px 12px 4px 4px;
 }
 
@@ -470,7 +470,7 @@ white-space:nowrap;
 table.areatable {
 width:400px;
 color:#000;
-font-size:11px;
+font-size:12px;
 }
 
 td.areahead {
@@ -498,7 +498,7 @@ height:15px;
 table.editortable {
 width:600px;
 color:#000;
-font-size:11px;
+font-size:12px;
 }
 
 div.editorhead {
@@ -625,7 +625,7 @@ clear:both;
 }
 
 .subtitle,.channel {
-font-size:10px;
+font-size:11px;
 }
 
 a,a:visited,a:active,a:link {

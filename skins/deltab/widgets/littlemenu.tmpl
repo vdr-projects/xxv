@@ -1,16 +1,23 @@
 <!-- LittleMenuTemplate -->
 <?% global.sidebar = 1 %?>
 <div id="sidebar">
-    <?% IF allow('cedit') %?>
-    <p class="section"><?% gettext("Channels",20) %?></p>
+    <?% IF allow('vdrlist') || allow('clist') %?>
+    <p class="section"><?% gettext("Preferences",20) %?></p>
     <p>
-    <a href="?cmd=clist">
-        <img src="images/edit.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit channels") %?>" />
+    <?% END %?>
+    <?% IF allow('vdrlist') %?>
+    <a href="?cmd=vdrlist">
+        <?% gettext("Video disk recorder",20) %?>
     </a>
-    &nbsp;
+    <br />
+    <?% END %?>
+    <?% IF allow('clist') %?>
     <a href="?cmd=clist">
-        <?% gettext("Edit channels",20) %?>
+        <?% gettext("Channels",20) %?>
     </a>
+    <br />
+    <?% END %?>
+    <?% IF allow('vdrlist') || allow('clist') %?>
     </p>
     <?% END %?>
   <?% IF allow( 'ul') || allow( 'uprefs' ) %?>

@@ -202,7 +202,7 @@ function ttp_make_tlist_visable(title, tlist, x, y){
         var content = "";
         var values = eval('(' + oAnswer.responseText + ')');
         if(values && values.data && typeof(values.data) == 'object'){
-          for (var i = 1; i < values.data.length; i++) {
+          for (var i = 0; i < values.data.length; i++) {
             var x = values.data[i];
             var len = 23;
 
@@ -210,7 +210,12 @@ function ttp_make_tlist_visable(title, tlist, x, y){
               content += '<span class="deactive">';
             }
             //var d = new Date(x[9] * 1000);
-            content += x[4]; //Day
+            var d = new Date(x[4] * 1000);
+            if(0) {
+              content += d.getDate() + "/" + (d.getMonth()+1) + "/" + (d.getYear() + 1900); //Day
+            } else {
+              content += d.getDate() + "." + (d.getMonth()+1) + "." + (d.getYear() + 1900); //Day
+            }
             content += " - ";
             content += x[5]; //Start
             content += "-";

@@ -167,7 +167,7 @@ text-align:right;
 }
 
 .title {
-font-size:11px;
+font-size:12px;
 font-weight:700;
 }
 
@@ -365,7 +365,7 @@ vertical-align:middle;
 background:url(images/headfield.gif) no-repeat;
 height:20px;
 color:#000;
-font-size:11px;
+font-size:12px;
 font-weight:700;
 padding:0 2px 0 2px;
 }
@@ -374,7 +374,7 @@ td.fieldtext {
 vertical-align:top;
 background:url(images/darkfield.gif) repeat-y;
 color:#000;
-font-size:11px;
+font-size:12px;
 padding:2px;
 }
 
@@ -390,13 +390,13 @@ width:100%;
 
 fieldinline {
 color:#000;
-font-size:11px;
+font-size:12px;
 }
 
 #fieldinline input {
 font-family:'Trebuchet MS', Lucida, Verdana, Helvetica, Arial, sans-serif;
 color:#000;
-font-size:8px;
+font-size:12px;
 }
 
 #sidebar table {
@@ -421,7 +421,7 @@ td.sidetext {
 vertical-align:top;
 background:url(images/dark150.gif) repeat-y;
 color:#000;
-font-size:11px;
+font-size:10px;
 padding:4px;
 }
 
@@ -469,7 +469,7 @@ td.areatext {
 vertical-align:top;
 background:url(images/dark400.gif) repeat-y;
 color:#000;
-font-size:11px;
+font-size:12px;
 padding:4px;
 }
 
@@ -507,7 +507,7 @@ td.editortext {
 vertical-align:top;
 background:url(images/dark600.gif) repeat-y;
 color:#000;
-font-size:11px;
+font-size:12px;
 padding:4px;
 }
 
@@ -537,7 +537,7 @@ td.largetext {
 vertical-align:top;
 background:url(images/dark800.gif) repeat-y;
 color:#000;
-font-size:11px;
+font-size:12px;
 padding:1px;
 }
 
@@ -642,12 +642,12 @@ z-index:5;
 visibility:hidden;
 }
 
-.subtitle,td {
-font-size:10px;
+.subtitle,.channel,td {
+font-size:11px;
 }
 
-.description,.channel {
-font-size:9px;
+.description {
+font-size:10px;
 }
 
 a,a:visited,a:active,a:link {

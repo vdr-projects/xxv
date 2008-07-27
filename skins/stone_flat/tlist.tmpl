@@ -97,7 +97,7 @@
             </td>
             <td class="fieldinline">
             <?% IF allow('program') %?><a class="fieldinline" href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program:") %?><?% sender %?>" style="vertical-align:bottom;"><?% END %?>
-            <font class="channel<?% IF state != "";" ";state;END %?>"><?% channel %?>.</font>&nbsp;<font class="title<?% IF state != "";" ";state;END %?>"><?% sender %?></font>
+            <font class="title<?% IF state != "";" ";state;END %?>"><?% sender %?></font>
             <?% '</a>' IF allow('program') %?>
             </td>
             <td class="fieldinline">

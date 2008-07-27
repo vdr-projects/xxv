@@ -38,6 +38,7 @@
 <?% END %?>
 </div>
 <!-- ###### Seite ###### -->
+<?% IF allow('unew') %?>
 <div id="sidebar">
   <p class="section"><?% gettext("User administration",20) %?></p>
     <p>
@@ -46,3 +47,4 @@
     </p>
 </div>
 <?% global.sidebar = 1 %?>
+<?% END %?>

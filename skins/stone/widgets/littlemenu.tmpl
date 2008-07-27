@@ -6,16 +6,15 @@
 <div id="sidebar">
 <?% IF allow('cedit') %?>
   <table summary="">
-    <tr><td class="sidehead"><?% gettext("Channels",20) %?></td></tr>
+    <tr><td class="sidehead"><?% gettext("Preferences") %?></td></tr>
     <tr>
     <td class="sidetext">
-    <a href="?cmd=clist">
-        <img src="images/edit.<?% global.imagetyp %?>" alt="" title="<?% gettext("Edit channels") %?>" />
-    </a>
-    &nbsp;
-    <a href="?cmd=clist">
-        <?% gettext("Edit channels",20) %?>
-    </a>
+    <a href="?cmd=vdrlist"><img src="images/edit.<?% global.imagetyp %?>" alt="" title="<?% gettext("Video disk recorder") %?>" /></a>&nbsp;<a href="?cmd=vdrlist"><?% gettext("Video disk recorder",20) %?></a>
+    </td>
+    </tr>
+    <tr>
+    <td class="sidetext">
+    <a href="?cmd=clist"><img src="images/edit.<?% global.imagetyp %?>" alt="" title="<?% gettext("Channels") %?>" /></a>&nbsp;<a href="?cmd=clist"><?% gettext("Channels",20) %?></a>
     </td>
     </tr>
     <tr>
