@@ -14,7 +14,7 @@ use xxv;
 -- USR=username
 
 -- The first line is useful for granting access to user xxv on all computers in a network.
-/* grant all privileges on xxv.* to username@'%' IDENTIFIED BY 'password'; */
+-- grant all privileges on xxv.* to username@'%' IDENTIFIED BY 'password'; --
 
 -- Grant access to user xxv on the local machine with password 'xxv'
 grant all privileges on xxv.* to xxv@localhost IDENTIFIED BY 'xxv';

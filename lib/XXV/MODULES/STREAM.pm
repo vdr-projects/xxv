@@ -5,6 +5,7 @@ use Tools;
 use File::Basename;
 use File::Find;
 use File::Path;
+use File::stat;
 use File::Glob ':glob';
 
 $SIG{CHLD} = 'IGNORE';
@@ -189,24 +190,30 @@ sub livestream {
     my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $channel = shift || return con_err($console,gettext("No channel defined for streaming!"));
+    my $cid = shift || return con_err($console,gettext("No channel defined for streaming!"));
     my $params  = shift;
 
     return $console->err(gettext("Can't stream files!"))
       unless($console->can('datei'));
 
     my $cmod = main::getModule('CHANNELS');
+    unless($cid and $cid =~ /^[0-9a-f]{32}$/) {
+      unless(index($cid, '-') > -1) {
+        $cid = $cmod->PosToHash($cid);
+      } else {
+        $cid = $cmod->CIDToHash($cid);
+      }
+    }
 
-    my $ch = $cmod->ToCID($channel);
-    return $console->err(sprintf(gettext("This channel '%s' does not exist!"),$channel))
-      unless($ch);
-    my $title = $cmod->ChannelToName($ch);
+    return $console->err(sprintf(gettext("This channel '%s' does not exist!"),$cid))
+      unless($cid);
+    my $channel = $cmod->GetChannel($cid);
 
     if($self->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
-      my $data = sprintf("?cmd=livestream&__player=1&data=%s",$ch);
+      my $data = sprintf("?cmd=livestream&__player=1&data=%s",$channel->{hash});
 
       my $param = {
-          title => $title,
+          title => $channel->{name},
           widget => $self->{widget},
           width  => $self->{width},
           height => $self->{height},
@@ -214,16 +221,25 @@ sub livestream {
       return $console->player($data, $param);
     }
 
-    #my $cpos = $cmod->ChannelToPos($ch);
     debug sprintf('Live stream with channel "%s"%s',
-        $title,
+        $channel->{name},
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
     $console->{nopack} = 1;
+
+    # query hostname from video disk recorder
+    my $livehost = main::getModule('SVDRP')->hostname($channel->{vid});
+    if($self->{LiveAccessMethod} ne 'proxy' and 
+       ($livehost eq 'localhost' or $livehost eq '127.0.0.1')) {
+       $livehost = $self->{host};
+    }
+
     my $liveport = 3000;
-    my $request = sprintf("/%s/%s", $self->{streamtype}, $ch);
-    my $url = sprintf("http://%s:%d%s",$self->{host},$liveport,$request);
+
+    my $request = sprintf("/%s/%s", $self->{streamtype}, $channel->{id});
+    my $url = sprintf("http://%s:%d%s",$livehost,$liveport,$request);
+
     if($self->{LiveAccessMethod} eq 'redirect') {
       debug(sprintf("Redirect to %s",$url));
       $console->statusmsg(301,$url); 
@@ -232,16 +248,16 @@ sub livestream {
       debug(sprintf("Send playlist with %s",$url));
       my $data;
       $data = "#EXTM3U\r\n";
-      $data .= $url;
-      $data .= "\r\n";
+      $data .= "#EXTINF:86400," . $channel->{name} . "\r\n";
+      $data .= $url . "\r\n";
 
       my $arg;
-      $arg->{'attachment'} = sprintf("livestream-%s.m3u", $ch);
+      $arg->{'attachment'} = sprintf("livestream-%s.m3u", $channel->{id});
       $arg->{'Content-Length'} = length($data);
 
       return $console->out($data, $self->{mimetyp}, %{$arg} );
     } elsif($self->{LiveAccessMethod} eq 'proxy') {
-      $console->proxy($self->{host},$liveport,$request,$self->{mimetyp}); 
+      $console->proxy($livehost,$liveport,$request,$self->{mimetyp}); 
       return;
     } else {
       $console->err(gettext('Unknown access method!')); 
@@ -305,21 +321,34 @@ sub playrecord {
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    if($self->{method} eq 'http') {
+    if(0 and $self->{method} eq 'http') {
       return $console->stream(\@files, $self->{mimetyp}, $offset);
     } else {
 
       my $videopath = $rmod->{videodir};
 
       my $data;
-      $data = "#EXTM3U\r\n";
+      $data  = "#EXTM3U\r\n";
+
       foreach my $file (@files) {
+        my $fstat = stat($file);
+
         $file =~ s/^$videopath//si;
         $file =~ s/^[\/|\\]//si;
         my $URL = sprintf("%s/%s\r\n", $self->{netvideo}, $file);
         $URL =~s/\//\\/g
         if($URL =~ /^\\\\/sig              # Samba \\host/xxx/yyy => \\host\xxx\yyy
         || $URL =~ /^[a-z]\:[\/|\\]/sig);  # Samba x:/xxx/yyy => x:\xxx\yyy
+
+
+        if($fstat) {
+          # estimate duration of file in seconds ( filesize * totaltime / totalsize )
+          my $duration = CORE::int($fstat->size * $result->{duration} / ($result->{FileSize} * 1024 * 1024));
+          # add duration and title as extended infomations
+          $data .= "#EXTINF:". $duration ."," . $result->{title};
+          $data .= "~" . $result->{subtitle} if($result->{subtitle});
+          $data .= "\r\n";
+        }
         $data .= $URL;
       }
 

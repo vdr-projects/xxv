@@ -131,12 +131,14 @@ sub _init {
     $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS MOVETIMER (
           id int unsigned auto_increment NOT NULL,
+          sourcevid int unsigned NOT NULL default '1',
           source varchar(64) NOT NULL,
+          destinationvid int unsigned NOT NULL default '1',
           destination varchar(64) NOT NULL,
           move  enum('y', 'n', 'collision') default 'collision',
           original   enum('move', 'keep', 'copy') default 'move',
           PRIMARY KEY (id),
-          UNIQUE KEY (source) 
+          UNIQUE KEY (sourcevid, source) 
         ) COMMENT = '$version'
     |);
 
@@ -192,8 +194,9 @@ sub _movetimer {
 q|
   select
   t.id as id,
+  t.vid as vid,
   t.pos as pos,
-  IF(t.flags & 1,'y','n') as activ,
+  IF(t.flags & 1,'y','n') as active,
   IF(t.flags & 4,'y','n') as vps,
   t.flags as flags,
   t.channel as channel,
@@ -209,6 +212,7 @@ q|
   from TIMERS as t,MOVETIMER as m 
   where 
   m.source = t.channel
+  and m.sourcevid = t.vid
   and m.move != 'm'
   and t.flags & 1
 |);
@@ -227,7 +231,7 @@ q|
   }
   my $rules = $sth->fetchall_hashref('id');
   return unless($rules);
-
+  my $todel;
   my $bChange = 0;
   foreach my $tid (keys %$timer) {
 
@@ -264,27 +268,35 @@ q|
         if($rule->{original} eq 'keep' ) {
 
           # Keep original timer but disable him
-          $data->{activ} = 'n';
+          $data->{active} = 'n';
           $self->modifyTimer($data);
 
           # Create new timer
-          $data->{activ} = 'y';
+          $data->{active} = 'y';
           $data->{channel} = $rule->{destination};
+          $data->{vid} = $rule->{destinationvid};
           $data->{pos} = 0;
           $self->modifyTimer($data);
 
         } elsif($rule->{original} eq 'copy' ) {
 
           # Copy to new timer
-          $data->{activ} = 'y';
+          $data->{active} = 'y';
           $data->{channel} = $rule->{destination};
+          $data->{vid} = $rule->{destinationvid};
           $data->{pos} = 0;
           $self->modifyTimer($data);
 
         } else {
 
+          # delete original timer
+          if($data->{vid} != $rule->{destinationvid}) {
+              push(@$todel,[$data->{vid},$data->{pos},$data->{running}]);
+              $data->{pos} = 0;
+          }
           # Edit timer direct
           $data->{channel} = $rule->{destination};
+          $data->{vid} = $rule->{destinationvid};
           $self->modifyTimer($data);
 
         }
@@ -293,6 +305,14 @@ q|
       }
     }
   }
+  if($todel) {
+    foreach my $d (reverse sort{ $a->[1] <=> $b->[1] } @$todel) {
+      $self->{svdrp}->queue_cmds(sprintf("modt %d off", $d->[1]), $d->[0])
+        if($d->[2]);
+      $self->{svdrp}->queue_cmds(sprintf("delt %d", $d->[1]), $d->[0]);
+    }
+  }
+
   if($self->{svdrp}->queue_cmds('COUNT')) {
       my $erg = $self->{svdrp}->queue_cmds("CALL"); # deqeue commands
       $console->msg($erg, $self->{svdrp}->err)
@@ -313,7 +333,7 @@ sub modifyTimer {
     my $self = shift || return error('No object defined!');
     my $data = shift || return error('No data defined!');
 
-    my $flags  = ($data->{activ} eq 'y' ? 1 : 0);
+    my $flags  = ($data->{active} eq 'y' ? 1 : 0);
        $flags |= ($data->{vps} eq 'y' ? 4 : 0);
 
     $data->{file} =~ s/:/|/g;
@@ -332,6 +352,7 @@ sub modifyTimer {
             $data->{file},
            ($data->{aux} || '')
         )
+      ,$data->{vid}
     );
 }
 
@@ -376,53 +397,57 @@ sub movetimeredit {
     }
 
     my $con = $console->typ eq "CONSOLE";
+    my $vlist = $self->{svdrp}->enum_onlinehosts();
+
     my $questions = [
         'id' => {
             typ     => 'hidden',
             def     => $rule->{id} || 0,
         },
+        'sourcevid' => {
+            typ     => scalar @$vlist > 1 ? 'list' : 'hidden',
+            def     => $rule->{sourcevid} || $self->{svdrp}->primary_hosts(),
+            choices => $vlist,
+            msg     => gettext('Which video disk recorder should as source?'),
+        },
         'source' => {
             typ     => 'list',
             def     => $con ? $modC->ChannelToPos($rule->{source}) : $rule->{source},
-            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('Name,Id'),
+            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('c.name,c.id'),
             msg     => gettext('Which channel should used as source?'),
             req     => gettext("This is required!"),
             check   => sub{
-                my $value = shift || return;
+                my $value = shift;
+                return undef, gettext("This is required!")
+                  unless($value);
 
-                if(my $name = $modC->ChannelToName($value)) {
-                    $data->{source} = $value;
-                    return $value;
-                } elsif(my $ch = $modC->PosToChannel($value) || $modC->NameToChannel($value) ) {
-                    $data->{source} = $value;
-                    return $ch;
-                } elsif( ! $modC->NameToChannel($value)) {
-                    return undef, sprintf(gettext("This channel '%s' does not exist!"),$value);
-                } else {
-                   return undef, gettext("This is required!");
-                }
+                my $ch = $modC->ToCID($value,$rule->{sourcevid});
+                return undef, sprintf(gettext("Channel '%s' does not exist on video disk recorder %s!"),$value, $self->{svdrp}->hostname($rule->{sourcevid}))
+                  unless($ch);
+                return $ch;                
             },
+        },
+        'destinationvid' => {
+            typ     => scalar @$vlist > 1 ? 'list' : 'hidden',
+            def     => $rule->{destinationvid} || $self->{svdrp}->primary_hosts(),
+            choices => $vlist,
+            msg     => gettext('Which video disk recorder should as destination?'),
         },
         'destination' => {
             typ     => 'list',
             def     => $con ? $modC->ChannelToPos($rule->{destination}) : $rule->{destination},
-            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('Name,Id'),
+            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('c.name,c.id'),
             msg     => gettext('Which channel should used as destination?'),
             req     => gettext("This is required!"),
             check   => sub{
-                my $value = shift || return;
+                my $value = shift;
+                return undef, gettext("This is required!")
+                  unless($value);
 
-                if(my $name = $modC->ChannelToName($value)) {
-                    $data->{destination} = $value;
-                    return $value;
-                } elsif(my $ch = $modC->PosToChannel($value) || $modC->NameToChannel($value) ) {
-                    $data->{destination} = $value;
-                    return $ch;
-                } elsif( ! $modC->NameToChannel($value)) {
-                    return undef, sprintf(gettext("This channel '%s' does not exist!"),$value);
-                } else {
-                   return undef, gettext("This is required!");
-                }
+                my $ch = $modC->ToCID($value,$rule->{destinationvid});
+                return undef, sprintf(gettext("Channel '%s' does not exist on video disk recorder %s!"),$value, $self->{svdrp}->hostname($rule->{destinationvid}))
+                  unless($ch);
+                return $ch;                
             },
         },
         'move' => {
@@ -498,7 +523,7 @@ sub _insert {
           return 0;
         }
     } else {
-        $sth = $self->{dbh}->prepare('REPLACE INTO MOVETIMER VALUES (?,?,?,?,?)');
+        $sth = $self->{dbh}->prepare('REPLACE INTO MOVETIMER VALUES (?,?,?,?,?,?,?)');
         if(!$sth->execute(@$data)) {
           error sprintf("Couldn't execute query: %s.",$sth->errstr);
           $console->err(sprintf(gettext("Couldn't insert rule move timer in database!")));
@@ -561,11 +586,11 @@ sub movetimerlist {
       id as \'$f{'id'}\',
       (SELECT Name
           FROM CHANNELS as c
-          WHERE m.source = c.Id
+          WHERE m.source = c.id
           LIMIT 1) as \'$f{'source'}\',
       (SELECT Name
           FROM CHANNELS as c
-          WHERE m.destination = c.Id
+          WHERE m.destination = c.id
           LIMIT 1) as \'$f{'destination'}\',
       move as \'$f{'move'}\',
       original as \'$f{'original'}\'
@@ -622,7 +647,7 @@ sub _original_timer_rules {
 
     return [
             [ 'move', gettext('Move timer') ],
-            [ 'keep', gettext('Keep inactiv original timer') ],
+            [ 'keep', gettext('Keep inactive original timer') ],
             [ 'copy', gettext('Copy original timer') ],
           ];
 }

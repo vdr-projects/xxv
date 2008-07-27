@@ -1,11 +1,11 @@
 <!-- TableTemplate -->
-<h1><?% gettext("User administration") %?></h1>
+<h1><?% gettext("Administration of video disk recorder") %?></h1>
 
-<a href="?cmd=unew">[<?% gettext("Create new account for user") %?>]</a>
+<a href="?cmd=vdrnew">[<?% gettext("Create new definition of video disk recorder") %?>]</a>
 <p>
 
 <table border="0" width="95%">
-<form name='UserList'>
+<form name='vdrlist'>
 <?% INCLUDE 'widgets/referer.tmpl' %?>
 <?% IF data.size %?>
     <?% fields = data.shift %?>
@@ -23,10 +23,10 @@
                 <?% c = c + 1 %?>
                 <?% IF c == 1; # Id Field %?>
                 <td>
-                    <a title="<?% gettext("Edit account of user") %?>" href="?cmd=uedit&amp;data=<?% zeile.0 %?>">
+                    <a title="<?% gettext("Edit definition of video disk recorder") %?>" href="?cmd=vdredit&amp;data=<?% zeile.0 %?>">
                     [<?% gettext("Edit") %?>]</a>&nbsp;
-                    <a title="<?% gettext("Delete user account") %?>"
-                       href="javascript:sure(document.UserList, '<?% gettext("Would you like to delete this user account?") %?>: <?% escape(zeile.1) %?>','?cmd=udelete&amp;data=<?% zeile.0 %?>')">
+                    <a title="<?% gettext("Delete definition of video disk recorder") %?>"
+                       href="#" onclick="sure(document.vdrlist, '<?% gettext("Would you like to delete this definition of video disk recorder?") %?>: <?% escape(zeile.3) %?>','?cmd=vdrdelete&amp;data=<?% zeile.0 %?>')">
                     [<?% gettext("Delete") %?>]
                     </a>
                 </td>

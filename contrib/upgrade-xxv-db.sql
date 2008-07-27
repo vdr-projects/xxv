@@ -128,12 +128,28 @@ CREATE TABLE IF NOT EXISTS `MEDIALIB_VIDEOGENRE` (
 
 CREATE TABLE IF NOT EXISTS `MOVETIMER` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `sourcevid` int(10) unsigned NOT NULL default '1',
   `source` varchar(64) NOT NULL,
+  `destinationvid` int(10) unsigned NOT NULL default '1',
   `destination` varchar(64) NOT NULL,
   `move` enum('y','n','collision') default 'collision',
   `original` enum('move','keep','copy') default 'move',
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `source` (`source`)
+  UNIQUE KEY (`sourcevid`,`source`)
+);
+
+--
+-- Table structure for table `RECORDER`
+--
+
+CREATE TABLE IF NOT EXISTS `RECORDER` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `active` enum('y','n') default 'y',
+  `master` enum('y','n') default 'n',
+  `host` varchar(100) NOT NULL default 'localhost',
+  `port` smallint(4) unsigned default '2001',
+  `cards` varchar(100) default '',
+  PRIMARY KEY  (`id`)
 );
 
 --
@@ -161,13 +177,14 @@ CREATE TABLE IF NOT EXISTS `XMLTV` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `active` enum('y','n') default 'n',
   `xmltvname` varchar(256) NOT NULL,
+  `vid` int unsigned NOT NULL default '1',
   `channel` varchar(64) NOT NULL,
   `template` enum('y','n') default 'n',
   `updateinterval` enum('e','d','w') default 'e',
   `source` text NOT NULL,
   `updated` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `channel` (`channel`)
+  UNIQUE KEY (`vid`,`channel`)
 );
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -176,4 +193,4 @@ CREATE TABLE IF NOT EXISTS `XMLTV` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-06-13  9:50:16
+-- Dump completed on 2008-07-26 18:32:18

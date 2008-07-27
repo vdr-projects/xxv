@@ -51,7 +51,11 @@ var tree = new WebFXTree("XXV", "?cmd=<?% getModule('HTTPD').StartPage %?>");
     var program = new WebFXTreeItem("<?% gettext("Program guide") %?>","?cmd=schema",tree);
     <?% IF allow('topten') %?>program.add(new WebFXTreeItem("<?% gettext("Top ten entry") %?>",    "?cmd=t10"));<?% END %?>
     <?% FOREACH ch = param.CHANNELS %?>
-    program.add(new WebFXTreeItem("<?% escape(chop(ch.0,10)) %?>",  "?cmd=program&amp;data=<?% ch.1 %?>"));
+        <?% IF ch.2 != lastgroup;lastgroup = ch.2 %?>
+        <?% CNT = CNT + 1 %?>
+    var programgroup<?% CNT %?> = new WebFXTreeItem("<?% escape(chop(lastgroup,10)) %?>",  "?cmd=program&amp;data=<?% ch.1 %?>",program);
+        <?% END %?>
+        programgroup<?% CNT %?>.add(new WebFXTreeItem("<?% escape(chop(ch.0,10)) %?>",  "?cmd=program&amp;data=<?% ch.1 %?>"));
     <?% END %?>
 <?% END %?>
 
@@ -79,16 +83,6 @@ var tools = new WebFXTreeItem("<?% gettext("Tools",15) %?>",0,tree);
 <?% END %?>
 
 
-<?% IF allow('configedit') %?>
-    var prefs = new WebFXTreeItem("<?% gettext("Preferences") %?>","?cmd=configedit",tree);
-    <?% FOREACH co = param.CONFIGS %?>
-      <?% IF co != "CONFIG" %?>
-        prefs.add(new WebFXTreeItem("<?% chop(co,10) %?>",  "?cmd=configedit&amp;data=<?% co %?>"));
-      <?% END %?>
-    <?% END %?>
-    prefs.add(new WebFXTreeItem("<?% gettext("Edit channels",10) %?>",  "?cmd=cl"));
-<?% END %?>
-
 <?% IF allow('sa') %?>
 var status = new WebFXTreeItem("<?% gettext("Status") %?>","?cmd=sa",tree);
 status.add(new WebFXTreeItem("<?% gettext("Vitals") %?>",      "?cmd=sv"));
@@ -113,12 +107,23 @@ logger.add(new WebFXTreeItem("<?% gettext("Standard") %?>",  "?cmd=logger&data=m
 logger.add(new WebFXTreeItem("<?% gettext("Syslog") %?>",    "?cmd=logger&data=syslog"));
 <?% END %?>
 
-<?% IF allow('ul') || allow('uprefs') || allow('rel') || allow('restart') %?>
+<?% IF allow('ul') || allow('uprefs') || allow('vl') || allow('cl') || allow('rel') || allow('restart') %?>
 var admin = new WebFXTreeItem("<?% gettext("Administration") %?>",0,tree);
+<?% IF allow('vl') %?>admin.add(new WebFXTreeItem("<?% gettext("Video disk recorder",12) %?>",  "?cmd=vl"));<?% END %?>
+<?% IF allow('cl') %?>admin.add(new WebFXTreeItem("<?% gettext("Channels",12) %?>",  "?cmd=cl"));<?% END %?>
 <?% IF allow('ul') %?>admin.add(new WebFXTreeItem("<?% gettext("User") %?>","?cmd=ul"));
 <?% ELSIF allow('uprefs') %?>admin.add(new WebFXTreeItem("<?% gettext("Personality") %?>","?cmd=uprefs"));<?% END %?>
 <?% IF allow('rel') %?>admin.add(new WebFXTreeItem("<?% gettext("Reload") %?>","?cmd=rel"));<?% END %?>
 <?% IF allow('restart') %?>admin.add(new WebFXTreeItem("<?% gettext("Restart") %?>","?cmd=restart"));<?% END %?>
+<?% END %?>
+
+<?% IF allow('configedit') %?>
+    var prefs = new WebFXTreeItem("<?% gettext("Preferences") %?>","?cmd=configedit",tree);
+    <?% FOREACH co = param.CONFIGS %?>
+      <?% IF co != "CONFIG" %?>
+        prefs.add(new WebFXTreeItem("<?% chop(co,10) %?>",  "?cmd=configedit&amp;data=<?% co %?>"));
+      <?% END %?>
+    <?% END %?>
 <?% END %?>
 
 <?% IF allow('logout') %?>var lout = new WebFXTreeItem("<?% gettext("Logout") %?>","?cmd=logout",tree);<?% END %?>

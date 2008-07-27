@@ -56,9 +56,19 @@ sub module {
                 short       => 'rel',
                 callback    => sub{
                     my ($w, $c, $l) = @_;
-                    $Module::Reload::Debug = 2;
-                    Module::Reload->check;
-                    $c->message(gettext("Modules loaded."));
+                    $Module::Reload::Debug = CORE::int(($Tools::VERBOSE+.5)/2);
+#                   my %Status = %Module::Reload->Stat;
+                    my $cnt = Module::Reload->check();
+#                   my $files;
+#                   foreach my $file (keys %Module::Reload::Stat) {
+#                     push(@$files, $file) 
+#                       if($Module::Reload::Stat{$file} ne $Status{$file});
+#                   }
+                    if($cnt) {
+                      $c->message(sprintf(gettext("Reload %d modules."),$cnt));
+                    } else {
+                      $c->message(gettext("There none module reloaded."));
+                    }
                 },
                 Level   => 'admin'
             },
@@ -351,7 +361,7 @@ sub usage {
     };
     if($console->typ eq 'HTML') {
       $info->{periods} = $mods->{'XXV::MODULES::EPG'}->{periods};
-      $info->{CHANNELS} =  $mods->{'XXV::MODULES::CHANNELS'}->ChannelArray('Name');
+      $info->{CHANNELS} =  $mods->{'XXV::MODULES::CHANNELS'}->ChannelWithGroup('c.name,c.hash');
       $info->{CONFIGS} = [ sort @realModName ];
     }
     $console->table( $ret, $info );

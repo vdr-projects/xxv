@@ -9,7 +9,7 @@ use File::Find;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'GRAB',
         Prereq => {
@@ -77,7 +77,7 @@ sub module {
                 description => gettext('TrueType font to draw overlay text'),
                 default     => 'VeraIt.ttf',
                 type        => 'list',
-                choices     => $obj->findttf,
+                choices     => $self->findttf,
             },
             imgfontsize => {
                 description => gettext('Font size to draw image text (only for ttf font!).'),
@@ -110,7 +110,7 @@ sub module {
             gdisplay => {
                 description => gettext('Display current picture of video output.'),
                 short       => 'gd',
-                callback    => sub{ $obj->display(@_) },
+                callback    => sub{ $self->display(@_) },
                 Level       => 'user',
                 DenyClass   => 'remote',
                 binary      => 'nocache'
@@ -170,11 +170,11 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
     main::after(sub{
-          $obj->{svdrp} = main::getModule('SVDRP');
-          unless($obj->{svdrp}) {
+          $self->{svdrp} = main::getModule('SVDRP');
+          unless($self->{svdrp}) {
             panic ("Couldn't get modul SVDRP");
             return 0;
           }
@@ -186,13 +186,14 @@ sub _init {
 # ------------------
 sub _grab {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    my $width = shift || $obj->{xsize};
-    my $height = shift || $obj->{ysize};
+    my $self = shift || return error('No object defined!');
+    my $width = shift || $self->{xsize};
+    my $height = shift || $self->{ysize};
+    my $vid = shift;
 
     # command for get inline data (JPEG BASE64 coded)
-    my $cmd = sprintf('grab - %d %d %d', $obj->{imgquality}, $width, $height);
-    my $data = $obj->{svdrp}->command($cmd);
+    my $cmd = sprintf('grab - %d %d %d', $self->{imgquality}, $width, $height);
+    my $data = $self->{svdrp}->command($cmd, $vid);
     
     my $binary;
     foreach my $l (@{$data}) { 
@@ -202,13 +203,13 @@ sub _grab {
       } 
     }
     # create noised image as failback. 
-    $binary = $obj->_noise($width,$height) 
+    $binary = $self->_noise($width,$height) 
       unless($binary);
 
     if($data && $binary) {
       # Make overlay on image
-      $binary = $obj->makeImgText($binary, $obj->{overlay}, $height)
-          if($obj->{overlay});
+      $binary = $self->makeImgText($binary, $self->{overlay}, $height, $vid)
+          if($self->{overlay});
     }
     return $binary;
 }
@@ -216,13 +217,15 @@ sub _grab {
 # ------------------
 sub display {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
+    my $data = shift;
+    my $params = shift;
 
     my $width = $console->{cgi} && $console->{cgi}->param('width') 
               ? $console->{cgi}->param('width') 
-              : $obj->{xsize};
+              : $self->{xsize};
     unless($width =~ /^\d+$/sig and $width >= 8 and $width < 4096) {
       error sprintf("Image width incorrect! : %s", $width );
       return $console->err(gettext('Value incorrect!'));
@@ -230,13 +233,13 @@ sub display {
 
     my $height = $console->{cgi} && $console->{cgi}->param('height') 
               ? $console->{cgi}->param('height') 
-              : $obj->{ysize};
+              : $self->{ysize};
     unless($height =~ /^\d+$/sig and $height >= 8 and $height < 4096) {
       error sprintf("Image height incorrect! : %s", $height );
       return $console->err(gettext('Value incorrect!'));
     }
 
-    my $binary = $obj->_grab($width,$height);
+    my $binary = $self->_grab($width,$height, $params && $params->{vdr} ? $params->{vdr} : undef);
     if($binary) { #  Datei existiert und hat eine Grösse von mehr als 0 Bytes
       $console->{nocache} = 1;
       $console->{nopack} = 1;
@@ -251,10 +254,11 @@ sub display {
 # ------------------
 sub makeImgText {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $binary = shift || return error ('No data to create overlay defined!');
     my $text = shift || return error ('No text to display defined!');
-    my $height = shift || $obj->{ysize};
+    my $height = shift || $self->{ysize};
+    my $vid = shift;
 
     my $image = GD::Image->newFromJpegData($binary);
     unless($image && $image->width > 8 && $image->height > 8) {
@@ -263,7 +267,7 @@ sub makeImgText {
     my $color   = $image->colorClosest(255,255,255);
     my $shadow  = $image->colorClosest(0,0,0);
 
-    my $event = main::getModule('EPG')->NowOnChannel(undef,undef);
+    my $event = main::getModule('EPG')->NowOnChannel(undef,undef,undef,$vid);
 
     # Hier sollten noch mehr Informationen dazu kommen
     my $vars = {
@@ -271,16 +275,16 @@ sub makeImgText {
     };
 
     my $output = '';
-    $obj->{tt}->process(\$text, $vars, \$output)
-          or return error($obj->{tt}->error());
+    $self->{tt}->process(\$text, $vars, \$output)
+          or return error($self->{tt}->error());
 
-    my $vpos = CORE::int(($height / $obj->{ysize}) * $obj->{vpos});
-    my $imgfontsize = CORE::int(($height / $obj->{ysize}) * $obj->{imgfontsize});
+    my $vpos = CORE::int(($height / $self->{ysize}) * $self->{vpos});
+    my $imgfontsize = CORE::int(($height / $self->{ysize}) * $self->{imgfontsize});
 
     lg sprintf("height: %d vpos: %d imgfontsize: %d",$height,$vpos,$imgfontsize);
 
-    my $font = sprintf("%s/%s",$obj->{paths}->{FONTPATH},$obj->{font});
-    if($obj->{paths}->{FONTPATH} and $obj->{font} and -r $font) {
+    my $font = sprintf("%s/%s",$self->{paths}->{FONTPATH},$self->{font});
+    if($self->{paths}->{FONTPATH} and $self->{font} and -r $font) {
       my $h = ($imgfontsize + 2);
       $h *= -1 if($vpos > ($height / 2));
 
@@ -302,14 +306,14 @@ sub makeImgText {
       }
     }
 
-    my $img_data = $image->jpeg($obj->{imgquality});
+    my $img_data = $image->jpeg($self->{imgquality});
     return $img_data;
 }
 
 sub _noise {
-    my $obj = shift || return error('No object defined!');
-    my $width = shift || $obj->{xsize};
-    my $height = shift || $obj->{ysize};
+    my $self = shift || return error('No object defined!');
+    my $width = shift || $self->{xsize};
+    my $height = shift || $self->{ysize};
 
     my $image = GD::Image->new($width, $height,1);
   
@@ -318,13 +322,13 @@ sub _noise {
     push( @{$colors}, $image->colorClosest(128,128,128));
     push( @{$colors}, $image->colorClosest(0,0,0));
 
-    $obj->_noise_rect($image,0,0,$width,$height,$colors);
-    my $img_data = $image->jpeg($obj->{imgquality});
+    $self->_noise_rect($image,0,0,$width,$height,$colors);
+    my $img_data = $image->jpeg($self->{imgquality});
     return $img_data;
 }
 
 sub _noise_rect {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $image = shift;
     my $x1 = shift; my $y1 = shift;
     my $x2 = shift; my $y2 = shift;
@@ -347,7 +351,7 @@ sub _noise_rect {
 sub findttf
 # ------------------
 {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $found;
     find({ wanted => sub{
                 if($File::Find::name =~ /\.ttf$/sig) {
@@ -358,9 +362,9 @@ sub findttf
            follow => 1,
            follow_skip => 2,
         },
-        $obj->{paths}->{FONTPATH}
+        $self->{paths}->{FONTPATH}
     );
-    error "Couldn't find useful font at : ", $obj->{paths}->{FONTPATH}
+    error "Couldn't find useful font at : ", $self->{paths}->{FONTPATH}
         if(scalar $found == 0);
     return $found;
 }

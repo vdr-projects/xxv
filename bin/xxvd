@@ -47,7 +47,6 @@ my $VERSION = '1.3';
 my $VDRVERSION = 0;
 my $DBVERSION = 0;
 my $CLEANUP;
-my $DBCACHE = {};
 my $AFTER = [0 ... 50];
 my $killer       = 0;
 my $version      = 0;

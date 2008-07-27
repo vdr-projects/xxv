@@ -418,14 +418,14 @@ sub _autotimerLookup {
 
       # Exclude unwanted channels
       if($obj->{exclude}) {
-          $sql .= sprintf(' AND ( e.channel_id = c.Id ) AND NOT (c.%s)', 
+          $sql .= sprintf(' AND ( e.channel_id = c.id AND e.vid = c.vid ) AND NOT (c.%s)', 
                   $obj->{exclude});
       }
 
       my $sth = $obj->{dbh}->prepare($sql)
         or return error sprintf("Couldn't prepare query: %s.",$sql);
       $sth->execute($addtime)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        or return error sprintf("Couldn't execute query: %s\r\n%s.",$sth->errstr,$sql);
     }
 
     my $now = time;
@@ -477,7 +477,7 @@ sub _autotimerLookup {
         foreach my $eventid (sort keys %$events) {
             my $event = $events->{$eventid};
 
-            $event->{activ} = 'y';
+            $event->{active} = 'y';
             $event->{priority} = $a->{Priority};
             $event->{lifetime} = $a->{Lifetime};
 
@@ -545,7 +545,7 @@ sub _autotimerLookup {
             my $error = 0;
 
             if($timerID) {
-              $event->{pos} = $modT->getPos($timerID);
+              ($event->{vid},$event->{pos}) = $modT->getPos($timerID);
             }
             my $erg = $modT->saveTimer($event);
             foreach my $zeile (@$erg) {
@@ -643,7 +643,7 @@ sub autotimerEdit {
 
             # Channels Ids in Namen umwandeln
             if($epg->{Channels}) {
-              my @channels = map { $_ = $modC->ChannelToPos($_) } split(/[\s|,]+/, $epg->{Channels});
+              my @channels = split(/[\s|,]+/, $epg->{Channels});
               $epg->{Channels} = \@channels;
             }
 
@@ -741,14 +741,14 @@ You can also fine tune your search :
         'Channels' => {
             typ     => 'list',
             def     => $epg->{Channels},
-            choices => $modC->ChannelWithGroup('Name,POS', sprintf(' NOT (%s)', $obj->{exclude})),
+            choices => $modC->ChannelWithGroup('c.name,c.id', sprintf(' NOT (c.%s)', $obj->{exclude})),
             options => 'multi',
             msg     => gettext('Limit search to these channels'),
             check   => sub{
                 my $value = shift || return;
                 my @vals;
                 foreach my $chname ((ref $value eq 'ARRAY' ? @$value : split(/\s*,\s*/, $value))) {
-                    if( my $chid = $modC->PosToChannel($chname) || $modC->NameToChannel($chname)) {
+                    if( my $chid = $modC->ToCID($chname)) {
                         push(@vals, $chid);
                     } else {
                         return undef, sprintf(gettext("The channel '%s' does not exist!"),$chname);
@@ -946,8 +946,7 @@ You can also fine tune your search :
         'Dir' => {
 						typ 		=> 'string',
             msg     => gettext('Group all recordings into one directory'),
-            def     => $epg->{Dir},
-            # choices   =>  $modT->getRootDirs,
+            def     => $epg->{Dir}
         },
         'startdate' => {
             typ     => 'string',
@@ -1169,7 +1168,7 @@ sub list {
 
     my %f = (
         'Id' => gettext('Service'),
-        'Activ' => gettext('Activ'),
+        'Active' => gettext('Active'),
         'Search' => gettext('Search'),
         'Channels' => gettext('Channels'),
         'Start' => gettext('Start time'),
@@ -1181,7 +1180,7 @@ sub list {
     my $sql = qq|
     SELECT SQL_CACHE 
       Id as \'$f{'Id'}\',
-      Activ as \'$f{'Activ'}\',
+      Activ as \'$f{'Active'}\',
       Search as \'$f{'Search'}\',
       Channels as \'$f{'Channels'}\',
       Dir as \'$f{'Dir'}\',
@@ -1244,13 +1243,13 @@ sub list {
     if($obj->{exclude}) {
         $sql .= sprintf('NOT (%s)', $obj->{exclude});
     }
-    my $channels = main::getModule('CHANNELS')->ChannelHash('Id',$exclude);
+    my $channels = main::getModule('CHANNELS')->ChannelHash('id',$exclude);
 
     map {
         if($_->[3]) {
           my @ch;
           foreach my $c (split(',',$_->[3])) {
-            my $name = $channels->{$c} ? $channels->{$c}->{'Name'} : undef;
+            my $name = $channels->{$c} ? $channels->{$c}->{'name'} : undef;
             unless($name) {
               $name = sprintf(gettext('Unknown channel : %s'),$c);
             }
@@ -1373,6 +1372,7 @@ sub _eventsearch {
     my $sql = qq|
 SELECT SQL_CACHE 
     e.eventid as eventid,
+    e.vid,
     e.channel_id as channel,
     c.Name as channelname,
     e.title as title,
@@ -1387,7 +1387,10 @@ FROM
     CHANNELS as c
 WHERE
     ( $search )
-    AND ( e.channel_id = c.Id )
+    AND ( e.channel_id = c.id )
+    AND ( e.vid = c.vid )
+GROUP BY
+    c.id , e.eventid
 ORDER BY
     e.starttime
     |;

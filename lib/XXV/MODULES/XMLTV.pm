@@ -153,13 +153,14 @@ sub _init {
           id int unsigned auto_increment NOT NULL,
           active enum('y', 'n') default 'n',
           xmltvname varchar(256) default NULL,
+          vid int unsigned NOT NULL default '1',
           channel varchar(64) NOT NULL,
           template enum('y', 'n') default 'n',
           updateinterval enum('e', 'd', 'w') default 'e',
           source text NOT NULL,
           updated datetime NOT NULL default '0000-00-00 00:00:00',
           PRIMARY KEY (id),
-          UNIQUE KEY (channel) 
+          UNIQUE KEY (vid, channel) 
         ) COMMENT = '$version'
     |);
 
@@ -624,10 +625,10 @@ sub _insert {
 # ------------------
 sub _updateTime {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $id = shift || return error ('No data defined!');
 
-    my $sth = $obj->{dbh}->prepare('UPDATE XMLTV SET updated=NOW() where id=?');
+    my $sth = $self->{dbh}->prepare('UPDATE XMLTV SET updated=NOW() where id=?');
     return $sth->execute($id);
 }
 

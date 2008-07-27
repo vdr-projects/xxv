@@ -16,7 +16,7 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my $args = {
         Name => 'RECORDS',
@@ -30,7 +30,7 @@ sub module {
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
-        Status => sub{ $obj->status(@_) },
+        Status => sub{ $self->status(@_) },
         Preferences => {
             commandfile => {
                 description => sprintf(gettext("Path of file '%s'"),'reccmds.conf'),
@@ -100,79 +100,79 @@ sub module {
             rdisplay => {
                 description => gettext("Display recording 'rid'"),
                 short       => 'rd',
-                callback    => sub{ $obj->display(@_) },
+                callback    => sub{ $self->display(@_) },
                 DenyClass   => 'rlist',
             },
             rlist => {
                 description => gettext('List of recordings'),
                 short       => 'rl',
-                callback    => sub{ $obj->list(@_) },
+                callback    => sub{ $self->list(@_) },
                 DenyClass   => 'rlist',
             },
             rsearch => {
                 description => gettext("Search recordings 'text'"),
                 short       => 'rs',
-                callback    => sub{ $obj->search(@_) },
+                callback    => sub{ $self->search(@_) },
                 DenyClass   => 'rlist',
             },
             rupdate => {
                 description => gettext('Update recordings'),
                 short       => 'ru',
-                callback    => sub{ $obj->refresh(@_) },
+                callback    => sub{ $self->refresh(@_) },
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
             rdelete => {
                 description => gettext("Delete recording 'rid'"),
                 short       => 'rr',
-                callback    => sub{ $obj->delete(@_) },
+                callback    => sub{ $self->delete(@_) },
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
             rrecover => {
                 description => gettext("Recover deleted recordings"),
                 short       => 'rru',
-                callback    => sub{ $obj->recover(@_) },
+                callback    => sub{ $self->recover(@_) },
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
             redit => {
                 description => gettext("Edit recording 'rid'"),
                 short       => 're',
-                callback    => sub{ $obj->redit(@_) },
+                callback    => sub{ $self->redit(@_) },
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
             rconvert => {
                 description => gettext("Convert recording 'rid'"),
                 short       => 'rc',
-                callback    => sub{ $obj->conv(@_) },
+                callback    => sub{ $self->conv(@_) },
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
             rplay => {
                 description => gettext("Play recording 'rid' in the VDR."),
                 short       => 'rpv',
-                callback    => sub{ $obj->play(@_) },
+                callback    => sub{ $self->play(@_) },
                 Level       => 'user',
                 DenyClass   => 'remote',
             },
             rcut => {
                 description => gettext("Cut recording 'rid' in vdr"),
                 short       => 'rcu',
-                callback    => sub{ $obj->cut(@_) },
+                callback    => sub{ $self->cut(@_) },
                 Level       => 'user',
                 DenyClass   => 'remote',
             },
             rsuggest => {
                 hidden      => 'yes',
-                callback    => sub{ $obj->suggest(@_) },
+                callback    => sub{ $self->suggest(@_) },
                 DenyClass   => 'rlist',
             },
             rimage => {
                 hidden      => 'yes',
                 short       => 'ri',
-                callback    => sub{ $obj->image(@_) },
+                callback    => sub{ $self->image(@_) },
                 binary      => 'cache'
             }
         },
@@ -275,9 +275,9 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    unless($obj->{dbh}) {
+    unless($self->{dbh}) {
       panic("Session to database is'nt connected");
       return 0;
     }
@@ -285,12 +285,12 @@ sub _init {
     my $version = 29; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
-    if(!tableUpdated($obj->{dbh},'RECORDS',$version,1)) {
+    if(!tableUpdated($self->{dbh},'RECORDS',$version,1)) {
         return 0;
     }
 
     # Look for table or create this table
-    $obj->{dbh}->do(qq|
+    $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS RECORDS (
           eventid int unsigned NOT NULL,
           RecordId int unsigned not NULL,
@@ -310,27 +310,27 @@ sub _init {
         ) COMMENT = '$version'
     |);
 
-    $obj->{JOBS} = [];
-    $obj->{after_updated} = [];
-    $obj->{countReading} = 0;
-    $obj->{inotify} = undef;
-    $obj->{lastupdate} = 0;
+    $self->{JOBS} = [];
+    $self->{after_updated} = [];
+    $self->{countReading} = 0;
+    $self->{inotify} = undef;
+    $self->{lastupdate} = 0;
 
     main::after(sub{
-        $obj->{svdrp} = main::getModule('SVDRP');
-        unless($obj->{svdrp}) {
+        $self->{svdrp} = main::getModule('SVDRP');
+        unless($self->{svdrp}) {
            return 0;
         }
-        $obj->{timers} = main::getModule('TIMERS');
-        unless($obj->{timers}) {
+        $self->{timers} = main::getModule('TIMERS');
+        unless($self->{timers}) {
            return 0;
         }
-        $obj->{keywords} = main::getModule('KEYWORDS');
-        unless($obj->{keywords}) {
+        $self->{keywords} = main::getModule('KEYWORDS');
+        unless($self->{keywords}) {
            return 0;
         }
 
-        my $updatefile = sprintf("%s/.update",$obj->{videodir});
+        my $updatefile = sprintf("%s/.update",$self->{videodir});
         if( -r $updatefile) {
           my $inotify = new Linux::Inotify2
             or panic sprintf("Unable to create new inotify object: %s",$!);
@@ -346,28 +346,28 @@ sub _init {
             $inotify->watch(
                 $updatefile, 
                 IN_ALL_EVENTS, 
-                sub {  my $e = shift; $obj->_notify_readData($e); }
+                sub {  my $e = shift; $self->_notify_readData($e); }
             );
-            $obj->{inotify} = 'active';
+            $self->{inotify} = 'active';
           }
         }
 
         # Interval to read recordings and put to DB
         Event->timer(
-            interval => $obj->{reading} * 60,
+            interval => $self->{reading} * 60,
             prio => 6,  # -1 very hard ... 6 very low
             cb => sub {
-                my $forceUpdate = ($obj->{countReading} % ( $obj->{fullreading} * 60 / $obj->{reading} ) == 0);
-                if($forceUpdate || (time - $obj->{lastupdate}) > ($obj->{reading}/2) ) {
-                  $obj->readData(undef,undef,undef,$forceUpdate);
-                  $obj->{lastupdate} = time;
+                my $forceUpdate = ($self->{countReading} % ( $self->{fullreading} * 60 / $self->{reading} ) == 0);
+                if($forceUpdate || (time - $self->{lastupdate}) > ($self->{reading}/2) ) {
+                  $self->readData(undef,undef,undef,$forceUpdate);
+                  $self->{lastupdate} = time;
                 }
-                $obj->{countReading} += 1;
+                $self->{countReading} += 1;
             },
         );
-        $obj->readData(undef,undef,undef,'force');
-        $obj->{countReading} += 1;
-        $obj->{lastupdate} = time;
+        $self->readData(undef,undef,undef,'force');
+        $self->{countReading} += 1;
+        $self->{lastupdate} = time;
         return 1;
     }, "RECORDS: Store recordings in database ...", 20);
 
@@ -379,26 +379,26 @@ sub _init {
 # trigged by file notifcation from inotify
 sub _notify_readData {
 # ------------------
-  my $obj = shift || return error('No object defined!');
+  my $self = shift || return error('No object defined!');
   my $e = shift;
   lg sprintf "notify events for %s:%d received: %x", $e->fullname, $e->cookie, $e->mask;
 
-  if((time - $obj->{lastupdate}) > 3  # Only if last update prior 3 seconds (avoid callback chill)
-     && $obj->readData()) {
+  if((time - $self->{lastupdate}) > 3  # Only if last update prior 3 seconds (avoid callback chill)
+     && $self->readData()) {
 
-        $obj->{lastupdate} = time;
+        $self->{lastupdate} = time;
 
         # Update preview images after five minutes
-        my $after = ($obj->{timers}->{prevminutes}) * 60 * 2;
+        my $after = ($self->{timers}->{prevminutes}) * 60 * 2;
         $after = 300 if($after <= 300);
 
         Event->timer(
         interval => 60,
         after => $after, 
         cb => sub {
-          if((time - $obj->{lastupdate}) >= ($after - 30)) {
-              if($obj->readData()) {
-                $obj->{lastupdate} = time;
+          if((time - $self->{lastupdate}) >= ($after - 30)) {
+              if($self->readData()) {
+                $self->{lastupdate} = time;
               }
               $_[0]->w->cancel;
             }
@@ -418,7 +418,7 @@ sub dot1000 {
 # ------------------
 sub parseData {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $vdata = shift || return error('No data defined!');
     my ($event, $hash, $id, $date, $hour, $minute, $state, $duration, $title, $day, $month, $year);
     my $dataHash = {};
@@ -460,7 +460,7 @@ sub parseData {
 # ------------------
 sub scandirectory {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $typ = shift;
 
     my $files = (); # Hash with md5 and path to recording
@@ -487,9 +487,9 @@ sub scandirectory {
 
                             # convert path to title
                             my $title = dirname($path);
-                            $title =~ s/^$obj->{videodir}//g;
+                            $title =~ s/^$self->{videodir}//g;
                             $title =~ s/^\///g;
-                            $rec->{title} = $obj->converttitle($title);
+                            $rec->{title} = $self->converttitle($title);
 
                             # add file
                             push(@{$rec->{files}},$File::Find::name);
@@ -508,7 +508,7 @@ sub scandirectory {
                 follow => 1,
                 follow_skip => 2,
             },
-        $obj->{videodir}
+        $self->{videodir}
     );
     return $files;
 }
@@ -516,7 +516,7 @@ sub scandirectory {
 # ------------------
 sub readData {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
@@ -524,13 +524,13 @@ sub readData {
     my $forceUpdate = shift;
 
     # Read recording over SVDRP
-    my $lstr = $obj->{svdrp}->command('lstr');
+    my $lstr = $self->{svdrp}->command('lstr');
     my $vdata = [ grep(/^250/, @$lstr) ];
 
     unless(scalar @$vdata) {
         # Delete old Records
-        $obj->{dbh}->do('DELETE FROM RECORDS');
-        $obj->{keywords}->removesource('recording');
+        $self->{dbh}->do('DELETE FROM RECORDS');
+        $self->{keywords}->removesource('recording');
 
         my $msg = gettext('No recordings available!');
         con_err($console,$msg);
@@ -538,7 +538,7 @@ sub readData {
     }
 
     # Get state from used harddrive (/video)
-    my $disk = $obj->{svdrp}->command('stat disk');
+    my $disk = $self->{svdrp}->command('stat disk');
     my ($total, $totalUnit, $free, $freeUnit, $percent);    
     my $totalDuration = 0;
     my $totalSpace = 0;
@@ -548,13 +548,13 @@ sub readData {
         ($total, $totalUnit, $free, $freeUnit, $percent)
             = $disk->[1] =~ /^250[\-|\s](\d+)(\S+)\s+(\d+)(\S+)\s+(\S+)/s;
 
-        $obj->{CapacityMessage} = sprintf(gettext("Used %s, total %s%s, free %s%s"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit);
-        $obj->{CapacityPercent} = int($percent);
+        $self->{CapacityMessage} = sprintf(gettext("Used %s, total %s%s, free %s%s"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit);
+        $self->{CapacityPercent} = int($percent);
 
     } else {
         error("Couldn't get disc state : ".join("\n", @$disk));
-        $obj->{CapacityMessage} = gettext("Unknown disc capacity!");
-        $obj->{CapacityPercent} = 0;
+        $self->{CapacityMessage} = gettext("Unknown disc capacity!");
+        $self->{CapacityPercent} = 0;
 
     }
 
@@ -564,7 +564,7 @@ sub readData {
     my $l = 0;
     my $err = [];
 
-    my $vdrData = $obj->parseData($vdata);
+    my $vdrData = $self->parseData($vdata);
 
     # Adjust waiter max value now.
     $waiter->max(scalar keys %$vdrData)
@@ -572,8 +572,8 @@ sub readData {
 
     my $db_data;
     if($forceUpdate) {
-        $obj->{dbh}->do('DELETE FROM RECORDS');
-        $obj->{keywords}->removesource('recording');
+        $self->{dbh}->do('DELETE FROM RECORDS');
+        $self->{keywords}->removesource('recording');
     } else {
         # read database for compare with vdr data
         my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.RecordId as id, 
@@ -589,9 +589,10 @@ sub readData {
                         r.RecordMD5
                  from RECORDS as r,OLDEPG as e 
                  where r.eventid = e.eventid |;
-       $db_data = $obj->{dbh}->selectall_hashref($sql, 'hash');
+       $db_data = $self->{dbh}->selectall_hashref($sql, 'hash');
 
-       lg sprintf( 'Compare recording database with data from vdr : %d / %d', 
+       lg sprintf( 'Compare recording database with data from %s : %d / %d', 
+                    $self->{svdrp}->hostname(),
                     scalar keys %$db_data,scalar keys %$vdrData );
     }
 
@@ -612,7 +613,7 @@ sub readData {
           foreach my $field (qw/id state/) {
             if($db_data->{$h}->{$field} != $event->{$field}) {
 
-              $obj->_updateState($db_data->{$h}, $event);
+              $self->_updateState($db_data->{$h}, $event);
 
               $updatedState++;
               last;
@@ -621,12 +622,12 @@ sub readData {
 
           # Update Duration and maybe preview images, if recordings added during timer run 
           if(($db_data->{$h}->{starttime} + $db_data->{$h}->{duration} + 7200) > $db_data->{$h}->{addtime}) {
-              my $duration = $obj->_recordinglength($db_data->{$h}->{path});
+              my $duration = $self->_recordinglength($db_data->{$h}->{path});
               if($duration != $db_data->{$h}->{duration}) {
 
                   # Update duration at database entry
                   $db_data->{$h}->{duration} = $duration;
-                  $db_data->{$h}->{FileSize} = $obj->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * $obj->{framerate}));
+                  $db_data->{$h}->{FileSize} = $self->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * $self->{framerate}));
 
                   # set addtime only if called from EVENT::TIMER
                   # avoid generating preview image during user actions
@@ -634,14 +635,14 @@ sub readData {
                   unless($console) {
                       $db_data->{$h}->{addtime} = time;
                       # Make preview and remove older Preview images
-                      my $job = $obj->videoPreview( $db_data->{$h}, 1);
+                      my $job = $self->videoPreview( $db_data->{$h}, 1);
                       if($job) {
-                        push(@{$obj->{JOBS}}, $job);
-                        $obj->_updatePreview($job->{RecordMD5}, $db_data->{$h}->{preview});
+                        push(@{$self->{JOBS}}, $job);
+                        $self->_updatePreview($job->{RecordMD5}, $db_data->{$h}->{preview});
                       }
                   }
-                  $obj->_updateEvent($db_data->{$h});
-                  $obj->_updateFileSize($db_data->{$h});
+                  $self->_updateEvent($db_data->{$h});
+                  $self->_updateFileSize($db_data->{$h});
 
                   $updatedState++;
               }
@@ -662,22 +663,22 @@ sub readData {
 
           # Read VideoDir only at first call
           unless($files) {
-            $files = $obj->scandirectory('rec');
+            $files = $self->scandirectory('rec');
           }
           unless($files && keys %{$files}) {
             last;
           }
 
-          my $info = $obj->analyze($files,$event);
+          my $info = $self->analyze($files,$event);
           if(ref $info eq 'HASH') {
               $totalDuration += $info->{Duration};
               $totalSpace += $info->{FileSize};
 
-              if($obj->insert($info)) {
+              if($self->insert($info)) {
                   push(@merkMD5,$info->{RecordMD5});
                   $insertedData++;
 
-                  $obj->{keywords}->insert('recording',$info->{RecordMD5},$info->{keywords});
+                  $self->{keywords}->insert('recording',$info->{RecordMD5},$info->{keywords});
 
               } else {
                   push(@{$err},sprintf(gettext("Can't add recording '%s' into database!"),$info->{title}));
@@ -700,11 +701,11 @@ sub readData {
             push(@todel,$db_data->{$t}->{RecordMD5});
         }
         my $sql = sprintf('DELETE FROM RECORDS WHERE RecordMD5 IN (%s)', join(',' => ('?') x @todel)); 
-        my $sth = $obj->{dbh}->prepare($sql);
+        my $sth = $self->{dbh}->prepare($sql);
         $sth->execute(@todel)
             or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
-        $obj->{keywords}->remove('recording',\@todel);
+        $self->{keywords}->remove('recording',\@todel);
       }
 
     my $removedData = $db_data ? scalar keys %$db_data : 0;
@@ -713,24 +714,24 @@ sub readData {
 
     error sprintf("Unsupported unit '%s' to calc free capacity",$freeUnit) unless($freeUnit eq 'MB');
     # use store capacity and recordings length to calc free capacity
-    $obj->{CapacityTotal} = $totalDuration;
+    $self->{CapacityTotal} = $totalDuration;
     if($totalSpace > 1) {
-      $obj->{CapacityFree} = int(($free * $totalDuration) / $totalSpace);
+      $self->{CapacityFree} = int(($free * $totalDuration) / $totalSpace);
     } else {
-      $obj->{CapacityFree} = int($free * 3600 / 2000); # use 2GB at one hour as base
+      $self->{CapacityFree} = int($free * 3600 / 2000); # use 2GB at one hour as base
     }
-    $obj->{CapacityPercent}  = ($totalSpace * 100 / ($free + $totalSpace))
-      unless($obj->{CapacityPercent});
+    $self->{CapacityPercent}  = ($totalSpace * 100 / ($free + $totalSpace))
+      unless($self->{CapacityPercent});
 
     # Previews im fork erzeugen
-    if(scalar @{$obj->{JOBS}}) {
+    if(scalar @{$self->{JOBS}}) {
         #Changes made after the fork() won't be visible in the parent process
-        my @jobs = @{$obj->{JOBS}};
-        $obj->{JOBS} = [];
+        my @jobs = @{$self->{JOBS}};
+        $self->{JOBS} = [];
 
         defined(my $child = fork()) or return con_err($console, sprintf("Couldn't fork : %s",$!));
         if($child == 0) {
-            $obj->{dbh}->{InactiveDestroy} = 1;
+            $self->{dbh}->{InactiveDestroy} = 1;
 
             while(scalar @jobs > 0) {
                 my $job = shift (@jobs);
@@ -743,16 +744,16 @@ sub readData {
                   my $frame = basename($_);
                   $frame =~ s/\.jpg$//ig;
                   push(@{$preview},$frame);
-                  last if(scalar @{$preview} >= $obj->{previewcount});
+                  last if(scalar @{$preview} >= $self->{previewcount});
                 }
-                $obj->_updatePreview($job->{RecordMD5},$preview);
+                $self->_updatePreview($job->{RecordMD5},$preview);
             }
             exit 0;
         }
     }
 
     # alte PreviewDirs loeschen
-    foreach my $dir (glob(sprintf('%s/*_shot', $obj->{previewimages}))) {
+    foreach my $dir (glob(sprintf('%s/*_shot', $self->{previewimages}))) {
         my $basedir = basename($dir);
         unless(grep(sprintf('%s_shot',$_) eq $basedir, @merkMD5)) {
             lg sprintf("Remove old preview files : '%s'",$dir);
@@ -769,11 +770,11 @@ DELETE FROM OLDEPG
   and eventid not in 
       ( SELECT eventid FROM RECORDS )
 |;
-      $obj->{dbh}->do($sqldeleteEvents)
+      $self->{dbh}->do($sqldeleteEvents)
         or error sprintf("Couldn't execute query: %s, %s.",$sqldeleteEvents, $DBI::errstr);
    }
 
-   $obj->updated() if($insertedData);
+   $self->updated() if($insertedData);
 
    # last call of waiter
    $waiter->end() if(ref $waiter);
@@ -793,14 +794,14 @@ DELETE FROM OLDEPG
 # ------------------
 sub updated {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $cb = shift || 0;
     my $log = shift || 0;
 
     if($cb) {
-        push(@{$obj->{after_updated}}, [$cb, $log]);
+        push(@{$self->{after_updated}}, [$cb, $log]);
     } else {
-        foreach my $CB (@{$obj->{after_updated}}) {
+        foreach my $CB (@{$self->{after_updated}}) {
             next unless(ref $CB eq 'ARRAY');
             lg $CB->[1]
                 if($CB->[1]);
@@ -813,7 +814,7 @@ sub updated {
 # ------------------
 sub refresh {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
 
@@ -824,7 +825,7 @@ sub refresh {
       con_msg($console,gettext("Get information on recordings ..."));
     }
 
-    if($obj->readData($watcher,$console,$waiter,'force')) {
+    if($self->readData($watcher,$console,$waiter,'force')) {
 
       $console->redirect({url => '?cmd=rlist', wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -837,10 +838,10 @@ sub refresh {
 # ------------------
 sub insert {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $attr = shift || return 0;
 
-    my $sth = $obj->{dbh}->prepare(
+    my $sth = $self->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
         (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type, preview, aux, addtime )
@@ -869,10 +870,10 @@ sub insert {
 # ------------------
 sub _updateEvent {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $event = shift || return undef;
     
-    my $sth = $obj->{dbh}->prepare('UPDATE OLDEPG SET duration=?, starttime=FROM_UNIXTIME(?), addtime=FROM_UNIXTIME(?) where eventid=?');
+    my $sth = $self->{dbh}->prepare('UPDATE OLDEPG SET duration=?, starttime=FROM_UNIXTIME(?), addtime=FROM_UNIXTIME(?) where eventid=?');
     if(!$sth->execute($event->{duration},$event->{starttime},$event->{addtime},$event->{eventid})) {
         error sprintf("Couldn't update event!: '%s' !",$event->{eventid});
         return undef;
@@ -883,56 +884,56 @@ sub _updateEvent {
 # ------------------
 sub _updateState {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $oldattr = shift || return error ('No data defined!');
     my $attr = shift || return error ('No data to replace!');
 
-    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET RecordId=?, State=?, addtime=NOW() where RecordMD5=?');
+    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET RecordId=?, State=?, addtime=NOW() where RecordMD5=?');
     return $sth->execute($attr->{id},$attr->{state},$oldattr->{RecordMD5});
 }
 
 # ------------------
 sub _updatePreview {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $RecordMD5 = shift || return error ('No data defined!');
     my $preview = shift || return error ('No data to replace!');
     my $images = join(',',@{$preview});
-    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET preview=?, addtime=NOW() where RecordMD5=?');
+    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET preview=?, addtime=NOW() where RecordMD5=?');
     return $sth->execute($images,$RecordMD5);
 }
 # ------------------
 sub _updateFileSize {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $attr = shift || return error ('No data to replace!');
 
-    my $sth = $obj->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=NOW() where RecordMD5=?');
+    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=NOW() where RecordMD5=?');
     return $sth->execute($attr->{FileSize},$attr->{RecordMD5});
 }
 
 # ------------------
 sub analyze {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $files = shift; # Hash with md5 and path to recording
     my $recattr = shift;
 
     lg sprintf('Analyze recording "%s"', $recattr->{title} );
 
-    my $info = $obj->videoInfo($files,$recattr->{title}, $recattr->{starttime});
+    my $info = $self->videoInfo($files,$recattr->{title}, $recattr->{starttime});
     unless($info && ref $info eq 'HASH') {
       error sprintf("Couldn't find recording '%s' with id : '%s' !",$recattr->{title}, $recattr->{id});
       return 0;
     }
 
-    my $event = $obj->SearchEpgId( $recattr->{starttime}, $info->{duration}, $recattr->{title}, $info->{channel} );
+    my $event = $self->SearchEpgId( $recattr->{starttime}, $info->{duration}, $recattr->{title}, $info->{channel} );
     if($event) {
         my $id = $event->{eventid};
         $event->{addtime} = time;
         $event->{duration} = int($info->{duration});
         $event->{starttime} = $recattr->{starttime};
-        $event = $obj->_updateEvent($event);
+        $event = $self->_updateEvent($event);
         unless($event) {
           return 0;
         }
@@ -948,7 +949,7 @@ sub analyze {
             $title = join('~',@t);
         }
 
-        $event = $obj->createOldEventId($recattr->{id}, $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info);
+        $event = $self->createOldEventId($recattr->{id}, $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info);
         unless($event) {
           error sprintf("Couldn't create event!: '%s' !",$recattr->{id});
           return 0;
@@ -956,8 +957,8 @@ sub analyze {
     }
 
     # Make Preview
-    my $job = $obj->videoPreview( $info );
-    push(@{$obj->{JOBS}}, $job) if($job);
+    my $job = $self->videoPreview( $info );
+    push(@{$self->{JOBS}}, $job) if($job);
 
     my $ret = {
         RecordMD5 => $info->{RecordMD5},
@@ -986,7 +987,7 @@ sub analyze {
 # ------------------
 sub videoInfo {
 # ------------------
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $files   = shift; # Hash with md5 and path to recording
     my $title   = shift; # title from VDR
     my $starttime   = shift; # time from VDR
@@ -1006,17 +1007,17 @@ sub videoInfo {
            && $rec->{hour} == $hour
            && $rec->{minute} == $minute) {
 
-              my $info = $obj->readinfo($rec->{path});    
+              my $info = $self->readinfo($rec->{path});    
 
               $info->{RecordMD5} = $md5;
               $info->{path} = $rec->{path};
               $info->{Prio} = $rec->{priority};
               $info->{Lifetime} = $rec->{lifetime};
-              $info->{duration} = $obj->_recordinglength($rec->{path});
-              $info->{FileSize} = $obj->_recordingCapacity($rec->{files},
-                                   ($info->{duration} * 8 * $obj->{framerate}));
+              $info->{duration} = $self->_recordinglength($rec->{path});
+              $info->{FileSize} = $self->_recordingCapacity($rec->{files},
+                                   ($info->{duration} * 8 * $self->{framerate}));
 
-              my $marks = $obj->readmarks($rec->{path});
+              my $marks = $self->readmarks($rec->{path});
               map { $info->{$_} = $marks->{$_}; } keys %{$marks}; 
 
               delete $files->{$md5}; # remove from hash, avoid double lookup
@@ -1031,7 +1032,7 @@ sub videoInfo {
 #-------------------------------------------------------------------------------
 # get cut marks from marks.vdr
 sub readmarks {
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $path    = shift || return error ('No recording path defined!');
 
     my $status;
@@ -1055,7 +1056,7 @@ sub readmarks {
 #-------------------------------------------------------------------------------
 # get information about recording from info.vdr
 sub readinfo {
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $path    = shift || return error ('No recording path defined!');
 
     my $info;
@@ -1100,7 +1101,7 @@ sub readinfo {
                   $info->{aux} =~ s/^\s+//;               # no leading white space
                   $info->{aux} =~ s/\s+$//;               # no trailing white space
 
-                  my $xml = $obj->{keywords}->parsexml($info->{aux});
+                  my $xml = $self->{keywords}->parsexml($info->{aux});
           #       $info->{keywords} = $xml->{'autotimer'}
           #         if($xml && defined $xml->{'autotimer'} );
                   $info->{keywords} = $xml->{'keywords'}
@@ -1114,7 +1115,7 @@ sub readinfo {
 #-------------------------------------------------------------------------------
 # store information about recording into info.vdr
 sub saveinfo {
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $path    = shift || return error ('No recording path defined!');
     my $info    = shift || return error ('No information defined!');
 
@@ -1236,20 +1237,20 @@ sub qquote {
 # ------------------
 sub videoPreview {
 # ------------------
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $info    = shift || return error ('No information defined!');
     my $rebuild = shift || 0;
 
     $info->{preview} = [];
 
-    if ($obj->{previewcommand} eq 'Nothing') {
+    if ($self->{previewcommand} eq 'Nothing') {
         return 0;
     }
     if($info->{type} and $info->{type} eq 'RADIO') {
         return 0;
     }
     # Mplayer
-    unless(-x $obj->{previewbinary}) {
+    unless(-x $self->{previewbinary}) {
       error("Couldn't find executable file as usable preview command!");
       return 0;
     }
@@ -1261,9 +1262,9 @@ sub videoPreview {
         return 0;
     }
 
-    my $outdir = sprintf('%s/%s_shot', $obj->{previewimages}, $info->{RecordMD5});
+    my $outdir = sprintf('%s/%s_shot', $self->{previewimages}, $info->{RecordMD5});
 
-    my $count = $obj->{previewcount};
+    my $count = $self->{previewcount};
     # Stop here if enough files present
     my @images = glob("$outdir/[0-9]*.jpg");
     if(scalar @images >= $count && !$rebuild) {
@@ -1271,13 +1272,13 @@ sub videoPreview {
         my $frame = basename($_);
         $frame =~ s/\.jpg$//ig;
         push(@{$info->{preview}},$frame);
-        last if(scalar @{$info->{preview}} >= $obj->{previewcount});
+        last if(scalar @{$info->{preview}} >= $self->{previewcount});
       }
       return 0;
     }
 
-    my $startseconds = ($obj->{timers}->{prevminutes} * 60) * 2;
-    my $endseconds = ($obj->{timers}->{afterminutes} * 60) * 2;
+    my $startseconds = ($self->{timers}->{prevminutes} * 60) * 2;
+    my $endseconds = ($self->{timers}->{afterminutes} * 60) * 2;
     my $stepseconds = ($info->{duration} - ($startseconds + $endseconds)) / $count;
   	# reduced interval on short movies
   	if($stepseconds <= 0 or ($startseconds + ($count * $stepseconds)) > $info->{duration}) {
@@ -1307,20 +1308,20 @@ sub videoPreview {
 
     my @files;
     my @frames;
-    if ($obj->{previewcommand} eq 'vdr2jpeg') {
+    if ($self->{previewcommand} eq 'vdr2jpeg') {
 
         my $m = ref $info->{marks} eq 'ARRAY' ? scalar(@{$info->{marks}}) : 0;
         if($m > 1 && $info->{duration}) {
-            my $total = $info->{duration} * $obj->{framerate};
+            my $total = $info->{duration} * $self->{framerate};
             my $limit = $count * 4;
             my $x = 2;
             my $y = 1;
             while (scalar @frames < $count && $x < $limit) {
                 my $f = int($total / $x * $y); # 1/2, 1/3, 2/3, 1/4, 2/4, 3/4, 1/5, 2/5, 3/5 ...
                 for (my $n = 0;$n < $m; $n += 2 ) {
-                    my $fin = $obj->_mark2frames(@{$info->{marks}}[$n]);
+                    my $fin = $self->_mark2frames(@{$info->{marks}}[$n]);
                     my $fout = $total;
-                    $fout = $obj->_mark2frames(@{$info->{marks}}[$n+1]) if($n+1 < $m);
+                    $fout = $self->_mark2frames(@{$info->{marks}}[$n+1]) if($n+1 < $m);
 
                     if ($f >= $fin && $f <= $fout 
                         && 0 == (grep {$f == $_;} @frames) 
@@ -1334,10 +1335,10 @@ sub videoPreview {
             }
         }
 
-        my $s = int($startseconds * $obj->{framerate});
+        my $s = int($startseconds * $self->{framerate});
         while (scalar @frames < $count) {
             push(@frames, $s);
-            $s += int( $stepseconds * $obj->{framerate} );
+            $s += int( $stepseconds * $self->{framerate} );
         }
     } else {
         @files = glob("$vdir/[0-9][0-9][0-9].vdr");
@@ -1347,14 +1348,14 @@ sub videoPreview {
     my $scalex = 180;
     my $mversions = {
       'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
-                              $obj->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
+                              $self->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
       'MPlayer1.0pre6' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg:outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
-                              $obj->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
+                              $self->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
       'vdr2jpeg'       => sprintf("%s -r %s -f %s -x %d -o %s >> %s 2>&1",
-                              $obj->{previewbinary}, qquote($vdir), join(' -f ', @frames), $scalex, qquote($outdir), qquote($log)),
+                              $self->{previewbinary}, qquote($vdir), join(' -f ', @frames), $scalex, qquote($outdir), qquote($log)),
     };
     return {
-      command    => $mversions->{$obj->{previewcommand}},
+      command    => $mversions->{$self->{previewcommand}},
       previewdir => $outdir,
       RecordMD5  => $info->{RecordMD5}
     }
@@ -1372,7 +1373,7 @@ sub _mark2frames{
 # ------------------
 sub SearchEpgId {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $start = shift || return error('No start time defined!');
     my $dur = shift || return 0;
     my $title = shift || return error('No title defined!');
@@ -1381,7 +1382,7 @@ sub SearchEpgId {
     my $sth;
     my $bis = int($start + $dur);
     if($channel && $channel ne "") {
-        $sth = $obj->{dbh}->prepare(
+        $sth = $self->{dbh}->prepare(
 qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
@@ -1390,7 +1391,7 @@ qq|SELECT SQL_CACHE * FROM OLDEPG WHERE
         $sth->execute($start,$bis,$title,$channel)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
-        $sth = $obj->{dbh}->prepare(
+        $sth = $self->{dbh}->prepare(
 qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
         UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
@@ -1407,7 +1408,7 @@ qq|SELECT SQL_CACHE * FROM OLDEPG WHERE
 # ------------------
 sub createOldEventId {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $id = shift || return error('No eventid defined!');
     my $start = shift || return error('No start time defined!');
     my $duration = shift || 0;
@@ -1427,12 +1428,12 @@ sub createOldEventId {
         audio => $info->{audio} || "",
     };
 
-    $attr->{eventid} = $obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(eventid)+1 from OLDEPG')->[0];
+    $attr->{eventid} = $self->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(eventid)+1 from OLDEPG')->[0];
     $attr->{eventid} = 1000000000 if(not defined $attr->{eventid} or $attr->{eventid} < 1000000000 );
 
     lg sprintf('Create event "%s" into OLDEPG', $subtitle ? $title .'~'. $subtitle : $title);
 
-    my $sth = $obj->{dbh}->prepare(
+    my $sth = $self->{dbh}->prepare(
 q|REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, 
                       duration, tableid, starttime, vpstime, video, audio, addtime) 
   VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?,NOW())|);
@@ -1457,7 +1458,7 @@ q|REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id,
 # ------------------
 sub display {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid = shift;
@@ -1496,7 +1497,7 @@ where
 
     my $erg;
 #   my $fields;
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     if(!$sth->execute($recordid)
 #     || !($fields = $sth->{'NAME'})
       || !($erg = $sth->fetchrow_hashref())) {
@@ -1509,13 +1510,13 @@ where
       $erg->{StopTime} = datum($erg->{StopTime},'voll');
     }
 
-    $obj->_loadreccmds;
-    my @reccmds = @{$obj->{reccmds}};
+    $self->_loadreccmds;
+    my @reccmds = @{$self->{reccmds}};
     map { 
       $_ =~ s/\s*\:.*$//;
     } @reccmds;
 
-    my ($keywords,$keywordmax,$keywordmin) = $obj->{keywords}->list('recording',[ $erg->{'RecordId'} ]);
+    my ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',[ $erg->{'RecordId'} ]);
 
     my $param = {
         reccmds => \@reccmds,
@@ -1527,7 +1528,7 @@ where
 # ------------------
 sub play {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
@@ -1535,7 +1536,7 @@ sub play {
 
     my $sql = qq|SELECT SQL_CACHE r.RecordID,r.RecordMD5,e.duration as duration FROM
     RECORDS as r, OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 = ?|;
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
       || !($rec = $sth->fetchrow_hashref())) {
@@ -1547,7 +1548,7 @@ sub play {
       $start = &text2frame($params->{start});
     }
     if($start) {
-      if($start < 0 or ($start / $obj->{framerate}) >= ($rec->{duration})) {
+      if($start < 0 or ($start / $self->{framerate}) >= ($rec->{duration})) {
         $start = 'begin';
       } else {
         $start = &frame2hms($start);
@@ -1558,7 +1559,7 @@ sub play {
 
 
     my $cmd = sprintf('PLAY %d %s', $rec->{RecordID}, $start);
-    if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
+    if($self->{svdrp}->scommand($watcher, $console, $cmd)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1571,13 +1572,13 @@ sub play {
 # ------------------
 sub cut {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
       || !($rec = $sth->fetchrow_hashref())) {
@@ -1585,7 +1586,7 @@ sub cut {
     }
 
     my $cmd = sprintf('EDIT %d', $rec->{RecordID});
-    if($obj->{svdrp}->scommand($watcher, $console, $cmd)) {
+    if($self->{svdrp}->scommand($watcher, $console, $cmd)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1598,14 +1599,14 @@ sub cut {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text    = shift || "";
     my $params  = shift;
 
     my $deep = 1;
-    my $folder = scalar (my @a = split('/',$obj->{videodir})) + 1;
+    my $folder = scalar (my @a = split('/',$self->{videodir})) + 1;
     my $term;
 
     my $where = "e.eventid = r.eventid";
@@ -1680,7 +1681,7 @@ ORDER BY __IsRecording asc,
     my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
     if($limit > 0) {
       # Query total count of rows
-      my $rsth = $obj->{dbh}->prepare($sql);
+      my $rsth = $self->{dbh}->prepare($sql);
          $rsth->execute(@{$term})
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
@@ -1698,7 +1699,7 @@ ORDER BY __IsRecording asc,
     }
 
     unless($sth) {
-      $sth = $obj->{dbh}->prepare($sql);
+      $sth = $self->{dbh}->prepare($sql);
       $sth->execute(@{$term})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       $rows = $sth->rows unless($rows);
@@ -1718,18 +1719,18 @@ ORDER BY __IsRecording asc,
         $_->[5] = datum($_->[5],'short');
       } @$erg;
 
-      ($keywords,$keywordmax,$keywordmin) = $obj->{keywords}->list('recording',$md5);
+      ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',$md5);
 
       unshift(@$erg, $fields);
     }
 
     my $param = {
         sortable => 1,
-        usage => $obj->{CapacityMessage},
-        used => $obj->{CapacityPercent},
-        total => $obj->{CapacityTotal},
-        free => $obj->{CapacityFree},
-        previewcommand => $obj->{previewlistthumbs},
+        usage => $self->{CapacityMessage},
+        used => $self->{CapacityPercent},
+        total => $self->{CapacityTotal},
+        free => $self->{CapacityFree},
+        previewcommand => $self->{previewlistthumbs},
         keywords => $keywords,
         keywordsmax => $keywordmax,        
         keywordsmin => $keywordmin,
@@ -1741,20 +1742,20 @@ ORDER BY __IsRecording asc,
 # ------------------
 sub search {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $text    = shift || return $obj->list($watcher,$console);
+    my $text    = shift || return $self->list($watcher,$console);
     my $params  = shift;
 
     my $query = buildsearch("e.title,e.subtitle,e.description",$text);
-    return $obj->_search($watcher,$console,$query->{query},$query->{term},$params);
+    return $self->_search($watcher,$console,$query->{query},$query->{term},$params);
 }
 
 # ------------------
 sub _search {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift; 
     my $search = shift; 
@@ -1815,7 +1816,7 @@ ORDER BY
     my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
     if($limit > 0) {
       # Query total count of rows
-      my $rsth = $obj->{dbh}->prepare($sql);
+      my $rsth = $self->{dbh}->prepare($sql);
          $rsth->execute(@{$term})
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
@@ -1833,7 +1834,7 @@ ORDER BY
     }
 
     unless($sth) {
-      $sth = $obj->{dbh}->prepare($sql);
+      $sth = $self->{dbh}->prepare($sql);
       $sth->execute(@{$term})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       $rows = $sth->rows unless($rows);
@@ -1853,18 +1854,18 @@ ORDER BY
         $_->[5] = datum($_->[5],'short');
       } @$erg;
 
-      ($keywords,$keywordmax,$keywordmin) = $obj->{keywords}->list('recording',$md5);
+      ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',$md5);
 
       unshift(@$erg, $fields);
     }
 
     my $param = {
         sortable => 1,
-        usage => $obj->{CapacityMessage},
-        used => $obj->{CapacityPercent},
-        total => $obj->{CapacityTotal},
-        free => $obj->{CapacityFree},
-        previewcommand => $obj->{previewcommand},
+        usage => $self->{CapacityMessage},
+        used => $self->{CapacityPercent},
+        total => $self->{CapacityTotal},
+        free => $self->{CapacityFree},
+        previewcommand => $self->{previewcommand},
         keywords => $keywords,
         keywordsmax => $keywordmax,        
         keywordsmin => $keywordmin,
@@ -1878,7 +1879,7 @@ ORDER BY
 # ------------------
 sub delete {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $record  = shift || return con_err($console,gettext("No recording defined for deletion! Please use rdelete 'id'."));
@@ -1891,7 +1892,7 @@ sub delete {
         
     foreach my $item (@rcs) {
         if($item =~ /^all\:(\w+)/i) {
-            my $ids = $obj->getGroupIds($1);
+            my $ids = $self->getGroupIds($1);
             for(@$ids) {
                 $rec{$_} = 1;
             }
@@ -1902,7 +1903,7 @@ sub delete {
     my @recordings = keys %rec;
     
     my $sql = sprintf("SELECT SQL_CACHE  r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 FROM RECORDS as r,OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) ORDER BY r.RecordId desc", join(',' => ('?') x @recordings)); 
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@recordings)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     my $data = $sth->fetchall_arrayref(); # Query as array to hold ordering !
@@ -1932,7 +1933,7 @@ sub delete {
             );
 
 
-        $obj->{svdrp}->queue_cmds(sprintf("delr %s",$r->{Id}));
+        $self->{svdrp}->queue_cmds(sprintf("delr %s",$r->{Id}));
         push(@{$todelete},$r->{Title}); # Remember title
         push(@{$md5delete},$r->{MD5}); # Remember hash
 
@@ -1952,33 +1953,33 @@ sub delete {
       join('\',\'',@recordings))) 
           if(scalar @recordings);
 
-    if($obj->{svdrp}->queue_cmds('COUNT')) {
+    if($self->{svdrp}->queue_cmds('COUNT')) {
 
         my $msg = sprintf(gettext("Recording '%s' to delete"),join('\',\'',@{$todelete}));
 
-        my $erg = $obj->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
+        my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
 
         my $waiter;
-        if($obj->{svdrp}->err) {
+        if($self->{svdrp}->err) {
           con_err($console,$erg);
         } else {
 
-          if(ref $console && $console->typ eq 'HTML' && !$obj->{inotify}) {
+          if(ref $console && $console->typ eq 'HTML' && !$self->{inotify}) {
             $waiter = $console->wait($msg,0,1000,'no');
           }else {
             con_msg($console,$msg);
           }
 
           my $dsql = sprintf("DELETE FROM RECORDS WHERE RecordMD5 IN (%s)", join(',' => ('?') x @{$md5delete})); 
-          my $dsth = $obj->{dbh}->prepare($dsql);
+          my $dsth = $self->{dbh}->prepare($dsql);
             $sth->execute(@{$md5delete})
               or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
-          $obj->{keywords}->remove('recording',$md5delete);
+          $self->{keywords}->remove('recording',$md5delete);
         }
 
-        $obj->readData($watcher,$console,$waiter)
-          unless($obj->{inotify});
+        $self->readData($watcher,$console,$waiter)
+          unless($self->{inotify});
 
         if(ref $console && $console->typ eq 'HTML') {
           my @t = split('~', $todelete->[0]);
@@ -2013,7 +2014,7 @@ sub is_empty_dir {
 # ------------------
 sub redit {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid  = shift || return con_err($console,gettext("No recording defined for editing!"));
@@ -2035,14 +2036,14 @@ WHERE
     e.eventid = r.eventid
 	AND ( r.RecordMD5 = ? )
 |;
-        my $sth = $obj->{dbh}->prepare($sql);
+        my $sth = $self->{dbh}->prepare($sql);
         if(!$sth->execute($recordid)
           || !($rec = $sth->fetchrow_hashref())) {
           return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
         }
     }
 
-    my $status = $obj->readinfo($rec->{Path});
+    my $status = $self->readinfo($rec->{Path});
 
     my $marksfile = sprintf('%s/%s', $rec->{Path}, 'marks.vdr');
     my $marks = (-r $marksfile ? load_file($marksfile) : '');
@@ -2118,7 +2119,7 @@ WHERE
             def   => $status->{aux},
         },
     		'keywords' => {
-            typ   => $obj->{keywords}->{active} eq 'y' ? 'string' : 'hidden',
+            typ   => $self->{keywords}->{active} eq 'y' ? 'string' : 'hidden',
             msg   => gettext('Keywords'),
             def   => $status->{keywords},
         },
@@ -2168,9 +2169,9 @@ WHERE
                 $info->{title} = join('~',@t);
             }
 
-            $info->{aux} = $obj->{keywords}->mergexml($info->{aux},'keywords',$info->{keywords});
+            $info->{aux} = $self->{keywords}->mergexml($info->{aux},'keywords',$info->{keywords});
 
-            $obj->saveinfo($rec->{Path},$info)
+            $self->saveinfo($rec->{Path},$info)
                or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$rec->{Path} . '/info.vdr',$!));
 
             $ChangeRecordingData = 1 if($info->{aux} ne $status->{aux});
@@ -2207,7 +2208,7 @@ WHERE
         if($data->{title} ne $rec->{title}) {
 
             # Rename auf der Platte
-            my $newPath = sprintf('%s/%s/%s', $obj->{videodir}, $obj->translate($data->{title}),basename($rec->{Path}));
+            my $newPath = sprintf('%s/%s/%s', $self->{videodir}, $self->translate($data->{title}),basename($rec->{Path}));
 
             my $parentnew = dirname($newPath);
             unless( -d $parentnew) {
@@ -2219,7 +2220,7 @@ WHERE
                     or return con_err($console,sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$data->{title},$!));
 
             my $parentold = dirname($rec->{Path});
-            if($obj->{videodir} ne $parentold
+            if($self->{videodir} ne $parentold
                 and -d $parentold
                 and is_empty_dir($parentold)) {
                 rmdir($parentold)
@@ -2233,35 +2234,35 @@ WHERE
 
 
         if($dropEPGEntry) { # Delete EpgOld Entrys
-            my $sth = $obj->{dbh}->prepare('DELETE FROM OLDEPG WHERE eventid = ?');
+            my $sth = $self->{dbh}->prepare('DELETE FROM OLDEPG WHERE eventid = ?');
             $sth->execute($rec->{EventId})
                 or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
         }
 
         if($ChangeRecordingData) { 
-            my $sth = $obj->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
+            my $sth = $self->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
             $sth->execute($recordid)
                 or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
             my $todel;
             push(@$todel,$recordid);
-            $obj->{keywords}->remove('recording',$todel);
+            $self->{keywords}->remove('recording',$todel);
         }
         if($dropEPGEntry || $ChangeRecordingData) {
-            $obj->{lastupdate} = 0;
-            touch($obj->{videodir}."/.update");
+            $self->{lastupdate} = 0;
+            touch($self->{videodir}."/.update");
         }
         if($dropEPGEntry || $ChangeRecordingData) {
           my $waiter;
 
-          if(ref $console && $console->typ eq 'HTML' && !($obj->{inotify})) {
+          if(ref $console && $console->typ eq 'HTML' && !($self->{inotify})) {
             $waiter = $console->wait(gettext('Recording edited!'),0,1000,'no');
           }else {
             con_msg($console,gettext('Recording edited!'));
           }
           sleep(1);
   
-          $obj->readData($watcher,$console,$waiter)
-            unless($obj->{inotify});
+          $self->readData($watcher,$console,$waiter)
+            unless($self->{inotify});
 
         } else {
           con_msg($console,gettext("Recording was'nt changed!"));
@@ -2278,14 +2279,14 @@ WHERE
 # Load Reccmds's
 sub _loadreccmds {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    unless($obj->{reccmds}) {
-        $obj->{reccmds} = [];
-        if(-r $obj->{commandfile} and my $text = load_file($obj->{commandfile})) {
+    unless($self->{reccmds}) {
+        $self->{reccmds} = [];
+        if(-r $self->{commandfile} and my $text = load_file($self->{commandfile})) {
             foreach my $zeile (split(/\n/, $text)) {
                 if($zeile !~ /^\#/ and $zeile !~ /^$/ and $zeile !~ /true/) {
-                    push(@{$obj->{reccmds}}, $zeile);
+                    push(@{$self->{reccmds}}, $zeile);
                 }
             }
         }
@@ -2295,32 +2296,32 @@ sub _loadreccmds {
 # ------------------
 sub conv {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || 0;
 
-    $obj->_loadreccmds;
+    $self->_loadreccmds;
 
-    unless(scalar @{$obj->{reccmds}}) {
+    unless(scalar @{$self->{reccmds}}) {
         con_err($console,gettext('No reccmds.conf on your system!'));
         return 1;
     }
 
     unless($data) {
         con_err($console,gettext("Please use rconvert 'cmdid_rid'"));
-        unshift(@{$obj->{reccmds}}, 
+        unshift(@{$self->{reccmds}}, 
           [
            gettext('Description'),
            gettext('Command')
           ]);
-        $console->table($obj->{reccmds});
-        $obj->list($watcher, $console);
+        $console->table($self->{reccmds});
+        $self->list($watcher, $console);
     }
 
     my ($cmdid, $recid) = split(/[\s_]/, $data);
-    my $cmd = (split(':', $obj->{reccmds}->[$cmdid-1]))[-1] || return con_err($console,gettext("Couldn't find this command ID!"));
-    my $path = $obj->IdToPath($recid) || return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
+    my $cmd = (split(':', $self->{reccmds}->[$cmdid-1]))[-1] || return con_err($console,gettext("Couldn't find this command ID!"));
+    my $path = $self->IdToPath($recid) || return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
 
     my $command = sprintf("%s %s",$cmd,qquote($path));
     debug sprintf('Call command %s%s',
@@ -2353,7 +2354,7 @@ sub conv {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift;
@@ -2376,7 +2377,7 @@ ORDER BY
     e.starttime asc
 |;
 
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     $sth->execute($lastReportTime)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $fields = $sth->{'NAME'};
@@ -2393,10 +2394,10 @@ ORDER BY
 # ------------------
 sub IdToData {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE * from RECORDS as r, OLDEPG as e where e.eventid = r.eventid and RecordMD5 = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from RECORDS as r, OLDEPG as e where e.eventid = r.eventid and RecordMD5 = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -2406,10 +2407,10 @@ sub IdToData {
 # ------------------
 sub IdToPath {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE Path from RECORDS where RecordMD5 = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE Path from RECORDS where RecordMD5 = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -2419,17 +2420,17 @@ sub IdToPath {
 # ------------------
 sub getGroupIds {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $recid = shift || return error ('No recording defined!');
     
-    my $data = $obj->IdToData($recid);
+    my $data = $self->IdToData($recid);
     unless($data) {
       error sprintf("Couldn't find recording '%s'!", $recid);
       return;
     }
     my  $text    = $data->{title};
 
-    my $folder = scalar (my @a = split('/',$obj->{videodir})) + 1;
+    my $folder = scalar (my @a = split('/',$self->{videodir})) + 1;
     my $deep   = scalar (my @c = split('~',$text));
     $folder += $deep;
     $deep += 1;
@@ -2454,7 +2455,7 @@ GROUP BY
     SUBSTRING_INDEX(r.Path, '/', IF(Length(e.subtitle)<=0, $folder + 1, $folder))
 |;
 
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     $sth->execute($text,$text .'~%')
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchall_arrayref();
@@ -2471,9 +2472,9 @@ GROUP BY
 # title to path
 sub translate {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $title = shift || return error ('No title in translate!');
-    my $vfat = shift || $obj->{vfat};
+    my $vfat = shift || $self->{vfat};
 
     if($vfat eq 'y')
     {
@@ -2494,9 +2495,9 @@ sub translate {
 # path to title
 sub converttitle {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $title = shift || return error ('No title in translate!');
-    my $vfat = shift || $obj->{vfat};
+    my $vfat = shift || $self->{vfat};
 
     $title =~ s/_/ /g;
     $title =~ tr#\/~\x01\x02#~\/\'\/#;
@@ -2514,7 +2515,7 @@ sub converttitle {
 # return value as integer 
 sub _recordinglength {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $path = shift || return error ('Missing path from recording!' );
 
     my $f = sprintf("%s/index.vdr", $path);
@@ -2526,7 +2527,7 @@ sub _recordinglength {
     return 0 unless($fst and $rst);
 
     if($fst->mode & 00400) { # mode & S_IRUSR
-        return int(($fst->size / 8) / $obj->{framerate});
+        return int(($fst->size / 8) / $self->{framerate});
     } else {
         error sprintf("Couldn't read : '%s'", $f);
     }
@@ -2538,12 +2539,12 @@ sub _recordinglength {
 # return value as integer 
 sub _recordingsize {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $path = shift || return error('Missing path from recording!');
     my $size = shift || 0; # Filesize offset e.g. from index.vdr
 
     my @files = glob("$path/[0-9][0-9][0-9].vdr");
-    return $obj->_recordingCapacity(\@files,$size);
+    return $self->_recordingCapacity(\@files,$size);
 }
 
 # ------------------
@@ -2551,7 +2552,7 @@ sub _recordingsize {
 # return value as integer 
 sub _recordingCapacity {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $files = shift || return error('Missing files from recording!');
     my $size = shift || 0; # Filesize offset e.g. from index.vdr
 
@@ -2580,7 +2581,7 @@ sub _recordingCapacity {
 # ------------------
 sub suggest {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
@@ -2613,7 +2614,7 @@ ORDER BY
     title
 LIMIT 25
         |;
-        my $sth = $obj->{dbh}->prepare($sql);
+        my $sth = $self->{dbh}->prepare($sql);
         $sth->execute('%'.$search.'%','%'.$search.'%')
             or return error "Couldn't execute query: $sth->errstr.";
         my $result = $sth->fetchall_arrayref();
@@ -2625,13 +2626,13 @@ LIMIT 25
 # ------------------
 sub recover {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid  = shift || 0;
     my $data    = shift || 0;
 
-    my $files = $obj->scandirectory('del');
+    my $files = $self->scandirectory('del');
 
     return con_msg($console,gettext("There none recoverable recordings!"))
       unless($files and keys %{$files});
@@ -2687,18 +2688,18 @@ sub recover {
         if($ChangeRecordingData) {
           my $waiter;
 
-          $obj->{lastupdate} = 0;
-          touch($obj->{videodir}."/.update");
+          $self->{lastupdate} = 0;
+          touch($self->{videodir}."/.update");
 
-          if(ref $console && $console->typ eq 'HTML' && !($obj->{inotify})) {
+          if(ref $console && $console->typ eq 'HTML' && !($self->{inotify})) {
             $waiter = $console->wait(gettext('Recording recovered!'),0,1000,'no');
           }else {
             con_msg($console,gettext('Recording recovered!'));
           }
           sleep(1);
   
-          $obj->readData($watcher,$console,$waiter)
-            unless($obj->{inotify});
+          $self->readData($watcher,$console,$waiter)
+            unless($self->{inotify});
 
         } else {
           con_msg($console,gettext("None recording was'nt recovered!"));
@@ -2714,7 +2715,7 @@ sub recover {
 ################################################################################
 # find file and offset from frame
 sub frametofile {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $path = shift || return error ('Missing path from recording!' );
     my $frame = int (shift);
 
@@ -2765,7 +2766,7 @@ sub frametofile {
 # ------------------
 sub image {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift;
@@ -2784,7 +2785,7 @@ sub image {
     if(length($frame) < 8) {
       $frame = sprintf("%08d",$frame);
     }
-    return $console->datei(sprintf('%s/%s_shot/%s.jpg', $obj->{previewimages}, $recordid, $frame));
+    return $console->datei(sprintf('%s/%s_shot/%s.jpg', $self->{previewimages}, $recordid, $frame));
 }
 
 1;

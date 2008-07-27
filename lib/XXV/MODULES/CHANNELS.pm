@@ -8,7 +8,7 @@ use Tools;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'CHANNELS',
         Prereq => {
@@ -19,7 +19,7 @@ sub module {
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
-        Status => sub{ $obj->status(@_) },
+        Status => sub{ $self->status(@_) },
         Preferences => {
             interval => {
                 description => gettext('How often channels are to be updated (in seconds)'),
@@ -40,7 +40,7 @@ sub module {
                 default     => '',
                 choices     => sub{
                     my $knownCA;
-                    foreach my $CA (@{$obj->{knownCA}}) {
+                    foreach my $CA (@{$self->{knownCA}}) {
                         my $desc;
                         if($CA eq '0')    { $desc = gettext("Free-to-air"); }
                         elsif($CA eq '1' 
@@ -76,34 +76,34 @@ sub module {
             cupdate => {
                 description => gettext('Read channels and write them to the database'),
                 short       => 'cu',
-                callback    => sub{ $obj->readData(@_) },
+                callback    => sub{ $self->readData(@_) },
                 DenyClass   => 'cedit',
                 Level       => 'user',
             },
             clist => {
                 description => gettext("List channels from database 'cname'"),
                 short       => 'cl',
-                callback    => sub{ $obj->list(@_) },
+                callback    => sub{ $self->list(@_) },
                 Level       => 'user',
             },
             cnew => {
                 description => gettext("Create new channel"),
                 short       => 'cne',
-                callback    => sub{ $obj->newChannel(@_) },
+                callback    => sub{ $self->newChannel(@_) },
                 Level       => 'user',
                 DenyClass   => 'cedit',
             },
             cedit => {
                 description => gettext("Edits a channel 'cid'"),
                 short       => 'ced',
-                callback    => sub{ $obj->editChannel(@_) },
+                callback    => sub{ $self->editChannel(@_) },
                 Level       => 'user',
                 DenyClass   => 'cedit',
             },
             cdelete => {
                 description => gettext("Deletes one or more channels 'pos'"),
                 short       => 'cdl',
-                callback    => sub{ $obj->deleteChannel(@_) },
+                callback    => sub{ $self->deleteChannel(@_) },
                 Level       => 'user',
                 DenyClass   => 'cedit',
             },
@@ -115,16 +115,16 @@ sub module {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
 
     my $sql = "SELECT SQL_CACHE count(*) from CHANNELS";
-    my $gesamt = $obj->{dbh}->selectrow_arrayref($sql)->[0];
+    my $gesamt = $self->{dbh}->selectrow_arrayref($sql)->[0];
 
     $sql = "SELECT SQL_CACHE count(*) from CHANNELGROUPS";
-    my $groups = $obj->{dbh}->selectrow_arrayref($sql)->[0];
+    my $groups = $self->{dbh}->selectrow_arrayref($sql)->[0];
 
     return {
         message => sprintf(gettext('The system has saved %d channels from %d groups'), $gesamt, $groups),
@@ -179,7 +179,7 @@ sub new {
         prio => 6,  # -1 very hard ... 6 very low
         cb => sub{
             lg 'Start the interval reading channels to DB!';
-            $self->readData();
+            $self->_readData();
         },
     );
 
@@ -189,62 +189,66 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    unless($obj->{dbh}) {
+    unless($self->{dbh}) {
       panic("Session to database is'nt connected");
       return 0;
     }
 
-    my $version = 27; # Must be increment if rows of table changed
+    my $version = 30; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
-    if(!tableUpdated($obj->{dbh},'CHANNELS',$version,1)) {
+    if(!tableUpdated($self->{dbh},'CHANNELS',$version,1)) {
         return 0;
     }
-    if(!tableUpdated($obj->{dbh},'CHANNELGROUPS',$version,1)) {
+    if(!tableUpdated($self->{dbh},'CHANNELGROUPS',$version,1)) {
         return 0;
     }
 
     # Look for table or create this table
-    $obj->{dbh}->do(qq|
+    $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS CHANNELS (
-          Id varchar(100) NOT NULL,
-          Name varchar(100) NOT NULL default '',
-          Frequency int(11) NOT NULL default '0',
-          Parameters varchar(100) default '',
-          Source varchar(100),
-          Srate int(11) default 0,
+          id varchar(32) NOT NULL,
+          vid int unsigned NOT NULL,
+          name varchar(100) NOT NULL default '',
+          frequency int unsigned  NOT NULL default '0',
+          parameters varchar(100) default '',
+          source varchar(8),
+          symbols int unsigned default 0,
           VPID varchar(100) default '',
           APID varchar(100) default '',
           TPID varchar(100) default '',
           CA varchar(100) default '',
-          SID int(11) default 0,
-          NID int(11) default 0,
-          TID int(11) default 0,
-          RID int(11) default 0,
-          GRP int(11) default 0,
-          POS int(11) NOT NULL,
-          PRIMARY KEY  (Id)
+          SID int unsigned default 0,
+          NID int unsigned default 0,
+          TID int unsigned default 0,
+          RID int unsigned default 0,
+          grp int unsigned default 0,
+          pos int unsigned NOT NULL,
+          hash varchar(32) NOT NULL,
+          PRIMARY KEY (hash)
         ) COMMENT = '$version'
     |);
 
-    $obj->{dbh}->do(qq|
+    $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS CHANNELGROUPS (
-          Id int(11) not NULL,
-          Name varchar(100) default 'unknown',
-          PRIMARY KEY  (Id)
+          id int unsigned not NULL,
+          pos int unsigned NOT NULL,
+          vid int unsigned NOT NULL,
+          name varchar(100) default 'unknown',
+          PRIMARY KEY (id)
         ) COMMENT = '$version'
     |);
 
     main::after(sub{
-        $obj->{svdrp} = main::getModule('SVDRP');
-        unless($obj->{svdrp}) {
+        $self->{svdrp} = main::getModule('SVDRP');
+        unless($self->{svdrp}) {
            panic ("Couldn't get modul SVDRP");
            return 0;
         }
 
-        return $obj->readData();
+        return $self->_readData();
     }, "CHANNELS: Read and register channels ...", 5);
     return 1;
 }
@@ -252,26 +256,27 @@ sub _init {
 # ------------------
 sub _prepare {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || return;
     my $pos = shift || return;
     my $grp = shift || 0;
+    my $vid = shift;
 
     foreach my $CA (split(',', $data->[8])) {
-        push(@{$obj->{knownCA}},$CA);
+        push(@{$self->{knownCA}},$CA);
     }
 
-    return if($obj->{empty} eq 'n' and not (($data->[6] ne "0" || $data->[7] ne "0"))); # Ignore Channels with APID = 0/TPID = 0 from PID Scan
-    if($obj->{filterCA} ne "") {
-       my $filter = $obj->{filterCA};
+    return if($self->{empty} eq 'n' and not (($data->[6] ne "0" || $data->[7] ne "0"))); # Ignore Channels with APID = 0/TPID = 0 from PID Scan
+    if($self->{filterCA} ne "") {
+       my $filter = $self->{filterCA};
        $filter =~ s/\,/|/g; # Transform 0,2,400 => 0|2|400
        return 0 if(not ($data->[8] =~ /(^|\,)($filter)(\,|$)/s)); # check (^|,)(0|2|400)(,|$)
     }
 
 	# Strip short and providername from channelname e.g ch
-    if($obj->{stripCH}) {
+    if($self->{stripCH}) {
 		my $ch = $data->[0];
-		my $filter = $obj->{stripCH};
+		my $filter = $self->{stripCH};
 		my @p = split(';',$filter);
 		if(scalar @p == 2) {
 			if(($p[0] =~ /provider/i)) { # format "provider;name"
@@ -316,12 +321,12 @@ sub _prepare {
     }
 
     my $attr = {
-          Id => $id,
-          Name => $data->[0],
-          Frequency => $data->[1],
-          Parameters => $data->[2],
-          Source => $data->[3],
-          Srate => $data->[4],
+          id => $id,
+          name => $data->[0],
+          frequency => $data->[1],
+          parameters => $data->[2],
+          source => $data->[3],
+          symbols => $data->[4],
           VPID => $data->[5],
           APID => $data->[6],
           TPID => $data->[7],
@@ -330,8 +335,9 @@ sub _prepare {
           NID => $data->[10],
           TID => $data->[11],
           RID => $data->[12],
-          GRP => $grp,
-          POS => $pos
+          grp => $grp,
+          pos => $pos,
+          vid => $vid
     };
     return $attr;
 }
@@ -339,17 +345,20 @@ sub _prepare {
 # ------------------
 sub _replace {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $attr = shift || return error('No data defined!');
 
-    my $sth = $obj->{dbh}->prepare('REPLACE INTO CHANNELS(Id,Name,Frequency,Parameters,Source,Srate,VPID,APID,TPID,CA,SID,NID,TID,RID,GRP,POS) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+    my $sth = $self->{dbh}->prepare('REPLACE INTO CHANNELS(id,vid,hash,name,frequency,parameters,source,symbols,VPID,APID,TPID,CA,SID,NID,TID,RID,grp,pos) VALUES (?,?,md5(concat(?,?)),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     return $sth->execute(
-        $attr->{Id},
-        $attr->{Name},
-        $attr->{Frequency},
-        $attr->{Parameters},
-        $attr->{Source},
-        $attr->{Srate},
+        $attr->{id},
+        $attr->{vid},
+        $attr->{id},
+        $attr->{vid},
+        $attr->{name},
+        $attr->{frequency},
+        $attr->{parameters},
+        $attr->{source},
+        $attr->{symbols},
         $attr->{VPID},
         $attr->{APID},
         $attr->{TPID},
@@ -358,21 +367,23 @@ sub _replace {
         $attr->{NID},
         $attr->{TID},
         $attr->{RID},
-        $attr->{GRP},
-        $attr->{POS}
+        $attr->{grp},
+        $attr->{pos}
     );
 }
 
 # ------------------
-sub insertGrp {
+sub _insertGrp {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
+    my $id = shift || return;
     my $pos = shift || return;
     my $name = shift || 0;
+    my $vid = shift;
 
     lg sprintf('Update group of channels "%s" (%d).', $name, $pos);
-    my $sth = $obj->{dbh}->prepare('REPLACE INTO CHANNELGROUPS SET Name=?, Id=?');
-    $sth->execute($name, $pos)
+    my $sth = $self->{dbh}->prepare('REPLACE INTO CHANNELGROUPS SET name=?, id=?, pos=?, vid=?');
+    $sth->execute($name, $id, $pos, $vid)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     return $pos;
 }
@@ -380,158 +391,181 @@ sub insertGrp {
 # ------------------
 sub readData {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
 
-    # Read channels over SVDRP
-    my $lstc = $obj->{svdrp}->command('lstc :groups');
-    my $vdrData = [ grep(/^250/, @$lstc) ];
-
-    unless(scalar @$vdrData) {
-        # Delete old Records
-        $obj->{dbh}->do('DELETE FROM CHANNELS');
-        $obj->{dbh}->do('DELETE FROM CHANNELGROUPS');
-
-        my $msg = gettext('No channels available!');
-        con_err($console,$msg);
-        return;
+    if($self->_readData($watcher,$console)) {
+      $console->redirect({url => '?cmd=clist', wait => 1})
+        if($console->typ eq 'HTML');
     }
+}
+# ------------------
+sub _readData {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $watcher = shift;
+    my $console = shift;
 
-    my $nPos = 1;
-    my $grp = 0;
-    my $channelText;
-    my $grpText;
-    my $newChannels;
-    my $changedData = 0;
-    my $updatedData = 0;
     my $deleteData = 0;
+    my $updatedData = 0;
+    my $changedData = 0;
+    my $newChannels;
+    my $channelText;
+    my $nGrpCnt = 0;
+    # Read channels over SVDRP
+    my $hostlist = $self->{svdrp}->list_hosts();
+    # read from svdrp
+    foreach my $vid (@$hostlist) {
+      my $lstc = $self->{svdrp}->command('lstc :groups',$vid);
+      my $vdrData = [ grep(/^250/, @$lstc) ];
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE * from CHANNELS');
-    $sth->execute()
-      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $db_data = $sth->fetchall_hashref('Id');
+      my $grpText;
 
-    my $gsth = $obj->{dbh}->prepare('SELECT SQL_CACHE * from CHANNELGROUPS');
-    $gsth->execute()
-      or return error sprintf("Couldn't execute query: %s.",$gsth->errstr);
-    my $grp_data = $gsth->fetchall_hashref('Id');
+      unless(scalar @$vdrData) {
+          # Delete any channels from this video disk recorder
+          my $csth = $self->{dbh}->prepare('DELETE FROM CHANNELS where vid = ?');
+          $csth->execute($vid)
+          or return error sprintf("Couldn't execute query: %s.",$csth->errstr);
 
-    lg sprintf("Compare channels database with data from vdr : %d / %d", (scalar keys %$db_data) + (scalar keys %$grp_data) ,scalar @$vdrData);
-  
-    foreach my $line (@{$vdrData}) {
+          my $dsth = $self->{dbh}->prepare('DELETE FROM CHANNELGROUPS where vid = ?');
+          $dsth->execute($vid)
+          or return error sprintf("Couldn't execute query: %s.",$dsth->errstr);
 
-      next if($line eq "");
+          my $msg = gettext(sprintf("No channels on '%s' available!",$self->{svdrp}->hostname($vid)));
+          con_err($console,$msg);
+          next;
+      }
 
-      # 250-0 ... it's a group delimiter
-      if($line =~ /^250[\-|\s]0\s/) { 
-        if($line =~ /^250[\-|\s]0\s\:\@\d+/) { # Entry to specify the number of the next channel
-          ($nPos, $grpText) = $line =~ /^250[\-|\s]0\s\:\@(\d+)\s(.+)/si;
-        } else {   # Entry without specify the number of the next channel
-          ($grpText) = $line =~ /^250[\-|\s]0\s\:(.+)/si;
-        }
+      my $nPos = 1;
+      my $grp = 0;
 
-        next unless($grpText); #ignore empty group delimiter like :@500
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from CHANNELS where vid = ?');
+      $sth->execute($vid)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $db_data = $sth->fetchall_hashref('id');
 
-        if(exists $grp_data->{$nPos}) {
-          if($grp_data->{$nPos}->{Name} ne $grpText) {
-            $grp = $obj->insertGrp($nPos, $grpText);
+      my $gsth = $self->{dbh}->prepare('SELECT SQL_CACHE * from CHANNELGROUPS where vid = ?');
+      $gsth->execute($vid)
+        or return error sprintf("Couldn't execute query: %s.",$gsth->errstr);
+      my $grp_data = $gsth->fetchall_hashref('id');
+
+      lg sprintf("Compare channels database with data from %s : %d / %d", $self->{svdrp}->hostname($vid), (scalar keys %$db_data) + (scalar keys %$grp_data) ,scalar @$vdrData);
+    
+      foreach my $line (@{$vdrData}) {
+
+        next if($line eq "");
+
+        # 250-0 ... it's a group delimiter
+        if($line =~ /^250[\-|\s]0\s/) { 
+          if($line =~ /^250[\-|\s]0\s\:\@\d+/) { # Entry to specify the number of the next channel
+            ($nPos, $grpText) = $line =~ /^250[\-|\s]0\s\:\@(\d+)\s(.+)/si;
+          } else {   # Entry without specify the number of the next channel
+            ($grpText) = $line =~ /^250[\-|\s]0\s\:(.+)/si;
+          }
+
+          next unless($grpText); #ignore empty group delimiter like :@500
+          $nGrpCnt++;
+          if(exists $grp_data->{$nGrpCnt}) {
+            if($grp_data->{$nGrpCnt}->{name} ne $grpText) {
+              $grp = $self->_insertGrp($nGrpCnt, $nPos, $grpText, $vid);
+            } else {
+              $grp = $nPos;
+            }
+            delete $grp_data->{$nGrpCnt};
           } else {
-            $grp = $nPos;
+            $grp = $self->_insertGrp($nGrpCnt, $nPos, $grpText, $vid);
           }
-          delete $grp_data->{$nPos};
+        # 250-x ... it's channel x
         } else {
-          $grp = $obj->insertGrp($nPos, $grpText);
-        }
-      # 250-x ... it's channel x
-      } else {
 
-          unless($grp) { # Insert a default group delimiter
-            $grp = 1;
-            if(exists $grp_data->{$grp}) {
-              $grpText = gettext("Channels");
-              if($grp_data->{$nPos}->{Name} ne $grpText) {
-                $obj->insertGrp($grp, $grpText);
-              }
-              delete $grp_data->{$nPos};
-            } else {
-              $obj->insertGrp($grp, $grpText);
-            }
-          }
-
-          # parse channel line
-          ($nPos, $channelText) = $line =~ /^250[\-|\s](\d+)\s(.+)/si;
-
-          my @data = split(':', $channelText, 13);
-          $data[-1] = (split(':', $data[-1]))[0];
-
-          if(scalar @data > 4) {
-            my $row = $obj->_prepare(\@data, $nPos++, $grp);
-            next unless($row);
-
-            my $id = $row->{Id};
-
-            # Exists in DB .. update
-            if(exists $db_data->{$id}) {
-              # Compare fields
-              foreach my $field (qw/Name Frequency Parameters Source Srate VPID APID TPID CA SID NID TID RID GRP POS/) {
-                next if(not exists $row->{$field} or not $row->{$field});
-                if((not exists $db_data->{$id}->{$field})
-                    or (not $db_data->{$id}->{$field})
-                    or ($db_data->{$id}->{$field} ne $row->{$field})) {
-                  lg sprintf('Update channel "%s" - %s.', $row->{Name}, $id);
-                  $obj->_replace($row);
-                  $updatedData++;
-                  last;
+            unless($grp) { # Insert a default group delimiter
+              $nGrpCnt++;
+              $grp = 1;
+              if(exists $grp_data->{$nGrpCnt}) {
+                $grpText = gettext("Channels");
+                if($grp_data->{$nPos}->{name} ne $grpText) {
+                  $self->_insertGrp($nGrpCnt, $grp, $grpText, $vid);
                 }
+                delete $grp_data->{$nGrpCnt};
+              } else {
+                $self->_insertGrp($nGrpCnt, $grp, $grpText, $vid);
               }
-
-              # delete updated rows from hash
-              delete $db_data->{$id};
-
-            } else {
-              # Not exists in DB .. insert
-              lg sprintf('Add new channel "%s" - %s.', $row->{Name}, $id);
-              $obj->_replace($row);
-              $changedData++;
-              # Remember new channels
-              $newChannels->{$id} = $row;
             }
-          }
+
+            # parse channel line
+            ($nPos, $channelText) = $line =~ /^250[\-|\s](\d+)\s(.+)/si;
+
+            my @data = split(':', $channelText, 13);
+            $data[-1] = (split(':', $data[-1]))[0];
+
+            if(scalar @data > 4) {
+              my $row = $self->_prepare(\@data, $nPos++, $nGrpCnt, $vid);
+              next unless($row);
+
+              my $id = $row->{id};
+
+              # Exists in DB .. update
+              if(exists $db_data->{$id}) {
+                # Compare fields
+                foreach my $field (qw/name frequency parameters source symbols VPID APID TPID CA SID NID TID RID grp pos/) {
+                  next if(not exists $row->{$field} or not $row->{$field});
+                  if((not exists $db_data->{$id}->{$field})
+                      or (not $db_data->{$id}->{$field})
+                      or ($db_data->{$id}->{$field} ne $row->{$field})) {
+                    lg sprintf('Update channel "%s" - %s.', $row->{name}, $id);
+                    $self->_replace($row);
+                    $updatedData++;
+                    last;
+                  }
+                }
+
+                # delete updated rows from hash
+                delete $db_data->{$id};
+
+              } else {
+                # Not exists in DB .. insert
+                lg sprintf('Add new channel "%s" - %s.', $row->{name}, $id);
+                $self->_replace($row);
+                $changedData++;
+                # Remember new channels
+                $newChannels->{$id} = $row;
+              }
+            }
+        }
+      }
+
+      # Delete unused entrys in DB 
+      if(scalar keys %$db_data > 0) {
+        my @todel = keys(%$db_data);
+        my $sql = sprintf('DELETE FROM CHANNELS WHERE vid = ? AND id IN (%s)', join(',' => ('?') x @todel)); 
+        my $sth = $self->{dbh}->prepare($sql);
+        if(!$sth->execute($vid, @todel)) {
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        }
+        $deleteData += scalar @todel;
+      }
+
+      # Delete unused entrys in DB 
+      if(scalar keys %$grp_data > 0) {
+        my @todel = keys(%$grp_data);
+        my $sql = sprintf('DELETE FROM CHANNELGROUPS WHERE vid = ? AND id IN (%s)', join(',' => ('?') x @todel)); 
+        my $sth = $self->{dbh}->prepare($sql);
+        if(!$sth->execute($vid, @todel)) {
+            error sprintf("Couldn't execute query: %s.",$sth->errstr);
+        }
+        #$deleteData += scalar @todel;
       }
     }
-
-    # Delete unused entrys in DB 
-    if(scalar keys %$db_data > 0) {
-      my @todel = keys(%$db_data);
-      my $sql = sprintf('DELETE FROM CHANNELS WHERE Id IN (%s)', join(',' => ('?') x @todel)); 
-      my $sth = $obj->{dbh}->prepare($sql);
-      if(!$sth->execute(@todel)) {
-          error sprintf("Couldn't execute query: %s.",$sth->errstr);
-      }
-      $deleteData += scalar @todel;
-    }
-
-    # Delete unused entrys in DB 
-    if(scalar keys %$grp_data > 0) {
-      my @todel = keys(%$grp_data);
-      my $sql = sprintf('DELETE FROM CHANNELGROUPS WHERE Id IN (%s)', join(',' => ('?') x @todel)); 
-      my $sth = $obj->{dbh}->prepare($sql);
-      if(!$sth->execute(@todel)) {
-          error sprintf("Couldn't execute query: %s.",$sth->errstr);
-      }
-      #$deleteData += scalar @todel;
-    }
-
     # sort list with CA numerical
     my %CA;
-    @CA{@{$obj->{knownCA}}} = ();
-    @{$obj->{knownCA}} = sort { if(is_numeric($a) && is_numeric($b)) {
+    @CA{@{$self->{knownCA}}} = ();
+    @{$self->{knownCA}} = sort { if(is_numeric($a) && is_numeric($b)) {
                                     $a <=> $b
                                 } else {
                                     $a cmp $b } } keys %CA;
 
-    $obj->_brandNewChannels($newChannels) if($newChannels);
+    $self->_brandNewChannels($newChannels) if($newChannels);
 
     con_msg($console, sprintf(gettext("There are %d channels inserted, %d channels updated, %d channels deleted into database."), $changedData, $updatedData, $deleteData));
 
@@ -559,19 +593,19 @@ sub is_numeric { defined getnum($_[0]) }
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id      = shift || '';
     my $params = shift;
 
     my %f = (
-        'Id' => gettext('Service'),
-        'Name' => gettext('Name'),
-        'Frequency' => gettext('Transponder frequency'),
-        'Parameters' => gettext('Parameters'),
-        'Source' => gettext('Signal source'),
-        'Srate' => gettext('Symbol rate'),
+        'id' => gettext('Service'),
+        'name' => gettext('Name'),
+        'frequency' => gettext('Transponder frequency'),
+        'parameters' => gettext('Parameters'),
+        'source' => gettext('Signal source'),
+        'symbols' => gettext('Symbol rate'),
         'VPID' => gettext('Video PID'),
         'APID' => gettext('Audio PID'),
         'TPID' => gettext('Teletext PID'),
@@ -580,18 +614,18 @@ sub list {
         'TID' => gettext('TID'),
         'NID' => gettext('NID'),
         'RID' => gettext('RID'),
-        'GRP' => gettext('Channel group'),
-        'POS' => gettext('Position'),
+        'grp' => gettext('Channel group'),
+        'pos' => gettext('Position'),
     );
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    c.Id as \'$f{'Id'}\',
-    c.Name as \'$f{'Name'}\',
-    c.Frequency as \'$f{'Frequency'}\',
-    c.Parameters as \'$f{'Parameters'}\',
-    c.Source as \'$f{'Source'}\',
-    c.Srate as \'$f{'Srate'}\',
+    c.hash as \'$f{'id'}\',
+    c.name as \'$f{'name'}\',
+    c.frequency as \'$f{'frequency'}\',
+    c.parameters as \'$f{'parameters'}\',
+    c.source as \'$f{'source'}\',
+    c.symbols as \'$f{'symbols'}\',
     c.VPID as \'$f{'VPID'}\',
     c.APID as \'$f{'APID'}\',
     c.TPID as \'$f{'TPID'}\',
@@ -600,19 +634,26 @@ SELECT SQL_CACHE
     c.NID as \'$f{'NID'}\',
     c.TID as \'$f{'TID'}\',
     c.RID as \'$f{'RID'}\',
-    c.GRP as \'$f{'GRP'}\',
-    c.POS as \'$f{'POS'}\',
-    cg.Name as __GrpName
+    c.grp as \'$f{'grp'}\',
+    c.pos as \'$f{'pos'}\',
+    cg.name as __GrpName,
+    ( SELECT 
+        r.host
+        FROM RECORDER as r
+        WHERE r.id = c.vid
+        LIMIT 1) as __host
 from
     CHANNELS as c,
     CHANNELGROUPS as cg
 WHERE
-    c.Name LIKE ?
-    AND c.GRP = cg.Id
+    c.name LIKE ?
+    AND c.grp = cg.id
+    AND c.vid = cg.vid
 ORDER BY
+    c.vid, 
 |;
 
-    my $sortby = "POS";
+    my $sortby = "c.pos";
     if(exists $params->{sortby}) {
       while(my($k, $v) = each(%f)) {
         if($params->{sortby} eq $k or $params->{sortby} eq $v) {
@@ -629,7 +670,7 @@ ORDER BY
     my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
     if($limit > 0) {
       # Query total count of rows
-      my $rsth = $obj->{dbh}->prepare($sql);
+      my $rsth = $self->{dbh}->prepare($sql);
         $rsth->execute('%'.$id.'%')
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
@@ -643,7 +684,7 @@ ORDER BY
       }
     }
 
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     $sth->execute('%'.$id.'%')
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
     $rows = $sth->rows unless($rows);
@@ -664,157 +705,308 @@ ORDER BY
 # ------------------
 sub NameToChannel {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return undef;
+    my $vid = shift;
+    if($vid) {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE id from CHANNELS where vid = ? AND UPPER(name) = UPPER( ? )');
+      $sth->execute($vid, $name)
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{id} : undef;
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE id from CHANNELS where UPPER(name) = UPPER( ? )');
+      $sth->execute($name)
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{id} : undef;
+    }
+}
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE Id from CHANNELS where UPPER(Name) = UPPER( ? )');
-    $sth->execute($name)
+# ------------------
+sub GetChannel {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $hash = shift || return undef;
+
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from CHANNELS where hash = ?');
+    $sth->execute($hash)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
-    return $erg ? $erg->{Id} : undef;
+    return $erg;
 }
 
 # ------------------
 sub PosToName {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $pos = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE Name from CHANNELS where POS = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE name from CHANNELS where pos = ?');
     $sth->execute($pos)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
-    return $erg ? $erg->{Name} : undef;
+    return $erg ? $erg->{name} : undef;
 }
 
 # ------------------
 sub PosToChannel {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $pos = shift || return undef;
-
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE Id from CHANNELS where POS = ?');
-    $sth->execute($pos)
+    my $vid = shift;
+    if($vid) {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE id from CHANNELS where vid = ? AND pos = ?');
+      $sth->execute($vid,$pos)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $erg = $sth->fetchrow_hashref();
-    return $erg ? $erg->{Id} : undef;
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{id} : undef;
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE id from CHANNELS where pos = ?');
+      $sth->execute($pos)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{id} : undef;
+    }
 }
 
 # ------------------
 sub ChannelGroupsArray {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('SELECT SQL_CACHE %s, Id from CHANNELGROUPS %s order by Id', $field, $where);
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sql = sprintf('SELECT SQL_CACHE %s, min(id) as id from CHANNELGROUPS %s GROUP BY name ORDER BY id, vid', $field, $where);
+    my $erg = $self->{dbh}->selectall_arrayref($sql);
     return $erg;
 }
 
 # ------------------
 sub ChannelArray {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('SELECT SQL_CACHE %s, POS from CHANNELS %s order by POS', $field, $where);
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sql = sprintf('SELECT SQL_CACHE %s, pos from CHANNELS %s order by pos', $field, $where);
+    my $erg = $self->{dbh}->selectall_arrayref($sql);
+    return $erg;
+}
+
+################################################################################
+# Get id of any group with same group name
+sub GroupsByName {
+    my $self = shift || return error('No object defined!');
+    my $name = shift || return undef;
+
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE id from CHANNELGROUPS where name = ? order by vid, pos');
+    $sth->execute($name)
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $erg = $sth->fetchall_arrayref();
     return $erg;
 }
 
 # ------------------
 sub ChannelWithGroup {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf(q|SELECT SQL_CACHE %s, ( SELECT 
-        g.Name FROM CHANNELGROUPS as g WHERE c.GRP = g.Id
-        LIMIT 1) as GRP from CHANNELS as c %s order by c.POS|, $field, $where);
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sql = sprintf(q|
+SELECT SQL_CACHE %s, ( SELECT g.name FROM CHANNELGROUPS as g WHERE c.grp = g.id AND c.vid = g.vid LIMIT 1) as grp 
+    from CHANNELS as c,CHANNELGROUPS as g %s GROUP BY c.id order by c.vid, c.pos
+|, $field, $where);
+
+#    my $sql = sprintf(q|SELECT SQL_CACHE %s, ( SELECT 
+#        g.name FROM CHANNELGROUPS as g WHERE c.grp = g.id AND c.vid = g.vid
+#        LIMIT 1) as grp from CHANNELS as c %s order by c.vid, c.pos|, $field, $where);
+    my $erg = $self->{dbh}->selectall_arrayref($sql);
     return $erg;
 }
 
 # ------------------
 sub ChannelIDArray {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('SELECT SQL_CACHE %s, Id from CHANNELS %s order by POS', $field, $where);
-    my $erg = $obj->{dbh}->selectall_arrayref($sql);
+    my $sql = sprintf('SELECT SQL_CACHE %s, id from CHANNELS %s order by pos', $field, $where);
+    my $erg = $self->{dbh}->selectall_arrayref($sql);
     return $erg;
 }
 
 # ------------------
 sub ChannelHash {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
     my $sql = sprintf('SELECT SQL_CACHE * from CHANNELS %s', $where);
-    my $erg = $obj->{dbh}->selectall_hashref($sql, $field);
+    my $erg = $self->{dbh}->selectall_hashref($sql, $field);
     return $erg;
 }
 
-# ------------------
+################################################################################
+# Try to find channel name by given channel id
+# optionally selected by id of video disk recorder
 sub ChannelToName {
-# ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
+    my $vid = shift;
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE Name from CHANNELS where Id = ?');
-    $sth->execute($id)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $erg = $sth->fetchrow_hashref();
-    return $erg ? $erg->{Name} : undef;
+    if($vid) {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE name from CHANNELS where vid = ? AND id = ?');
+      $sth->execute($vid, $id)
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{name} : undef;
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE name from CHANNELS where id = ?');
+      $sth->execute($id)
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{name} : undef;
+    }
 }
 
-# ------------------
+################################################################################
+# Try to find channel position by given channel id
 sub ChannelToPos {
-# ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE POS from CHANNELS where Id = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE pos from CHANNELS where id = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
-    return $erg ? $erg->{POS} : undef;
+    return $erg ? $erg->{pos} : undef;
 }
 
-# ------------------
+################################################################################
+# Try to find channel id by given position, name or channel id
+# optionally selected by id of video disk recorder
 sub ToCID {
-# ------------------
-  my $obj = shift || return error('No object defined!');
+  my $self = shift || return error('No object defined!');
   my $text = shift || return undef;
+  my $vid = shift;
 
-  if($text =~ /^\d+$/ and (my $pch = $obj->PosToChannel($text) )) {
+  if($text =~ /^\d+$/ and (my $pch = $self->PosToChannel($text,$vid) )) {
     return $pch;
-  } elsif((my $nch = $obj->NameToChannel($text) )) {
+  } elsif((my $nch = $self->NameToChannel($text,$vid) )) {
     return $nch;
-  } elsif(my $name = $obj->ChannelToName($text)) {
+  } elsif(my $name = $self->ChannelToName($text,$vid)) {
     return $text;
   }
   return undef;
 }
+
+################################################################################
+# Try to find channel hash by given channel position
+# optionally selected by id of video disk recorder
+sub PosToHash {
+    my $self = shift || return error('No object defined!');
+    my $pos = shift || return undef;
+    my $vid = shift;
+
+    if($vid) {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash as id from CHANNELS where vid = ? AND pos = ?');
+      $sth->execute($vid,$pos)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{hash} : undef;
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash from CHANNELS where pos = ? ORDER BY vid');
+      $sth->execute($pos)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{hash} : undef;
+    }
+}
+
+
+################################################################################
+# Try to find channel hash by given channel id
+# optionally selected by id of video disk recorder
+sub CIDToHash {
+    my $self = shift || return error('No object defined!');
+    my $cid = shift || return undef;
+    my $vid = shift;
+
+    if($vid) {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash from CHANNELS where vid = ? AND id = ?');
+      $sth->execute($vid,$cid)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{hash} : undef;
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash from CHANNELS where id = ? ORDER BY vid');
+      $sth->execute($cid)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{hash} : undef;
+    }
+}
+
+################################################################################
+# Try to find channel hash by given channel name
+# optionally selected by id of video disk recorder
+sub NameToHash {
+    my $self = shift || return error('No object defined!');
+    my $cid = shift || return undef;
+    my $vid = shift;
+
+    if($vid) {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash from CHANNELS where vid = ? AND UPPER(name) = UPPER( ? )');
+      $sth->execute($vid,$cid)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{hash} : undef;
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash from CHANNELS where UPPER(name) = UPPER( ? ) ORDER BY vid');
+      $sth->execute($cid)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{hash} : undef;
+    }
+}
+
+################################################################################
+# Try to find channel hash by given position, name or channel id
+# optionally selected by id of video disk recorder
+sub ToHash {
+  my $self = shift || return error('No object defined!');
+  my $query = shift || return undef;
+  my $vid = shift;
+
+  if($query and $query =~ /^[0-9a-f]{32}$/i) {
+    return ($query);
+  }
+  if($query =~ /^\d+$/ and (my $pch = $self->PosToHash($query,$vid) )) {
+    return $pch;
+  }
+  if(index($query, '-') != -1) {
+    my $hash = $self->CIDToHash($query,$vid);
+    return $hash if($hash);
+  } 
+  return $self->NameToHash($query,$vid);
+}
+
 # ------------------
 sub getChannelType {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE VPID,APID from CHANNELS where Id = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE VPID,APID from CHANNELS where id = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -832,13 +1024,13 @@ sub getChannelType {
 # ------------------
 sub newChannel {
 # ------------------
-    my $self         = shift || return error('No object defined!');
-    my $watcher      = shift || return error('No watcher defined!');
-    my $console      = shift || return error('No console defined!');
-    my $id           = shift || 0;
-    my $defaultData  = shift || 0;
+    my $self     = shift || return error('No object defined!');
+    my $watcher  = shift || return error('No watcher defined!');
+    my $console  = shift || return error('No console defined!');
+    my $id       = shift || 0;
+    my $default  = shift || 0;
 
-    $self->editChannel($watcher, $console, 0, $defaultData);
+    $self->editChannel($watcher, $console, 0, $default);
 }
 
 # ------------------
@@ -850,31 +1042,43 @@ sub editChannel {
     my $cid     = shift || 0;  # If channelid then edit channel
     my $data    = shift || 0;  # Data for defaults
 
-    my $defaultData;
+    my $default;
     if($cid and not ref $data) {
 
-        $cid = $self->PosToChannel($cid)
-            unless(index($cid, '-') > -1);
+        my $hash = $self->ToHash($cid);
+        if($hash) {
+          $cid = $hash;
+        } else {
+          return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$cid));
+        }
 
-        my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE POS, Name, Frequency, Parameters, Source, Srate, VPID, APID, TPID, CA, SID, NID, TID, RID from CHANNELS where Id = ?');
+        my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE pos, vid, name, frequency, parameters, source, symbols, VPID, APID, TPID, CA, SID, NID, TID, RID from CHANNELS where hash = ?');
             $sth->execute($cid)
             or return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$cid));
-        $defaultData = $sth->fetchrow_hashref();
+        $default = $sth->fetchrow_hashref();
     } elsif (ref $data eq 'HASH') {
-        $defaultData = $data;
+        $default = $data;
     }
 
+    my $vlist = $self->{svdrp}->enum_onlinehosts();
     my $questions = [
-        'POS' => {
+        'pos' => {
             typ     => 'hidden',
-            def     => $defaultData->{POS} || 0,
-        } ];
+            def     => $default->{pos} || 0,
+        },
+        'vid' => {
+            typ     => scalar @$vlist > 1 ? 'list' : 'hidden',
+            def     => $default->{vid} || $self->{svdrp}->primary_hosts(),
+            choices => $vlist,
+            msg     => gettext('Which video disk recorder should used'),
+        }
+    ];
 
     my $newpos = [
         'NEWPOS' => {
             typ     => 'integer',
             msg     => gettext('Position'),
-            def     => int($defaultData->{POS}),
+            def     => int($default->{pos}),
             check   => sub{
                 my $value = shift;
                 if(int($value) > 0) {
@@ -889,9 +1093,9 @@ sub editChannel {
         if($cid);
 
     my $more = [
-        'Name' => {
+        'name' => {
             typ     => 'string',
-            def     => $defaultData->{Name} || gettext('New channel'),
+            def     => $default->{name} || gettext('New channel'),
             msg     => gettext("Name"),
             check   => sub{
                 my $value = shift || return;
@@ -902,10 +1106,10 @@ sub editChannel {
                 }
             },
         },
-        'Frequency' => {
+        'frequency' => {
             typ     => 'integer',
             msg     => gettext('Transponder frequency'),
-            def     => int($defaultData->{Frequency}) || 0,
+            def     => int($default->{frequency}) || 0,
             check   => sub{
                 my $value = shift;
                 if(int($value) > 0) {
@@ -915,9 +1119,9 @@ sub editChannel {
                 }
             },
         },
-        'Source' => {
+        'source' => {
             typ     => 'string',
-            def     => $defaultData->{Source} || "",
+            def     => $default->{source} || "",
             msg     => gettext("Signal source"),
             check   => sub{
                 my $value = shift || return;
@@ -928,9 +1132,9 @@ sub editChannel {
                 }
             },
         },
-        'Parameters' => {
+        'parameters' => {
             typ     => 'string',
-            def     => $defaultData->{Parameters} || "",
+            def     => $default->{parameters} || "",
             msg     => gettext("Various parameters, depending on signal source"),
             check   => sub{
                 my $value = shift || return;
@@ -941,10 +1145,10 @@ sub editChannel {
                 }
             },
         },
-        'Srate' => {
+        'symbols' => {
             typ     => 'integer',
             msg     => gettext('Symbol rate'),
-            def     => int($defaultData->{Srate}) || 27500,
+            def     => int($default->{symbols}) || 27500,
             check   => sub{
                 my $value = shift;
                 if(int($value) > 0) {
@@ -957,7 +1161,7 @@ sub editChannel {
         'VPID' => {
             typ     => 'integer',
             msg     => gettext('Video PID (VPID)'),
-            def     => int($defaultData->{VPID}) || 0,
+            def     => int($default->{VPID}) || 0,
             check   => sub{
                 my $value = shift;
                 if(int($value) >= 0) {
@@ -969,7 +1173,7 @@ sub editChannel {
         },
         'APID' => {
             typ     => 'string',
-            def     => $defaultData->{APID} || 0,
+            def     => $default->{APID} || 0,
             msg     => gettext("Audio PID (APID)"),
             check   => sub{
                 my $value = shift || return;
@@ -983,7 +1187,7 @@ sub editChannel {
         'TPID' => {
             typ     => 'integer',
             msg     => gettext('Teletext PID (TPID)'),
-            def     => int($defaultData->{TPID}) || 0,
+            def     => int($default->{TPID}) || 0,
             check   => sub{
                 my $value = shift;
                 if(int($value) >= 0) {
@@ -995,7 +1199,7 @@ sub editChannel {
         },
         'CA' => {
             typ     => 'string',
-            def     => $defaultData->{CA} || 0,
+            def     => $default->{CA} || 0,
             msg     => gettext("Conditional access (CA)"),
             check   => sub{
                 my $value = shift || return;
@@ -1009,7 +1213,7 @@ sub editChannel {
         'SID' => {
             typ     => 'integer',
             msg     => gettext('Service ID (SID)'),
-            def     => int($defaultData->{SID}) || 0,
+            def     => int($default->{SID}) || 0,
             check   => sub{
                 my $value = shift;
                 if(int($value) >= 0) {
@@ -1022,7 +1226,7 @@ sub editChannel {
         'NID' => {
             typ     => 'integer',
             msg     => gettext('Network ID (NID)'),
-            def     => int($defaultData->{NID})  || 0,
+            def     => int($default->{NID})  || 0,
             check   => sub{
                 my $value = shift;
                 if(int($value) >= 0) {
@@ -1035,7 +1239,7 @@ sub editChannel {
         'TID' => {
             typ     => 'integer',
             msg     => gettext('Transport stream ID (TID)'),
-            def     => int($defaultData->{TID})  || 0,
+            def     => int($default->{TID})  || 0,
             check   => sub{
                 my $value = shift;
                 if(int($value) >= 0) {
@@ -1048,7 +1252,7 @@ sub editChannel {
         'RID' => {
             typ     => 'integer',
             msg     => gettext('Radio ID (RID)'),
-            def     => int($defaultData->{RID})  || 0,
+            def     => int($default->{RID})  || 0,
             check   => sub{
                 my $value = shift;
                 if(int($value) >= 0) {
@@ -1066,7 +1270,7 @@ sub editChannel {
                                             : gettext('New channel')), $questions, $data);
 
     if(ref $datasave eq 'HASH') {
-        my $erg = $self->saveChannel($datasave, $datasave->{POS});
+        my $erg = $self->saveChannel($datasave, $datasave->{pos});
 
         my $error;
         foreach my $zeile (@$erg) {
@@ -1077,7 +1281,7 @@ sub editChannel {
         unless($error) {
             debug sprintf('%s channel with name "%s" is saved%s',
                 ($cid ? 'Changed' : 'New'),
-                $data->{Name},
+                $data->{name},
                 ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
                 );
                 $console->message($erg);
@@ -1090,7 +1294,7 @@ sub editChannel {
                 con_err($console, $erg);
         }
         sleep(1);
-        $self->readData($watcher,$console);
+        $self->_readData($watcher,$console);
 
         $console->redirect({url => '?cmd=clist', wait => 1})
             if($console->typ eq 'HTML');
@@ -1121,11 +1325,11 @@ sub saveChannel {
     $erg = $self->{svdrp}->command(
         sprintf("%s %s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s",
             $pos ? "modc $pos" : "newc",
-            $data->{Name},
-            int($data->{Frequency}),
-            $data->{Parameters},
-            $data->{Source},
-            int($data->{Srate}),
+            $data->{name},
+            int($data->{frequency}),
+            $data->{parameters},
+            $data->{source},
+            int($data->{symbols}),
             int($data->{VPID}),
             $data->{APID},
             int($data->{TPID}),
@@ -1148,37 +1352,62 @@ sub deleteChannel {
     my $channelid = shift || return con_err($console, gettext("No channel defined for deletion! Please use cdelete 'pos'!"));
     my $answer  = shift || 0;
 
-    my @channels  = reverse sort{ $a <=> $b } split(/[^0-9]/, $channelid);
+    my @ch  = split(/[^0-9a-f]/, $channelid);
+    map {
+      my $hash = $self->ToHash($_);
+      $_ = $hash if($hash);
+    } @ch;
 
-    my $sql = sprintf('SELECT SQL_CACHE Id,POS,Name from CHANNELS where POS in (%s)', join(',' => ('?') x @channels)); 
+    my $sql = sprintf('SELECT SQL_CACHE vid,pos,name,hash from CHANNELS where hash in (%s) ORDER BY pos desc', join(',' => ('?') x @ch)); 
     my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute(@channels)
+    $sth->execute(@ch)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
-    my $data = $sth->fetchall_hashref('POS');
+    my $data = $sth->fetchall_arrayref();
 
-    foreach my $pos (@channels) {
-        unless(exists $data->{$pos}) {
-            con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"), $pos));
-            next;
-        }
+    foreach my $d (@$data) {
+        my $c = {
+          vid   => $d->[0],
+          pos   => $d->[1],
+          name  => $d->[2],
+          hash   => $d->[3]
+        };
 
-        if(ref $console and $console->{TYP} ne 'HTML') {
-            $console->table($data->{$pos});
+        if(ref $console and $console->{TYP} eq 'CONSOLE') {
+            $console->table({
+              gettext('Position')              => $c->{pos},
+              gettext('Name')                  => $c->{name},
+              gettext('Video disk recorder')   => $c->{vid},
+            });
             my $confirm = $console->confirm({
                 typ   => 'confirm',
                 def   => 'y',
                 msg   => gettext('Would you like to delete this channel?'),
             }, $answer);
-            next if(! $answer eq 'y');
+            next if(!$answer eq 'y');
         }
 
-        debug sprintf('Channel with name "%s" is deleted%s',
-            $data->{$pos}->{Name},
+        debug sprintf('Delete channel with name "%s"%s',
+            $c->{name},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $self->{svdrp}->queue_cmds("delc $pos"); # Sammeln der Kommandos
+        $self->{svdrp}->queue_cmds(sprintf("delc %d", $c->{pos}), $c->{vid});
+
+        # remove channel from request, if found inside database
+        my $i = 0;
+        for my $x (@ch) {
+          if ( $x eq $c->{hash} ) { # Remove known MD5 from user request
+            splice @ch, $i, 1;
+          } else {
+            $i++;
+          }
+        }
     }
+
+    con_err($console,
+      sprintf(gettext("Channel '%s' does not exist in the database!"), 
+      join('\',\'',@ch))) 
+          if(scalar @ch);
 
     if($self->{svdrp}->queue_cmds('COUNT')) {
         my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
@@ -1187,12 +1416,12 @@ sub deleteChannel {
 
         sleep(1);
 
-        $self->readData($watcher,$console);
-
-        $console->redirect({url => '?cmd=clist', wait => 1})
-            if(ref $console and $console->typ eq 'HTML' and !$self->{svdrp}->err);
+        if($self->_readData($watcher,$console)) {
+          $console->redirect({url => '?cmd=clist', wait => 1})
+            if(ref $console and $console->typ eq 'HTML');
+        }
     } else {
-        con_err($console, gettext("No channel defined for deletion!"));
+        $console->err(gettext("Found no channel to delete!"));
     }
 
     return 1;
@@ -1201,7 +1430,7 @@ sub deleteChannel {
 # ------------------
 sub _brandNewChannels {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $attr = shift || return;
 
     my @lines;
@@ -1211,8 +1440,8 @@ sub _brandNewChannels {
             ($c->{VPID}
                 ? gettext('TV')
                 : gettext('Radio')),
-            $c->{Name},
-            $c->{POS},
+            $c->{name},
+            $c->{pos},
             (($c->{CA} && (!is_numeric($c->{CA}) || $c->{CA} > 16)) ? gettext('(encrypted)') : ''),
         ));
         last if(25 < scalar @lines );
@@ -1229,5 +1458,35 @@ sub _brandNewChannels {
     return 1;
 }
 
+# ------------------
+sub buildSourceList {
+# ------------------
+    my $self  = shift || return error('No object defined!');
+    my $vid  = shift || return undef;
+
+    my @DVBCardsTyp;
+
+    my $sql = qq|
+select 
+    Source from CHANNELS
+where 
+    vid = ?
+group by 
+    Source
+ORDER BY
+    Source asc
+|;
+    my $sth = $self->{dbh}->prepare($sql);
+       $sth->execute($vid)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+
+    my $result = $sth->fetchall_arrayref();
+    foreach my $source (@$result ) {
+      push(@DVBCardsTyp,$source->[0]);
+    }
+    my $cards = join(',',@DVBCardsTyp);
+    lg sprintf("Founded sources of channels %s", $cards);
+    return $cards;
+}
 
 1;

@@ -111,7 +111,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 29; # Must be increment if rows of table changed
+    my $version = 30; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($self->{dbh},'KEYWORDS',$version,1)) {
@@ -122,13 +122,13 @@ sub _init {
     $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS KEYWORDS (
           id int(11) NOT NULL auto_increment,
-          md5 varchar(32) NOT NULL,
+          hash varchar(32) NOT NULL,
           keyword varchar(128) NOT NULL,
           rank tinyint NOT NULL,
           total tinyint NOT NULL,
           source enum('recording', 'timer'),
           PRIMARY KEY  (id),
-          UNIQUE KEY  (md5,keyword)
+          UNIQUE KEY  (hash,keyword)
         ) COMMENT = '$version'
     |);
 
@@ -147,7 +147,7 @@ sub insert {
 
     return unless($self->{active} eq 'y');
 
-    my $sth = $self->{dbh}->prepare(qq|REPLACE INTO KEYWORDS(md5, keyword, rank, total, source ) VALUES (?,?,?,?,?)|);
+    my $sth = $self->{dbh}->prepare(qq|REPLACE INTO KEYWORDS(hash, keyword, rank, total, source ) VALUES (?,?,?,?,?)|);
     my @words = split(/[,;\r\n]/, $keywords);
     my $total = scalar @words;
     my $rank = $total + 1;
@@ -169,13 +169,13 @@ sub remove {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $type = shift || return error('No type defined!');
-    my $md5 = shift || return undef;
+    my $hash = shift || return undef;
 
     return unless($self->{active} eq 'y');
 
-    my $sql = sprintf('DELETE FROM KEYWORDS WHERE md5 IN (%s)', join(',' => ('?') x @$md5)); 
+    my $sql = sprintf('DELETE FROM KEYWORDS WHERE hash IN (%s)', join(',' => ('?') x @$hash)); 
     my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute(@$md5)
+    $sth->execute(@$hash)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     return 1;
 }
@@ -227,12 +227,12 @@ sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $type = shift || return error('No type defined!');
-    my $md5 = shift;
+    my $hash = shift;
 
     return (undef,0,0) unless($self->{active} eq 'y');
 
     # Get keywords with highest ranking
-    my $list = $self->_list($type,$md5);
+    my $list = $self->_list($type,$hash);
     return (undef,0,0) unless($list and scalar @$list);
     # Remember highest and lowest ranking for scaling
     my $keywordmax = $list->[0]->[1];
@@ -248,18 +248,18 @@ sub _list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $type = shift || return error('No type defined!');
-    my $md5 = shift;
+    my $hash = shift;
     my $sth;
-    if($md5 and ref $md5 eq 'ARRAY') {
+    if($hash and ref $hash eq 'ARRAY') {
       my $sql = sprintf(qq|SELECT SQL_CACHE keyword,sum(100/total*rank) as pos 
  FROM KEYWORDS 
- WHERE source = ? AND md5 IN (%s) 
+ WHERE source = ? AND hash IN (%s) 
  GROUP BY keyword 
  ORDER BY pos desc 
- LIMIT 20|, join(',' => ('?') x @$md5)); 
-      unshift(@$md5,$type);
+ LIMIT 20|, join(',' => ('?') x @$hash)); 
+      unshift(@$hash,$type);
       $sth = $self->{dbh}->prepare($sql);
-      $sth->execute(@$md5)
+      $sth->execute(@$hash)
           or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
       my $sql = qq|SELECT SQL_CACHE keyword,sum(100/total*rank) as pos
@@ -293,7 +293,7 @@ sub timer_keywords {
 	  my $term;
 	  my $search;
     my $query = buildsearch("k.keyword",$text);
-    $search = sprintf('AND ( %s ) AND ( t.id = k.md5 )', $query->{query});
+    $search = sprintf('AND ( %s ) AND ( t.id = k.hash )', $query->{query});
     foreach(@{$query->{term}}) { push(@{$term},$_); }
 
     return $tmod->_list($watcher,$console,$search,$term,$params,', KEYWORDS as k');
@@ -314,7 +314,7 @@ sub recording_keywords {
     }
 
     my $query = buildsearch("k.keyword",$text);
-    return $rmod->_search($watcher,$console,$query->{query}.' ) AND ( r.RecordMD5 = k.md5 ',$query->{term},$params,', KEYWORDS as k');
+    return $rmod->_search($watcher,$console,$query->{query}.' ) AND ( r.RecordMD5 = k.hash ',$query->{term},$params,', KEYWORDS as k');
 }
 
 # ------------------

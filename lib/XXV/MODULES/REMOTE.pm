@@ -8,7 +8,7 @@ use Tools;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'REMOTE',
         Prereq => {
@@ -44,25 +44,25 @@ sub module {
             remote => {
                 description => gettext("Display ir remote 'cmd'"),
                 short       => 'r',
-                callback    => sub{ $obj->remote(@_) },
+                callback    => sub{ $self->remote(@_) },
                 DenyClass   => 'remote',
             },
             switch => {
                 description => gettext("Switch to channel 'cid'"),
                 short       => 'sw',
-                callback    => sub{ $obj->switch(@_) },
+                callback    => sub{ $self->switch(@_) },
                 DenyClass   => 'remote',
             },
             command => {
                 description => gettext("Call the command 'cid'"),
                 short       => 'cmd',
-                callback    => sub{ $obj->command(@_) },
+                callback    => sub{ $self->command(@_) },
                 DenyClass   => 'remote',
             },
             cmdlist => {
                 description => gettext("List the commands"),
                 short       => 'cmdl',
-                callback    => sub{ $obj->list(@_) },
+                callback    => sub{ $self->list(@_) },
                 DenyClass   => 'remote',
             },
         },
@@ -111,16 +111,16 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
     main::after(sub{
-          $obj->{svdrp} = main::getModule('SVDRP');
-          unless($obj->{svdrp}) {
+          $self->{svdrp} = main::getModule('SVDRP');
+          unless($self->{svdrp}) {
             panic ("Couldn't get modul SVDRP");
             return 0;
           }
 
-          $obj->{CMDS} = $obj->parse();
+          $self->{CMDS} = $self->parse();
           return 1;
         }, "REMOTE: Parse Commandfile ...");
 
@@ -130,17 +130,17 @@ sub init {
 # ------------------
 sub parse {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
     return 0
-        unless (exists $obj->{commands});
+        unless (exists $self->{commands});
 
-    if(! -r $obj->{commands}) {
-        error (sprintf("Could not open file '%s'! : %s",$obj->{commands},$!));
+    if(! -r $self->{commands}) {
+        error (sprintf("Could not open file '%s'! : %s",$self->{commands},$!));
         return 0;
     }
 
-    my $cmds = load_file($obj->{commands});
+    my $cmds = load_file($self->{commands});
 
     my $c = 0;
     my $ret = {};
@@ -159,10 +159,10 @@ sub parse {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $cmds = $obj->parse();
+    my $cmds = $self->parse();
 
     my @list = (['__Id', 'Name', 'Cmd']);
     foreach my $id (sort {$a <=> $b} keys %$cmds) {
@@ -175,11 +175,11 @@ sub list {
 # ------------------
 sub command {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $command = shift || return error('No command defined!');
-    my $cmds = $obj->parse();
+    my $cmds = $self->parse();
 
     return $console->err(gettext('This cmd id does not exist!'))
         unless(exists $cmds->{$command});
@@ -207,27 +207,30 @@ sub command {
 # ------------------
 sub remote {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $command = shift;
+    my $params = shift;
 
-    debug sprintf('Call remote with command "%s"%s',
-        $command,
-        ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
-        );
+    my $vdr = $self->{svdrp}->primary_hosts();
+    if($params->{vdr}) {
+      $vdr = $params->{vdr};
+    }
 
     unless($command) {
-        my $mod = main::getModule('GRAB');
+        my $gmod = main::getModule('GRAB');
+        my $cmod = main::getModule('CHANNELS');
         my $params = {
-            width => $mod->{xsize},
-            height => $mod->{ysize},
-            monitor => $obj->{monitor} eq "y" ? 1 : 0
+            width => $gmod->{xsize},
+            height => $gmod->{ysize},
+            monitor => $self->{monitor} eq "y" ? 1 : 0,
+            channels => $cmod->ChannelWithGroup('c.name,c.id'),
+            vdrlist => $self->{svdrp}->enum_onlinehosts(),
+            vdr => $vdr,
         };
         return $console->remote(undef, $params);
     } else {
-        # the svdrp module
-        my $svdrp = $obj->{svdrp};
 
         my $translate = {
             '<' => 'Channel-',
@@ -244,11 +247,16 @@ sub remote {
         $command = $translate->{$command}
             if(exists $translate->{$command});
 
-        # the command
-        my $cmd = sprintf('hitk %s', $command);
-        my $erg = $svdrp->command($cmd);
+        lg sprintf('Call remote command "%s" on %s%s',
+            $command,
+            $self->{svdrp}->hostname($vdr),
+            ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
+        );
 
-        $console->msg($erg, $svdrp->err)
+        # fire hit key command via svdrp
+        my $erg = $self->{svdrp}->command(sprintf('hitk %s', $command), $vdr);
+
+        $console->msg($erg, $self->{svdrp}->err)
             if(ref $console);
     }
     return 1;
@@ -257,28 +265,36 @@ sub remote {
 # ------------------
 sub switch {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $watcher = shift;
     my $console = shift;
-    my $channel = shift || '';
+    my $cid = shift || '';
+    my $params = shift;
 
-    lg sprintf('Call switch with channel "%s"%s',
-        $channel,
+    my $cmod = main::getModule('CHANNELS');
+    my $hash = $cmod->ToHash($cid, $params && $params->{vdr} ? $params->{vdr} : undef);
+    return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$cid))
+      unless($hash);
+
+    my $channel; 
+    $channel = $cmod->GetChannel($hash);
+    return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$cid))
+      unless($channel);
+
+    lg sprintf('Change channel "%s" on %s%s',
+        $channel->{name},
+        $self->{svdrp}->hostname($channel->{vid}),
         ( ref $console && $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 
-    # the svdrp module
-    my $svdrp = $obj->{svdrp};
-
-    # the command
-    my $cmd = sprintf('chan %s', $channel);
-    my $erg = $svdrp->command($cmd);
+    # fire change channel command via svdrp
+    my $erg = $self->{svdrp}->command(sprintf('chan %s', $channel->{pos}),$channel->{vid});
 
     my ($ret) = $erg->[1] =~ /^\d{3}\s*(.+)/s;
 
-    $console->msg($erg, $svdrp->err)
+    $console->msg($erg, $self->{svdrp}->err)
         if(ref $console);
-    $console->redirect({url => sprintf('?cmd=program&amp;data=%s',$channel), wait => 1})
+    $console->redirect({url => sprintf('?cmd=program&amp;data=%s',$channel->{hash}), wait => 1})
         if(ref $console and $console->typ eq 'HTML');
 
 

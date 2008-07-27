@@ -863,7 +863,7 @@ sub _proxy {
         if ($fd == $handle) {
           do {
             $r = 0;
-            $bytes = sysread( $handle, $buf, 1500 );
+            $bytes = sysread( $handle, $buf, 4096 );
             if($bytes) {
               $tousage += $bytes;  
               $peer = $streamdev->peername;
@@ -873,14 +873,14 @@ sub _proxy {
             }
 #           lg(sprintf("Read host bytes %d (%d)",$bytes,$r));
           } while $r && $bytes > 0;
-          if (!$peer || $tousage < -100000 || $tousage > 100000) {
+          if (!$peer || $tousage < -1000000 || $tousage > 1000000) {
             $bExit = 2; 
           }
         }
         elsif ($fd == $streamdev) {
           do {
             $r = 0;
-            $bytes = sysread( $streamdev, $buf, 1500 );
+            $bytes = sysread( $streamdev, $buf, 4096 );
             if($bytes) {
               $fromusage += $bytes;  
               my $peer = $handle->peername;
@@ -889,7 +889,7 @@ sub _proxy {
               $fromusage -= $r if($r);
               }
           } while $r && $bytes > 0;
-          if ($fromusage < -100000 || $fromusage > 100000) {
+          if ($fromusage < -1000000 || $fromusage > 1000000) {
             $bExit = 1; 
           }
         } else {
