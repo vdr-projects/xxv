@@ -1652,7 +1652,7 @@ sub findOverlapping {
     # read from svdrp
     foreach my $vid (@$hostlist) {
       my $cards = $self->{svdrp}->cards($vid);
-      my @DVBCARDS = split(',',$cards);
+      my @DVBCARDS = split(/[,;\r\n]/,$cards);
       my $cardid = 1;
       foreach my $source (@DVBCARDS) {
         $source =~ s/^\s+//;               # no leading white space
@@ -1721,9 +1721,10 @@ ORDER BY
         $CardOnly = $1;
       } 
       for my $ca (@{$CARDS}) {
+        my $source = $ca->{Source};
         if(!($ti->[fCardUsed]) # If'nt assign
             && $ca->{VDR} eq $ti->[fVDR] # Same host
-            && $ca->{Source} eq $ti->[fSource] # Same source
+            && $ti->[fSource] =~ /$source/ # Same source
              && (!$CardOnly || $ca->{cardID} == $CardOnly) # if CA has DVB Card number
              && (!$ca->{tid} # Unused transponder
                 || $ca->{tid} eq $ti->[fTID] # or same transponder
