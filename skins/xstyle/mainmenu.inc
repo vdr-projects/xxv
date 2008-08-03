@@ -14,18 +14,23 @@ var myBar = new WebFXMenuBar;
 
 <?% IF allow('now') %?>
         var runnow = new WebFXMenu;
+    <?% groupnames = getModule('CHANNELS').ChannelGroupsArray('Name') %?>
+    <?% IF groupnames.size %?>
         var runnowGrp = new WebFXMenu;
-    <?% FOREACH group = getModule('CHANNELS').ChannelGroupsArray('Name') %?>
+    <?% FOREACH group = groupnames%?>
         runnowGrp.add(new WebFXMenuItem('<?% group.first %?>',  "?cmd=now&data=&__cgrp=<?% group.last %?>"));
     <?% END %?>
         runnow.add(new WebFXMenuItem("<?% gettext("Running now",cuttext ) %?>",null,null,runnowGrp));
+    <?% END %?>
 
+    <?% IF groupnames.size %?>
         var runnextGrp = new WebFXMenu;
-    <?% FOREACH group = getModule('CHANNELS').ChannelGroupsArray('Name') %?>
+    <?% FOREACH group = groupnames %?>
         runnextGrp.add(new WebFXMenuItem('<?% group.first %?>',  "?cmd=next&data=&__cgrp=<?% group.last %?>"));
     <?% END %?>
         runnow.add(new WebFXMenuItem("<?% gettext("Next",cuttext ) %?>",null,null,runnextGrp));
         runnow.add(new WebFXMenuSeparator());
+    <?% END %?>
 
     <?% USE date %?>
     <?% periods = getModule('EPG').periods %?>
@@ -61,21 +66,25 @@ var myBar = new WebFXMenuBar;
     program.add(new WebFXMenuItem("<?% gettext("Schema") %?>",  "?cmd=schema"));
     <?% IF allow('topten') %?>program.add(new WebFXMenuItem("<?% gettext("Top ten entry") %?>",  "?cmd=t10"));<?% END %?>
     program.add(new WebFXMenuItem("<?% gettext("Search") %?>",  "?cmd=search"));
+
+    <?% groups = getModule('CHANNELS').ChannelWithGroup('c.name,c.hash') %?>
+    <?% IF groups.size %?>
     program.add(new WebFXMenuSeparator());
 
-    <?% FOREACH ch = getModule('CHANNELS').ChannelWithGroup('c.name,c.hash') %?>
-    <?% LAST IF global.cfgMaxChannelMenuEntrys && loop.count > global.cfgMaxChannelMenuEntrys %?>
+    <?% FOREACH ch=groups %?>
         <?% IF ch.2 != lastgroup %?>
+          <?% LAST IF global.cfgMaxChannelMenuEntrys && loop.count > global.cfgMaxChannelMenuEntrys %?>
           <?% IF lastgroup %?>
-              program.add(new WebFXMenuItem('<?% chop(lastgroup,cuttext) %?>',null,null,programGrp<?% z %?>));
+    program.add(new WebFXMenuItem('<?% chop(lastgroup,cuttext) %?>',null,null,programGrp<?% z %?>));
           <?% END %?>
         <?% lastgroup = ch.2 %?>
         <?% z = z + 1 %?>
-            var programGrp<?% z %?> = new WebFXMenu;
+    var programGrp<?% z %?> = new WebFXMenu;
         <?% END %?>
         programGrp<?% z %?>.add(new WebFXMenuItem('<?% escape(chop(ch.0,cuttext)) %?>',  '?cmd=program&data=<?% ch.1 %?>'));
     <?% END %?>
     program.add(new WebFXMenuItem('<?% chop(lastgroup,cuttext) %?>',null,null,programGrp<?% z %?>));
+    <?% END %?>
 
     <?% IF allow('erestart') %?>
       program.add(new WebFXMenuSeparator());
