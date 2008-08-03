@@ -3,7 +3,11 @@
 --
 use mysql;
 
-CREATE DATABASE IF NOT EXISTS xxv;
+-- Create mysql-Database with latin1
+CREATE DATABASE IF NOT EXISTS xxv DEFAULT CHARACTER SET latin1 COLLATE latin1_general_ci;
+
+-- Create mysql-Database with utf8
+-- CREATE DATABASE IF NOT EXISTS xxv DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 use xxv;
 

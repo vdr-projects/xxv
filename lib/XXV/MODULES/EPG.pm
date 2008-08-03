@@ -790,7 +790,14 @@ sub program {
     my $self = shift || return error('No object defined!');
     my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $cid = shift || $self->{dbh}->selectrow_arrayref("SELECT SQL_CACHE hash from CHANNELS order by vid, pos limit 1")->[0];
+    my $cid = shift;
+    unless($cid) {
+      my $c = $self->{dbh}->selectrow_arrayref("SELECT SQL_CACHE hash from CHANNELS order by vid, pos limit 1");
+      return $console->err(gettext("No channel available!"))
+        unless($c && $c->[0]);
+      $cid = $c->[0];
+    }
+
 
     my $cmod = main::getModule('CHANNELS');
 
@@ -1029,7 +1036,7 @@ AND e.starttime > NOW()
     my $cgroups = $cmod->ChannelGroupsArray('name');
     my $cgrp = $param->{cgrp} || $cgroups->[0][1]; # First id of groups;
 
-    if($cgrp ne 'all') {
+    if($cgrp && $cgrp ne 'all') {
       my $cgrps;
       # Find any groups by same group name
       foreach my $g (@$cgroups) {
@@ -1044,7 +1051,7 @@ AND e.starttime > NOW()
         foreach my $c (@$cgrps) {
           push(@{$term},$c->[0]);
         }
-      } else { # group id 
+      } elsif($cgrp) { # group id 
         $grpsql = " AND g.id = ? ";
         push(@{$term},$cgrp);
       }
@@ -1236,7 +1243,7 @@ WHERE
 
     my $term;
     push(@{$term},$zeit);
-    if($cgrp ne 'all') {
+    if($cgrp && $cgrp ne 'all') {
       my $cgrps;
       # Find any groups by same group name
       foreach my $g (@$cgroups) {
@@ -1251,7 +1258,7 @@ WHERE
         foreach my $c (@$cgrps) {
           push(@{$term},$c->[0]);
         }
-      } else { # group id 
+      } elsif($cgrp) { # group id 
         $sql .= " AND g.id = ? ";
         push(@{$term},$cgrp);
       }
@@ -1478,7 +1485,7 @@ WHERE
     my $cgroups = $cmod->ChannelGroupsArray('name');
     my $cgrp = $param->{cgrp} || $cgroups->[0][1]; # First id of groups;
 
-    if($cgrp ne 'all') {
+    if($cgrp && $cgrp ne 'all') {
       my $cgrps;
       # Find any groups by same group name
       foreach my $g (@$cgroups) {
@@ -1493,7 +1500,7 @@ WHERE
         foreach my $c (@$cgrps) {
           push(@{$term},$c->[0]);
         }
-      } else { # group id 
+      } elsif($cgrp) { # group id 
         $sql .= " AND g.id = ? ";
         push(@{$term},$cgrp);
       }

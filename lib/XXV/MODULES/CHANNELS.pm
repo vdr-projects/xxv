@@ -432,7 +432,7 @@ sub _readData {
           $dsth->execute($vid)
           or return error sprintf("Couldn't execute query: %s.",$dsth->errstr);
 
-          my $msg = gettext(sprintf("No channels on '%s' available!",$self->{svdrp}->hostname($vid)));
+          my $msg = sprintf(gettext("No channels on '%s' available!"),$self->{svdrp}->hostname($vid));
           con_err($console,$msg);
           next;
       }
@@ -1485,7 +1485,7 @@ ORDER BY
       push(@DVBCardsTyp,$source->[0]);
     }
     my $cards = join(',',@DVBCardsTyp);
-    lg sprintf("Founded sources of channels %s", $cards);
+    lg sprintf("Founded sources of channels : %s", $cards ? $cards : 'none');
     return $cards;
 }
 

@@ -278,7 +278,7 @@ sub playrecord {
 
     my $rmod = main::getModule('RECORDS');
     my $result = $rmod->IdToData($recid)
-        or return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)));
+        or return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid));
 
     my $start = 0;
     my $offset = 0;
@@ -301,13 +301,13 @@ sub playrecord {
       return $console->player($data, $param);
     }
 
-    return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)))
+    return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid))
       unless $result->{Path};
 
     my $path = $result->{Path};
     my @files = bsd_glob("$path/[0-9][0-9][0-9].vdr");
 
-    return $console->err(gettext(sprintf("Couldn't find recording: '%s'", $recid)))
+    return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid))
       unless scalar(@files);
 
     if($start) {
