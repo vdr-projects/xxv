@@ -104,8 +104,8 @@ sub module {
             },
         },
         RegEvent    => {
+             # Create event entries if an autotimer has created a new timer
             'newTimerfromAutotimer' => {
-                Descr => gettext('Create event entries if an autotimer has created a new timer.'),
 
                 # You have this choices (harmless is default):
                 # 'harmless', 'interesting', 'veryinteresting', 'important', 'veryimportant'
@@ -124,34 +124,20 @@ sub module {
                 # of the TimerId
                 # ...
                 Match => {
-                    TimerId => qr/id\:\s+\"(\d+)\"/s,
+                    pos => qr/Save timer\s+(\d+)/s,
+                    host => qr/Save timer\s+\d+\s+on\s+(\S+)/s,
                 },
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
-                            my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
+
+                            my $modT = main::getModule('TIMERS') or return;
+                            my $timer  = $modT->getTimerByPos($modT->{svdrp}->IDfromHostname($args->{host}), $args->{pos}) or return;
+
                             my $autotimer = getDataById($timer->{autotimerid}, 'AUTOTIMER', 'Id');
-                            my $title = sprintf(gettext("Autotimer('%s') found: %s"),
+                            my $title = sprintf(gettext("Autotimer '%s' found: %s"),
                                                     $autotimer->{Search}, $timer->{file});
-
-                            my $description = '';                           
-
-                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{channel});
-                            $description .= sprintf(gettext("Channel: %s"), $channel);
-                            $description .= "\r\n";
-
-                            Date_Init("Language=English");
-                            my $d = ParseDate($timer->{starttime});
-                            $timer->{starttime} = datum(UnixDate($d,"%s")) if($d);
-                            $description .= sprintf(gettext("On: %s to %s"),
-                                $timer->{starttime},
-                                fmttime($timer->{stop}));
-                            $description .= "\r\n";
-                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
-                              if($desc && $desc->{description});
-
-                            main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
+                            $modT->_news($title, $timer, $event->{Level});
                         }
                     |,
                 ],
@@ -517,7 +503,7 @@ sub _autotimerLookup {
             # Wished timer already exist with same data from autotimer ?
             next if($obj->_timerexists($event));
 
-            # Adjust timers set by the autotimer
+            # Adjust timers set by Autotimer
             my $timerID = $obj->_timerexistsfuzzy($event,$a,$modT);
 
             if(scalar @done) {
@@ -638,7 +624,7 @@ sub autotimerEdit {
     if($timerid and not ref $data) {
         my $sth = $obj->{dbh}->prepare("SELECT SQL_CACHE * from AUTOTIMER where Id = ?");
         $sth->execute($timerid)
-            or return $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."),$timerid));
+            or return $console->err(sprintf(gettext("Autotimer '%s' does not exist in the database!"),$timerid));
         $epg = $sth->fetchrow_hashref();
 
             # Channels Ids in Namen umwandeln
@@ -1061,7 +1047,7 @@ sub autotimerDelete {
     my $rows = $sth->execute(@timers);
     if(!$rows || $rows eq "0E0") {
         error sprintf("Couldn't execute query: %s.",$sth->errstr) unless($rows);
-        $console->err(sprintf gettext("The autotimer '%s' does not exist in the database."), join(',', @timers));
+        $console->err(sprintf gettext("Autotimer '%s' does not exist in the database!"), join(',', @timers));
         return 0;
     }
 
@@ -1076,7 +1062,7 @@ sub autotimerDelete {
 
 # ------------------
 # Name:  autotimerToogle
-# Descr: Switch the Autotimer on or off.
+# Descr: Switch Autotimer on or off.
 # Usage: $obj->autotimerToogle($watcher, $console, $atid);
 # ------------------
 sub autotimerToggle {
@@ -1091,7 +1077,7 @@ sub autotimerToggle {
     my $sth = $obj->{dbh}->prepare($sql);
     if(!$sth->execute(@timers)) {
         error sprintf("Couldn't execute query: %s.",$sth->errstr);
-        $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."),$timerid));
+        $console->err(sprintf(gettext("Autotimer '%s' does not exist in the database!"),$timerid));
         return 0;
     }
     my $data = $sth->fetchall_hashref('Id');
@@ -1100,7 +1086,7 @@ sub autotimerToggle {
     for my $timer (@timers) {
 
         unless(exists $data->{$timer}) {
-            $console->err(sprintf(gettext("The autotimer '%s' does not exist in the database."), $timer));
+            $console->err(sprintf(gettext("Autotimer '%s' does not exist in the database!"), $timer));
             next;
         }
 
@@ -1110,7 +1096,7 @@ sub autotimerToggle {
         my $sth = $obj->{dbh}->prepare($sql);
         if(!$sth->execute($status,$timer)) {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
-            $console->err(sprintf(gettext("Couldn't toggle autotimer with ID '%s'!"),$timer));
+            $console->err(sprintf(gettext("Couldn't update database to toggle autotimer(%d) !"),$timer));
             next;
         }
 
@@ -1121,9 +1107,11 @@ sub autotimerToggle {
             );
 
         if($console->typ ne 'AJAX') {
-            my $text = ($status eq 'n') ? gettext('disabled')
-                                        : gettext('activated');
-            $console->message(sprintf gettext("Autotimer %s is %s."), $timer, $text);
+            if($status eq 'n') {
+              $console->message(sprintf gettext("Autotimer %s is disabled."), $timer);
+            } else {
+              $console->message(sprintf gettext("Autotimer %s is activated."), $timer);
+            }
         }
 
         # AJAX 
@@ -1454,7 +1442,7 @@ sub _timerexistsfuzzy {
 		  $after = $modT->{afterminutes} * 60;
 	  }
 
-    # Adjust timers set by the autotimer, if event changed +/- five minutes. 
+    # Adjust timers set by Autotimer, if event changed +/- five minutes. 
     my $sql = "SELECT SQL_CACHE id from TIMERS where
                 channel = ?
                 and ? between (UNIX_TIMESTAMP(starttime) - ?) AND (UNIX_TIMESTAMP(starttime) + ?)

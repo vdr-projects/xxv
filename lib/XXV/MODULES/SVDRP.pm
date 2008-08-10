@@ -450,6 +450,23 @@ sub enum_onlinehosts {
 }
 
 # ------------------
+sub IDfromHostname {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $host = shift  || return error('No host defined!');
+
+    my $sql = qq|
+SELECT SQL_CACHE id FROM RECORDER WHERE host = ? 
+|;
+
+    my $sth = $self->{dbh}->prepare($sql);
+    $sth->execute($host)
+        or return error(sprintf("Video disk recorder '%s' does not exist in the database!",$host));
+    my $erg = $sth->fetchrow_hashref();
+    return $erg ? $erg->{id} : undef;
+}
+
+# ------------------
 sub queue_cmds {
 # ------------------
     my $self = shift  || return error('No object defined!');
@@ -527,6 +544,8 @@ sub command {
       return undef;
     }
 
+    #binmode $telnet, ":encoding(utf8)" if($self->{charset} eq 'UTF-8');
+
     # read first line 
     do {
       $line = $telnet->getline;
@@ -565,7 +584,9 @@ sub command {
               error($msg);
               $self->{ERROR} .= $msg . "\n";
             }
-
+            #if( $self->{charset} eq 'UTF-8') {
+            #  utf8::upgrade($line) if(!utf8::is_utf8($line));
+            #}
             push(@$data, $line);
           }
         } while($line && $line =~ /^\d\d\d\-/);

@@ -7,14 +7,14 @@ use POSIX qw(locale_h);
 # News Modules have only this methods
 # init - for intervall or others
 # send - send the informations
-# read - read the news and parse it
+# push - push the news and parse it
 # req  - read the actual news print this out
 
 # This module method must exist for XXV
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'NEWS::MAIL',
         Prereq => {
@@ -33,18 +33,14 @@ sub module {
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = shift;
-                    my $erg = $obj->init
+                    my $erg = $self->init
                         or return undef, gettext("Can't initialize news module!")
-                            if($value eq 'y' and not exists $obj->{INITE});
+                            if($value eq 'y' and not exists $self->{INITE});
                     return $value;
                     if($value eq 'y') {
-                      my $emodule = main::getModule('EVENTS');
-                      if(!$emodule or $emodule->{active} ne 'y') {
+                      my $emod = main::getModule('EVENTS');
+                      if(!$emod or $emod->{active} ne 'y') {
                         return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'EVENTS');
-                      }
-                      my $rmodule = main::getModule('REPORT');
-                      if(!$rmodule or $rmodule->{active} ne 'y') {
-                        return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'REPORT');
                       }
                     }
                 },
@@ -54,18 +50,18 @@ sub module {
                 default     => 1,
                 type        => 'list',
                 choices     => sub {
-                                    my $rmodule = main::getModule('REPORT');
-                                    return undef unless($rmodule);
-                                    my $erg = $rmodule->get_level_as_array();
+                                    my $emod = main::getModule('EVENTS');
+                                    return undef unless($emod);
+                                    my $erg = $emod->get_level_as_array();
                                     map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
                                     return @$erg;
                                  },
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
-                    my $rmodule = main::getModule('REPORT');
-                    return undef unless($rmodule);
-                    my $erg = $rmodule->get_level_as_array();
+                    my $emod = main::getModule('EVENTS');
+                    return undef unless($emod);
+                    my $erg = $emod->get_level_as_array();
                     unless($value >= $erg->[0]->[0] and $value <= $erg->[-1]->[0]) {
                         return undef, 
                                sprintf(gettext('Sorry, but value must be between %d and %d'),
@@ -81,9 +77,9 @@ sub module {
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
-                    if($value and ref $obj->{INTERVAL}) {
+                    if($value and ref $self->{TIMER}) {
                         my $newinterval = $value*3600;
-                        $obj->{INTERVAL}->interval($newinterval);
+                        $self->{TIMER}->interval($newinterval);
                     }
                     return $value;
                 },
@@ -139,18 +135,22 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+    # read the DB Handle
+    $self->{dbh} = delete $attr{'-dbh'};
+
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
     # host
     $self->{host} = delete $attr{'-host'};
 
-	# who am I
+    # who am I
     $self->{MOD} = $self->module;
 
     # all configvalues to $self without parents (important for ConfigModule)
     map {
-        $self->{$_} = $attr{'-config'}->{$self->{MOD}->{Name}}->{$_} || $self->{MOD}->{Preferences}->{$_}->{default}
+        $self->{$_} = $attr{'-config'}->{$self->{MOD}->{Name}}->{$_};
+        $self->{$_} = $self->{MOD}->{Preferences}->{$_}->{default} unless($self->{$_});
     } keys %{$self->{MOD}->{Preferences}};
 
     # Try to use the Requirments
@@ -185,8 +185,7 @@ sub new {
 
     # The Initprocess
     my $erg = $self->init
-        or return error("Can't initialize news module!")
-            if($self->{active} eq 'y');
+        or return error("Can't initialize news module!");
 
     $self->{TYP} = 'text/plain';
 
@@ -196,21 +195,24 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
-    $obj->{INITE} = 1;
+    my $self = shift || return error('No object defined!');
+    $self->{INITE} = 1;
 
-    $obj->{LastReportTime} = time;
+    $self->{LastReportTime} = main::getStartTime();
 
     # Interval to send the next mail
-    $obj->{INTERVAL} = Event->timer(
-        interval => $obj->{interval}*3600,
+    $self->{TIMER} = Event->timer(
+        interval => $self->{interval}*3600,
         prio => 6,  # -1 very hard ... 6 very low
         cb => sub{
-            $obj->send();
+            if($self->{active} eq 'y') {
+              my $content = $self->_req();
+              $self->send($content);
+            }
         },
     );
 
-    $obj->{COUNT} = 1;
+    $self->{COUNT} = 1;
 
     1;
 }
@@ -218,54 +220,55 @@ sub init {
 # ------------------
 sub send {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
     return error('This function is deactivated!')
-        if($obj->{active} ne 'y');
+        if($self->{active} ne 'y');
 
-    ++$obj->{COUNT};
+    my $content = $self->_req();
 
-    my $content = $obj->req();
+    my @addresses = split(/\s*,\s*/, $self->{address});
 
-    my $smod = main::getModule('STATUS');
-    my @addresses = split(/\s*,\s*/, $obj->{address});
+    my $mail = new Mail::SendEasy(
+        smtp => $self->{smtp},
+        user => $self->{susr},
+        pass => $self->{spwd}
+    );
+
 
     # Send mail
-    my $status = Mail::SendEasy::send(
-        smtp => $obj->{smtp},
-        user => $obj->{susr},
-        pass => $obj->{spwd},
-        from    => $obj->{from_address},
+    my $status = $mail->send(
+        from    => $self->{from_address},
         from_title => 'XXV MailNewsAgent',
         to      => shift @addresses ,
         cc      => join(',', @addresses),
-        subject => "News from your XXV System!" ,
+        subject => gettext("News from your XXV System!"),
         msg     => $content,
-        msgid   => $obj->{COUNT},
-    ) || return error sprintf("Can't send mail: %s", $Mail::SendEasy::ER);
+        msgid   => $self->{COUNT},
+    ) || return error sprintf("Can't send mail: %s", $mail->error);
 
-    $obj->{LastReportTime} = time;
+    lg sprintf('Mail %d. send successfully', $self->{COUNT}++);
 
-    lg sprintf('Mail %d. send successfully', $obj->{COUNT});
-    $obj->{NEWSLETTER} = undef;
     1;
 }
 
 # ------------------
 sub parseHeader {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
+    my $newscnt = shift || 0;
+
     my $output = '';
 
     my $vars = {
-        msgnr => $obj->{COUNT},
+        msgnr => $self->{COUNT},
         date  => datum(time),
-        anzahl=> $obj->{NEWSCOUNT},
+        anzahl=> $newscnt,
     };
 
-    my $template = $obj->{TEMPLATES}->{'header'};
-    $obj->{tt}->process($template, $vars, \$output)
-          or return error($obj->{tt}->error());
+    my $template = $self->{TEMPLATES}->{'header'};
+    $self->{tt}->process($template, $vars, \$output)
+          or return error($self->{tt}->error());
 
     return $output;
 }
@@ -273,63 +276,107 @@ sub parseHeader {
 # ------------------
 sub parseFooter {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $output = '';
 
 
     my $vars = {
         usage => main::getModule('RECORDS')->{CapacityMessage},
         uptime  => main::getModule('STATUS')->uptime,
-        lastreport => datum($obj->{LastReportTime}),
+        lastreport => datum($self->{LastReportTime}),
     };
 
-    my $template = $obj->{TEMPLATES}->{'footer'};
-    $obj->{tt}->process($template, $vars, \$output)
-          or return error($obj->{tt}->error());
+    my $template = $self->{TEMPLATES}->{'footer'};
+    $self->{tt}->process($template, $vars, \$output)
+          or return error($self->{tt}->error());
 
     return $output;
 }
 
 
 # ------------------
-sub read {
+sub push {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $vars = shift || return error('No data defined!');
 
-    my $output = '';
-    $vars->{count} = ++$obj->{NEWSCOUNT};
-    $vars->{host}  = $obj->{host};
-    $vars->{port}  = main::getModule('HTTPD')->{Port};
-
-    my $template = $obj->{TEMPLATES}->{'content'};
-    $obj->{tt}->process($template, $vars, \$output)
-          or return error($obj->{tt}->error());
-
-    $obj->{NEWSLETTER} .= $output;
-
-    return $output;
+    return undef;
 }
 
 # ------------------
 sub req {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
+    my $params = shift  || {};
+
+    if($params->{test}) {
+        my $content = $self->_req(1);
+        if($self->send($content)) {
+            return gettext('A mail with the following content has been sent to your mail account!')
+                   . "\n\n"
+                   . $content;
+        } else {
+            return gettext("Mail with the following content could'nt sent to your mail account!")
+                   . "\n\n"
+                   . $content;
+        }
+    }
+    return $self->_req(1);
+}
+# ------------------
+sub _req {
+# ------------------
+    my $self = shift  || return error('No object defined!');
     my $test = shift  || 0;
 
     return gettext('The module NEWS::Mail is not active!')
-        if($obj->{active} ne 'y');
+        if($self->{active} ne 'y');
 
     my $content = '';
-    if($test) {
-        $obj->send;
-        $content .= gettext('A mail with the following content has been sent to your mail account!');
-        $content .= "\n\n";
+
+    my $sql = "SELECT SQL_CACHE id, title, message, cmd, data, level, UNIX_TIMESTAMP(addtime) from EVENTS where level >= ? AND UNIX_TIMESTAMP(addtime) >= ? order by addtime desc"; 
+    my $sth = $self->{dbh}->prepare($sql);
+    $sth->execute($self->{level}, $self->{LastReportTime})
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $data = $sth->fetchall_arrayref();
+
+    $content .= $self->parseHeader($data ? scalar @$data : 0);
+
+    my $emod = main::getModule('EVENTS');
+    my $hmod = main::getModule('HTTPD');
+    my $url = sprintf("http://%s:%s/", $self->{host}, $hmod->{Port});
+
+    foreach my $entry (@{$data}) {
+        my ($id, $title, $message, $cmd, $data, $level, $addtime) = @{$entry};
+
+        my $link = $url;
+           $link .= sprintf("?cmd=%s&data=%s", $cmd, $data)
+                if($cmd && $data);
+
+        my $vars = {
+            AddDate => $addtime,
+            Title   => $title,
+            Text    => $message,
+            Cmd     => $cmd,
+            Id      => $data,
+            Url     => $link,
+            Level   => $level,
+            category => $emod->translate_scala($level),
+            count  => $id,
+            host   => $self->{host},
+            port   => $hmod->{Port},
+        };
+
+        my $output = '';
+        my $template = $self->{TEMPLATES}->{'content'};
+        $self->{tt}->process($template, $vars, \$output)
+              or return error($self->{tt}->error());
+        $content .= $output;
     }
 
-    $content .= $obj->parseHeader();
-    $content .= $obj->{NEWSLETTER};
-    $content .= $obj->parseFooter();
+    $content .= $self->parseFooter();
+
+    $self->{LastReportTime} = time unless($test);
 
     return $content;
 }

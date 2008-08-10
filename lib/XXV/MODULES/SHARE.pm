@@ -191,6 +191,7 @@ sub _init {
               }
             }
         }
+
         return 1;
     }, "SHARE: Connect to popularity web service ...",4) if($self->{active} eq 'y');
 
@@ -212,6 +213,14 @@ sub _init {
               },
             );
         }
+
+        my $m = main::getModule('TIMERS');
+        $m->updated(sub{
+          return 0 if($self->{active} ne 'y');
+
+          lg 'Start timer callback to share timer!';
+          return $self->_sharetimer();
+        });
         return 1;
     }, "SHARE: Update data with popularity web service ...",48) if($self->{active} eq 'y');
 
@@ -439,5 +448,37 @@ sub CmdToService {
     $@ ? return error("SyntaxError: $@") 
        : return $res;
 }
+
+# ------------------
+sub _sharetimer {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+
+    my $sql = 'SELECT id,flags,priority,lifetime,autotimerid,eventid,UNIX_TIMESTAMP(eventstarttime) + eventduration as eventstoptime FROM TIMERS';
+    my $erg = $self->{dbh}->selectall_hashref($sql, 'id') or return;
+
+    foreach my $t (keys %$erg) {
+        my $timer = $erg->{$t};
+        $self->sharetimer($timer);
+    }
+}
+# ------------------
+sub sharetimer {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $timer = shift  || return error('No timer defined!');
+
+    my $level = 1;
+    if($timer->{autotimerid} and ($timer->{flags} && $timer->{flags} & 1)) {
+        $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 2 : 3);
+    } elsif($timer->{flags} && $timer->{flags} & 1) {
+        $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 4 : 5);
+    }
+
+    if($timer->{eventid}) {
+        $self->setEventLevel($timer->{eventid}, $level, $timer->{eventstoptime});
+    }
+}
+
 
 1;

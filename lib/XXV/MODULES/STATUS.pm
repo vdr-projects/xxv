@@ -793,7 +793,7 @@ sub watchDog {
     foreach my $m (@$mou) {
         next unless($m->[0] =~ /^\//);
         if($m->[5] >= 90 ) {
-            my $rm = main::getModule('REPORT');
+            my $rm = main::getModule('EVENTS');
             $rm->news(
                 sprintf(gettext("PANIC! Only %s%% space left on device %s"),(100 - $m->[5]),$m->[0]),
                 sprintf(gettext("Device has space %s from %s used!"), $m->[3], $m->[2]),

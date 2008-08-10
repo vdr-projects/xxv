@@ -230,7 +230,11 @@ sub communicator {
     if($data->{Method} eq 'POST' && $data->{Post}) {
       $query .= '&' if($query);
       $query .= $data->{Post};
-    } 
+    }
+    #if($self->{charset} eq 'UTF-8' 
+    #    && $query && !utf8::is_utf8($query)) {
+    #  utf8::upgrade($query);
+    #}
     my $cgi = CGI->new( $query );
 
     my $console;

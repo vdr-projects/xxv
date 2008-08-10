@@ -4,16 +4,17 @@ use strict;
 use Tools;
 use POSIX qw(locale_h);
 
-# News Modules have only three methods
+# News Modules have only this methods
 # init - for intervall or others
 # send - send the informations
-# read - read the news and parse it
+# push - push the news and parse it
+# req  - read the actual news print this out
 
 # This module method must exist for XXV
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'NEWS::VDR',
         Description => gettext('This NEWS module generates messages for the VDR interface.'),
@@ -29,17 +30,13 @@ sub module {
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = shift;
-                    my $erg = $obj->init
+                    my $erg = $self->init
                         or return undef, gettext("Can't initialize news module!")
-                            if($value eq 'y' and not exists $obj->{INITE});
+                            if($value eq 'y' and not exists $self->{INITE});
                     if($value eq 'y') {
-                      my $emodule = main::getModule('EVENTS');
-                      if(!$emodule or $emodule->{active} ne 'y') {
+                      my $emod = main::getModule('EVENTS');
+                      if(!$emod or $emod->{active} ne 'y') {
                         return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'EVENTS');
-                      }
-                      my $rmodule = main::getModule('REPORT');
-                      if(!$rmodule or $rmodule->{active} ne 'y') {
-                        return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'REPORT');
                       }
                     }
                     return $value;
@@ -50,18 +47,18 @@ sub module {
                 default     => 1,
                 type        => 'list',
                 choices     => sub {
-                                    my $rmodule = main::getModule('REPORT');
-                                    return undef unless($rmodule);
-                                    my $erg = $rmodule->get_level_as_array();
+                                    my $emod = main::getModule('EVENTS');
+                                    return undef unless($emod);
+                                    my $erg = $emod->get_level_as_array();
                                     map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
                                     return @$erg;
                                  },
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
-                    my $rmodule = main::getModule('REPORT');
-                    return undef unless($rmodule);
-                    my $erg = $rmodule->get_level_as_array();
+                    my $emod = main::getModule('EVENTS');
+                    return undef unless($emod);
+                    my $erg = $emod->get_level_as_array();
                     unless($value >= $erg->[0]->[0] and $value <= $erg->[-1]->[0]) {
                         return undef, 
                                sprintf(gettext('Sorry, but value must be between %d and %d'),
@@ -93,7 +90,8 @@ sub new {
 
     # all configvalues to $self without parents (important for ConfigModule)
     map {
-        $self->{$_} = $attr{'-config'}->{$self->{MOD}->{Name}}->{$_} || $self->{MOD}->{Preferences}->{$_}->{default}
+        $self->{$_} = $attr{'-config'}->{$self->{MOD}->{Name}}->{$_};
+        $self->{$_} = $self->{MOD}->{Preferences}->{$_}->{default} unless($self->{$_});
     } keys %{$self->{MOD}->{Preferences}};
 
     # Try to use the Requirments
@@ -121,10 +119,10 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    $obj->{INITE} = 1;
-    $obj->{SVDRP} = main::getModule('SVDRP');
+    $self->{INITE} = 1;
+    $self->{SVDRP} = main::getModule('SVDRP');
 
     1;
 }
@@ -132,39 +130,40 @@ sub init {
 # ------------------
 sub send {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $vars = shift || return error('No data defined!');
 
     return lg('This function is deactivated!')
-        if($obj->{active} ne 'y');
+        if($self->{active} ne 'y');
 
     return lg('Title is not set!')
         unless($vars->{Title});
 
+    return undef unless($vars->{level} >= $self->{level} );
 
     my $cmd = sprintf('MESG %s', $vars->{Title});
 
-    my $svdrp = $obj->{SVDRP} || return error ('No SVDRP!' );
+    my $svdrp = $self->{SVDRP} || return error ('No SVDRP!' );
     return $svdrp->command($cmd);
 }
 
 # ------------------
-sub read {
+sub push {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $vars = shift || return error('No data defined!');
 
-    return $obj->send($vars);
+    return $self->send($vars);
 }
 
 # ------------------
 sub req {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $test = shift  || 0;
 
     return gettext('The module NEWS::VDR is not active!')
-        if($obj->{active} ne 'y');
+        if($self->{active} ne 'y');
 
     my $vars = {
         AddDate => time,
@@ -172,10 +171,10 @@ sub req {
         Text    => 'This is only a test from xxv news vdr modul!',
         Cmd     => 'request',
         Id      => 'vdr',
-        Level   => 'harmless',
+        Level   =>  100,
     };
 
-    if( $obj->read($vars) ) {
+    if( $self->send($vars) ) {
       return gettext("Message was been sent to your VDR!");
     } else {
       return gettext("Message chould'nt been sent to your VDR!");

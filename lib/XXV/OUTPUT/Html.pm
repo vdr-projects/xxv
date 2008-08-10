@@ -1058,6 +1058,10 @@ sub parseData {
                 $self->parseData($dta->{$name});
             } else {
                 $dta->{$name} = reentities($dta->{$name}) if($self->{hasentities});
+                #if($self->{charset} eq 'UTF-8' 
+                #    && $dta->{$name} && !utf8::is_utf8($dta->{$name})) {
+                #  utf8::upgrade($dta->{$name});
+                #}
                 $dta->{$name} = entities($dta->{$name});
             }
         }
@@ -1067,6 +1071,10 @@ sub parseData {
                 $self->parseData($_);
             } else {
                 $_ = reentities($_) if($self->{hasentities});
+                #if($self->{charset} eq 'UTF-8' 
+                #    && $_ && !utf8::is_utf8($_)) {
+                #  utf8::upgrade($_);
+                #}
                 $_ = entities($_);
             }
         }

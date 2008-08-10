@@ -454,10 +454,8 @@ sub quit {
     # remove any depends process like preview encoder for recordings
     &killfam('TERM',$$);
 
-    debug qq|--------------------------------------------------|;
-    debug sprintf(qq|----- XXVD System %15s ended : %2s -----|, &getVersion,$ret);
-    debug qq|--------------------------------------------------|;
 
+    debug sprintf("%s(%s) ended. state : %s", $0, $$, $ret);
     exit($ret);
 }
 
@@ -606,15 +604,14 @@ sub init_logging {
 
         my $fh = IO::File->new($loggerfile,$mode) 
           or return print(sprintf("Couldn't write %s : %s!",$loggerfile,$!));
+#       binmode $fh, ":encoding(utf8)" if($Tools::CHARSET eq 'UTF-8');
         print $fh sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $msg);
         $fh->close;
     };
 
     # First log message
-    debug qq|--------------------------------------------------|;
-    debug sprintf(qq|---- XXVD System %15s started      ----|, &getVersion);
-    debug qq|--------------------------------------------------|;
-    debug sprintf('Verbose Level is set to %d', $verbose);
+    debug sprintf("%s(%s) started. base version : %s", $0,$$, &getVersion);
+    debug sprintf('verbose level is set to %d', $verbose);
 }
 
 # ------------------

@@ -212,11 +212,11 @@ sub module {
                                $description .= "\r\n";
                             }
                             if($epg->{description}) {
-                               $description .= sprintf(gettext("Description: %s"), $epg->{description});
+                               $description .= $epg->{description};
                                # $description .= "\r\n";
                             }
 
-                            main::getModule('REPORT')->news($title, $description, "display", $record->{eventid}, $event->{Level});
+                            main::getModule('EVENTS')->news($title, $description, "display", $record->{eventid}, $event->{Level});
                         }
                     |,
                 ],

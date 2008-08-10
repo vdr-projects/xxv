@@ -3,16 +3,17 @@ use strict;
 
 use Tools;
 
-# News Modules have only three methods
+# News Modules have only this methods
 # init - for intervall or others
 # send - send the informations
-# read - read the news and parse it
+# push - push the news and parse it
+# req  - read the actual news print this out
 
 # This module method must exist for XXV
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'NEWS::JABBER',
         Prereq => {
@@ -68,17 +69,13 @@ Then you must receive a message in your running jabber client.
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = shift;
-                    my $erg = $obj->init
+                    my $erg = $self->init
                         or return undef, gettext("Can't initialize news module!")
-                            if($value eq 'y' and not exists $obj->{JCON});
+                            if($value eq 'y' and not exists $self->{JCON});
                     if($value eq 'y') {
-                      my $emodule = main::getModule('EVENTS');
-                      if(!$emodule or $emodule->{active} ne 'y') {
+                      my $emod = main::getModule('EVENTS');
+                      if(!$emod or $emod->{active} ne 'y') {
                         return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'EVENTS');
-                      }
-                      my $rmodule = main::getModule('REPORT');
-                      if(!$rmodule or $rmodule->{active} ne 'y') {
-                        return undef, sprintf(gettext("Module can't activated! This module depends module %s."),'REPORT');
                       }
                     }
                     return $value;
@@ -89,18 +86,18 @@ Then you must receive a message in your running jabber client.
                 default     => 1,
                 type        => 'list',
                 choices     => sub {
-                                    my $rmodule = main::getModule('REPORT');
-                                    return undef unless($rmodule);
-                                    my $erg = $rmodule->get_level_as_array();
+                                    my $emod = main::getModule('EVENTS');
+                                    return undef unless($emod);
+                                    my $erg = $emod->get_level_as_array();
                                     map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
                                     return @$erg;
                                  },
                 required    => gettext('This is required!'),
                 check       => sub {
                     my $value = int(shift) || 0;
-                    my $rmodule = main::getModule('REPORT');
-                    return undef unless($rmodule);
-                    my $erg = $rmodule->get_level_as_array();
+                    my $emod = main::getModule('EVENTS');
+                    return undef unless($emod);
+                    my $erg = $emod->get_level_as_array();
                     unless($value >= $erg->[0]->[0] and $value <= $erg->[-1]->[0]) {
                         return undef, 
                                sprintf(gettext('Sorry, but value must be between %d and %d'),
@@ -162,7 +159,8 @@ sub new {
 
     # all configvalues to $self without parents (important for ConfigModule)
     map {
-        $self->{$_} = $attr{'-config'}->{$self->{MOD}->{Name}}->{$_} || $self->{MOD}->{Preferences}->{$_}->{default}
+        $self->{$_} = $attr{'-config'}->{$self->{MOD}->{Name}}->{$_};
+        $self->{$_} = $self->{MOD}->{Preferences}->{$_}->{default} unless($self->{$_});
     } keys %{$self->{MOD}->{Preferences}};
 
     # Try to use the Requirments
@@ -190,7 +188,7 @@ sub new {
 # ------------------
 sub init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     1;
 }
@@ -198,13 +196,13 @@ sub init {
 # ------------------
 sub jconnect {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
     my $jcon = Net::XMPP::Client->new(
         debuglevel  =>  0,
     ) || return error("Can't create jabber client");
 
-    my ($user, $server) = split('\@', $obj->{user});
+    my ($user, $server) = split('\@', $self->{user});
 
     debug sprintf("Connecting to jabber server: %s ...", $server);
 
@@ -212,25 +210,25 @@ sub jconnect {
         hostname    =>  $server,
     );
     return
-        unless($obj->xmpp_check_result("Connect",\@res,$jcon));
+        unless($self->xmpp_check_result("Connect",\@res,$jcon));
 
     debug sprintf("Authentificat with User:%s ...", $user);
 
     @res = $jcon->AuthSend(
       'hostname'=>$server,
 	  'username'=>$user,
-	  'password'=>$obj->{passwd},
+	  'password'=>$self->{passwd},
 	  'resource'=>'xxv'
     );
 
     return $jcon
-        if($obj->xmpp_check_result("Login",\@res,$jcon));
+        if($self->xmpp_check_result("Login",\@res,$jcon));
 }
 
 # ------------------
 sub jdisconnect {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $cnx = shift  || 0;
 
     $cnx->Disconnect()
@@ -243,33 +241,33 @@ sub jdisconnect {
 # ------------------
 sub send {
 # ------------------
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $vars    = shift || return error('No data defined!');
 
     return undef, lg('This function is deactivated!')
-        if($obj->{active} ne 'y');
+        if($self->{active} ne 'y');
 
-    my $cnx     = $obj->jconnect()
+    my $cnx     = $self->jconnect()
         || return error ('No connected JabberClient!' );
 
     $cnx->MessageSend(
-        'to'     => $obj->{receiveUser},
+        'to'     => $self->{receiveUser},
         'subject'=> $vars->{Title},
         'body'   => ($vars->{Text} || $vars->{Url}),
     );
 
-    $cnx = $obj->jdisconnect($cnx);
+    $cnx = $self->jdisconnect($cnx);
 
     1;
 }
 
 # ------------------
-sub read {
+sub push {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $vars = shift || return error('No data defined!');
 
-    return $obj->send($vars);
+    return $self->send($vars);
 
     1;
 }
@@ -277,10 +275,10 @@ sub read {
 # ------------------
 sub req {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
     return gettext('The module NEWS::JABBER is not active!')
-        if($obj->{active} ne 'y');
+        if($self->{active} ne 'y');
 
     my $vars = {
         AddDate => time,
@@ -289,17 +287,17 @@ sub req {
         Level   => 100,
     };
 
-    if($obj->send($vars)) {
-        return sprintf('Message is send to %s at %s', $obj->{receiveUser}, datum($vars->{AddDate}));
+    if($self->send($vars)) {
+        return sprintf('Message is send to %s at %s', $self->{receiveUser}, datum($vars->{AddDate}));
     } else {
-        return sprintf("Sorry, couldn't send message to %s at %s", $obj->{receiveUser}, datum($vars->{AddDate}));
+        return sprintf("Sorry, couldn't send message to %s at %s", $self->{receiveUser}, datum($vars->{AddDate}));
     }
 }
 
 # ------------------
 sub xmpp_check_result {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my ($txt,$res,$cnx)=@_;
 
     return error("Error '$txt': result undefined")

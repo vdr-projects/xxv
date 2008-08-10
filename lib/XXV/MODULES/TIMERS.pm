@@ -114,12 +114,11 @@ sub module {
             },
         },
         RegEvent    => {
-            'newTimerfromUser' => {
-                Descr => gettext('Create event entries if the user has created a new timer.'),
-
+           # Create event entries if the user has created a new timer
+           'newTimerfromUser' => {
                 # You have this choices (harmless is default):
                 # 'harmless', 'interesting', 'veryinteresting', 'important', 'veryimportant'
-                Level => 'interesting',
+                Level => 'veryinteresting',
 
                 # Search for a spezial Event.
                 # I.e.: Search for an LogEvent with match
@@ -133,194 +132,82 @@ sub module {
                 # of the id
                 # ...
                 Match => {
-                    TimerId => qr/id\:\s+\"(\d+)\"/s,
+                    pos => qr/New timer\s+(\d+)/s,
+                    host => qr/New timer\s+\d+\s+on\s+(\S+)/s,
                 },
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
+                            my $modT = main::getModule('TIMERS') or return;
+                            my $timer  = $modT->getTimerByPos($modT->{svdrp}->IDfromHostname($args->{host}), $args->{pos}) or return;
                             return if($timer->{autotimerid});
-                            my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
-                            my $title = sprintf(gettext("New timer found: %s"),$timer->{file});
-
-                            my $description = '';                           
-
-                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{channel});
-                            $description .= sprintf(gettext("Channel: %s"), $channel);
-                            $description .= "\r\n";
-
-                            Date_Init("Language=English");
-                            my $d = ParseDate($timer->{starttime});
-                            $timer->{starttime} = datum(UnixDate($d,"%s")) if($d);
-  
-                            $description .= sprintf(gettext("On: %s to %s"),
-                                $timer->{starttime},
-                                fmttime($timer->{stop}));
-                            $description .= "\r\n";
-                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
-                              if($desc && $desc->{description});
-
-                            main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
+                            my $title = sprintf(gettext("New timer: %s"),$timer->{file});
+                            $modT->_news($title, $timer, $event->{Level});
                         }
                     |,
-                    q|sub{  my $args = shift;
-                            my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
-                            my $soap = main::getModule('SHARE');
-                            my $level = 1;
-                            if($timer->{autotimerid}) {
-                                $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 2 : 3);
-                            } else {
-                                $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 4 : 5);
-                            }
-
-                            if($timer->{eventid}) {
-                                my $event = main::getModule('EPG')->getId($timer->{eventid}, 'UNIX_TIMESTAMP(starttime) + duration as STOPTIME');
-                                $soap->setEventLevel($timer->{eventid}, $level, $event->{STOPTIME});
-                            }
-                        }|,
                 ],
 
             },
+            # Create event entries if the user has deleted a timer
             'deleteTimer' => {
-                Descr => gettext('Create event entries if the user has deleted a timer.'),
                 Level => 'interesting',
                 SearchForEvent => {
                     Msg => 'delt',
                 },
                 Match => {
-                    TimerId => qr/delt\s+(\d+)/s,
+                    pos => qr/delt\s+(\d+)\"\s+on\s+\S+/s,
+                    host => qr/delt\s+\d+\"\s+on\s+(\S+)/s,
                 },
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
+                            my $modT = main::getModule('TIMERS') or return;
+                            my $timer  = $modT->getTimerByPos($modT->{svdrp}->IDfromHostname($args->{host}), $args->{pos}) or return;
                             my $title = sprintf(gettext("Timer deleted: %s"),$timer->{file});
-                            my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
-
-                            my $description = '';                           
-
-                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{channel});
-                            $description .= sprintf(gettext("Channel: %s"), $channel);
-                            $description .= "\r\n";
-
-                            Date_Init("Language=English");
-                            my $d = ParseDate($timer->{starttime});
-                            $timer->{starttime} = datum(UnixDate($d,"%s")) if($d);
-
-                            $description .= sprintf(gettext("On: %s to %s"),
-                                $timer->{starttime},
-                                fmttime($timer->{stop}));
-                            $description .= "\r\n";
-                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
-                              if($desc && $desc->{description});
-
-                            main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
+                            $modT->_news($title, $timer, $event->{Level});
                         }
                     |,
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
-                            my $soap = main::getModule('SHARE');
-                            my $level = 1;
-
-                            if($timer->{eventid}) {
-                                my $event = main::getModule('EPG')->getId($timer->{eventid}, 'UNIX_TIMESTAMP(starttime) + duration as STOPTIME');
-                                $soap->setEventLevel($timer->{eventid}, $level, $event->{STOPTIME});
-                            }
+                            my $modT = main::getModule('TIMERS') or return;
+                            my $timer  = $modT->getTimerByPos($modT->{svdrp}->IDfromHostname($args->{host}), $args->{pos}) or return;
+                            my $modS = main::getModule('SHARE') or return;
+                            $modS->sharetimer($timer);
                         }|,
                 ],
             },
+            # Create event entries if the user has toggled a timer.
             'toggleTimer' => {
-                Descr => gettext('Create event entries if the user has toggled a timer.'),
                 Level => 'interesting',
                 SearchForEvent => {
                     Msg => 'modt',
                 },
                 Match => {
-                    TimerId => qr/modt\s+(\d+)\s(on|off)/s,
-                    Type    => qr/modt\s+\d+\s+(on|off)/s
+                    pos     => qr/modt\s+(\d+)\s(on|off)/s,
+                    enabled => qr/modt\s+\d+\s+(on|off)/s,
+                    host    => qr/modt\s+\d+\s+\S+\s+on\s+(\S+)/s,
                 },
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
+                            my $modT = main::getModule('TIMERS') or return;
+                            my $timer  = $modT->getTimerByPos($modT->{svdrp}->IDfromHostname($args->{host}), $args->{pos}) or return;
                             my $title;
-                            if($args->{Type} eq 'on') {
+                            if($args->{enabled} eq 'on') {
                               $title = sprintf(gettext("Timer activated: %s"),$timer->{file});
                             } else {
                               $title = sprintf(gettext("Timer deactivated: %s"),$timer->{file});
                             }
-
-                            my $description = '';                           
-
-                            my $channel = main::getModule('CHANNELS')->ChannelToName($timer->{channel});
-                            $description .= sprintf(gettext("Channel: %s"), $channel);
-                            $description .= "\r\n";
-
-                            Date_Init("Language=English");
-                            my $d = ParseDate($timer->{starttime});
-                            $timer->{starttime} = datum(UnixDate($d,"%s")) if($d);
-  
-                            my $desc = getDataById($timer->{eventid}, 'EPG', 'eventid') if($timer->{eventid});
-                            $description .= sprintf(gettext("On: %s to %s"),
-                                $timer->{starttime},
-                                fmttime($timer->{stop}));
-                            $description .= "\r\n";
-                            $description .= sprintf(gettext("Description: %s"), $desc->{description} )
-                              if($desc && $desc->{description});
-
-                            main::getModule('REPORT')->news($title, $description, "display", $timer->{eventid}, $event->{Level});
+                            $modT->_news($title, $timer, $event->{Level});
                         }
                     |,
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $timer  = getDataById($args->{TimerId}, 'TIMERS', 'pos');
-                            my $soap = main::getModule('SHARE');
-                            my $level = ($args->{Type} eq 'off' ? 1 : 2);
-                            if($timer->{autotimerid} and $args->{Type} eq 'on') {
-                                $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 2 : 3);
-                            } elsif($args->{Type} eq 'on') {
-                                $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 4 : 5);
-                            }
-
-                            if($timer->{eventid}) {
-                                my $event = main::getModule('EPG')->getId($timer->{eventid}, 'UNIX_TIMESTAMP(starttime) + duration as STOPTIME');
-                                $soap->setEventLevel($timer->{eventid}, $level, $event->{STOPTIME});
-                            }
-                        }|,
-                ],
-            },
-            'updateTimer' => {
-                Descr => gettext('Create event entries if a timer has been updated.'),
-                Level => 'harmless',
-                SearchForEvent => {
-                    Msg => 'Reread',
-                },
-                Match => {
-                    HighId => qr/Reread\s+(\d+)\s+timers/s,
-                },
-                Actions => [
-                    q|sub{  my $args = shift;
-                            my $event = shift;
+                            my $modT = main::getModule('TIMERS') or return;
+                            my $timer  = $modT->getTimerByPos($modT->{svdrp}->IDfromHostname($args->{host}), $args->{pos}) or return;
                             my $modS = main::getModule('SHARE') or return;
-                            my $modE = main::getModule('EPG') or return;
-                            for (my $i = 1; $i<=$args->{HighId}; $i++) {
-                                my $timer  = getDataById($i, 'TIMERS', 'pos');
-
-                                my $level = 1;
-                                if($timer->{autotimerid} and ($timer->{flags} && $timer->{flags} & 1)) {
-                                    $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 2 : 3);
-                                } elsif($timer->{flags} && $timer->{flags} & 1) {
-                                    $level = (($timer->{priority} <= 50 or $timer->{lifetime} < 33) ? 4 : 5);
-                                }
-
-                                if($timer->{eventid}) {
-                                    my $event = $modE->getId($timer->{eventid}, 'UNIX_TIMESTAMP(starttime) + duration as STOPTIME');
-                                    $modS->setEventLevel($timer->{eventid}, $level, $event->{STOPTIME});
-                                }
-                            }
-                    }|,
+                            $modS->sharetimer($timer);
+                        }|,
                 ],
             },
         },
@@ -338,7 +225,7 @@ sub status {
 
     my $total = 0;
     {
-        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE  count(*) as count from TIMERS");
+        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE count(*) as count from TIMERS");
         if(!$sth->execute())
         {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -492,7 +379,10 @@ sub saveTimer {
           $self->_insert($data);
       }
 
-      event sprintf('Save timer "%s" with id: "%d"', $data->{file}, $pos || 0);
+      event sprintf('Save timer %d on %s - %s', 
+            $pos || 0, 
+            $self->{svdrp}->hostname($data->{vid}),
+            $data->{file});
 
       $self->{changedTimer} = 1;
 
@@ -1096,7 +986,6 @@ sub _insert {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $timer = shift || return;
-    my $checked = shift || 0;
 
     # import only status which used from vdr and thereby exclude eventid from vdradmin
     $timer->{flags} &= 15;
@@ -1134,7 +1023,7 @@ sub _insert {
 
     my $sth = $self->{dbh}->prepare(
 q|REPLACE INTO TIMERS VALUES 
-  (?,?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,?,NOW())
+  (?,?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,0,NOW())
 |);
     my $id = md5_hex($timer->{vid} . $timer->{channel} . $nexttime->{start} . $nexttime->{stop} );
     $sth->execute( 
@@ -1155,8 +1044,7 @@ q|REPLACE INTO TIMERS VALUES
          $e ? $e->{eventid} : 0,
          $e ? $e->{starttime} : 0,
          $e ? $e->{duration} : 0,
-         $aid,
-         $checked
+         $aid
      ) or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
 
   $self->{keywords}->insert('timer',$id,$keywords);
@@ -1207,7 +1095,7 @@ sub _readData {
               file    => $data[7],
               aux     => $data[8]
             };
-            if($self->_insert($timer, 1)) {
+            if($self->_insert($timer)) {
               $c++;
             }
           }
@@ -1221,21 +1109,20 @@ sub _readData {
     $self->getTimersByAutotimer($aids);
 
     # Get new timers by User
-    if($oldTimers or exists $self->{changedTimer}) {
+    if(($oldTimers && scalar keys %$oldTimers != $c)
+        or (!$oldTimers && $c)  
+        or exists $self->{changedTimer}) {
 
         my $timers = $self->getNewTimers($oldTimers);
-        foreach my $t (@$timers) {
-            event sprintf('New timer "%s" with id: "%d"', $t->{file}, $t->{pos});
+        foreach my $t (keys %$timers) {
+            event sprintf('New timer %d on %s - "%s"', $timers->{$t}->{pos}, $self->{svdrp}->hostname($timers->{$t}->{vid}), $timers->{$t}->{file});
         }
-        $self->updated() if(scalar @$timers or exists $self->{changedTimer});
+        $self->updated() if(($timers && scalar keys %$timers) or exists $self->{changedTimer});
         delete $self->{changedTimer}  if(exists $self->{changedTimer});
     }
 
-    $self->{REGISTER}++;
-    if(scalar keys %$oldTimers != $c or $self->{REGISTER} == 2) {
-        # Event to signal we are finish to read
-        event(sprintf('Reread %d timers and written into database!', $c));
-    }
+    # Event to signal we are finish to read
+    lg(sprintf('Reread %d timers and written into database!', $c));
 
     $console->message(sprintf(gettext("%d timer written to database."), $c))
         if(ref $console and $console->typ ne 'AJAX');
@@ -1433,7 +1320,7 @@ ORDER BY
 sub getTimerById {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $tid = shift  || return error('No id defined!');
+    my $tid = shift  || return error('No tid defined!');
 
     my $sql = qq|
 SELECT SQL_CACHE 
@@ -1469,7 +1356,8 @@ WHERE
 sub getTimerByPos {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $tid = shift  || return error('No id defined!');
+    my $vid = shift  || return error('No vid defined!');
+    my $pos = shift  || return error('No pos defined!');
 
     my $sql = qq|
 SELECT SQL_CACHE 
@@ -1485,19 +1373,21 @@ SELECT SQL_CACHE
     UNIX_TIMESTAMP(t.starttime) as Day,
     t.collision,
     t.eventid,
-    t.autotimerid
+    t.autotimerid,
+    UNIX_TIMESTAMP(t.eventstarttime) + t.eventduration as eventstoptime
 FROM
     TIMERS as t,
     CHANNELS as c
 WHERE
     t.channel = c.id
     AND t.vid = c.vid
+    and t.vid = ?
     and t.pos = ?
 |;
 
     my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute($tid)
-        or return error(sprintf("Timer '%s' does not exist in the database!",$tid));
+    $sth->execute($vid, $pos)
+        or return error(sprintf("Timer '%s' does not exist in the database!",sprintf("%d/%d",$vid,$pos)));
     return $sth->fetchrow_hashref();
 }
 # ------------------
@@ -1514,15 +1404,23 @@ sub getRunningTimer {
 sub getNewTimers {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $oldTimers = shift || return;
+    my $oldTimers = shift;
 
-    my $ret = [];
-    foreach my $timerid (keys %$oldTimers) {
-        if(! $oldTimers->{$timerid}->{checked}) {
-            push(@$ret, $oldTimers->{$timerid});
-        }
+    if($oldTimers) {
+      my @old = keys %$oldTimers;
+      return undef unless(scalar @old);
+
+      my $sql = sprintf('SELECT SQL_CACHE * FROM TIMERS where id not in (%s)', join(',' => ('?') x @old)); 
+      my $sth = $self->{dbh}->prepare($sql);
+      $sth->execute(@old)
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      return $sth->fetchall_hashref('id');
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * FROM TIMERS');
+      $sth->execute()
+          or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      return $sth->fetchall_hashref('id');
     }
-    return $ret;
 }
 
 # ------------------
@@ -1530,7 +1428,7 @@ sub getCheckTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $sql = qq|
-SELECT SQL_CACHE  t.id, t.vid, t.pos, t.flags, t.channel, t.priority, t.lifetime,
+SELECT SQL_CACHE t.id, t.vid, t.pos, t.flags, t.channel, t.priority, t.lifetime,
         t.file, t.aux, t.start as timerstart,t.stop as timerstop,
 
         UNIX_TIMESTAMP(e.starttime) as starttime,
@@ -1587,14 +1485,27 @@ SELECT SQL_CACHE  t.id, t.vid, t.pos, t.flags, t.channel, t.priority, t.lifetime
             lifetime  => $erg->{$t}->{lifetime}
       	};
 
-        debug sprintf("Adjust timer %d (%s) at %s : from %s - %s to %s - %s", 
+        # next if adjust change notthing ... (e.g. time changed only around few seconds)
+        next if($erg->{$t}->{timerstart} == $tt->{start}
+             && $erg->{$t}->{timerstop}  == $tt->{stop});
+
+        # save timer 
+        my $from = sprintf('%s - %s',fmttime($erg->{$t}->{timerstart}), fmttime($erg->{$t}->{timerstop}));
+        my $to = sprintf('%s - %s',fmttime($tt->{start}),fmttime($tt->{stop}));
+        debug sprintf("Adjust timer %d on %s at %s : from %s to %s - %s", 
                       $tt->{pos}, 
-                      $tt->{file}, 
+                      $self->{svdrp}->hostname($tt->{vid}), 
                       $tt->{day}, 
-                      fmttime($erg->{$t}->{timerstart}), fmttime($erg->{$t}->{timerstop}),
-                      fmttime($tt->{start}),fmttime($tt->{stop}));
+                      $from, $to,
+                      $tt->{file});
 
         $self->saveTimer($tt);
+
+        $self->news($tt->{vid},$tt->{pos}
+                   ,sprintf(gettext("Adjust timer : %s"),$tt->{file})
+                   ,'interesting'
+                   ,sprintf(gettext("Adjust times from %s to %s"),$from, $to) . "\r\n"
+              );
     }
     return $erg;
 }
@@ -2091,6 +2002,47 @@ sub suggest {
         $console->table($result)
             if(ref $console && $result);
     }
+}
+
+# ------------------
+sub news {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $vid = shift  || return error('No vid defined!');
+    my $pos = shift  || return error('No pos defined!');
+    my $title = shift  || return error('No title defined!');
+    my $eventlevel = shift  || return error('No eventlevel defined!');
+    my $description = shift  || '';
+
+    my $timer = $self->getTimerByPos($vid,$pos) || return undef;
+    return $self->_news($title, $timer, $eventlevel, $description);
+}
+
+# ------------------
+sub _news {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $title = shift  || return error('No title defined!');
+    my $timer = shift  || return error('No timer defined!');
+    my $eventlevel = shift  || return error('No eventlevel defined!');
+    my $description = shift  || '';
+
+    $description .= sprintf(gettext("Channel: %s"), $timer->{Channel});
+    $description .= "\r\n";
+
+    $timer->{starttime} = datum($timer->{Day});
+
+    $description .= sprintf(gettext("On: %s to %s"),
+        $timer->{starttime},
+        fmttime($timer->{stop}));
+    $description .= "\r\n";
+
+    my $epgdesc = $self->getEpgDesc($timer->{id});
+    $description .= $epgdesc
+      if($epgdesc);
+
+    main::getModule('EVENTS')->news($title, $description, "display", $timer->{eventid}, $eventlevel);
+
 }
 
 1;

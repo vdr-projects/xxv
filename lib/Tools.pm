@@ -356,9 +356,9 @@ sub load_file {
   lg sprintf('Load file "%s" (%s)',$file, $binmode);
 
   my $mode = '<';
-#  if($binmode ne 'binary') {
-#    $mode .= ':utf8' if($CHARSET && $CHARSET eq 'UTF-8');
-#  }
+  #if($binmode ne 'binary') {
+  #  $mode .= ':encoding(utf8)' if($CHARSET && $CHARSET eq 'UTF-8');
+  #}
 
   my $fh = IO::File->new($file,$mode) 
 	    or return error(sprintf("Couldn't open %s : %s!",$file,$!));
@@ -384,11 +384,12 @@ sub save_file {
 
   if($binmode ne 'binary') {
     $data =~ s/\r\n/\n/sig;
-#   $mode .= ':utf8' if($CHARSET && $CHARSET eq 'UTF-8');
+  #  $mode .= ':encoding(utf8)' if($CHARSET && $CHARSET eq 'UTF-8');
   }
 
   my $fh = IO::File->new($file,$mode) 
-  or return error(sprintf("Couldn't write %s : %s!",$file,$!));
+    or return error(sprintf("Couldn't write %s : %s!",$file,$!));
+
   print $fh $data;
   $fh->close;
 

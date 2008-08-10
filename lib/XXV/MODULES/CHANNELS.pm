@@ -1011,9 +1011,9 @@ sub getChannelType {
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
     if($erg) {
-        if(exists $erg->{VPID}) {
+        if(exists $erg->{VPID} && $erg->{VPID}) {
           return 'TV';
-        } elsif(exists $erg->{APID}) {
+        } elsif(exists $erg->{APID} && $erg->{APID}) {
           return 'RADIO';
         }
     }
@@ -1447,7 +1447,7 @@ sub _brandNewChannels {
         last if(25 < scalar @lines );
     }
 
-    my $rm = main::getModule('REPORT');
+    my $rm = main::getModule('EVENTS');
     $rm->news(
         sprintf(gettext('Found %d new channels!'), scalar keys %$attr),
         join("\r\n",@lines),
