@@ -20,10 +20,10 @@
 #include "ffm.h"
 
 extern "C" {
-#include <avutil.h>
-#include <avcodec.h>
-#include <avformat.h>
-#include <swscale.h>
+#include <libavutil/avutil.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 
 static int frame_width = 0;

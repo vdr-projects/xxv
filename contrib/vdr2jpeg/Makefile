@@ -65,8 +65,8 @@ ifdef FFMDIR
 INCLUDES += -I$(FFMDIR)/libavformat -I$(FFMDIR)/libavcodec -I$(FFMDIR)/libavutil -I$(FFMDIR)/libswscale 
 LIBS += -L$(FFMDIR)/libavformat -L$(FFMDIR)/libavcodec -L$(FFMDIR)/libavutil  -L$(FFMDIR)/libswscale
 else
-INCLUDES += $(shell $(PKG-CONFIG) --cflags libavformat libavcodec libswscale)
-LIBS    += $(shell $(PKG-CONFIG) --libs libavformat libavcodec libswscale)
+INCLUDES += $(shell $(PKG-CONFIG) --cflags libavformat libavcodec libavutil libswscale)
+LIBS    += $(shell $(PKG-CONFIG) --libs libavformat libavcodec libavutil libswscale)
 endif
 
 ifdef STATIC
