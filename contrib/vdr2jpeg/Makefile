@@ -1,4 +1,4 @@
-##########################################################################
+################################################################################
 #
 # Makefile -- for building vdr2jpeg
 #
@@ -12,13 +12,13 @@
 # You can change the compile options here or create a Make.config
 
 
-# Build ffmpeg e.g. with ./configure --enable-shared
+# Build ffmpeg e.g. with ./configure --enable-shared --enable-swscale
 #FFMDIR = /usr/local/include/ffmpeg
 
 # Build with debugging symbol and lots of dumped messages
 #DEBUG = 1
 
-# Build full static paket, if ffmpeg build without --enable-shared
+# Build full static paket, if ffmpeg configured without --enable-shared
 # you should defined FFMDIR 
 #STATIC = 1
 
@@ -28,23 +28,21 @@ INSTALLBINDIR ?= /usr/local/bin
 # Place where should package created, need some space.
 TMPDIR = /tmp
 
-###############################################
-###############################################
+################################################################################
 #
-# no user configurable options below this point
+# there none user configurable options below this point
 #
-###############################################
+################################################################################
 
 INSTALLDIR = $(DESTDIR)/$(INSTALLBINDIR)
 
-###############################################
-
+################################################################################
 # Compiler/linker settings
 CXX      ?= g++
 STRIP    ?= strip
 PKG-CONFIG ?= pkg-config
 
-### Allow user defined options to overwrite defaults:
+# Allow user defined options to overwrite defaults:
 -include Make.config
 
 # General settings:
@@ -62,8 +60,8 @@ CXXFLAGS += -fPIC -Wall -Woverloaded-virtual
 
 
 ifdef FFMDIR
-INCLUDES += -I$(FFMDIR)/libavformat -I$(FFMDIR)/libavcodec -I$(FFMDIR)/libavutil -I$(FFMDIR)/libswscale 
-LIBS += -L$(FFMDIR)/libavformat -L$(FFMDIR)/libavcodec -L$(FFMDIR)/libavutil  -L$(FFMDIR)/libswscale
+INCLUDES += -I$(FFMDIR) 
+LIBS += -L$(FFMDIR)/libavformat -L$(FFMDIR)/libavcodec -L$(FFMDIR)/libavutil -L$(FFMDIR)/libswscale
 else
 INCLUDES += $(shell $(PKG-CONFIG) --cflags libavformat libavcodec libavutil libswscale)
 LIBS    += $(shell $(PKG-CONFIG) --libs libavformat libavcodec libavutil libswscale)
@@ -73,7 +71,7 @@ ifdef STATIC
     CXXFLAGS += -static
 endif
 
-#-------------------------------------------------------------------------
+################################################################################
 # Target configuration
 
 PRGNAME = vdr2jpeg
@@ -90,15 +88,15 @@ OBJS = tools.o gop.o ffm.o
 VDR2JPEGOBJS = vdr2jpeg.o
 
 
-#-------------------------------------------------------------------------
+################################################################################
 # Implicit rules:
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $(DEFINES) $(INCLUDES) $<
 
 
-#-------------------------------------------------------------------------
-# Main Targets
+################################################################################
+# Main targets :
 
 all:    vdr2jpeg
 .PHONY: all

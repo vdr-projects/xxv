@@ -8,6 +8,7 @@
  *
  */
 
+#include <string.h>
 #include "tools.h"
 
 int option(int argc, char *argv[], const char opt, bool bParam,

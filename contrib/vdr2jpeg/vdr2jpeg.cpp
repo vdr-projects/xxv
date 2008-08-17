@@ -11,10 +11,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>       
 #include <fcntl.h>
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #include "tools.h"
 #include "ffm.h"
 #include "gop.h"

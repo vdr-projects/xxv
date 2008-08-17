@@ -51,7 +51,7 @@ static int max_frames[4] = {INT_MAX, INT_MAX, INT_MAX, INT_MAX};
 static int video_qdiff = 3;
 
 
-static char *video_rc_eq="tex^qComp";
+static const char *video_rc_eq="tex^qComp";
 static int me_method = ME_EPZS;
 
 static int same_quality = 1;
