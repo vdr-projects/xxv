@@ -9,6 +9,7 @@ use File::Path;
 use File::Basename;
 use File::stat;
 use Linux::Inotify2;
+use Encode;
 
 $SIG{CHLD} = 'IGNORE';
 
@@ -94,6 +95,20 @@ sub module {
                 description => gettext('VDR compiled for VFAT system (VFAT=1)'),
                 default     => 'y',
                 type        => 'confirm',
+            },
+            xsize => {
+                description => gettext('Preview image width'),
+                default     => 180,
+                type        => 'integer',
+                required    => gettext('This is required!'),
+                check   => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 8 and $value < 4096) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
             },
         },
         Commands => {
@@ -365,7 +380,7 @@ sub _init {
                 $self->{countReading} += 1;
             },
         );
-        $self->readData(undef,undef,undef,'force');
+        $self->readData(undef,undef,undef);
         $self->{countReading} += 1;
         $self->{lastupdate} = time;
         return 1;
@@ -463,13 +478,17 @@ sub scandirectory {
     my $self = shift || return error('No object defined!');
     my $typ = shift;
 
+    #my $enc = find_encoding($self->{charset});
+
     my $files = (); # Hash with md5 and path to recording
     find(
             {
                 wanted => sub{
                     if(-r $File::Find::name) {
                         if($File::Find::name =~ /\.$typ\/\d{3}.vdr$/sig) {  # Lookup for *.rec/001.vdr
-                          my $path = dirname($File::Find::name);
+                          my $filename = $File::Find::name;#$enc->decode($File::Find::name);
+
+                          my $path = dirname($filename);
                           my $md5 = md5_hex($path);
                           unless(exists $files->{$md5}) {
                             my $rec;
@@ -492,12 +511,12 @@ sub scandirectory {
                             $rec->{title} = $self->converttitle($title);
 
                             # add file
-                            push(@{$rec->{files}},$File::Find::name);
+                            push(@{$rec->{files}},$filename);
                             $files->{$md5} = $rec;
 
                           } else {
 
-                            push(@{$files->{$md5}->{files}},$File::Find::name);
+                            push(@{$files->{$md5}->{files}},$filename);
 
                           }
                         }
@@ -1345,7 +1364,7 @@ sub videoPreview {
         foreach (@files) { $_ = qquote($_); }
     }
 
-    my $scalex = 180;
+    my $scalex = $self->{xsize} || 180;
     my $mversions = {
       'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
                               $self->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
@@ -2090,9 +2109,9 @@ WHERE
         },
     		'channel' => {
             typ     => 'list',
-            def     => $modC->ChannelToPos($status->{channel}),
+            def     => $status->{channel},
             choices => sub {
-                my $erg = $modC->ChannelWithGroup('Name,Pos');
+                my $erg = $modC->ChannelWithGroup('c.name,c.id');
                 unshift(@$erg, [gettext("Undefined"),undef,undef]);                          
                 return $erg;
             },
@@ -2100,12 +2119,10 @@ WHERE
             check   => sub{
                 my $value = shift || return;
 
-                if(my $ch = $modC->PosToChannel($value) || $modC->NameToChannel($value) ) {
-                    return $ch;
-                } elsif( ! $modC->NameToChannel($value)) {
-                    return undef, sprintf(gettext("This channel '%s' does not exist!"),$value);
+                if( my $chid = $modC->ToCID($value)) {
+                    return $chid;
                 } else {
-                   return undef, gettext("This is required!");
+                    return undef, sprintf(gettext("This channel '%s' does not exist!"),$value);
                 }
             },
         },
