@@ -363,6 +363,7 @@ sub saveTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $data = shift || return error('No data defined!');
+    my $store = shift || 0;
 
     $self->_saveTimer($data);
     if($self->{svdrp}->queue_cmds('COUNT')) {
@@ -374,7 +375,7 @@ sub saveTimer {
       # Save shortly this timer in DB if this only a new timer (at)
       # Very Important for Autotimer!
       my $pos = $1 if($erg->[1] =~ /^250\s+(\d+)/);
-      if(!(exists $data->{pos}) and $pos) {
+      if($store  || !(exists $data->{pos}) and $pos) {
           $data->{pos} = $pos;
           $self->_insert($data);
       }
@@ -1499,7 +1500,7 @@ SELECT SQL_CACHE t.id, t.vid, t.pos, t.flags, t.channel, t.priority, t.lifetime,
                       $from, $to,
                       $tt->{file});
 
-        $self->saveTimer($tt);
+        $self->saveTimer($tt, 'store');
 
         $self->news($tt->{vid},$tt->{pos}
                    ,sprintf(gettext("Adjust timer : %s"),$tt->{file})
