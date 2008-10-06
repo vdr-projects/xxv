@@ -79,7 +79,9 @@
     <?% END %?>
         <?% PROCESS StateImage %?>
         <?% "</a>" IF allow('ttoggle') %?>
-        <a class="fieldinline" href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program:") %?><?% sender %?>" style="<?% IF state != "" %?><?% state %?><?% END %?>vertical-align:bottom;">
+    </td>
+    <td>
+        <a href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program:") %?><?% sender %?>" style="vertical-align:bottom;">
             <font class="title<?% IF state != "";" ";state;END %?>"><?% sender %?></font>
         </a>
     </td>
@@ -113,16 +115,23 @@
         </a>
     <?% END %?>
     </td>
-<?% IF global.hideDescription != 1 && description.length > 0 %?>
+  <?% IF ( param.recorder > 1 ) || ( global.hideDescription != 1 && description.length > 0 ) %?>
   </tr>
   <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
     <td>&nbsp;</td>
+    <td>
+    <?% IF param.recorder > 1 %?>
+      <font class="description<?% IF state != "";" ";state;END %?>"><?% host %?></font>
+    <?% END %?>
+    </td>
     <td colspan="3">
+      <?% IF global.hideDescription != 1 && description.length > 0 %?>
       <a href="?cmd=display&amp;data=<?% eventid %?>">
         <font class="description<?% IF state != "";" ";state;END %?>"><?% chop(description,100,1) %?></font>
       </a>
+      <?% END %?>
     </td>
-<?% END %?>
+  <?% END %?>
 
 <?% END %?>
 
@@ -134,6 +143,7 @@
 <form name="tlist" action="">
 	<table summary=""  width="100%">
     <tr>
+        <th width="64" align="left"></th>
         <th></th>
         <th></th>
         <th></th>
@@ -156,6 +166,7 @@
           duration=zeile.12;
           description=zeile.13;
           running=zeile.14;
+          host=zeile.15;
           t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
           pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 ) %?>
 		<?% IF old.defined && day != old %?>

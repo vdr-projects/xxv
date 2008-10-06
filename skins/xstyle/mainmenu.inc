@@ -125,7 +125,6 @@ var myBar = new WebFXMenuBar;
     <?% ELSIF allow('uprefs') %?>admin.add(new WebFXMenuItem("<?% gettext("Personality",cuttext ) %?>","?cmd=uprefs"));<?% END %?>
     <?% IF allow('rel') %?>admin.add(new WebFXMenuItem("<?% gettext("Reload",cuttext ) %?>","?cmd=rel"));<?% END %?>
     <?% IF allow('logout') %?>admin.add(new WebFXMenuItem("<?% gettext("Logout",cuttext ) %?>","?cmd=logout"));<?% END %?>
-    <?% IF allow('restart') %?>admin.add(new WebFXMenuItem("<?% gettext("Restart",cuttext ) %?>","?cmd=restart"));<?% END %?>
 
     myBar.add(new WebFXMenuButton("<?% gettext("Administration") %?>",null,null,admin));
 

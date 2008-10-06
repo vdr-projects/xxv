@@ -82,9 +82,9 @@ function toggle(cmd,data) {
             var x = values.data[i];
             if(x.length == 4 && x[0]) {
               var tid  = x[0];
-              var ton  = x[1];
-              var trun = x[2];
-              var tcon = x[3];
+              var ton  = x[1] * 1;
+              var trun = x[2] * 1;
+              var tcon = x[3] * 1;
 
               var img = document.getElementById('toggle' + tid);
               if(img) {

@@ -124,13 +124,16 @@
                 <?% PROCESS RowButtons %?>
             </td>
         </tr>
-        <?% IF global.hideDescription != 1 && description.length > 0 %?>
+        <?% IF ( param.recorder > 1 ) || ( global.hideDescription != 1 && description.length > 0 ) %?>
         <tr id="desc<?% id %?>"<?% ' class="two"' IF z mod 2 == 0 %?>>
-            <td class="fieldinline" colspan="2">&nbsp;</td>
+            <td class="fieldinline"></td>
+            <td class="fieldinline"><?% IF param.recorder > 1;host;END %?></td>
             <td class="fieldinline" colspan="3">
+                  <?% IF global.hideDescription != 1 && description.length > 0 %?>
                   <a href="javascript:popup('display','<?% eventid %?>',620,670,0)" class="fieldinline">
                   <font class="description<?% IF state != "";" ";state;END %?>"><?% chop(description,100,1) %?></font>
-				          </a>
+      	          </a>
+                  <?% END %?>
             </td>
         </tr>
         <?% END %?>
@@ -158,6 +161,7 @@
           duration=zeile.12;
           description=zeile.13;
           running=zeile.14;
+          host=zeile.15;
           t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
           pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 ) %?>
         <?% IF !old.defined || day != old %?>

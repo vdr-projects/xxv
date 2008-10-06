@@ -98,7 +98,7 @@
             <?% PROCESS StateImage %?>
             <?% '</a>' IF allow('ttoggle') %?>
             <?% IF allow('program') %?><a class="fieldinline" href="?cmd=program&amp;data=<?% channel %?><?% IF eventid %?>#E<?% eventid %?><?% END %?>" title="<?% gettext("Jump to program:") %?><?% sender %?><?% END %?>">
-              <font class="fieldinline<?% IF state != "";" ";state;END %?>"><?% chop(sender,20) %?></font>
+              <font class="fieldinline<?% IF state != "";" ";state;END %?>"><?% sender %?><?% IF param.recorder > 1;" (";host;")";END %?></font>
             <?% '</a>' IF allow('program') %?>
               </div>
             </td>
@@ -176,6 +176,7 @@
           duration=zeile.12;
           description=zeile.13;
           running=zeile.14;
+          host=zeile.15;
           t = zeile.7.split('&#x7e;');IF t.size > 1;subtitle = t.pop;ELSE;subtitle="";END;title=t.join('&#x7e;');
           pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 ) %?>
 			<?% IF old.defined && day != old %?>

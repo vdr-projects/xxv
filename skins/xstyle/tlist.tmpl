@@ -40,6 +40,9 @@
             <?% NEXT IF field.match('^__') or c == 4 %?>
             <th><?% field %?></th>
         <?% END %?>
+<?% IF param.recorder > 1 %?>
+            <th><?% gettext("Video disk recorder") %?></th>
+<?% END %?>
 <?% IF enableform %?>
             <th width="64"><?% gettext("Selection",7) %?></th>
 <?% END %?>
@@ -122,6 +125,9 @@
                     <td><div class="<?% myclass %?>"><?% field %?></div></td>
                     <?% END %?>
                 <?% END %?>
+<?% IF param.recorder > 1 %?>
+               <td><div class="<?% myclass %?>"><?% zeile.15 %?></div></td>
+<?% END %?>
     <?% IF enableform %?>
                     <td>
                         <input type="checkbox" value="<?% zeile.0 %?>" name="<?% zeile.7 | replace('~',' ') %?>" />
