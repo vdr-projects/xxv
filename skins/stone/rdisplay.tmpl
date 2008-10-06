@@ -48,7 +48,7 @@
         <?% FOREACH frame = files %?>
           <?% d = ( frame ) / 25 %?>
           <?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs %?>')" ><?% END %?>
-          <img src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" title="<?% PROCESS hfs %?>" />
+          <img class="recorddetails" src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" title="<?% PROCESS hfs %?>" />
           <?% IF allowplay %?></a><?% END %?>
 				<?% END %?>
 			<div id="slideend"></div>
