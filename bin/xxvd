@@ -5,7 +5,6 @@ use strict;
 use FindBin qw($RealBin);
 
 my $TEMPLMOD;
-my $START   = time;
 
 # Test on Template Modul in normale Path
 BEGIN {
@@ -180,8 +179,6 @@ $MODULES->{'XXV::MODULES::General'}->{MOD} = &module;
 &init($PATHS->{MODPATH},$charset);
 
 &docu;
-
-my $starttime = time - $START;
 
 while(Event::loop(1)) {};
 
@@ -392,14 +389,6 @@ sub getGeneralConfig {
     return $Config->{General};
 }
 
-
-# ------------------
-sub getStartTime {
-# ------------------
-    return $START;
-}
-
-
 # ------------------
 sub getVersion {
 # ------------------
@@ -509,27 +498,6 @@ sub more {
 
     if(ref $console) {
         return $console->txtfile($name, $param);
-    }
-}
-
-# ------------------
-sub restart {
-# ------------------
-    my $watcher = shift;
-    my $console = shift;
-
-    if(-x $Config->{General}->{initscript}) {
-        my $msg = sprintf(gettext("The xxv system will restart now. Please try to re-login in %d seconds."), $starttime);
-        $console->message($msg);
-        debug $msg;
-        $console->redirect({url => '/', wait => $starttime, parent => 'top'})
-            if($console->typ eq 'HTML');
-        my $initscript = $Config->{General}->{initscript};
-        my $run = sprintf('echo "%s restart" | at now', $initscript);
-
-        my $erg = `$run`;
-    } else {
-        $console->err(gettext("Couldn't restart the xxv system! Script for initialization couldn't be executed."));
     }
 }
 
@@ -734,12 +702,6 @@ sub module {
                     }
                 },
             },
-            initscript => {
-                description => gettext('Initialization script to restart xxv'),
-                default     => '/etc/init.d/xxvd',
-                type        => 'file',
-                required    => gettext("This is required!"),
-            },
         },
         Commands => {
             doc => {
@@ -756,16 +718,6 @@ sub module {
             },
         },
     };
-    # Only as superuser
-    if(0 == $<)
-    {
-      $args->{'Commands'}->{'restart'} = {
-                description => gettext('Call initialization script to restart the xxv system.'),
-                short       => 'restart',
-                callback    => sub{ restart(@_) },
-                Level       => 'admin',
-             };
-    }
     return $args;
 }
 

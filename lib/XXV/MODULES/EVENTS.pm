@@ -172,10 +172,9 @@ sub _init {
             $self->callEvent(@_);
         };
 
-        my $start = main::getStartTime;
         $self->news(
             sprintf(gettext('XXVD System %s started'), main::getVersion),
-            sprintf(gettext('Start time: %s'), datum($start)),
+            sprintf(gettext('Start time: %s'), datum()),
             undef,
             undef,
             'harmless'

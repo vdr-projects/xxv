@@ -107,14 +107,13 @@ logger.add(new WebFXTreeItem("<?% gettext("Standard") %?>",  "?cmd=logger&data=m
 logger.add(new WebFXTreeItem("<?% gettext("Syslog") %?>",    "?cmd=logger&data=syslog"));
 <?% END %?>
 
-<?% IF allow('ul') || allow('uprefs') || allow('vl') || allow('cl') || allow('rel') || allow('restart') %?>
+<?% IF allow('ul') || allow('uprefs') || allow('vl') || allow('cl') || allow('rel') %?>
 var admin = new WebFXTreeItem("<?% gettext("Administration") %?>",0,tree);
 <?% IF allow('vl') %?>admin.add(new WebFXTreeItem("<?% gettext("Video disk recorder",12) %?>",  "?cmd=vl"));<?% END %?>
 <?% IF allow('cl') %?>admin.add(new WebFXTreeItem("<?% gettext("Channels",12) %?>",  "?cmd=cl"));<?% END %?>
 <?% IF allow('ul') %?>admin.add(new WebFXTreeItem("<?% gettext("User") %?>","?cmd=ul"));
 <?% ELSIF allow('uprefs') %?>admin.add(new WebFXTreeItem("<?% gettext("Personality") %?>","?cmd=uprefs"));<?% END %?>
 <?% IF allow('rel') %?>admin.add(new WebFXTreeItem("<?% gettext("Reload") %?>","?cmd=rel"));<?% END %?>
-<?% IF allow('restart') %?>admin.add(new WebFXTreeItem("<?% gettext("Restart") %?>","?cmd=restart"));<?% END %?>
 <?% END %?>
 
 <?% IF allow('configedit') %?>

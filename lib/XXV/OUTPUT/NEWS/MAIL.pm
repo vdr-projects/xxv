@@ -198,7 +198,7 @@ sub init {
     my $self = shift || return error('No object defined!');
     $self->{INITE} = 1;
 
-    $self->{LastReportTime} = main::getStartTime();
+    $self->{LastReportTime} = time;
 
     # Interval to send the next mail
     $self->{TIMER} = Event->timer(
@@ -262,7 +262,7 @@ sub parseHeader {
 
     my $vars = {
         msgnr => $self->{COUNT},
-        date  => datum(time),
+        date  => datum(),
         anzahl=> $newscnt,
     };
 

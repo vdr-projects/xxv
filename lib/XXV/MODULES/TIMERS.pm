@@ -1026,7 +1026,7 @@ sub _insert {
 q|REPLACE INTO TIMERS VALUES 
   (?,?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?), FROM_UNIXTIME(?),0,?,?,?,?,0,NOW())
 |);
-    my $id = md5_hex($timer->{vid} . $timer->{channel} . $nexttime->{start} . $nexttime->{stop} );
+    my $id = md5_hex($timer->{vid} . $timer->{channel} . $nexttime->{start} . $nexttime->{stop} . $timer->{file} );
     $sth->execute( 
          $id,
          $timer->{vid},
@@ -1213,7 +1213,6 @@ sub _list {
 	  my $search = shift || '';
 	  my $term = shift;
 	  my $params = shift;
-	  my $table = shift || '';
 
     my %f = (
         'id' => gettext('Service'),
@@ -1245,15 +1244,17 @@ SELECT SQL_CACHE
       FROM EPG as e
       WHERE t.eventid = e.eventid
       LIMIT 1) as __description,
-    NOW() between starttime and stoptime AND (flags & 1) as __running 
+    NOW() between starttime and stoptime AND (flags & 1) as __running,
+    r.host as __host
 FROM
     TIMERS as t,
-    CHANNELS as c
-    $table
+    CHANNELS as c,
+    RECORDER as r
 WHERE
     t.stoptime > NOW()
     AND t.channel = c.id
     AND t.vid = c.vid
+    AND t.vid = r.id
     $search
 ORDER BY
     t.starttime
@@ -1307,9 +1308,13 @@ ORDER BY
       unshift(@$erg, $fields);
     }
 
+    # More then one host defined
+    my $hostlist = $self->{svdrp}->list_hosts();
+
     $console->setCall('tlist');
     $console->table($erg, {
 		    capacity => main::getModule('RECORDS')->{CapacityFree},
+        recorder => scalar @$hostlist,
         keywords => $keywords,
         keywordsmax => $keywordmax,        
         keywordsmin => $keywordmin,

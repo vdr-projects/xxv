@@ -26,22 +26,10 @@ sub module {
                 callback    => sub{ $obj->edit(@_) },
                 Level       => 'admin',
             },
-            configwrite => {
-                description => gettext('Saves the configuration.'),
-                short       => 'cw',
-                callback    => sub{ $obj->write(@_) },
-                Level       => 'admin',
-            },
             configget => {
                 description => gettext("Get configuration from 'modname'"),
                 short       => 'cg',
                 callback    => sub{ $obj->get(@_) },
-                Level       => 'admin',
-            },
-            reconfigure => {
-                description => gettext('Edit all processes'),
-                short       => 'cr',
-                callback    => sub{ $obj->reconfigure(@_) },
                 Level       => 'admin',
             },
             help => {
@@ -133,14 +121,6 @@ sub menu {
                 link => "?cmd=configedit&data=$name",
         };
     }
-    $ret->{links}->{'reconfigure'} = {
-            text => gettext("Save configuration"),
-            link => "?cmd=reconfigure",
-    };
-    $ret->{links}->{'write'} = {
-            text => gettext("Saves the configuration."),
-            link => "?cmd=configwrite",
-    };
 
     return $console->littlemenu($ret);
 }
@@ -194,12 +174,12 @@ sub edit {
 
     if(ref $cfg eq 'HASH') {
         $obj->{config}->{$sector} = $cfg;
-        $obj->reconfigure();
-        $obj->write();
-
         con_msg($console, sprintf(gettext("Section: '%s' saving ... please wait."), $sector));
-        $console->redirect({url => sprintf('?cmd=configedit&amp;data=%s',$sector), wait => 1})
-            if($console->typ eq 'HTML');
+        my $success = $obj->write($watcher, $console);
+
+        $console->redirect({url => '?cmd=configedit', wait => 1})
+            if($success eq 'ok' 
+                && $console->typ eq 'HTML');
     }
 }
 
@@ -210,15 +190,16 @@ sub write {
     my $watcher = shift;
     my $console = shift;
 
-    $obj->reconfigure($watcher, $console);
+    my $success = $obj->reconfigure($watcher, $console);
     my $configfile = main::getUsrConfigFile;
 
-    $obj->{config}->write( $configfile )
-        or return con_err($console, sprintf ("Couldn't write '%s': %s", $configfile , $! ));
+    if($success eq 'ok' 
+        && !$obj->{config}->write( $configfile )) {
+      con_err($console, sprintf ("Couldn't write '%s': %s", $configfile , $! ));
+      return 'failed';
+    }
     con_msg($console, sprintf(gettext("Configuration written to '%s'."), $configfile));
-
-    $console->redirect({url => '?cmd=configedit', wait => 2})
-        if(ref $console and $console->typ eq 'HTML');
+    return $success;
 }
 
 # ------------------
@@ -253,6 +234,8 @@ sub reconfigure {
     my $watcher = shift;
     my $console = shift;
 
+    my $success = 'ok';
+
     my $cfg = $obj->{config};
     foreach my $moduleName (keys %$cfg) {
         if($moduleName eq 'General') {
@@ -273,20 +256,22 @@ sub reconfigure {
                             unless($ok || not $err) {
                               my $message = sprintf("Config -> %s -> %s: %s %s", $moduleName, $parameter, $mod->{$parameter}, $err);
                               con_err($console, $message);
+                              $success = 'failed';
                             }
                         }
                     }
 
                 } else {
                     con_err($console, sprintf(gettext("Couldn't find %s in %s!"), $parameter, $moduleName));
+                    $success = 'failed';
                 }
             }
         }
     }
 
-    $obj->menu( $watcher, $console )
-        if(ref $console and $console->{TYP} eq 'HTML');
-    con_msg($console, gettext('Edit successful!'));
+    con_msg($console, gettext('Edit successful!'))
+      if($success eq 'ok');
+    return $success;
 }
 
 # ------------------
