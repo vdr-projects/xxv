@@ -6,14 +6,14 @@ um Vorschaubilder von Aufnahmen zu generieren.
 
 Erfordernisse
 -------------
-ffmpeg-svn (getestet mit r12129)
+ffmpeg-svn (getestet mit r15589)
 
 Empfohlen
 ------------
 ffmpeg als shared libary und mit Software Scaler
 
 $ cd ffmpeg && \
- ./configure --enable-shared --enable-swscaler && \
+ ./configure --enable-shared --enable-swscale && \
   make && \
   make install
 

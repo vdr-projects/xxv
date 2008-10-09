@@ -1130,6 +1130,7 @@ static bool new_video_stream(AVFormatContext *oc)
 
         video_enc->sample_aspect_ratio = av_d2q(frame_aspect_ratio*video_enc->height/video_enc->width, 255);
         video_enc->pix_fmt = frame_pix_fmt;
+        st->sample_aspect_ratio = video_enc->sample_aspect_ratio;
 
         if(codec && codec->pix_fmts){
             const enum PixelFormat *p= codec->pix_fmts;

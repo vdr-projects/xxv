@@ -1,3 +1,6 @@
+    small fixes to build gcc 4.3
+    update to build with ffmpeg-svn (r15589)
+ 	  remove predefined include to ffmpeg libraries, unneeded by pkg-config
 0.1.0
     update to build with ffmpeg-svn (r12129)
     refactoring modules
