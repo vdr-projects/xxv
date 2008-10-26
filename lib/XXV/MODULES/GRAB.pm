@@ -276,7 +276,7 @@ sub makeImgText {
 
     my $output = '';
     $self->{tt}->process(\$text, $vars, \$output)
-          or return error($self->{tt}->error());
+          or return error(sprintf("Can't parse grab overlay template : %s", $self->{tt}->error()));
 
     my $vpos = CORE::int(($height / $self->{ysize}) * $self->{vpos});
     my $imgfontsize = CORE::int(($height / $self->{ysize}) * $self->{imgfontsize});

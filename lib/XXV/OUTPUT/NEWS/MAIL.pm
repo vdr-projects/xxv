@@ -268,7 +268,7 @@ sub parseHeader {
 
     my $template = $self->{TEMPLATES}->{'header'};
     $self->{tt}->process($template, $vars, \$output)
-          or return error($self->{tt}->error());
+          or return error(sprintf("Can't parse mail template %s : %s", $template, $self->{tt}->error()));
 
     return $output;
 }
@@ -288,7 +288,7 @@ sub parseFooter {
 
     my $template = $self->{TEMPLATES}->{'footer'};
     $self->{tt}->process($template, $vars, \$output)
-          or return error($self->{tt}->error());
+          or return error(sprintf("Can't parse mail template %s : %s", $template, $self->{tt}->error()));
 
     return $output;
 }

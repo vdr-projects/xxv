@@ -311,8 +311,14 @@ sub parseTemplateFile {
         },
     };
 
-    $self->{tt}->process($widget, $vars, \$output)
-          or return error($self->{tt}->error());
+    $self->{tt}->process($widget, $vars, \$output) || do {
+        my $msg = $self->{tt}->error();
+        error(sprintf("Can't parse html widget %s : %s", $widget, $msg ));
+        $msg =~ s/\n/<br \/>/g;
+        $output = $self->{cgi}->h1(sprintf(gettext("Can't proper parse html widget '%s.tmpl'"), ($call eq 'nothing') ? $name : $call))
+                  . $self->{cgi}->h2(gettext("Your skin may be outdated, please check project home page for updates!"))
+                  . $self->{cgi}->p($msg);
+    };
 
     return $output;
 }

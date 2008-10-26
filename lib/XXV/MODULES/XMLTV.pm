@@ -444,7 +444,7 @@ sub _parse_template {
   };
   my $output = '';
   $self->{tt}->process(\$text, $vars, \$output)
-        or return error($self->{tt}->error());
+        or return error(sprintf("Can't parse xmltv template: %s", $self->{tt}->error()));
 	return $output;
 }
 
