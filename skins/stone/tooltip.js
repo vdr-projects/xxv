@@ -101,10 +101,10 @@ if(ttp_visable) {
 
 function ttp_update_content(title, description, style){
   var utitle = unescape(title);
-  ttp_content =  '<table class="areatable" summary=""><tr><td class="areahead">';
+  ttp_content =  '<table class="areatable" summary=""><tr><td class="areahead"><div class="areahead">';
   ttp_content += utitle.substr(0,50);
   if (utitle.length > 50)  {ttp_content += '...';}
-  ttp_content += '</td></tr><tr><td class="areatext"><font class="' + style +'">';
+  ttp_content += '</div></td></tr><tr><td class="areatext"><font class="' + style +'">';
   if(description == 'WAIT') {
     ttp_content += '<img src="images/wait.gif" alt="" />';
   } else {
