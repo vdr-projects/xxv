@@ -81,9 +81,6 @@ DEFINES += -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -D__STDC_CON
 FILES = README LIESMICH HISTORY COPYING Makefile \
         gop.cpp gop.h vdr2jpeg.cpp ffm.cpp ffm.h \
         tools.cpp tools.h
-DEBIAN = debian/changelog debian/control debian/dirs debian/rules debian/compat \
-				 debian/copyright debian/docs debian/README.Debian debian/watch
-DEBPATCH = debian/patches/00list debian/patches/01_changed_api.dpatch
 OBJS = tools.o gop.o ffm.o
 VDR2JPEGOBJS = vdr2jpeg.o
 
@@ -123,15 +120,10 @@ distclean:  clean
 dist:	distclean
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
 	@mkdir -p $(TMPDIR)/$(ARCHIVE)
-	@mkdir -p $(TMPDIR)/$(ARCHIVE)/debian
-	@mkdir -p $(TMPDIR)/$(ARCHIVE)/debian/patches
 	@cp -a $(FILES) $(TMPDIR)/$(ARCHIVE)
-	@cp -a $(DEBIAN) $(TMPDIR)/$(ARCHIVE)/debian
-	@cp -a $(DEBPATCH) $(TMPDIR)/$(ARCHIVE)/debian/patches
 	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;
 	@find $(TMPDIR)/$(ARCHIVE) -type f -exec chmod 644 {} \;
 	@chown root.root -R $(TMPDIR)/$(ARCHIVE)/*
-	@chmod a+x $(TMPDIR)/$(ARCHIVE)/debian/patches/*.dpatch $(TMPDIR)/$(ARCHIVE)/debian/rules
 	@tar czfh $(ARCHIVE).tgz -C $(TMPDIR) $(ARCHIVE) 
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
 	@echo Distribution package created as $(ARCHIVE).tgz
