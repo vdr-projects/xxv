@@ -2,6 +2,7 @@ package XXV::MODULES::EPG;
 use strict;
 
 use Tools;
+use File::Basename;
 
 # This module method must exist for XXV
 # ------------------
@@ -110,6 +111,12 @@ sub module {
                 hidden      => 'yes',
                 callback    => sub{ $self->suggest(@_) },
             },
+            eimage => {
+                hidden      => 'yes',
+                short       => 'ei',
+                callback    => sub{ $self->image(@_) },
+                binary      => 'cache'
+            }
         },
     };
     return $args;
@@ -424,7 +431,7 @@ sub compareEpgData {
         # Exists in DB .. update
         if(exists $db_data->{$eid}) {
           # Compare fields
-          foreach my $field (qw/title subtitle ldescription duration starttime vpstime video audio/) {
+          foreach my $field (qw/title subtitle ldescription duration starttime vpstime video audio image/) {
             next if(not exists $row->{$field} or not $row->{$field});
             if((not exists $db_data->{$eid}->{$field})
                 or (not $db_data->{$eid}->{$field})
@@ -552,11 +559,11 @@ sub readEpgData {
       # Ok, Datarow complete...
       if($line eq 'e' and $event->{eventid} and $event->{channel}) {
         if(-e sprintf('%s/%d.png', $self->{epgimages}, $event->{eventid})) {
-          my $firstimage = sprintf('%d.png',$event->{eventid});
+          my $firstimage = sprintf('%d',$event->{eventid});
           $event->{image} = $firstimage."\n";
           my $imgpath = sprintf('%s/%d_?.png',$self->{epgimages},$event->{eventid});
           foreach my $img (glob($imgpath)) {
-            $event->{image} .= sprintf("%s.png\n", basename($img, '.png'));
+            $event->{image} .= basename($img, '.png')."\n";;
           }
         }
 
@@ -987,7 +994,6 @@ where
       } @$erg;
     }
     unshift(@$erg, $fields);
-
     $console->table($erg);
 }
 
@@ -1669,6 +1675,26 @@ LIMIT 25
         $console->table($result)
             if(ref $console && $result);
     }
+}
+
+# ------------------
+sub image {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
+    my $data = shift;
+
+    return $console->err(gettext("Sorry, get image is'nt supported"))
+      if ($console->{TYP} ne 'HTML');
+
+    return $console->status404('NULL','Wrong image parameter') 
+      unless($data);
+
+    my ($eventid) = $data =~ /^([0-9_]+)$/si;
+
+    return $console->status404('NULL','Wrong image parameter') 
+      unless($eventid);
+    return $console->datei(sprintf('%s/%s.png',$self->{epgimages},$eventid));
 }
 
 1;

@@ -298,15 +298,7 @@ sub communicator {
             $request =~ s/\.\.\///g;
             $request =~ s/\/\.\.//g;
             $request =~ s/\/+/\//g;
-            if($request =~ /epgimages\//) {
-                my $epgMod = main::getModule('EPG');
-                if($epgMod) {
-                  $request =~ s/.*epgimages\//$epgMod->{epgimages}\//;
-                  $console->datei($request, $typ);
-                } else {
-                  $self->ModulNotLoaded($console,'EPG');
-                }
-            } elsif($request =~ /tempimages\//) {
+            if($request =~ /tempimages\//) {
                 my $tmp = $userMod->userTmp;
                 $request =~ s/.*tempimages\//$tmp\//;
                 $console->datei($request, $typ);

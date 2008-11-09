@@ -61,7 +61,7 @@
             <td>
             <?% IF Image %?>
                 <?% FOREACH img = Image.split("\n") %?>
-                <img src='epgimages/<?% img %?>' border=1 align='right'>
+                <img src='?cmd=eimage&data=<?% img %?>' border=1 align='right'>
                 <?% END %?>
             <?% END %?>
             <?% data.first.$c %?>
