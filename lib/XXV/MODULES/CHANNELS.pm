@@ -116,7 +116,6 @@ sub module {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
 
@@ -392,10 +391,9 @@ sub _insertGrp {
 sub readData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
-    if($self->_readData($watcher,$console)) {
+    if($self->_readData($console)) {
       $console->redirect({url => '?cmd=clist', wait => 1})
         if($console->typ eq 'HTML');
     }
@@ -404,7 +402,6 @@ sub readData {
 sub _readData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
     my $deleteData = 0;
@@ -417,23 +414,24 @@ sub _readData {
     my $hostlist = $self->{svdrp}->list_hosts();
     # read from svdrp
     foreach my $vid (@$hostlist) {
-      my $lstc = $self->{svdrp}->command('lstc :groups',$vid);
+      my ($lstc,$error) = $self->{svdrp}->command('lstc :groups',$vid);
+      
       my $vdrData = [ grep(/^250/, @$lstc) ];
 
       my $grpText;
 
-      unless(scalar @$vdrData) {
+      if($error || (scalar @$vdrData) <= 0) {
           # Delete any channels from this video disk recorder
           my $csth = $self->{dbh}->prepare('DELETE FROM CHANNELS where vid = ?');
           $csth->execute($vid)
-          or return error sprintf("Couldn't execute query: %s.",$csth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$csth->errstr);
 
           my $dsth = $self->{dbh}->prepare('DELETE FROM CHANNELGROUPS where vid = ?');
           $dsth->execute($vid)
-          or return error sprintf("Couldn't execute query: %s.",$dsth->errstr);
+            or return error sprintf("Couldn't execute query: %s.",$dsth->errstr);
 
-          my $msg = sprintf(gettext("No channels on '%s' available!"),$self->{svdrp}->hostname($vid));
-          con_err($console,$msg);
+          my $msg = [ sprintf(gettext("No channels on '%s' available!"),$self->{svdrp}->hostname($vid)), $error ];
+          $console->err($msg);
           next;
       }
 
@@ -594,7 +592,6 @@ sub is_numeric { defined getnum($_[0]) }
 sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id      = shift || '';
     my $params = shift;
@@ -1025,19 +1022,17 @@ sub getChannelType {
 sub newChannel {
 # ------------------
     my $self     = shift || return error('No object defined!');
-    my $watcher  = shift || return error('No watcher defined!');
     my $console  = shift || return error('No console defined!');
     my $id       = shift || 0;
     my $default  = shift || 0;
 
-    $self->editChannel($watcher, $console, 0, $default);
+    $self->editChannel($console, 0, $default);
 }
 
 # ------------------
 sub editChannel {
 # ------------------
     my $self    = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cid     = shift || 0;  # If channelid then edit channel
     my $data    = shift || 0;  # Data for defaults
@@ -1270,14 +1265,8 @@ sub editChannel {
                                             : gettext('New channel')), $questions, $data);
 
     if(ref $datasave eq 'HASH') {
-        my $erg = $self->saveChannel($datasave, $datasave->{pos});
+        my ($erg,$error) = $self->saveChannel($datasave, $datasave->{pos});
 
-        my $error;
-        foreach my $zeile (@$erg) {
-            if($zeile =~ /^(\d{3})\s+(.+)/) {
-                $error = $2 if(int($1) >= 500);
-            }
-        }
         unless($error) {
             debug sprintf('%s channel with name "%s" is saved%s',
                 ($cid ? 'Changed' : 'New'),
@@ -1286,15 +1275,15 @@ sub editChannel {
                 );
                 $console->message($erg);
         } else {
-            error sprintf('%s channel with name "%s" does\'nt saved : %s',
+            my $msg = sprintf('%s channel with name "%s" does\'nt saved : %s',
                 ($cid ? 'Changed' : 'New'),
                 $data->{Name},
                 $error
                 );
-                con_err($console, $erg);
+                $console->err($msg);
         }
         sleep(1);
-        $self->_readData($watcher,$console);
+        $self->_readData($console);
 
         $console->redirect({url => '?cmd=clist', wait => 1})
             if($console->typ eq 'HTML');
@@ -1308,21 +1297,21 @@ sub saveChannel {
     my $data = shift || return error('No data defined!');
     my $pos = shift || 0;
 
-    my $erg;
+    my ($erg,$error);
 
     if($pos
        && defined $data->{NEWPOS}
        && $pos != $data->{NEWPOS} ) {
-       $erg = $self->{svdrp}->command(
+       ($erg,$error) = $self->{svdrp}->command(
             sprintf("movc %s %s",
             $pos,
             $data->{NEWPOS}
        ));
        $pos = $data->{NEWPOS};
-       push(@{$erg},"\r\n");
-   }
+       return ($erg,$error) if($error);
+    }
 
-    $erg = $self->{svdrp}->command(
+    ($erg,$error) = $self->{svdrp}->command(
         sprintf("%s %s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s",
             $pos ? "modc $pos" : "newc",
             $data->{name},
@@ -1340,14 +1329,13 @@ sub saveChannel {
             int($data->{RID})
         )
     );
-    return $erg;
+    return ($erg,$error);
 }
 
 # ------------------
 sub deleteChannel {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $channelid = shift || return con_err($console, gettext("No channel defined for deletion! Please use cdelete 'pos'!"));
     my $answer  = shift || 0;
@@ -1391,7 +1379,7 @@ sub deleteChannel {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $self->{svdrp}->queue_cmds(sprintf("delc %d", $c->{pos}), $c->{vid});
+        $self->{svdrp}->queue_add(sprintf("delc %d", $c->{pos}), $c->{vid});
 
         # remove channel from request, if found inside database
         my $i = 0;
@@ -1409,14 +1397,14 @@ sub deleteChannel {
       join('\',\'',@ch))) 
           if(scalar @ch);
 
-    if($self->{svdrp}->queue_cmds('COUNT')) {
-        my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
-        $console->msg($erg, $self->{svdrp}->err)
+    if($self->{svdrp}->queue_count()) {
+        my ($erg,$error) = $self->{svdrp}->queue_flush(); # Aufrufen der Kommandos
+        $console->msg($erg, $error)
             if(ref $console);
 
         sleep(1);
 
-        if($self->_readData($watcher,$console)) {
+        if($self->_readData($console)) {
           $console->redirect({url => '?cmd=clist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
         }

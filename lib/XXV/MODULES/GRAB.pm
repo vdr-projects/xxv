@@ -108,7 +108,7 @@ sub module {
         },
         Commands => {
             gdisplay => {
-                description => gettext('Display current picture of video output.'),
+                hidden      => 'yes',
                 short       => 'gd',
                 callback    => sub{ $self->display(@_) },
                 Level       => 'user',
@@ -193,14 +193,16 @@ sub _grab {
 
     # command for get inline data (JPEG BASE64 coded)
     my $cmd = sprintf('grab - %d %d %d', $self->{imgquality}, $width, $height);
-    my $data = $self->{svdrp}->command($cmd, $vid);
+    my ($data,$error) = $self->{svdrp}->command($cmd, $vid);
     
     my $binary;
-    foreach my $l (@{$data}) { 
-      if($l =~ /^216-/sg) { 
-        $l =~ s/^216-//g;
-        $binary .= MIME::Base64::decode_base64($l); 
-      } 
+    unless($error) {
+      foreach my $l (@{$data}) { 
+        if($l =~ /^216-/sg) { 
+          $l =~ s/^216-//g;
+          $binary .= MIME::Base64::decode_base64($l); 
+        } 
+      }
     }
     # create noised image as failback. 
     $binary = $self->_noise($width,$height) 
@@ -218,7 +220,6 @@ sub _grab {
 sub display {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift;
     my $params = shift;
@@ -281,7 +282,7 @@ sub makeImgText {
     my $vpos = CORE::int(($height / $self->{ysize}) * $self->{vpos});
     my $imgfontsize = CORE::int(($height / $self->{ysize}) * $self->{imgfontsize});
 
-    lg sprintf("height: %d vpos: %d imgfontsize: %d",$height,$vpos,$imgfontsize);
+    #lg sprintf("height: %d vpos: %d imgfontsize: %d",$height,$vpos,$imgfontsize);
 
     my $font = sprintf("%s/%s",$self->{paths}->{FONTPATH},$self->{font});
     if($self->{paths}->{FONTPATH} and $self->{font} and -r $font) {

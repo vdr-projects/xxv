@@ -199,7 +199,6 @@ sub suggest {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $type = shift || return error('No type defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
@@ -280,14 +279,13 @@ sub _list {
 sub timer_keywords {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text    = shift; 
     my $params  = shift;
 
     my $tmod = main::getModule('TIMERS');
     unless($text) {
-      return $tmod->list($watcher,$console);
+      return $tmod->list($console);
     }
 
 	  my $term;
@@ -296,25 +294,24 @@ sub timer_keywords {
     $search = sprintf('AND ( %s ) AND ( t.id = k.hash )', $query->{query});
     foreach(@{$query->{term}}) { push(@{$term},$_); }
 
-    return $tmod->_list($watcher,$console,$search,$term,$params,', KEYWORDS as k');
+    return $tmod->_list($console,$search,$term,$params,', KEYWORDS as k');
 }
 
 # ------------------
 sub recording_keywords {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text    = shift; 
     my $params  = shift;
 
     my $rmod = main::getModule('RECORDS');
     unless($text) {
-      return $rmod->list($watcher,$console);
+      return $rmod->list($console);
     }
 
     my $query = buildsearch("k.keyword",$text);
-    return $rmod->_search($watcher,$console,$query->{query}.' ) AND ( r.RecordMD5 = k.hash ',$query->{term},$params,', KEYWORDS as k');
+    return $rmod->_search($console,$query->{query}.' ) AND ( r.RecordMD5 = k.hash ',$query->{term},$params,', KEYWORDS as k');
 }
 
 # ------------------

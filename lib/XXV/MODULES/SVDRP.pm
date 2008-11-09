@@ -2,7 +2,7 @@ package XXV::MODULES::SVDRP;
 
 use Tools;
 use strict;
-
+use Encode;
 
 $|++;
 
@@ -14,7 +14,7 @@ sub module {
     my $args = {
         Name => 'SVDRP',
         Prereq => {
-            'Net::Telnet'  => 'Net::Telnet allows you to make client connections to a TCP port and do network I/O',
+            'IO::Socket::INET'  => 'Object interface for AF_INET domain sockets ',
         },
         Description => gettext('This module module manages connection to video disk recorder.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -178,17 +178,15 @@ sub _insert {
 
 sub create {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
-    $self->edit($watcher, $console, $id, $data);
+    $self->edit($console, $id, $data);
 }
 
 sub edit {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
@@ -273,7 +271,6 @@ sub edit {
 
 sub delete {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || return $console->err(gettext("No definition of video disk recorder for deletion! Please use sdelete 'id'."));
 
@@ -311,7 +308,6 @@ sub _deletevdrdata {
 sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my %f = (
@@ -467,43 +463,62 @@ SELECT SQL_CACHE id FROM RECORDER WHERE host = ?
 }
 
 # ------------------
-sub queue_cmds {
+sub queue_add {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $cmd = shift  || 'CALL';
+    my $cmd = shift;
     my $vdrid = shift;
 
-    if($cmd eq 'CALL') {
-        my $erg;
-        my $result;
-        my $queue = delete $self->{Queue};
-        $self->{Queue} = undef;
-        foreach my $id (keys %$queue) {
-          if($id eq 'master') {
-            $erg = $self->command($queue->{'master'},undef);
-          } else {
-            $erg = $self->command($queue->{$id},$id);
-          }
-          if($erg) {
-            if($result) {
-              @$result = (@$result, @$erg);
-            } else {
-              $result = $erg;
-            }
-          }
-        }
-        return $result;
-    } elsif($cmd eq 'COUNT') {
-        my $count = 0;
-        foreach my $id (keys %{$self->{Queue}}) {
-          next if($vdrid && $id ne $vdrid);
-          $count += scalar @{$self->{Queue}->{$id}};
-        }
-        return $count;
-    } else {
-        push(@{$self->{Queue}->{$vdrid || 'master'}}, $cmd);
+    return error('No command defined!') unless($cmd);
+
+    push(@{$self->{Queue}->{$vdrid || 'master'}}, $cmd);
+}
+
+# ------------------
+sub queue_count {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $vdrid = shift;
+
+    my $count = 0;
+    foreach my $id (keys %{$self->{Queue}}) {
+      next if($vdrid && $id ne $vdrid);
+      $count += scalar @{$self->{Queue}->{$id}};
     }
-    return undef;
+    return $count;
+}
+
+# ------------------
+sub queue_flush {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $vdrid = shift;
+
+    my ($erg,$result,$err,$error);
+    my $queue = delete $self->{Queue};
+    $self->{Queue} = undef;
+    foreach my $id (keys %$queue) {
+      if($id eq 'master') {
+        ($erg,$err) = $self->command($queue->{'master'},undef);
+      } else {
+        ($erg,$err) = $self->command($queue->{$id},$id);
+      }
+      if($erg) {
+        if($result) {
+          @$result = (@$result, @$erg);
+        } else {
+          $result = $erg;
+        }
+      }
+      if($err) {
+        if($error) {
+          @$error = (@$error, @$err);
+        } else {
+          $error = $err;
+        }
+      }
+    }
+    return ($result,$error);
 }
 
 # ------------------
@@ -513,110 +528,146 @@ sub command {
     my $cmd = shift;
     my $vdrid = shift;
 
+    my $error;
     my $vdr = $self->_gethost($vdrid);
     unless($vdr && defined $vdr->{host} && defined $vdr->{port}) {
-      $self->{ERROR} = gettext("None video disk recorder defined in the database.");
-      return undef;
+      $error = gettext("None video disk recorder defined in the database.");
+      return (undef, $error);
     }
     $vdrid = $vdr->{id};
 
     my $data;
     my $line;
-    my @commands = ();
+    my @commands;
     push(@commands, (ref $cmd eq 'ARRAY' ? @$cmd : $cmd));
 
     unless(scalar @commands > 0) {
-      error ('No Commands!');
-      return undef;
+      $error = 'No commands defined!';
+      error ($error);
+      return (undef, $error);
     }
     push(@commands, "quit");
 
-    $self->{ERROR} = 0;
 
-    # Put Command follow quit and read Output
-    my $telnet = Net::Telnet->new ( Telnetmode => 0,
-                                   Timeout    => $self->{timeout},
-                                   Errmode    => 'return');
-
-    if(!$telnet or !$telnet->open(Host => $vdr->{host}, Port => $vdr->{port})){
-      error sprintf("Couldn't connect to svdrp-socket %s:%s! %s",$vdr->{host},$vdr->{port},$telnet ? $telnet->errmsg : $!);
+    # Open connection
+    my $so = IO::Socket::INET->new(PeerAddr => $vdr->{host}, PeerPort => $vdr->{port} , Proto => 'tcp' );
+    if(!(defined $so)){
+      $error = sprintf("Couldn't connect to svdrp-socket %s:%s! %s",$vdr->{host},$vdr->{port}, $!);
       $self->{Cache}->{$vdrid}->{online} = 'no';
-      return undef;
+      error($error);
+      return (undef, $error);
     }
+    eval {
+      local $SIG{ALRM} = sub { die "Timeout expired\n"};
+      alarm $self->{timeout};
+      my $encoding = $self->{charset};
+      #binmode $so, ":encoding(utf8)" if($self->{charset} eq 'UTF-8');
+      $so->autoflush;
 
-    #binmode $telnet, ":encoding(utf8)" if($self->{charset} eq 'UTF-8');
-
-    # read first line 
-    do {
-      $line = $telnet->getline;
-      chomp($line) if($line);
-      if($line) {
-        push(@$data, $line);
-      }
-    } while($line && $line =~ /^\d\d\d\-/);
-
-    unless($data && scalar @$data){
-      error sprintf("Couldn't read data from svdrp-socket %s:%s! %s",$vdr->{host},$vdr->{port},$telnet ? $telnet->errmsg : $!);
-      $self->{Cache}->{$vdrid}->{online} = 'no';
-      return undef;
-    }
-
-    main::getVdrVersion($1)
-        if($data->[0] =~ /SVDRP\s+VideoDiskRecorder\s+(\d\.\d\.\d+)[\;|\-]/);
-
-    # send commando queue
-    foreach my $command (@commands) {
-        $telnet->buffer_empty; #clear buffer
-        # send command
-        if(!$telnet->print($command)) {
-          error sprintf("Couldn't send command '%s' to %s:%s! %s",$command,$vdr->{host},$vdr->{port},$telnet ? $telnet->errmsg : $!);
-          $self->{Cache}->{$vdrid}->{online} = 'no';
-          return undef;      
+      # read first line 
+      do {
+        $line = $so->getline;
+        $line =~ s/\r?\n// if($line);
+        if($line) {
+          push(@$data, $line);
         }
-        # read response
-        do {
-          $line = $telnet->getline; 
-          chomp($line) if($line);
-          if($line) {
+      } while($line && $line =~ /^\d\d\d\-/);
 
-            if($line =~ /^(\d{3})\s+(.+)/ && (int($1) >= 500)) {
-              my $msg = sprintf("Error at command '%s' to %s:%s! %s", $command,$vdr->{host},$vdr->{port}, $2);
-              error($msg);
-              $self->{ERROR} .= $msg . "\n";
-            }
-            #if( $self->{charset} eq 'UTF-8') {
-            #  utf8::upgrade($line) if(!utf8::is_utf8($line));
-            #}
-            push(@$data, $line);
+      unless($data && scalar @$data){
+        $error = sprintf("Couldn't read data from svdrp-socket %s:%s! %s",$vdr->{host},$vdr->{port}, $!);
+        $self->{Cache}->{$vdrid}->{online} = 'no';
+        $so->close();
+        alarm 0;
+        error($error);
+        return (undef, $error);
+      }
+      
+      # parse header like 220 video SVDRP VideoDiskRecorder 1.7.1; Fri May 2 16:17:10 2008; ISO-8859-1
+      my @header = split (/\;/, $data->[0]);
+      main::getVdrVersion($1)
+        if($header[0] =~ /SVDRP\s+VideoDiskRecorder\s+(\d\.\d\.\d+)/);
+
+      if(scalar @header > 2) {
+        if($header[2] =~ /\s+ISO\-(.*)/) {
+          $encoding = 'iso-' . $1;
+        } elsif($header[2] =~ /\s+UTF\-(.*)/) {
+          $encoding = 'utf' . $1;
+        }
+      }
+      #my $enc = find_encoding($encoding);
+
+      # send commando queue
+      foreach my $command (@commands) {
+          $command =~ s/\r?\n//;
+          #if($encoding ne $self->{charset}) {
+          #  $command = $enc->encode($command);
+          #}
+
+          # send command
+          if(!($so->print($command . "\n"))) {
+            $error = sprintf("Couldn't send command '%s' to %s:%s! %s",$command,$vdr->{host},$vdr->{port}, $!);
+            $self->{Cache}->{$vdrid}->{online} = 'no';
+            $so->close();
+            alarm 0;
+            error($error);
+            return (undef, $error);
           }
-        } while($line && $line =~ /^\d\d\d\-/);
-    }
 
+          # read response
+          do {
+            $line = $so->getline;
+            $line =~ s/\r?\n// if($line);
+
+            if($line) {
+              #if($encoding ne $self->{charset}) {
+              # $line = $enc->decode($line);
+              #}
+
+              if($line =~ /^(\d{3})\s+(.+)/ && (int($1) >= 500)) {
+                my $msg = sprintf(gettext("Error at command '%s' to %s:%s! %s"), $command,$vdr->{host},$vdr->{port}, $2);
+                error($msg);
+                $error .= $msg . "\n";
+              }
+              #if( $self->{charset} eq 'UTF-8') {
+              #  utf8::upgrade($line) if(!utf8::is_utf8($line));
+              #}
+              push(@$data, $line);
+            }
+          } while($line && $line =~ /^\d\d\d\-/);
+      }
+      alarm 0;
+    };
+    if ($@) {
+      $error = $@;
+      $self->{Cache}->{$vdrid}->{online} = 'no';
+      error($error);
+      return (undef, $error);
+    }
     # close socket
-    $telnet->close();
+    $so->close();
 
     $self->{Cache}->{$vdrid}->{online} = 'yes';
 
     foreach my $command (@commands) {
       my @lines = (split(/[\r\n]/, $command));
-      event(sprintf('Call command "%s" on %s %s.', $lines[0], $vdr->{host}, $self->{ERROR} ? " failed" : "successful")) 
+      event(sprintf('Call command "%s" on %s %s.', $lines[0], $vdr->{host}, $error ? " failed" : "successful")) 
         if($command ne "quit");
     }
-    return \@$data;
+    return (\@$data, $error);
 }
 
 # ------------------
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return;
+    my $vdrid = shift;
 
-    my $erg = $self->command('stat disk');
-    $console->msg($erg, $self->{ERROR})
+    my ($erg,$error) = $self->command('stat disk', $vdrid);
+    $console->msg($erg, $error)
         if(ref $console);
     return 1 
-      unless($self->{ERROR});
+      unless($error);
     return 0;
 }
 
@@ -624,27 +675,20 @@ sub status {
 sub scommand {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text = shift || return $console->err(gettext("No command defined! Please use scommand 'cmd'."));
+    my $vdrid = shift;
 
-    my $erg = $self->command($text);
+    my ($erg,$error) = $self->command($text);
 
     return 0
-      unless($erg || $self->{ERROR});
+      if(!($erg) || $error);
 
-    $console->msg($erg, $self->{ERROR});
+    $console->msg($erg, $error);
   
     return 1 
-      unless($self->{ERROR});
+      unless($error);
     return 0;
-}
-
-# ------------------
-sub err {
-# ------------------
-    my $self = shift || return error('No object defined!');
-    return $self->{ERROR};
 }
 
 1;

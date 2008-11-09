@@ -43,7 +43,7 @@ sub module {
                 description => gettext("Restart all modules."),
                 short       => 'rel',
                 callback    => sub{
-                    my ($w, $c, $l) = @_;
+                    my ($console, $l) = @_;
                     $Module::Reload::Debug = CORE::int(($Tools::VERBOSE+.5)/2);
 #                   my %Status = %Module::Reload->Stat;
                     my $cnt = Module::Reload->check();
@@ -53,9 +53,9 @@ sub module {
 #                       if($Module::Reload::Stat{$file} ne $Status{$file});
 #                   }
                     if($cnt) {
-                      $c->message(sprintf(gettext("Reload %d modules."),$cnt));
+                      $console->message(sprintf(gettext("Reload %d modules."),$cnt));
                     } else {
-                      $c->message(gettext("There none module reloaded."));
+                      $console->message(gettext("There none module reloaded."));
                     }
                 },
                 Level   => 'admin'
@@ -102,7 +102,6 @@ sub new {
 sub menu {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $sector  = shift || 0;
 
@@ -129,12 +128,11 @@ sub menu {
 sub edit {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $sector  = shift || 0;
     my $data    = shift || 0;
 
-    $obj->menu( $watcher, $console, $sector )
+    $obj->menu( $console, $sector )
         if($console->{TYP} eq 'HTML' or ($console->{TYP} ne 'HTML' and not $sector));
     return unless $sector;
 
@@ -175,7 +173,7 @@ sub edit {
     if(ref $cfg eq 'HASH') {
         $obj->{config}->{$sector} = $cfg;
         con_msg($console, sprintf(gettext("Section: '%s' saving ... please wait."), $sector));
-        my $success = $obj->write($watcher, $console);
+        my $success = $obj->write($console);
 
         $console->redirect({url => '?cmd=configedit', wait => 1})
             if($success eq 'ok' 
@@ -187,10 +185,9 @@ sub edit {
 sub write {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
-    my $success = $obj->reconfigure($watcher, $console);
+    my $success = $obj->reconfigure($console);
     my $configfile = main::getUsrConfigFile;
 
     if($success eq 'ok' 
@@ -206,7 +203,6 @@ sub write {
 sub get {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $modname = shift || 0;
 
@@ -231,7 +227,6 @@ sub get {
 sub reconfigure {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
     my $success = 'ok';
@@ -296,7 +291,6 @@ sub realModNames {
 sub usage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $modulename = shift || 0;
     my $hint = shift || '';
@@ -313,7 +307,7 @@ sub usage {
     }
 
     my $ret;
-    if($console->typ ne 'AJAX') {
+    if($console->typ eq 'HTML') {
       push(@$ret, sprintf(gettext("%sThis is the xxv %s server.\nPlease use the following commands:\n"),
           ($hint ? "$hint\n\n" : ''), $console->typ));
     }

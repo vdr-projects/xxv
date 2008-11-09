@@ -146,7 +146,6 @@ perlModules()
 	checkPerlModule MP3::Info
 	checkPerlModule Net::Amazon
 	checkPerlModule Net::Amazon::Request::Artist
-	checkPerlModule Net::Telnet
 	checkPerlModule Net::XMPP
 	checkPerlModule Proc::Killfam
 	checkPerlModule Proc::ProcessTable

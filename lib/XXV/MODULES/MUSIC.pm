@@ -335,7 +335,6 @@ sub _init {
 sub refresh {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
@@ -454,7 +453,6 @@ sub refresh {
 sub play {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || return error('No data defined!');
 
@@ -469,7 +467,6 @@ sub play {
 sub playlist {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || return error('No data defined!');
 
@@ -523,15 +520,14 @@ sub playlist {
 sub search {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text   = shift;
 
     unless($text) {
       error("No text to search defined! Please use msearch 'text'");
-      return $obj->list($watcher,$console);
+      return $obj->list($console);
     } else {
-      return $obj->list($watcher,$console,"search:".$text);
+      return $obj->list($console,"search:".$text);
     }
 }
 
@@ -539,7 +535,6 @@ sub search {
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $param  = shift;
 
@@ -910,7 +905,6 @@ sub GenreArray {
 sub status {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
 
@@ -967,7 +961,6 @@ sub _storecover {
 sub getcovers {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $force = shift;
 
@@ -1104,7 +1097,7 @@ sub getcovers {
     }
 
     # Start Robots
-    $rob->start( 'coverimage', $watcher, $console, sub{ $waiter->end if(ref $waiter and $current); } );
+    $rob->start( 'coverimage', $console, sub{ $waiter->end if(ref $waiter and $current); } );
 
     return $erg;
 }
@@ -1296,7 +1289,6 @@ sub _findcover {
 sub coverimage {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || return error('No data defined!');
 
@@ -1367,7 +1359,6 @@ sub coverimage {
 sub getfile {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || return error('No data defined!');
 
@@ -1406,7 +1397,6 @@ sub getfile {
 sub suggest {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;

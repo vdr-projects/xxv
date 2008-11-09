@@ -290,11 +290,10 @@ sub _init {
 # ------------------
 # Name:  status
 # Descr: Standardsubroutine to report statistical data for Report Plugin.
-# Usage: my $report = $obj->status([$watcher, $console]);
+# Usage: my $report = $obj->status($console);
 # ------------------
 sub status {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     
     my $sql = qq|
@@ -315,7 +314,6 @@ FROM
 sub researchMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params = shift || {};
@@ -345,19 +343,17 @@ sub researchMedia {
 sub createMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || 0;
 
-    $obj->editMedia($watcher, $console, 0, $params);
+    $obj->editMedia($console, 0, $params);
 }
 
 # ------------------
 sub copyMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || 0;
@@ -377,14 +373,13 @@ WHERE
     delete $erg->{id};
     $erg->{range} = $params->{range} if($params && $params->{range});
 
-    $obj->editMedia($watcher, $console, 0, $erg);
+    $obj->editMedia($console, 0, $erg);
 }
 
 # ------------------
 sub importMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
@@ -460,7 +455,6 @@ sub importMedia {
 sub searchMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
@@ -547,7 +541,6 @@ ORDER BY title
 sub editMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
@@ -594,7 +587,6 @@ WHERE
 sub listMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
@@ -654,7 +646,6 @@ ORDER BY title
 sub displayMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
@@ -700,7 +691,6 @@ WHERE id = ?
 sub saveMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
@@ -715,7 +705,7 @@ sub saveMedia {
             $params->{$key} =~ s/\r\n/\n/g;
         }
 
-        $obj->_saveActors($console, $watcher, $params->{actors});
+        $obj->_saveActors($console, $params->{actors});
         my $genres = delete $params->{genres};
         $obj->_saveMedia($params);
 
@@ -744,7 +734,6 @@ sub saveMedia {
 sub deleteMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || "";
     my $params  = shift;
@@ -784,7 +773,6 @@ sub deleteMedia {
 sub _saveActors {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $input = shift || '';
     
@@ -995,7 +983,6 @@ sub _nocover {
 sub mediacache {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id   = shift || 0;
     my $params  = shift || '';

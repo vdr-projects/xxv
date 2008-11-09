@@ -102,7 +102,6 @@ or the same parameter is set for each function."),
                 description => gettext("Log out from current session."),
                 short       => 'exit',
                 callback    => sub{
-                    my $watcher = shift || return error('No watcher defined!');
                     my $console = shift || return error('No console defined!');
 
                     if($obj->{active} eq 'y') {
@@ -234,16 +233,15 @@ sub _init {
 # ------------------
 # Name:  create
 # Descr: Save a new User in the Usertable.
-# Usage: my $ok = $obj->create($watcher, $console, 0, {name => 'user', ...});
+# Usage: my $ok = $obj->create($console, 0, {name => 'user', ...});
 # ------------------
 sub create {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
-    $obj->edit($watcher, $console, $id, $data);
+    $obj->edit($console, $id, $data);
 
 }
 
@@ -251,7 +249,6 @@ sub create {
 sub userprefs {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id      = shift || $obj->{USER}->{Id};
     my $data    = shift || 0;
@@ -330,11 +327,10 @@ sub userprefs {
 # ------------------
 # Name:  edit
 # Descr: Edit an existing User in the Usertable.
-# Usage: my $ok = $obj->edit($watcher, $console, $id, [$data]);
+# Usage: my $ok = $obj->edit($console, $id, [$data]);
 # ------------------
 sub edit {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
@@ -497,11 +493,10 @@ sub edit {
 # ------------------
 # Name:  delete
 # Descr: Delete an existing User in the Usertable with Id.
-# Usage: my $ok = $obj->delete($watcher, $console, $id);
+# Usage: my $ok = $obj->delete($console, $id);
 # ------------------
 sub delete {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || return $console->err(gettext("No user account defined for deletion! Please use udelete 'uid'."));
 
@@ -525,7 +520,6 @@ sub delete {
 sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my %f = (

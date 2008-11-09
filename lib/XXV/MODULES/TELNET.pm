@@ -188,7 +188,7 @@ sub init {
                             $line =~ s/[\r|\n]//sig
                                 if(defined $line);
 
-                            $obj->handleInput($watcher, $console, $line);
+                            $obj->handleInput($console, $line);
                             if(defined $obj->{LOGOUT} && $obj->{LOGOUT} == 1) {
                                 undef $obj->{LOGOUT};
                                 $watcher->w->cancel;
@@ -239,7 +239,6 @@ sub init {
 sub handleInput {
 # ------------------
     my $obj     = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $line    = shift || return;
     my $user    = shift || $console->{USER};
@@ -251,11 +250,11 @@ sub handleInput {
     my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
     $console->{call} = $cmdname;
     if($cmdobj and not $shorterr) {
-        $cmdobj->{callback}($watcher, $console, $udata);
+        $cmdobj->{callback}($console, $udata);
     } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
         return $console->err($err);
     } else {
-        return $obj->usage($watcher, $console, undef, $err);
+        return $obj->usage($console, undef, $err);
     }
 }
 

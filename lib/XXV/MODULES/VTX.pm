@@ -57,7 +57,7 @@ sub module {
                 callback    => sub{ $self->search(@_) },
             },
             vtximage => {
-                description => gettext("Display teletext image from block graphic font 'image'"),
+                hidden      => 'yes',
                 short       => 'vi',
                 callback    => sub{ $self->image(@_) },
                 binary      => 'cache'
@@ -107,13 +107,14 @@ sub new {
 ################################################################################
 # Find first usable channel
 sub findfirst {
-
-	my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
+  	my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
 
-    my $basedir = $self->{dir}
-        || return $self->pagedump($console,gettext("There none base directory is defined!"),"");
+    my $basedir = $self->{dir};
+    unless($basedir and -d $basedir) {
+      $console->err(gettext("None channel selected, missing base directory!"));
+      return undef;
+    }
 
 	my $mod = main::getModule ('CHANNELS');
 	my $channels =[];
@@ -122,29 +123,37 @@ sub findfirst {
 	if ($cache ne 'packed') {
 		foreach my $ch (@{$mod->ChannelArray ('Name')}) {
 			if (-d $basedir.'/'.$ch->[1]) {
-				return $self->channel ($watcher, $console,$ch->[1]);
+				return $self->channel ($console,$ch->[1]);
 			}
 		}
    } else {
         foreach my $ch (@{$mod->ChannelArray ('Id')}) {
             if (-d $basedir.'/'.$ch->[0]) {
-                return $self->channel ($watcher,$console,$ch->[1]);
+                return $self->channel ($console,$ch->[1]);
             }
         }
     }
+   $console->err(gettext("None channel selected, empty base directory!"));
 }
 
 ################################################################################
 # Callback "Channel choice"
-sub channel
-{
+sub channel {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $channel = shift || return $self->findfirst ($watcher, $console);
+    my $channel = shift;
 
-    my $basedir = $self->{dir} || return error ('No base directory defined!');
+    my $basedir = $self->{dir};
     my $cache = $self->{cache} || 'packed';
+
+    unless($basedir and -d $basedir) {
+      $console->err(gettext("None channel selected, missing base directory!"));
+      return undef;
+    }
+
+    unless($channel) {
+      return $self->findfirst ($console);
+    }
 
     my $mod = main::getModule ('CHANNELS');
 
@@ -235,17 +244,16 @@ sub channel
         return;
     }
     my $fpage = @{$self->{INDEX}}[0];# First Page on Index
-    return $self->page ($watcher, $console,sprintf ("%03d_%02d", $fpage->[0],$fpage->[1]->[0]));
+    return $self->page ($console,sprintf ("%03d_%02d", $fpage->[0],$fpage->[1]->[0]));
 }
 
 ################################################################################
 # Callback "Teletextpage choice"
 sub page {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $page = shift || "";
-    my $channel = $self->{CHANNEL} || return $self->findfirst ($watcher, $console);
+    my $channel = $self->{CHANNEL} || return $self->findfirst ($console);
     my $basedir = $self->{dir} || return error('No base directory defined!');
     my $chandir  = $self->{CHANNELDIR} || return error('No channel defined!');
     my $cache = $self->{cache} || 'packed';
@@ -332,44 +340,71 @@ sub pagedump {
 ################################################################################
 # Insert for HTML Pages, Link for other Pages
 sub InsertPageLink {
-
   my $self = shift;
   my $result = shift;
+
   my @lines;
 
+  my $index;
+  my $pagelist;
+  # Colect all page numbers from page
+  foreach my $line (split('\n',$result)) {
+    my $laenge=length($line);
+    for (my $c=0; $c < $laenge; ) {
+      my $token=substr($line, $c, 5);
+      my ($page1) = $token =~ /\D([1-8]\d{2})\D/s;
+      if($page1) {
+          push(@$index,hex($page1));
+          $c += 4;
+        } else {
+          $c++;
+        }
+      }
+  }
+  if($index && scalar @$index) {
+    foreach my $x (@$index) {
+      foreach my $p (@{$self->{INDEX}}) {
+        if($x eq $p->[0]) {
+          push(@$pagelist,$x);
+          last;
+        }
+      }
+    }
+  }
   # Replace XXX => <a href="?cmd=vt&amp;data=XXX">XXX</a>
   my $ua = "<a class='vtx' href='?cmd=vt&amp;data=";
   my $ub = "'>";
   my $uc = "</a>";
 
   foreach my $line (split('\n',$result)) {
-    my ($page1,$page2) = $line =~ /\D+([1-8]\d{2})\D+([1-8]\d{2})\D+/s;
-    if($page1 and $page2) {
-      foreach my $p (@{$self->{INDEX}}) {
-        if($p->[0] == $page1) {
-          $line =~ s/$page1/$ua.$page1.$ub.$page1.$uc/eg;
-        } elsif($p->[0] == $page2) {
-          $line =~ s/$page2/$ua.$page2.$ub.$page2.$uc/eg;
-          last;
+    my $out = "";
+    if($pagelist) {
+      my $laenge=length($line);
+      for (my $c=0; $c < $laenge; ) {
+        my $token=substr($line, $c, 5);
+        my ($page1) = $token =~ /\D([1-8]\d{2})\D/s;
+        if($page1) {
+            chop($token) if(length($token) > 4);
+            if(grep {$_->[0] == $page1;} @$pagelist) {
+              $token =~ s/$page1/$ua.$page1.$ub.$page1.$uc/eg;
+            }
+            $out .= $token;
+            $c += 4;
+        } else {
+            $out .= substr($line, $c, 1);
+            $c++;
         }
       }
     } else {
-      my ($page1) = $line =~ /\D+([1-8]\d{2})\D+/s;
-      if($page1) {
-        foreach my $p (@{$self->{INDEX}}) {
-          if($p->[0] == $page1) {
-            $line =~ s/$page1/$ua.$page1.$ub.$page1.$uc/eg;
-            last;
-          }
-        }
-      }
+      $out = $line;
     }
-    
     # Make anchor for external URLs
-    $line =~ s/((www)\.[a-z0-9\.\/\-]+)/<a target=\"blank\" class=\"vtx\" href=\"http:\/\/$1\">$1<\/a>/gi;
-    push (@lines, $line);
+    $out =~ s/((www)\.[a-z0-9\.\/\-]+)/<a target=\"blank\" class=\"vtx\" href=\"http:\/\/$1\">$1<\/a>/gi;
+    # /
+
+    push (@lines, $out);
   }
-  return @lines;
+  return \@lines;
 }
 
 ################################################################################
@@ -1346,7 +1381,6 @@ sub HighLight {
 # Callback "Teletext search"
 sub search {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
 
@@ -1412,7 +1446,6 @@ sub search {
 sub image {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift;
 

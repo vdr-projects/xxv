@@ -151,11 +151,10 @@ sub module {
 # ------------------
 # Name:  status
 # Descr: Standardsubroutine to report statistical data for Report Plugin.
-# Usage: my $report = $obj->status([$watcher, $console]);
+# Usage: my $report = $obj->status($console);
 # ------------------
 sub status {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
 
@@ -306,14 +305,13 @@ sub _init {
         my $modE = main::getModule('EPG');
         $modE->updated(
          sub{
-          my $watcher = shift;
           my $console = shift;
           my $waiter = shift;
 
           return 0 if($obj->{active} ne 'y');
 
           lg 'Start autotimer callback to find new events!';
-          return $obj->_autotimerLookup($watcher,$console,$waiter);
+          return $obj->_autotimerLookup($console,$waiter);
 
         },"AUTOTIMER: Callback to compare epg data ...");
         return 1;
@@ -331,7 +329,6 @@ sub _init {
 # ------------------
 sub autotimer {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $autotimerid = shift;
 
@@ -340,7 +337,7 @@ sub autotimer {
         $waiter = $console->wait(gettext("Searching for autotimer ..."),0,1000,'no');
     }
 
-    my ($log,$C,$M) = $obj->_autotimerLookup($watcher,$console,$waiter,$autotimerid);
+    my ($log,$C,$M) = $obj->_autotimerLookup($console,$waiter,$autotimerid);
 
     # last call of waiter
     $waiter->end() if(ref $waiter);
@@ -360,7 +357,6 @@ sub autotimer {
 }
 sub _autotimerLookup {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
     my $autotimerid = shift;
@@ -528,17 +524,10 @@ sub _autotimerLookup {
                 }
             }
 
-            my $error = 0;
-
             if($timerID) {
               ($event->{vid},$event->{pos}) = $modT->getPos($timerID);
             }
-            my $erg = $modT->saveTimer($event);
-            foreach my $zeile (@$erg) {
-                if($zeile =~ /^(\d{3})\s+(.+)/) {
-                    $error = $2 if(int($1) >= 500);
-                }
-            }
+            my ($erg,$error) = $modT->saveTimer($event);
             if($error) {
                 $console->err(sprintf(gettext("Could not save timer for '%s' : %s"), $event->{file}, $error))
                   if(ref $console && $autotimerid);
@@ -593,26 +582,24 @@ sub _autotimerLookup {
 # ------------------
 # Name:  autotimerCreate
 # Descr: Routine to display the create form for Autotimer.
-# Usage: $obj->autotimerCreate($watcher, $console, [$userdata]);
+# Usage: $obj->autotimerCreate($console, [$userdata]);
 # ------------------
 sub autotimerCreate {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift || 0;
     my $data    = shift || 0;
 
-    $obj->autotimerEdit($watcher, $console, $timerid, $data);
+    $obj->autotimerEdit($console, $timerid, $data);
 }
 
 # ------------------
 # Name:  autotimerEdit
 # Descr: Routine to display the edit form for Autotimer.
-# Usage: $obj->autotimerEdit($watcher, $console, [$atid], [$userdata]);
+# Usage: $obj->autotimerEdit($console, [$atid], [$userdata]);
 # ------------------
 sub autotimerEdit {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift || 0;
     my $data    = shift || 0;
@@ -1024,7 +1011,7 @@ You can also fine tune your search :
             $data->{Search},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
-        $obj->autotimer($watcher, $console, $data->{Id});
+        $obj->autotimer($console, $data->{Id});
     }
     return 1;
 }
@@ -1032,11 +1019,10 @@ You can also fine tune your search :
 # ------------------
 # Name:  autotimerDelete
 # Descr: Routine to display the delete form for Autotimer.
-# Usage: $obj->autotimerDelete($watcher, $console, $atid);
+# Usage: $obj->autotimerDelete($console, $atid);
 # ------------------
 sub autotimerDelete {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift || return $console->err(gettext("No autotimer defined for deletion! Please use adelete 'aid'!"));   # If timerid the edittimer
 
@@ -1063,11 +1049,10 @@ sub autotimerDelete {
 # ------------------
 # Name:  autotimerToogle
 # Descr: Switch Autotimer on or off.
-# Usage: $obj->autotimerToogle($watcher, $console, $atid);
+# Usage: $obj->autotimerToogle($console, $atid);
 # ------------------
 sub autotimerToggle {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift || return $console->err(gettext("No autotimer defined to toggle! Please use atoggle 'aid'!"));
 
@@ -1132,11 +1117,10 @@ sub autotimerToggle {
 # ------------------
 # Name:  list
 # Descr: List Autotimers in a table display.
-# Usage: $obj->list($watcher, $console, [$atid], [$params]);
+# Usage: $obj->list($console, [$atid], [$params]);
 # ------------------
 sub list {
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text      = shift || '';
     my $params  = shift;
@@ -1613,7 +1597,6 @@ sub _placeholder {
 sub suggest {
 # ------------------
     my $obj = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;

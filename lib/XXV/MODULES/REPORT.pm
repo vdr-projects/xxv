@@ -113,7 +113,6 @@ sub init {
 sub report {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $modulename = shift || '';
 
@@ -127,7 +126,7 @@ sub report {
         next if($modulename and uc($modulename) ne $modCfg->{Name});
         next if(exists $mods->{$modName}->{active} and $cfg->{$modCfg->{Name}}->{active} eq 'n');
         if(exists $modCfg->{Status} and ref $modCfg->{Status} eq 'CODE') {
-            $result->{$modCfg->{Name}} = $modCfg->{Status}($watcher, $console, $self->{LastReportTime});
+            $result->{$modCfg->{Name}} = $modCfg->{Status}($console, $self->{LastReportTime});
         }
     }
 

@@ -344,7 +344,6 @@ sub StoreEventLevel {
 sub TopTen {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $anzahl = shift || 10;
 

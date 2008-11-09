@@ -165,7 +165,6 @@ INSERT IGNORE INTO CHRONICLE
 sub list {
 # ------------------
     my $self = shift;
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift;
     my $params = shift;
@@ -244,7 +243,6 @@ ORDER BY starttime
 sub search {
 # ------------------
     my $self = shift;
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text  = shift || return $console->err(gettext("No 'string' to search for! Please use chrsearch 'text'."));
     my $params = shift;
@@ -327,7 +325,6 @@ FROM CHRONICLE
 sub delete {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $items  = shift || return $console->err(gettext("No ID to delete! Please use chrdelete 'id'"));
 

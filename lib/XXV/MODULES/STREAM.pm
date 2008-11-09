@@ -188,7 +188,6 @@ sub init {
 sub livestream {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cid = shift || return con_err($console,gettext("No channel defined for streaming!"));
     my $params  = shift;
@@ -268,7 +267,6 @@ sub livestream {
 sub playrecord {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recid   = shift || return $console->err(gettext("No recording defined for streaming!"));
     my $params  = shift;

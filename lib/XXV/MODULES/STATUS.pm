@@ -75,21 +75,21 @@ sub module {
                 description => gettext('Display all relevant informations about this system'),
                 short       => 'sa',
                 callback    => sub{
-                    my ($watcher, $console) = @_;
+                    my $console = shift;
                     $console->setCall('vitals');
-                    $obj->vitals(@_);
+                    $obj->vitals($console);
 
                     $console->setCall('filesys');
-                    $obj->filesys(@_);
+                    $obj->filesys($console);
 
                     $console->setCall('memory');
-                    $obj->memory(@_);
+                    $obj->memory($console);
 
                     $console->setCall('network');
-                    $obj->network(@_);
+                    $obj->network($console);
 
                     $console->setCall('hardware');
-                    $obj->hardware(@_);
+                    $obj->hardware($console);
                 },
             },
             vitals => {
@@ -200,7 +200,6 @@ sub remember {
 sub vitals {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my $output = {
@@ -227,7 +226,6 @@ sub vitals {
 sub network {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my $interfaces = $obj->netDevs();
@@ -245,7 +243,6 @@ sub network {
 sub hardware {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my ($number, $model, $speed, $cache, $bogomips) = $obj->CPU();
@@ -273,7 +270,6 @@ sub hardware {
 sub memory {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my $ret = $obj->meminfo(undef,$console->typ eq 'HTML');
@@ -291,7 +287,6 @@ sub memory {
 sub filesys {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my $ret = $obj->mounts(undef,$obj->{graphic} eq 'y' && $console->typ eq 'HTML');

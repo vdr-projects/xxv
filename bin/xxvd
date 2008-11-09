@@ -451,7 +451,6 @@ sub quit {
 # ------------------
 sub docu {
 # ------------------
-    my $watcher = shift;
     my $console = shift;
     my $name  = shift || 0;
 
@@ -491,7 +490,6 @@ sub docu {
 # ------------------
 sub more {
 # ------------------
-    my $watcher = shift;
     my $console = shift;
     my $name  = shift || return error('No text file defined!');
     my $param = shift || {};

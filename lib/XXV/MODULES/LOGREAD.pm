@@ -100,7 +100,6 @@ sub new {
 sub logger {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $logname = shift || 'standard';
     my $params  = shift || {};

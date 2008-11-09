@@ -154,8 +154,6 @@ BEGIN {
         my $ucmd    = shift || return error('No command defined!');
         my $udata   = shift;
 
-        my $watcher = $obj;
-
         my $console = XXV::OUTPUT::Dump->new();
         $console->{USER}->{Name} = undef;
         $console->{USER}->{Level} = 'admin';
@@ -166,12 +164,12 @@ BEGIN {
         my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
         $console->{call} = $cmdname;
         if($cmdobj and not $shorterr) {
-            my @ret = $cmdobj->{callback}($watcher, $console, $udata);
+            my @ret = $cmdobj->{callback}($console, $udata);
             return \@ret;
         } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
             return $console->err($err);
         } else {
-            return $obj->usage($watcher, $console, undef, $err);
+            return $obj->usage($console, undef, $err);
         }
     }
 

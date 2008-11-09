@@ -80,14 +80,13 @@ sub module {
                 description => gettext('Update EPG data.'),
                 short       => 'er',
                 callback    => sub{
-                    my $watcher = shift || return error('No watcher defined!');
                     my $console = shift || return error('No console defined!');
 
                     debug sprintf('Start reload EPG data%s',
                         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
                         );
 
-                    $self->startReadEpgData($watcher,$console);
+                    $self->startReadEpgData($console);
                 },
                 Level       => 'admin',
             },
@@ -120,7 +119,6 @@ sub module {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
 
@@ -256,7 +254,7 @@ sub _init {
 
         $self->startReadEpgData();
 
-        # Restart watcher every x hours
+        # Restart interval every x hours
         Event->timer(
             interval => $self->{interval},
             prio => 6,  # -1 very hard ... 6 very low
@@ -275,7 +273,6 @@ sub _init {
 sub startReadEpgData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
     debug sprintf('The read on epg data start now!');
@@ -285,7 +282,7 @@ sub startReadEpgData {
         $waiter = $console->wait(gettext("Read EPG data ..."),0,1000,'no');
     }
     my $updated = 0;
-    $self->_before_updated($watcher,$console,$waiter);
+    $self->_before_updated($console,$waiter);
   
     $self->moveOldEPGEntrys();
 
@@ -293,23 +290,25 @@ sub startReadEpgData {
     my $hostlist = $self->{svdrp}->list_hosts();
     # read from svdrp
     foreach my $vid (@$hostlist) {
-      my $vdata = $self->{svdrp}->command('LSTE',$vid);
-      map { 
-        $_ =~ s/^\d{3}.//;
-      # $_ =~ s/[\r|\n]$//;
-      } @$vdata;
+      my ($vdata,$error) = $self->{svdrp}->command('LSTE',$vid);
+      unless($error) {
+        map { 
+          $_ =~ s/^\d{3}.//;
+        # $_ =~ s/[\r|\n]$//;
+        } @$vdata;
 
 
-      # Adjust waiter max value now.
-      $waiter->max(scalar @$vdata)
-          if(ref $console && ref $waiter);
+        # Adjust waiter max value now.
+        $waiter->max(scalar @$vdata)
+            if(ref $console && ref $waiter);
 
-      # Read file row by row
-      $updated |= $self->compareEpgData($vdata,$vid,$watcher,$console,$waiter);
+        # Read file row by row
+        $updated |= $self->compareEpgData($vdata,$vid,$console,$waiter);
+      }
     }
     $self->deleteDoubleEPGEntrys();
 
-    $self->_updated($watcher,$console,$waiter) if($updated);
+    $self->_updated($console,$waiter) if($updated);
 
     # last call of waiter
     $waiter->end() if(ref $waiter);
@@ -340,7 +339,6 @@ sub before_updated {
 sub _before_updated {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
 
@@ -348,7 +346,7 @@ sub _before_updated {
         next unless(ref $CB eq 'ARRAY');
         lg $CB->[1]
             if($CB->[1]);
-        &{$CB->[0]}($watcher,$console,$waiter)
+        &{$CB->[0]}($console,$waiter)
             if(ref $CB->[0] eq 'CODE');
     }
 }
@@ -370,7 +368,6 @@ sub updated {
 sub _updated {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
 
@@ -378,7 +375,7 @@ sub _updated {
         next unless(ref $CB eq 'ARRAY');
         lg $CB->[1]
             if($CB->[1]);
-        &{$CB->[0]}($watcher,$console,$waiter)
+        &{$CB->[0]}($console,$waiter)
             if(ref $CB->[0] eq 'CODE');
     }
 }
@@ -390,7 +387,6 @@ sub compareEpgData {
     my $self = shift || return error('No object defined!');
     my $vdata = shift || return error('No data defined!');
     my $vid = shift;
-    my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
 
@@ -637,7 +633,6 @@ sub readEpgData {
 sub search {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift;
     my $params = shift;
@@ -788,7 +783,6 @@ sub search {
 sub program {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cid = shift;
     unless($cid) {
@@ -911,7 +905,6 @@ order by
 sub display {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $eventid = shift;
 
@@ -1002,7 +995,6 @@ where
 sub runningNext {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data   = shift;
     my $param   = shift || {};
@@ -1172,7 +1164,6 @@ ORDER BY c.vid, c.pos
 sub runningNow {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $zeit = shift || time;
     my $param   = shift || {};
@@ -1322,7 +1313,6 @@ ORDER BY c.vid, c.pos
 sub NowOnChannel {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $channel = shift;
     my $vid = shift || $self->{svdrp}->primary_hosts();
@@ -1393,16 +1383,19 @@ sub _actualChannel {
     my $self = shift  || return error('No object defined!');
     my $vid = shift;
 
-    my $erg = $self->{svdrp}->command('chan', $vid);
-    my ($chanpos, $channame) = $erg->[1] =~ /^250\s+(\d+)\s+(\S+)/sig;
-    return $chanpos;
+    my ($erg,$error) = $self->{svdrp}->command('chan', $vid);
+    unless($error) {
+      my ($chanpos, $channame) = $erg->[1] =~ /^250\s+(\d+)\s+(\S+)/sig;
+      return $chanpos;
+    } else {
+      return undef;
+    }
 }
 
 # ------------------
 sub schema {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $zeit = shift || time;
     my $param   = shift || {};
@@ -1535,7 +1528,6 @@ WHERE
 sub checkOnTimer {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $eid = shift  || return con_err($console, gettext('No event id defined!'));
 
@@ -1577,7 +1569,6 @@ WHERE
 sub getDescription {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $eid = shift || 0;
 
@@ -1626,7 +1617,6 @@ sub getId {
 sub suggest {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;

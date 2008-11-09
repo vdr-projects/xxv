@@ -2,7 +2,7 @@ package Bundle::Xxv;
 use strict;
 use warnings;
 
-$VERSION = '1.0';
+$VERSION = '1.0'.((split(/ /, '$Revision'))[1]);
 
 1;
 
@@ -44,7 +44,6 @@ MIME::Base64
 MP3::Info
 Net::Amazon
 Net::Amazon::Request::Artist
-Net::Telnet
 Net::XMPP
 Proc::Killfam
 Proc::ProcessTable 

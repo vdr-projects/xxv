@@ -449,7 +449,7 @@ sub parseData {
         }
 
         unless($id) {
-          error sprintf("Couldn't parse svdrp data : '%s'",$record);
+          error sprintf("Couldn't parse data from video disk recorder : '%s'",$record);
           next;
         }
 
@@ -536,14 +536,13 @@ sub scandirectory {
 sub readData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $waiter = shift;
     # Read manual or Once at day, make full scan
     my $forceUpdate = shift;
 
     # Read recording over SVDRP
-    my $lstr = $self->{svdrp}->command('lstr');
+    my ($lstr,$error) = $self->{svdrp}->command('lstr');
     my $vdata = [ grep(/^250/, @$lstr) ];
 
     unless(scalar @$vdata) {
@@ -551,18 +550,18 @@ sub readData {
         $self->{dbh}->do('DELETE FROM RECORDS');
         $self->{keywords}->removesource('recording');
 
-        my $msg = gettext('No recordings available!');
-        con_err($console,$msg);
+        my $msg = [gettext('No recordings available!'), $error ];
+        $console->err($msg) if($console);
         return;
     }
 
     # Get state from used harddrive (/video)
-    my $disk = $self->{svdrp}->command('stat disk');
+    my ($disk,$error2) = $self->{svdrp}->command('stat disk');
     my ($total, $totalUnit, $free, $freeUnit, $percent);    
     my $totalDuration = 0;
     my $totalSpace = 0;
 
-    if($disk->[1] and $disk->[1] =~ /^250/s) {
+    if(!$error2 and $disk->[1] and $disk->[1] =~ /^250/s) {
         #250 473807MB 98028MB 79%
         ($total, $totalUnit, $free, $freeUnit, $percent)
             = $disk->[1] =~ /^250[\-|\s](\d+)(\S+)\s+(\d+)(\S+)\s+(\S+)/s;
@@ -834,7 +833,6 @@ sub updated {
 sub refresh {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
     my $waiter;
@@ -844,7 +842,7 @@ sub refresh {
       con_msg($console,gettext("Get information on recordings ..."));
     }
 
-    if($self->readData($watcher,$console,$waiter,'force')) {
+    if($self->readData($console,$waiter,'force')) {
 
       $console->redirect({url => '?cmd=rlist', wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1478,7 +1476,6 @@ q|REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id,
 sub display {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid = shift;
 
@@ -1548,7 +1545,6 @@ where
 sub play {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
     my $params  = shift;
@@ -1578,7 +1574,7 @@ sub play {
 
 
     my $cmd = sprintf('PLAY %d %s', $rec->{RecordID}, $start);
-    if($self->{svdrp}->scommand($watcher, $console, $cmd)) {
+    if($self->{svdrp}->scommand($console, $cmd)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1592,7 +1588,6 @@ sub play {
 sub cut {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
 
@@ -1605,7 +1600,7 @@ sub cut {
     }
 
     my $cmd = sprintf('EDIT %d', $rec->{RecordID});
-    if($self->{svdrp}->scommand($watcher, $console, $cmd)) {
+    if($self->{svdrp}->scommand($console, $cmd)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1619,7 +1614,6 @@ sub cut {
 sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $text    = shift || "";
     my $params  = shift;
@@ -1762,20 +1756,18 @@ ORDER BY __IsRecording asc,
 sub search {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $text    = shift || return $self->list($watcher,$console);
+    my $text    = shift || return $self->list($console);
     my $params  = shift;
 
     my $query = buildsearch("e.title,e.subtitle,e.description",$text);
-    return $self->_search($watcher,$console,$query->{query},$query->{term},$params);
+    return $self->_search($console,$query->{query},$query->{term},$params);
 }
 
 # ------------------
 sub _search {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift; 
     my $search = shift; 
     my $term = shift; 
@@ -1899,7 +1891,6 @@ ORDER BY
 sub delete {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $record  = shift || return con_err($console,gettext("No recording defined for deletion! Please use rdelete 'id'."));
     my $answer  = shift || 0;
@@ -1952,7 +1943,7 @@ sub delete {
             );
 
 
-        $self->{svdrp}->queue_cmds(sprintf("delr %s",$r->{Id}));
+        $self->{svdrp}->queue_add(sprintf("delr %s",$r->{Id}));
         push(@{$todelete},$r->{Title}); # Remember title
         push(@{$md5delete},$r->{MD5}); # Remember hash
 
@@ -1972,15 +1963,15 @@ sub delete {
       join('\',\'',@recordings))) 
           if(scalar @recordings);
 
-    if($self->{svdrp}->queue_cmds('COUNT')) {
+    if($self->{svdrp}->queue_count()) {
 
         my $msg = sprintf(gettext("Recording '%s' to delete"),join('\',\'',@{$todelete}));
 
-        my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
+        my ($erg,$error) = $self->{svdrp}->queue_flush(); # Aufrufen der Kommandos
 
         my $waiter;
-        if($self->{svdrp}->err) {
-          con_err($console,$erg);
+        if($error) {
+          $console->err([$msg, $error]) if($console);
         } else {
 
           if(ref $console && $console->typ eq 'HTML' && !$self->{inotify}) {
@@ -1997,7 +1988,7 @@ sub delete {
           $self->{keywords}->remove('recording',$md5delete);
         }
 
-        $self->readData($watcher,$console,$waiter)
+        $self->readData($console,$waiter)
           unless($self->{inotify});
 
         if(ref $console && $console->typ eq 'HTML') {
@@ -2034,7 +2025,6 @@ sub is_empty_dir {
 sub redit {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid  = shift || return con_err($console,gettext("No recording defined for editing!"));
     my $data    = shift || 0;
@@ -2278,7 +2268,7 @@ WHERE
           }
           sleep(1);
   
-          $self->readData($watcher,$console,$waiter)
+          $self->readData($console,$waiter)
             unless($self->{inotify});
 
         } else {
@@ -2314,7 +2304,6 @@ sub _loadreccmds {
 sub conv {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || 0;
 
@@ -2333,7 +2322,7 @@ sub conv {
            gettext('Command')
           ]);
         $console->table($self->{reccmds});
-        $self->list($watcher, $console);
+        $self->list($console);
     }
 
     my ($cmdid, $recid) = split(/[\s_]/, $data);
@@ -2372,7 +2361,6 @@ sub conv {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift;
 
@@ -2585,7 +2573,8 @@ sub _recordingCapacity {
         $size -= $sizeMB * $mb;
         $FileSize += $sizeMB;
       }
-      $size += stat($f)->size;
+      my $stat = stat($f);
+      $size += $stat->size if($stat);
     }
     if($size > 0) {
       $sizeMB = int($size / $mb);
@@ -2599,7 +2588,6 @@ sub _recordingCapacity {
 sub suggest {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;
@@ -2644,7 +2632,6 @@ LIMIT 25
 sub recover {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $recordid  = shift || 0;
     my $data    = shift || 0;
@@ -2715,7 +2702,7 @@ sub recover {
           }
           sleep(1);
   
-          $self->readData($watcher,$console,$waiter)
+          $self->readData($console,$waiter)
             unless($self->{inotify});
 
         } else {
@@ -2784,7 +2771,6 @@ sub frametofile {
 sub image {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift;
 

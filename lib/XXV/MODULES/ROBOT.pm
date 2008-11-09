@@ -111,7 +111,6 @@ sub start {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $rname = shift || return error('No robot name defined!');
-    my $watcher = shift;
     my $console = shift;
     my $endcb   = shift;
 
@@ -170,7 +169,6 @@ sub result {
 sub status {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $rname = shift;
 

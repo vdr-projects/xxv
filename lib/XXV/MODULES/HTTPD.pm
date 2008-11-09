@@ -314,7 +314,7 @@ sub communicator {
                 $console->datei($htmlRootDir . $request, $typ);
             }
         } else {
-            $self->handleInput($watcher, $console, $cgi);
+            $self->handleInput($console, $cgi);
         }
 
     } else {
@@ -441,7 +441,6 @@ sub ModulNotLoaded {
 sub handleInput {
 # ------------------
     my $self     = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cgi     = shift || return error('No CGI object defined!');
 
@@ -478,11 +477,11 @@ sub handleInput {
             $console->{nocache} = 1 
                 if($cmdobj->{binary} eq 'nocache');
           }
-          $cmdobj->{callback}($watcher, $console, $udata, $result );
+          $cmdobj->{callback}($console, $udata, $result );
       } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
           $console->status403($err);
       } else {
-          $self->usage($watcher, $console, undef, $err);
+          $self->usage($console, undef, $err);
       } 
     } else {
       $self->ModulNotLoaded($console,'USER');
@@ -493,14 +492,13 @@ sub handleInput {
 sub usage {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $modulename = shift;
     my $hint = shift;
 
     my $m = main::getModule('CONFIG');
     if ($m){
-      return $m->usage($watcher,$console,$modulename,$hint);
+      return $m->usage($console,$modulename,$hint);
     } else {
       $self->ModulNotLoaded($console,'CONFIG');
     }
@@ -511,7 +509,6 @@ sub usage {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift || return;
     my $lastReportTime = shift || 0;
 
@@ -594,7 +591,6 @@ sub unzip {
 sub checkvalue {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || return error('No data defined!');
 

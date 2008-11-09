@@ -168,11 +168,10 @@ sub _init {
 sub movetimermanual {
 # ------------------
   my $self = shift || return error('No object defined!');
-  my $watcher = shift;
   my $console = shift;
   my $id = shift;
 
-  return 0 unless($self->_movetimer($watcher,$console,$id));
+  return 0 unless($self->_movetimer($console,$id));
 
   $console->redirect({url => '?cmd=movetimerlist', wait => 1})
     if($console->typ eq 'HTML');
@@ -184,7 +183,6 @@ sub movetimermanual {
 sub _movetimer {
 # ------------------
   my $self = shift || return error('No object defined!');
-  my $watcher = shift;
   my $console = shift;
   my $id = shift;
 
@@ -307,18 +305,18 @@ q|
   }
   if($todel) {
     foreach my $d (reverse sort{ $a->[1] <=> $b->[1] } @$todel) {
-      $self->{svdrp}->queue_cmds(sprintf("modt %d off", $d->[1]), $d->[0])
+      $self->{svdrp}->queue_add(sprintf("modt %d off", $d->[1]), $d->[0])
         if($d->[2]);
-      $self->{svdrp}->queue_cmds(sprintf("delt %d", $d->[1]), $d->[0]);
+      $self->{svdrp}->queue_add(sprintf("delt %d", $d->[1]), $d->[0]);
     }
   }
 
-  if($self->{svdrp}->queue_cmds('COUNT')) {
-      my $erg = $self->{svdrp}->queue_cmds("CALL"); # deqeue commands
-      $console->msg($erg, $self->{svdrp}->err)
+  if($self->{svdrp}->queue_count()) {
+      my ($erg,$error) = $self->{svdrp}->queue_flush(); # deqeue commands
+      $console->msg($erg, $error)
           if(ref $console);
 
-    $modT->readData($watcher, $console)
+    $modT->readData($console)
   } else {
     $console->msg(gettext("There none timer to move."))
         if(ref $console);
@@ -339,7 +337,7 @@ sub modifyTimer {
     $data->{file} =~ s/:/|/g;
     $data->{file} =~ s/(\r|\n)//sig;
 
-    $self->{svdrp}->queue_cmds(
+    $self->{svdrp}->queue_add(
         sprintf("%s %s:%s:%s:%s:%s:%s:%s:%s:%s",
             $data->{pos} ? "modt $data->{pos}" : "newt",
             $flags,
@@ -359,26 +357,24 @@ sub modifyTimer {
 # ------------------
 # Name:  movetimercreate
 # Descr: create rule to move timer.
-# Usage: $self->movetimercreate($watcher, $console, [$userdata]);
+# Usage: $self->movetimercreate($console, [$userdata]);
 # ------------------
 sub movetimercreate {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
 
-    $self->movetimeredit($watcher, $console, $id, $data);
+    $self->movetimeredit($console, $id, $data);
 }
 
 # ------------------
 # Name:  movetimeredit
 # Descr: edit rule to move timer.
-# Usage: $self->movetimeredit($watcher, $console, [$id], [$userdata]);
+# Usage: $self->movetimeredit($console, [$id], [$userdata]);
 # ------------------
 sub movetimeredit {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
@@ -488,7 +484,7 @@ sub movetimeredit {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $self->_movetimer($watcher, $console, $data->{id});
+        $self->_movetimer($console, $data->{id});
 
         $console->redirect({url => '?cmd=movetimerlist', wait => 1})
           if($console->typ eq 'HTML');
@@ -536,11 +532,10 @@ sub _insert {
 # ------------------
 # Name:  movetimerdelete
 # Descr: Routine to delete move timer rule.
-# Usage: $self->movetimerdelete($watcher, $console, $id);
+# Usage: $self->movetimerdelete($console, $id);
 # ------------------
 sub movetimerdelete {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || return $console->err(gettext("Missing ID to select rules for deletion! Please use movetimerdelete 'id'")); 
 
@@ -566,11 +561,10 @@ sub movetimerdelete {
 # ------------------
 # Name:  movetimerlist
 # Descr: List Rules to move timer in a table display.
-# Usage: $self->movetimerlist($watcher, $console);
+# Usage: $self->movetimerlist($console);
 # ------------------
 sub movetimerlist {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my %f = (

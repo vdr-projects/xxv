@@ -46,7 +46,6 @@ apt-get install \
   liblocale-gettext-perl \
   libmp3-info-perl \
   libnet-amazon-perl \
-  libnet-telnet-perl \
   libnet-xmpp-perl \
   libproc-process-perl \
   libsoap-lite-perl \

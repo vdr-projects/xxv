@@ -340,7 +340,6 @@ q|
 sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $data = shift || 1;
 
@@ -388,7 +387,6 @@ LIMIT 0,50
 sub request {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     # To this time you can set on
     # cmd=request&data=rss&ver=2 or

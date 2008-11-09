@@ -175,13 +175,12 @@ sub _init {
         my $m = main::getModule('EPG');
         $m->before_updated(
           sub{
-            my $watcher = shift;
             my $console = shift;
             my $waiter = shift;
 
             return 0 if($self->{active} ne 'y');
             lg 'Start callback to import xmltv epg data!';
-            $self->_XMLTV($watcher,$console,$waiter);
+            $self->_XMLTV($console,$waiter);
             }
         );
         return 1;
@@ -194,7 +193,6 @@ sub _init {
 sub manual {
 # ------------------
   my $self = shift || return error('No object defined!');
-  my $watcher = shift;
   my $console = shift;
   my $id = shift;
 
@@ -203,7 +201,7 @@ sub manual {
       $waiter = $console->wait(gettext("Import epg data from xmltv sources ..."),0,1000,'no');
   }
 
-  my ($msg, $error) = $self->_XMLTV($watcher,$console,$waiter,$id);
+  my ($msg, $error) = $self->_XMLTV($console,$waiter,$id);
 
   $waiter->end() if(ref $waiter);
   $console->start() if(ref $waiter);
@@ -221,7 +219,6 @@ sub manual {
 sub _XMLTV {
 # ------------------
   my $self = shift || return error('No object defined!');
-  my $watcher = shift;
   my $console = shift;
   my $waiter = shift;
   my $id = shift;
@@ -293,14 +290,7 @@ sub _XMLTV {
   if($output and length $output) {
     $waiter->next(undef,undef,gettext('Transmit data.'))
       if(ref $waiter);
-    my $erg = $self->{svdrp}->command(sprintf("PUTE\n%s\n.\n",$output));
-    my $error;
-    foreach my $zeile (@$erg) {
-      if($zeile =~ /^(\d{3})\s+(.+)/) {
-          $error = $2 if(int($1) >= 500);
-      }
-    }
-
+    my ($erg,$error) = $self->{svdrp}->command(sprintf("PUTE\n%s\n.\n",$output));
     unless($error) {
           debug 'Data import complete';
           return ($erg, undef);
@@ -452,26 +442,24 @@ sub _parse_template {
 # ------------------
 # Name:  create
 # Descr: create rule to import epg data from xmltv sources.
-# Usage: $self->create($watcher, $console, [$userdata]);
+# Usage: $self->create($console, [$userdata]);
 # ------------------
 sub create {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
 
-    $self->edit($watcher, $console, $id, $data);
+    $self->edit($console, $id, $data);
 }
 
 # ------------------
 # Name:  edit
 # Descr: edit rule to import epg data from xmltv sources.
-# Usage: $self->edit($watcher, $console, [$id], [$userdata]);
+# Usage: $self->edit($console, [$id], [$userdata]);
 # ------------------
 sub edit {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
@@ -572,7 +560,7 @@ sub edit {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        my ($msg, $error) = $self->_XMLTV($watcher,$console,undef,$data->{id});
+        my ($msg, $error) = $self->_XMLTV($console,undef,$data->{id});
 
         if($error) { $console->err($error); }
         elsif($msg) {
@@ -635,11 +623,10 @@ sub _updateTime {
 # ------------------
 # Name:  remove
 # Descr: Routine to delete rule to import epg data from xmltv sources.
-# Usage: $self->remove($watcher, $console, $id);
+# Usage: $self->remove($console, $id);
 # ------------------
 sub remove {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id = shift || return $console->err(gettext("Missing ID to select rules for deletion! Please use xmltvremove 'id'")); 
 
@@ -665,11 +652,10 @@ sub remove {
 # ------------------
 # Name:  list
 # Descr: List Rules to import epg data from xmltv sources in a table display.
-# Usage: $self->list($watcher, $console);
+# Usage: $self->list($console);
 # ------------------
 sub list {
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
 
     my %f = (

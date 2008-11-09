@@ -229,10 +229,10 @@ sub init {
                             $console->image(sprintf('%s%s', $WMLRootDir, $data->{Request}), $typ);
                         } elsif( $cgi->param('binary') ) {
                             # Send multimedia files (if param binary)
-                            $self->handleInput($watcher, $console, $cgi);
+                            $self->handleInput($console, $cgi);
                         } else {
                             $console->start();
-                            $self->handleInput($watcher, $console, $cgi);
+                            $self->handleInput($console, $cgi);
                             $console->footer();
                         }
                     }
@@ -291,7 +291,6 @@ sub parseRequest {
 sub handleInput {
 # ------------------
     my $self     = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cgi     = shift || return error ('No CGI Object');
 
@@ -322,11 +321,11 @@ sub handleInput {
     my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
     $console->{call} = $cmdname;
     if($cmdobj and not $shorterr) {
-        $cmdobj->{callback}($watcher, $console, $udata, $result );
+        $cmdobj->{callback}($console, $udata, $result );
     } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
         return $console->status403($err);
     } else {
-        return $self->usage($watcher, $console, undef, $err);
+        return $self->usage($console, undef, $err);
     }
 }
 

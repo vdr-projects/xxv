@@ -219,7 +219,6 @@ sub module {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $lastReportTime = shift || 0;
 
@@ -366,8 +365,8 @@ sub saveTimer {
     my $store = shift || 0;
 
     $self->_saveTimer($data);
-    if($self->{svdrp}->queue_cmds('COUNT')) {
-      my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
+    if($self->{svdrp}->queue_count()) {
+      my ($erg,$error) = $self->{svdrp}->queue_flush(); # Aufrufen der Kommandos
 
       if(!(exists $data->{vid})) {
           $data->{vid} = $self->{svdrp}->primary_hosts();
@@ -387,9 +386,9 @@ sub saveTimer {
 
       $self->{changedTimer} = 1;
 
-      return $erg;
+      return ($erg,$error);
   }
-  return 0;
+  return (undef,undef);
 }
 
 # ------------------
@@ -409,7 +408,7 @@ sub _saveTimer {
     my $file = $data->{file};
     $file =~ s/:/|/g;
 
-    $self->{svdrp}->queue_cmds(
+    $self->{svdrp}->queue_add(
         sprintf("%s %s:%s:%s:%s:%s:%s:%s:%s:%s",
             $data->{pos} ? "modt $data->{pos}" : "newt",
             $data->{flags},
@@ -434,7 +433,7 @@ sub _newTimerdefaults {
     $timer->{priority} = $self->{Priority};
     $timer->{lifetime} = $self->{Lifetime};
 
-    if($timer->{vpsstart} && $self->{usevpstime} eq 'y') {
+    if($timer->{vpsstart} && $self->{usevpstime} eq 'y' && $timer->{vpsstart} > time ) {
       $timer->{vps} = 'y';
       $timer->{day} = $timer->{vpsday};
       $timer->{start} = $timer->{vpsstart};
@@ -447,7 +446,6 @@ sub _newTimerdefaults {
 sub newTimer {
 # ------------------
     my $self     = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $epgid   = shift || 0;
     my $epg     = shift || 0;
@@ -485,7 +483,7 @@ WHERE|;
         $epg = $data->{$eventid};
         $self->_newTimerdefaults($epg);
         $epg->{action} = 'save' if(scalar keys %{$data} > 1 || $fast );
-        $self->_editTimer($watcher, $console, 0, $epg) if($count < scalar keys %{$data});
+        $self->_editTimer($console, 0, $epg) if($count < scalar keys %{$data});
         $count += 1;
       }
     }
@@ -496,18 +494,17 @@ WHERE|;
             file      => gettext('New timer'),
             day       => my_strftime("%Y-%m-%d",$t),
             start     => my_strftime("%H%M",$t),
-            stop      => my_strftime("%H%M",$t)
+            stop      => my_strftime("%H%M",$t + 3600)
     	};
       $self->_newTimerdefaults($epg);
     }
-    $self->editTimer($watcher, $console, 0, $epg);
+    $self->editTimer($console, 0, $epg);
 }
 
 # ------------------
 sub _editTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift || 0;   # If timerid the edittimer
     my $data    = shift || 0;  # Data for defaults
@@ -752,9 +749,9 @@ WHERE
         $self->_saveTimer($datasave);
         # Remove timer from old video disk recorder
         if($pos && $oldvid) {
-          $self->{svdrp}->queue_cmds(sprintf("modt %d off", $pos), $oldvid)
+          $self->{svdrp}->queue_add(sprintf("modt %d off", $pos), $oldvid)
             if($data->{running});
-          $self->{svdrp}->queue_cmds(sprintf("delt %d", $pos), $oldvid)
+          $self->{svdrp}->queue_add(sprintf("delt %d", $pos), $oldvid)
         }
         return 1;
     }
@@ -764,20 +761,13 @@ WHERE
 sub editTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift;  # id of present timer, then edit this timer
     my $data    = shift;  # Data for defaults
 
-    if($self->_editTimer($watcher,$console,$timerid,$data) 
-        && $self->{svdrp}->queue_cmds('COUNT')) {
-          my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
-          my $error;
-          foreach my $zeile (@$erg) {
-            if($zeile =~ /^(\d{3})\s+(.+)/) {
-                $error = $2 if(int($1) >= 500);
-            }
-          }
+    if($self->_editTimer($console,$timerid,$data) 
+        && $self->{svdrp}->queue_count()) {
+          my ($erg,$error) = $self->{svdrp}->queue_flush(); # Aufrufen der Kommandos
 
           unless($error) {
             debug sprintf('%s timer with title "%s" is saved%s',
@@ -788,16 +778,16 @@ sub editTimer {
                 $console->message($erg);
 
           } else {
-            error sprintf('%s timer with title "%s" does\'nt saved : %s',
+                my $msg = sprintf('%s timer with title "%s" does\'nt saved : %s',
                 ($timerid ? 'Changed' : 'New'),
                 $data->{file},
                 $error
                 );
-                $console->err($erg);
+                $console->err($msg);
           }
           $self->{changedTimer} = 1;
 
-          if($self->_readData($watcher,$console)) {
+          if($self->_readData($console)) {
             $console->redirect({url => '?cmd=tlist', wait => 1})
               if(!$error && $console->typ eq 'HTML');
           }
@@ -808,7 +798,6 @@ sub editTimer {
 sub deleteTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift || return $console->err(gettext("No timer defined for deletion! Please use tdelete 'tid'."));   # If timerid the edittimer
     my $answer  = shift || 0;
@@ -852,9 +841,9 @@ sub deleteTimer {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $self->{svdrp}->queue_cmds(sprintf("modt %d off", $t->{pos}), $t->{vid})
+        $self->{svdrp}->queue_add(sprintf("modt %d off", $t->{pos}), $t->{vid})
           if($t->{running});
-        $self->{svdrp}->queue_cmds(sprintf("delt %d", $t->{pos}), $t->{vid});
+        $self->{svdrp}->queue_add(sprintf("delt %d", $t->{pos}), $t->{vid});
 
         # Delete timer from request, if found in database
         my $i = 0;
@@ -872,14 +861,14 @@ sub deleteTimer {
       join('\',\'',@timers))) 
           if(scalar @timers);
 
-    if($self->{svdrp}->queue_cmds('COUNT')) {
-        my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
-        $console->msg($erg, $self->{svdrp}->err)
+    if($self->{svdrp}->queue_count()) {
+        my ($erg,$error) = $self->{svdrp}->queue_flush(); # Aufrufen der Kommandos
+        $console->msg($erg, $error)
             if(ref $console);
 
         sleep(1);
 
-        if($self->_readData($watcher,$console)) {
+        if($self->_readData($console)) {
           $console->redirect({url => '?cmd=tlist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
         }
@@ -894,7 +883,6 @@ sub deleteTimer {
 sub toggleTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $timerid = shift || return $console->err(gettext("No timer defined to toggle! Please use ttoggle 'id'."));   # If timerid the edittimer
 
@@ -932,7 +920,7 @@ sub toggleTimer {
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        $self->{svdrp}->queue_cmds("modt $t->{pos} $status",$t->{vid}); # Sammeln der Kommandos
+        $self->{svdrp}->queue_add("modt $t->{pos} $status",$t->{vid}); # Sammeln der Kommandos
 
         # Delete timer from request, if found in database
         my $i = 0;
@@ -951,13 +939,12 @@ sub toggleTimer {
       join('\',\'',@timers))) 
           if(scalar @timers);
 
-    if($self->{svdrp}->queue_cmds('COUNT')) {
-
-        my $erg = $self->{svdrp}->queue_cmds("CALL"); # Aufrufen der Kommandos
-        $console->msg($erg, $self->{svdrp}->err)
+    if($self->{svdrp}->queue_count()) {
+        my ($erg,$error) = $self->{svdrp}->queue_flush(); # Aufrufen der Kommandos
+        $console->msg($erg, $error)
             if(ref $console and $console->typ ne 'AJAX');
 
-        if($self->_readData($watcher, $console)) {
+        if($self->_readData($console)) {
           $console->redirect({url => '?cmd=tlist', wait => 1})
             if(ref $console and $console->typ eq 'HTML');
         }
@@ -1058,7 +1045,6 @@ q|REPLACE INTO TIMERS VALUES
 sub _readData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
     # Search for correct times
@@ -1075,9 +1061,9 @@ sub _readData {
     my $hostlist = $self->{svdrp}->list_hosts();
     # read from svdrp
     foreach my $vid (@$hostlist) {
-      my $tlist = $self->{svdrp}->command('lstt',$vid);
-
-      foreach my $line (@$tlist) {
+      my ($tlist,$error) = $self->{svdrp}->command('lstt',$vid);
+      unless($error) {
+        foreach my $line (@$tlist) {
           next unless($line and $line =~ /^250[- ](\d+)/s);
           my $pos = $1;
           $line =~ s/^\d+[- ]+\d+\s//sig;
@@ -1100,6 +1086,7 @@ sub _readData {
               $c++;
             }
           }
+        }
       }
     }
     # Search for overlapping Timers
@@ -1135,10 +1122,9 @@ sub _readData {
 sub readData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 
-    if($self->_readData($watcher,$console)) {
+    if($self->_readData($console)) {
       $console->redirect({url => '?cmd=tlist', wait => 1})
         if(ref $console and $console->typ eq 'HTML');
     }
@@ -1170,7 +1156,6 @@ sub updated {
 sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $id    = shift;
     my $params  = shift;
@@ -1183,16 +1168,15 @@ sub list {
       foreach(@timers) { push(@{$term},$_); }
 	  }
 
-    return $self->_list($watcher,$console,$search,$term,$params);
+    return $self->_list($console,$search,$term,$params);
 }
 
 # ------------------
 sub search {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
-    my $text    = shift || return $self->list($watcher,$console);
+    my $text    = shift || return $self->list($console);
     my $params  = shift;
 
 	  my $term;
@@ -1201,14 +1185,13 @@ sub search {
     $search = sprintf('AND ( %s )', $query->{query});
     foreach(@{$query->{term}}) { push(@{$term},$_); }
 
-    return $self->_list($watcher,$console,$search,$term,$params);
+    return $self->_list($console,$search,$term,$params);
 }
 
 # ------------------
 sub _list {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
 	  my $search = shift || '';
 	  my $term = shift;
@@ -1982,7 +1965,6 @@ sub my_strftime {
 sub suggest {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $search = shift;
     my $params  = shift;

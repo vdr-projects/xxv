@@ -160,7 +160,6 @@ sub parse {
 sub list {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $cmds = $self->parse();
 
@@ -176,7 +175,6 @@ sub list {
 sub command {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $command = shift || return error('No command defined!');
     my $cmds = $self->parse();
@@ -208,7 +206,6 @@ sub command {
 sub remote {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift || return error('No watcher defined!');
     my $console = shift || return error('No console defined!');
     my $command = shift;
     my $params = shift;
@@ -254,9 +251,9 @@ sub remote {
         );
 
         # fire hit key command via svdrp
-        my $erg = $self->{svdrp}->command(sprintf('hitk %s', $command), $vdr);
+        my ($erg,$error) = $self->{svdrp}->command(sprintf('hitk %s', $command), $vdr);
 
-        $console->msg($erg, $self->{svdrp}->err)
+        $console->msg($erg, $error)
             if(ref $console);
     }
     return 1;
@@ -266,7 +263,6 @@ sub remote {
 sub switch {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $watcher = shift;
     my $console = shift;
     my $cid = shift || '';
     my $params = shift;
@@ -288,15 +284,16 @@ sub switch {
         );
 
     # fire change channel command via svdrp
-    my $erg = $self->{svdrp}->command(sprintf('chan %s', $channel->{pos}),$channel->{vid});
+    my ($erg,$error) = $self->{svdrp}->command(sprintf('chan %s', $channel->{pos}),$channel->{vid});
 
-    my ($ret) = $erg->[1] =~ /^\d{3}\s*(.+)/s;
-
-    $console->msg($erg, $self->{svdrp}->err)
+    $console->msg($erg, $error)
         if(ref $console);
+    return undef if($error);
+
     $console->redirect({url => sprintf('?cmd=program&amp;data=%s',$channel->{hash}), wait => 1})
         if(ref $console and $console->typ eq 'HTML');
 
+    my ($ret) = $erg->[1] =~ /^\d{3}\s*(.+)/s;
 
     return $ret;
 }
