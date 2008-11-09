@@ -56,11 +56,11 @@
         <?% ELSIF field == gettext('Description') %?>
             <td>
             <?% IF Image %?>
-                <table align="right" border=0><td>
+                <table align="right" border=0><tr><td>
                 <?% FOREACH img = Image.split("\n") %?>
-                <img src='epgimages/<?% img %?>' border=1 vspace=2><br/>
+                <img src='?cmd=eimage&data=<?% img %?>' border=1 vspace=2><br/>
                 <?% END %?>
-                </td><table>
+                </td></tr></table>
             <?% END %?>
             <?% data.first.$c %?>
             </td>

@@ -59,8 +59,10 @@ END %?>
 		<?% IF description != "" || bild != "" %?>
         <p class="description">
 		<?% IF bild != "" %?>
-            <img class="epgimages" src="epgimages/<?% bild %?>" alt="" />
+        <?% FOREACH img = bild.split("\n") %?>
+            <img class="epgimages" src="?cmd=eimage&data=<?% img %?>" alt="" />
         <?% END %?>
+    <?% END %?>
 <?% description %?>
         </p>
 		<?% END %?>

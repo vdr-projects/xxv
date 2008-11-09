@@ -269,7 +269,7 @@
     </tr>
     <tr><td class="sidebottom"></td></tr>
   </table>
-  <?% IF param.keywords.size > 0 && allow('tk') %?>
+  <?% IF param.keywords && allow('tk') %?>
   <table summary="">
     <tr><td class="sidehead"><?% gettext("Keywords",20) %?></td></tr>
     <tr>

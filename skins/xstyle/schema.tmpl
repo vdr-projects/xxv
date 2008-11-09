@@ -93,6 +93,7 @@ sec_height = 0.1;
     font-size:0.8em;
     float: left;
     background:#eee;
+    height:98%;
 }
 
 #eventbox_title
@@ -126,6 +127,13 @@ sec_height = 0.1;
 #eventbox_bild
 {
     margin: 3px;
+}
+#eventbox_bild img {
+    margin: 0px;
+    padding: 0px;
+    width : 140px;
+    height : 105px;
+    display : inline;
 }
 
 <?% ttm = date.now - param.zeitvon;
@@ -220,23 +228,23 @@ top: 0px;border-top-style:dashed;border-top-color:green;border-top-width:2px;
 <?%- ELSE -%?>
 top: <?% (startt * sec_height)  %?>px;
 <?%- END -%?>">
-    <div id=eventbox_time style="height:95%">
+    <div id='eventbox_time'>
     <?% epgStart %?><br/><?% epgStop %?><br/>
 
     <?% INCLUDE 'bloecke/event_links.tmpl' data=e umbruch='<br/>' switch=1 timerid=e.14 %?>
 
     </div>
-    <div id=eventbox_title>
+    <div id='eventbox_title'>
       <?% d=[epgStart, " - ", epgStop ,"<br />", epgDesc ];desc=d.join("") %?>
       <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=epgTitle subtitle=epgSubTitle eventid=epgId linkid=epgId ttp_offset=-200 %?>
       <?% epgTitle %?>
       </a>
     </div>
     <?% IF image %?>
-    <div id=eventbox_bild><img src='epgimages/<?% image.split("\n").first %?>'></div>
+    <div id='eventbox_bild'><img src='?cmd=eimage&data=<?% image.split("\n").first %?>'></div>
     <?% END %?>
-    <div id=eventbox_subtitle><?% epgSubtitle %?></div>
-    <div id=eventbox_text><?% epgDesc %?></div>
+    <div id='eventbox_subtitle'><?% epgSubtitle %?></div>
+    <div id='eventbox_text'><?% epgDesc %?></div>
 </div>
     <?% oldend = second_stop %?>
 <?% END %?>

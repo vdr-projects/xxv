@@ -1,5 +1,14 @@
 <!-- display -->
 <?% IF ! global.bodyinc.defined; global.bodyinc = 1 %?>
+<?% files = data.last.13.split("\n") %?>
+<script language="javascript" type="text/javascript">
+<!--
+  var pics = <?% files.size %?>;
+  if( pics > 3) {
+  	window.onload = initslide;
+  }
+-->
+</script>
 <body class="hilfsframed">
 <div>
 <?% END %?>
@@ -22,7 +31,6 @@
   timerid=data.last.10;
   recording=data.last.11;
   running=data.last.12;
-  bild = data.last.13;
   pdc = data.last.14;
   channelid = data.last.15;
 %?>
@@ -46,6 +54,21 @@
         gettext("Duration") ; " : "; hours div 1 ;":"; minutes | format('%02d');
       END;
 END %?>
+<?% ######################################################################## %?>
+<?% BLOCK image %?>
+	<div id="slideframe">
+        <?% IF files.size > 3 %?>
+		<div id="slideleft"><img src="images/back.<?% global.imagetyp %?>" title="<?% gettext("Back") %?>" alt="" /></div>
+		<div id="slideright"><img src="images/forward.<?% global.imagetyp %?>" title="<?% gettext("Next") %?>" alt="" /></div>
+        <?% END %?>
+		  <div id="slidelist" style="left:<?% IF files.size <= 3 %?><?% 280 - (170 * ( files.size / 2 ) )  %?><?% ELSE %?>0<?% END %?>px; width:<?% files.size * 180 %?>px;" >
+        <?% FOREACH frame = files %?>
+          <img class="epgimages" src="?cmd=ei&data=<?% frame %?>" alt="" title="" />
+				<?% END %?>
+			<div id="slideend"></div>
+		</div>
+	</div>
+<?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK RowButtons %?>
 <div align="right">
@@ -119,11 +142,13 @@ END %?>
                 </td>
 			     </tr>
 		      </table>
-		<?% IF description != "" || bild != "" %?>
+		<?% IF files.size %?>
+    		  <div align="center">
+              <?% PROCESS image %?>
+				  </div>
+		<?% END %?>
+		<?% IF description != "" %?>
                     <p class="description">
-        		<?% IF bild != "" %?>
-                    <img class="epgimages" src="epgimages/<?% bild %?>" alt="" />
-                <?% END %?>
 <?% description %?>
                     </p>
 		<?% END %?>
