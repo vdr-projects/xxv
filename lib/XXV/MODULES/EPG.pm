@@ -417,7 +417,7 @@ sub compareEpgData {
         if(ref $waiter);
 
       # First - read database
-      my $sql = qq|SELECT SQL_CACHE  eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio from EPG where vid = ? and channel_id = ? |;
+      my $sql = qq|SELECT SQL_CACHE  eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio, image from EPG where vid = ? and channel_id = ? |;
       my $sth = $self->{dbh}->prepare($sql);
       $sth->execute($vid, $channel)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);

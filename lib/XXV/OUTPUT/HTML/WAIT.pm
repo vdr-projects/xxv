@@ -62,9 +62,13 @@ sub new {
 
     $self->{steps} = $attr{'-steps'} || 10;
 
+    $self->{charset} = $attr{'-charset'}
+        || 'ISO-8859-1';
+
     $self->{pusher} =  XXV::OUTPUT::HTML::PUSH->new(
         -cgi => $self->{cgi},        # The CGI Object from Lincoln Stein
         -handle => $self->{handle},  # The handle to printout the http Stuff
+        -charset => $self->{charset}
     );
 
     $self->init();
