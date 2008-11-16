@@ -2,7 +2,7 @@
 <?% width = param.width %?>
 <?% height = param.height %?>
 
-<?% IF cgi.param('monitor').defined;monitor = cgi.param('monitor');ELSE;monitor = param.monitor;END %?>
+<?% IF allow('gdisplay');IF cgi.param('monitor').defined;monitor = cgi.param('monitor');ELSE;monitor = param.monitor;END;END %?>
 <?% IF ! global.bodyinc.defined; global.bodyinc = 1 %?>
 <body class="hilfsframed">
 <div>
@@ -115,11 +115,15 @@ aktiv = window.setInterval("grab()", inter);
                             <table class="rcbutton" width="100%" summary="">
                                 <tr>
                                     <td>
-                                    <td colspan="3" class="rcbuttonlarge" >
+<?% IF allow('gdisplay') %?>
+                                    <td width="45%" class="rcbuttonlarge" >
                                         <a class="rcbutton" href="?cmd=r&monitor=<?% monitor ? 0 : 1 %?>"><?% gettext("Monitor") %?></a>
                                     </td>
-                                    <td>&nbsp;</td>
-                                    <td colspan="3" class="rcbuttonlarge" >
+                                    <td width="10%">&nbsp;</td>
+<?% ELSE %?>
+                                    <td width="55%">&nbsp;</td>
+<?% END %?>
+                                    <td width="45%" class="rcbuttonlarge" >
                                         <a class="rcbutton" href="javascript:remote('Power')"><?% gettext("Switch off") %?></a>
                                      </td>
                                 </tr>
