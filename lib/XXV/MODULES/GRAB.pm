@@ -15,6 +15,7 @@ sub module {
         Prereq => {
             'GD'        => 'image manipulation routines',
             'Template'  => 'Front-end module to the Template Toolkit ',
+            'MIME::Base64'  => 'Encoding and decoding of base64 strings'
         },
         Description => gettext('This module grab a picture from video output.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -149,19 +150,28 @@ sub new {
         eval "use $_";
         if($@) {
           my $m = (split(/ /, $_))[0];
-          return panic("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+          if($m eq 'Template')  { 
+            error("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+            $self->{DisableTemplate} = 1;
+          } elsif($m eq 'GD')  { 
+            error("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+            $self->{DisableGD} = 1;
+          } else {
+            return panic("\nCouldn't load perl module: $m\nPlease install this module on your system:\nperl -MCPAN -e 'install $m'");
+          }
         }
     } keys %{$self->{MOD}->{Prereq}};
 
-    # create Template object
-    $self->{tt} = Template->new(
-      START_TAG    => '\<\<',		        # Tagstyle
-      END_TAG      => '\>\>',		        # Tagstyle
-      INTERPOLATE  => 1,                # expand "$var" in plain text
-      PRE_CHOMP    => 0,                # cleanup whitespace
-      EVAL_PERL    => 0,                # evaluate Perl code blocks
-    );
-
+    unless($self->{DisableTemplate}) {
+      # create Template object
+      $self->{tt} = Template->new(
+        START_TAG    => '\<\<',		        # Tagstyle
+        END_TAG      => '\>\>',		        # Tagstyle
+        INTERPOLATE  => 1,                # expand "$var" in plain text
+        PRE_CHOMP    => 0,                # cleanup whitespace
+        EVAL_PERL    => 0,                # evaluate Perl code blocks
+      );
+    }
     $self->_init or return error('Problem to initialize modul!');
 
 	return $self;
@@ -200,18 +210,21 @@ sub _grab {
       foreach my $l (@{$data}) { 
         if($l =~ /^216-/sg) { 
           $l =~ s/^216-//g;
-          $binary .= MIME::Base64::decode_base64($l); 
+          $binary .= decode_base64($l); 
         } 
       }
     }
-    # create noised image as failback. 
-    $binary = $self->_noise($width,$height) 
-      unless($binary);
 
-    if($data && $binary) {
+    unless($self->{DisableGD}) {
+      # create noised image as failback. 
+      $binary = $self->_noise($width,$height) 
+        unless($binary);
+    }
+    if(!$self->{DisableGD} && !$self->{DisableTemplate}
+       && $self->{overlay} && length($self->{overlay})
+       && $data && $binary) {
       # Make overlay on image
       $binary = $self->makeImgText($binary, $self->{overlay}, $height, $vid)
-          if($self->{overlay});
     }
     return $binary;
 }
@@ -223,6 +236,9 @@ sub display {
     my $console = shift || return error('No console defined!');
     my $data = shift;
     my $params = shift;
+
+    return $console->err(gettext("Sorry, get image is'nt supported"))
+      if ($console->{TYP} ne 'HTML');
 
     my $width = $console->{cgi} && $console->{cgi}->param('width') 
               ? $console->{cgi}->param('width') 
@@ -241,7 +257,7 @@ sub display {
     }
 
     my $binary = $self->_grab($width,$height, $params && $params->{vdr} ? $params->{vdr} : undef);
-    if($binary) { #  Datei existiert und hat eine Grösse von mehr als 0 Bytes
+    if($binary && length($binary)) { 
       $console->{nocache} = 1;
       $console->{nopack} = 1;
       my %args = ();
@@ -249,6 +265,8 @@ sub display {
       $args{'attachment'} = 'grab.jpg';
       $args{'Content-Length'} = length($binary);
       return $console->out($binary, 'image/jpeg', %args );
+    } else {
+      return $console->statusmsg(500,"Couldn't load image data !",gettext("Failed"));
     }
 }
 
