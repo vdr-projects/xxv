@@ -20,19 +20,13 @@ sub module {
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
+        Status => sub{ $obj->status(@_) },
         Preferences => {
             active => {
                 description => gettext('Activate this service'),
                 default     => 'y',
                 type        => 'confirm',
                 required    => gettext('This is required!'),
-            },
-        },
-        Commands => {
-            robot => {
-                description => gettext("Start a robots 'rname'"),
-                short       => 'ro',
-                callback    => sub{ $obj->start(@_) },
             },
         },
     };
@@ -111,8 +105,7 @@ sub start {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $rname = shift || return error('No robot name defined!');
-    my $console = shift;
-    my $endcb   = shift;
+    my $endcb = shift;
 
     lg sprintf('Start Robots ....');
 
@@ -169,16 +162,14 @@ sub result {
 sub status {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $console = shift;
-    my $rname = shift;
+    my $lastReportTime = shift || 0;
 
-    return 1 unless(ref $console);
+    return
+      if($obj->{active} eq 'n');
 
-    if($rname) {
-        $console->table($obj->{result}->{$rname});
-    } else {
-        $console->table($obj->{result});
-    }
+    return {
+          message => $obj->{result}
+    };
 }
 
 

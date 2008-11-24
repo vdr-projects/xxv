@@ -641,7 +641,7 @@ sub pod {
     my $podfile = sprintf('%s/%s.pod', $obj->{paths}->{PODPATH}, $modname);
     return $obj->err(sprintf(gettext('Module %s not found!'), $modname))
         unless(-r $podfile);
-    my $tmpdir = main::getModule('USER')->userTmp;
+    my $tmpdir = main::getModule('USER')->userTmp($obj->{USER}->{Name});
     my $outfile = sprintf('%s/%s_%d.pod', $tmpdir, $modname, time);
 
     my $parser = Pod::Text->new (sentence => 0, width => 78);
@@ -678,7 +678,7 @@ sub txtfile {
             return $obj->err(sprintf(gettext("Could not open file '%s'! : %s"), $filename, $e));
           }
         }
-        $txtfile = main::getModule('HTTPD')->unzip($gzfile);
+        $txtfile = main::getModule('HTTPD')->unzip($obj,$gzfile);
       }
     }
     my $txt = load_file($txtfile);

@@ -32,6 +32,7 @@ sub module {
                 default     => 'y',
                 type        => 'confirm',
                 required    => gettext('This is required!'),
+                level       => 'guest'
             },
             commands => {
                 description => sprintf(gettext("Path of file '%s'"),'commands.conf'),
@@ -161,6 +162,7 @@ sub list {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $cmds = $self->parse();
 
     my @list = (['__Id', 'Name', 'Cmd']);
@@ -176,6 +178,7 @@ sub command {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $command = shift || return error('No command defined!');
     my $cmds = $self->parse();
 
@@ -207,6 +210,7 @@ sub remote {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $command = shift;
     my $params = shift;
 
@@ -264,6 +268,7 @@ sub switch {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
     my $cid = shift || '';
     my $params = shift;
 

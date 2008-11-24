@@ -38,12 +38,14 @@ sub module {
                 default     => '12:00,18:00,20:15,22:00',
                 type        => 'string',
                 required    => gettext('This is required!'),
+                level       => 'guest'
             },
             timeframe => {
                 description => gettext("How much hours to display in schema"),
                 default     => 2,
                 type        => 'integer',
                 required    => gettext('This is required!'),
+                level       => 'guest'
             },
         },
         Commands => {
@@ -126,7 +128,6 @@ sub module {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
     my $lastReportTime = shift || 0;
 
     my $total = 0;
@@ -281,6 +282,7 @@ sub startReadEpgData {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
 
     debug sprintf('The read on epg data start now!');
 
@@ -641,6 +643,7 @@ sub search {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift;
     my $params = shift;
 
@@ -791,6 +794,7 @@ sub program {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $cid = shift;
     unless($cid) {
       my $c = $self->{dbh}->selectrow_arrayref("SELECT SQL_CACHE hash from CHANNELS order by vid, pos limit 1");
@@ -913,6 +917,7 @@ sub display {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $eventid = shift;
 
     unless($eventid) {
@@ -1002,6 +1007,7 @@ sub runningNext {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data   = shift;
     my $param   = shift || {};
 
@@ -1158,7 +1164,7 @@ ORDER BY c.vid, c.pos
 
     $console->table($erg,
         {
-            periods => $self->{periods},
+            periods => $config->{periods},
             cgroups => $cgroups,
             channelgroup => $cgrp,
             rows => $rows
@@ -1171,6 +1177,7 @@ sub runningNow {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $zeit = shift || time;
     my $param   = shift || {};
 
@@ -1307,7 +1314,7 @@ ORDER BY c.vid, c.pos
     $console->table($erg,
         {
             zeit => $zeit,
-            periods => $self->{periods},
+            periods => $config->{periods},
             cgroups => $cgroups,
             channelgroup => $cgrp,
             rows => $rows
@@ -1320,6 +1327,7 @@ sub NowOnChannel {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
     my $channel = shift;
     my $vid = shift || $self->{svdrp}->primary_hosts();
 
@@ -1403,6 +1411,7 @@ sub schema {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $zeit = shift || time;
     my $param   = shift || {};
 
@@ -1417,11 +1426,11 @@ sub schema {
         $zeit   = UnixDate(ParseDate($zeit),"%s") || time;
     }
 
-    $zeit += 86400 if($zeit < time - ($self->{timeframe} * 3600));
+    $zeit += 86400 if($zeit < time - ($config->{timeframe} * 3600));
     $zeit++;
 
     my $zeitvon = $self->toFullHour($zeit);
-    my $zeitbis = $zeitvon + ($self->{timeframe}*3600);
+    my $zeitbis = $zeitvon + ($config->{timeframe}*3600);
 
     push(@$term, $zeitvon);
     push(@$term, $zeitbis);
@@ -1523,7 +1532,7 @@ WHERE
         {
             zeitvon => $zeitvon,
             zeitbis => $zeitbis,
-            periods => $self->{periods},
+            periods => $config->{periods},
             cgroups => $cgroups,
             channelgroup => $cgrp
         }
@@ -1535,6 +1544,7 @@ sub checkOnTimer {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $eid = shift  || return con_err($console, gettext('No event id defined!'));
 
     my $sql = qq|
@@ -1576,6 +1586,7 @@ sub getDescription {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $eid = shift || 0;
 
     my $event = $self->getId($eid,"description");
@@ -1624,6 +1635,7 @@ sub suggest {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $search = shift;
     my $params  = shift;
   
@@ -1682,6 +1694,7 @@ sub image {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift;
 
     return $console->err(gettext("Sorry, get image is'nt supported"))

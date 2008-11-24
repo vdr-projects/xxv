@@ -324,7 +324,7 @@ sub getDbh {
     my $dbh = DBI->connect($dsn, $usr, $pwd,{
                       PrintError => 1,
                       AutoCommit => 1,
-                      mysql_enable_utf8 => ($charset =~ m/UTF-8/ ? 1 : 0),
+#                     mysql_enable_utf8 => (($charset =~ m/UTF-8/) ? 1 : 0),
                       mysql_auto_reconnect => 1
             });
 
@@ -452,6 +452,7 @@ sub quit {
 sub docu {
 # ------------------
     my $console = shift;
+    my $config = shift;
     my $name  = shift || 0;
 
     my $HTTPD = getModule("HTTPD");
@@ -491,6 +492,7 @@ sub docu {
 sub more {
 # ------------------
     my $console = shift;
+    my $config = shift;
     my $name  = shift || return error('No text file defined!');
     my $param = shift || {};
 
@@ -692,6 +694,9 @@ sub module {
                 required    => gettext("This is required!"),
                 check       => sub{
                     my $value = shift || return;
+
+                    return $value unless(ref $value eq 'ARRAY');
+
                     # If no password given the take the old password as default
                     if($value->[0] and $value->[0] ne $value->[1]) {
                         return undef, gettext("The fields with the 1st and the 2nd password must match!");

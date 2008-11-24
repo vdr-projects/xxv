@@ -36,12 +36,6 @@ sub module {
                 type        => "file",
                 required    => gettext('This is required!'),
             },
-            wcBinary => {
-                description => sprintf(gettext("Path of command '%s'"),'wc'),
-                default     => "/usr/bin/wc",
-                required    => gettext('This is required!'),
-                type        => "file",
-            },
             dfBinary => {
                 description => sprintf(gettext("Path of command '%s'"),'df'),
                 default     => "/bin/df",
@@ -75,21 +69,23 @@ sub module {
                 description => gettext('Display all relevant informations about this system'),
                 short       => 'sa',
                 callback    => sub{
-                    my $console = shift;
+                    my $console = shift || return error('No console defined!');
+                    my $config = shift || return error('No config defined!');
+
                     $console->setCall('vitals');
-                    $obj->vitals($console);
+                    $obj->vitals($console,$config);
 
                     $console->setCall('filesys');
-                    $obj->filesys($console);
+                    $obj->filesys($console,$config);
 
                     $console->setCall('memory');
-                    $obj->memory($console);
+                    $obj->memory($console,$config);
 
                     $console->setCall('network');
-                    $obj->network($console);
+                    $obj->network($console,$config);
 
                     $console->setCall('hardware');
-                    $obj->hardware($console);
+                    $obj->hardware($console,$config);
                 },
             },
             vitals => {
@@ -201,6 +197,7 @@ sub vitals {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my $output = {
         name    => $obj->name(),
@@ -227,6 +224,7 @@ sub network {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my $interfaces = $obj->netDevs();
     my $param = {
@@ -244,6 +242,7 @@ sub hardware {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my ($number, $model, $speed, $cache, $bogomips) = $obj->CPU();
     my $pci = $obj->pci();
@@ -271,6 +270,7 @@ sub memory {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my $ret = $obj->meminfo(undef,$console->typ eq 'HTML');
     my $param = {
@@ -288,6 +288,7 @@ sub filesys {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my $ret = $obj->mounts(undef,$obj->{graphic} eq 'y' && $console->typ eq 'HTML');
     my $param = {
@@ -549,10 +550,10 @@ sub util {
 sub users {
     my $obj = shift || return error('No object defined!');
 
-    my $result = `$obj->{whoBinary} | $obj->{wcBinary} -l`
-        or return error "Couldn't execute $obj->{whoBinary} or $obj->{wcBinary}\n";
-    $result =~ s/\n//g;
-    return $result;
+    my $result = `$obj->{whoBinary}`
+        or return error "Couldn't execute $obj->{whoBinary}\n";
+    my $lines = ($result =~ tr/\n//);
+    return $lines;
 
 }
 

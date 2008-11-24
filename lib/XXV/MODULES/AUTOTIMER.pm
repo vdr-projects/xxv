@@ -44,12 +44,6 @@ sub module {
             },
         },
         Commands => {
-            astatus => {
-                description => gettext('Display status of autotimers.'),
-                short       => 'as',
-                callback    => sub{ $obj->status(@_) },
-                DenyClass   => 'alist',
-            },
             anew => {
                 description => gettext("Create new autotimer"),
                 short       => 'an',
@@ -155,7 +149,6 @@ sub module {
 # ------------------
 sub status {
     my $obj = shift || return error('No object defined!');
-    my $console = shift;
     my $lastReportTime = shift || 0;
 
     my %f = (
@@ -329,7 +322,8 @@ sub _init {
 # ------------------
 sub autotimer {
     my $obj = shift || return error('No object defined!');
-    my $console = shift;
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $autotimerid = shift;
 
     my $waiter;
@@ -575,7 +569,7 @@ sub _autotimerLookup {
 
     sleep 1;
 
-    $modT->readData();
+    $modT->_readData();
 
     return (\@{$log},$C,$M);
 }
@@ -587,10 +581,11 @@ sub _autotimerLookup {
 sub autotimerCreate {
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift || 0;
     my $data    = shift || 0;
 
-    $obj->autotimerEdit($console, $timerid, $data);
+    $obj->autotimerEdit($console, $config, $timerid, $data);
 }
 
 # ------------------
@@ -601,6 +596,7 @@ sub autotimerCreate {
 sub autotimerEdit {
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift || 0;
     my $data    = shift || 0;
 
@@ -1011,7 +1007,7 @@ You can also fine tune your search :
             $data->{Search},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
-        $obj->autotimer($console, $data->{Id});
+        $obj->autotimer($console, $config, $data->{Id});
     }
     return 1;
 }
@@ -1024,6 +1020,7 @@ You can also fine tune your search :
 sub autotimerDelete {
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift || return $console->err(gettext("No autotimer defined for deletion! Please use adelete 'aid'!"));   # If timerid the edittimer
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
@@ -1054,6 +1051,7 @@ sub autotimerDelete {
 sub autotimerToggle {
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift || return $console->err(gettext("No autotimer defined to toggle! Please use atoggle 'aid'!"));
 
     my @timers  = reverse sort{ $a <=> $b } split(/[^0-9]/, $timerid);
@@ -1122,6 +1120,7 @@ sub autotimerToggle {
 sub list {
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $text      = shift || '';
     my $params  = shift;
 
@@ -1598,6 +1597,7 @@ sub suggest {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $search = shift;
     my $params  = shift;
 

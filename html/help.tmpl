@@ -111,8 +111,8 @@ logger.add(new WebFXTreeItem("<?% gettext("Syslog") %?>",    "?cmd=logger&data=s
 var admin = new WebFXTreeItem("<?% gettext("Administration") %?>",0,tree);
 <?% IF allow('vl') %?>admin.add(new WebFXTreeItem("<?% gettext("Video disk recorder",12) %?>",  "?cmd=vl"));<?% END %?>
 <?% IF allow('cl') %?>admin.add(new WebFXTreeItem("<?% gettext("Channels",12) %?>",  "?cmd=cl"));<?% END %?>
-<?% IF allow('ul') %?>admin.add(new WebFXTreeItem("<?% gettext("User") %?>","?cmd=ul"));
-<?% ELSIF allow('uprefs') %?>admin.add(new WebFXTreeItem("<?% gettext("Personality") %?>","?cmd=uprefs"));<?% END %?>
+<?% IF allow('ul') %?>admin.add(new WebFXTreeItem("<?% gettext("User") %?>","?cmd=ul"));<?% END %?>
+<?% IF allow('uprefs') %?>admin.add(new WebFXTreeItem("<?% gettext("Own settings") %?>","?cmd=uprefs"));<?% END %?>
 <?% IF allow('rel') %?>admin.add(new WebFXTreeItem("<?% gettext("Reload") %?>","?cmd=rel"));<?% END %?>
 <?% END %?>
 

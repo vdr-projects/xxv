@@ -234,6 +234,7 @@ sub display {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift;
     my $params = shift;
 

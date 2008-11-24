@@ -10,12 +10,13 @@ use File::Path;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'USER',
         Prereq => {
             'Net::IP::Match::Regexp qw( create_iprange_regexp match_ip )'
                 => 'Efficiently match IPv4 addresses against IPv4 ranges via regexp ',
+            'Data::COW' => 'clone deep data structures copy-on-write'
         },
         Description =>
 gettext("This module manages the User administration.
@@ -71,31 +72,31 @@ or the same parameter is set for each function."),
             unew => {
                 description => gettext('Create new user account'),
                 short       => 'un',
-                callback    => sub{ $obj->create(@_) },
+                callback    => sub{ $self->create(@_) },
                 Level       => 'admin',
             },
             udelete => {
                 description => gettext("Delete user account 'uid'"),
                 short       => 'ud',
-                callback    => sub{ $obj->delete(@_) },
+                callback    => sub{ $self->delete(@_) },
                 Level       => 'admin',
             },
             uedit => {
                 description => gettext("Edit user account 'uid'"),
                 short       => 'ue',
-                callback    => sub{ $obj->edit(@_) },
+                callback    => sub{ $self->edit(@_) },
                 Level       => 'admin',
             },
             uprefs => {
                 description => gettext("Change preferences"),
                 short       => 'up',
-                callback    => sub{ $obj->userprefs(@_) },
+                callback    => sub{ $self->userprefs(@_) },
                 Level       => 'user',
             },
             ulist => {
                 description => gettext("List the accounts of users"),
                 short       => 'ul',
-                callback    => sub{ $obj->list(@_) },
+                callback    => sub{ $self->list(@_) },
                 Level       => 'admin',
             },
             logout => {
@@ -103,8 +104,9 @@ or the same parameter is set for each function."),
                 short       => 'exit',
                 callback    => sub{
                     my $console = shift || return error('No console defined!');
+                    my $config = shift || return error('No config defined!');
 
-                    if($obj->{active} eq 'y') {
+                    if($self->{active} eq 'y') {
                         $console->message(gettext("Session closed."));
                         $console->redirect({url => '?', parent => 'top', wait => 2})
                             if($console->typ eq 'HTML');
@@ -127,14 +129,12 @@ or the same parameter is set for each function."),
                               after => 1,
                               prio => 6,  # -1 very hard ... 6 very low
                               cb => sub{
-                                  $obj->logout;
-                                  delete $console->{USER} if($console->{USER});
+                                  $self->_logout($console,$config);
                                   $ConsoleMod->{LOGOUT} = 1 if($ConsoleMod);
                               },
                           );
                         } else  {
-                          $obj->logout;
-                          delete $console->{USER} if($console->{USER});
+                          $self->_logout($console,$config);
                           $ConsoleMod->{LOGOUT} = 1 if($ConsoleMod);
                         }
                     }
@@ -190,28 +190,28 @@ sub new {
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    unless($obj->{dbh}) {
+    unless($self->{dbh}) {
       panic("Session to database is'nt connected");
       return 0;
     }
 
     my $version = main::getDBVersion();
     # don't remove old table, if updated rows => warn only
-    if(!tableUpdated($obj->{dbh},'USER',$version,0)) {
+    if(!tableUpdated($self->{dbh},'USER',$version,0)) {
         return 0;
     }
 
     # Look for table or create this table
-    my $erg = $obj->{dbh}->do(qq|
+    my $erg = $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS USER (
           Id int(11) unsigned auto_increment NOT NULL,
           Name varchar(100) NOT NULL default '',
           Password varchar(100) NOT NULL,
           Level set('admin', 'user', 'guest' ) NOT NULL,
-          Prefs varchar(100) default '',
-          UserPrefs varchar(100) default '',
+          Prefs text default '',
+          UserPrefs text default '',
           Deny set('tlist', 'alist', 'rlist', 'mlist', 'tedit', 'aedit', 'redit', 'remote', 'stream', 'cedit', 'media'),
           MaxLifeTime tinyint(2) default '0',
           MaxPriority tinyint(2) default '0',
@@ -220,8 +220,8 @@ sub _init {
     |);
 
     # The Table is empty? Make a default User ...
-    unless($obj->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  count(*) from USER')->[0]) {
-        $obj->_insert({
+    unless($self->{dbh}->selectrow_arrayref('SELECT SQL_CACHE count(*) from USER')->[0]) {
+        $self->_insert({
             Name => 'xxv',
             Password => 'xxv',
             Level => 'admin',
@@ -233,29 +233,40 @@ sub _init {
 # ------------------
 # Name:  create
 # Descr: Save a new User in the Usertable.
-# Usage: my $ok = $obj->create($console, 0, {name => 'user', ...});
+# Usage: my $ok = $self->create($console, 0, {name => 'user', ...});
 # ------------------
 sub create {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
-    $obj->edit($console, $id, $data);
+    $self->edit($console, $config, $id, $data);
 
 }
 
 # ------------------
 sub userprefs {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
-    my $id      = shift || $obj->{USER}->{Id};
+    my $config = shift || return error('No config defined!');
+    my $id      = shift;
     my $data    = shift || 0;
 
+
+    unless($console->{USER}->{Id}) {
+      return $console->err(gettext("This account has'nt own preferences!"));
+    }
+
+    $id = $console->{USER}->{Id} unless($id);
+    if($id ne $console->{USER}->{Id}) {
+      return $console->err(gettext("You are not authorized for change external account preferences!"));
+    }
     my $user;
     if($id and not ref $data) {
-        my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from USER where Id = ?');
+        my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from USER where Id = ?');
         $sth->execute($id)
             or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
         $user = $sth->fetchrow_hashref();
@@ -269,50 +280,106 @@ sub userprefs {
         'Password' => {
             typ   => 'password',
             msg   => gettext("Password for this account"),
-            req   => gettext('This is required!'),
+            #req   => gettext('This is required!'),
             def   => '',
             check   => sub{
                 my $value = shift || return;
+
+                return $value unless(ref $value eq 'ARRAY');
+
                 # If no password given the
                 # take the old password as default
-                if($console->typ eq 'HTML') {
-                    if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
-                    } else {
-                        return $value->[0];
-                    }
+                if($value->[0] and $value->[0] ne $value->[1]) {
+                    return undef, gettext("The fields with the 1st and the 2nd password must match!");
+                } else {
+                    return $value->[0];
                 }
-                else {
-                    return $value;
-                }
-            },
-        },
-        'UserPrefs' => {
-            def     => $user->{UserPrefs} || '',
-            msg     => gettext("Personal preferences for this user: ModName::Param=value, "),
-            typ     => 'string',
-            check   => sub{
-                my $value = shift || return;
-                foreach my $pref (split(',', $value)) {
-                    my ($modname, $parameter, $value) = $pref =~ /(\S+)::(\S+)\=(.+)/sg;
-                    if(my $mod = main::getModule($modname)) {
-                        unless(exists $mod->{$parameter}) {
-                            return undef, sprintf(gettext("The parameter '%s' in module '%s' does not exist!"),$parameter, $mod);
-                        }
-                    }
-                }
-                return $value;
             },
         },
     ];
 
+    my $mods = main::getModules();
+    my $defaultconfig = main::getModule('CONFIG')->{config};
+    my $values;
+    @$values = split('\n', $user->{UserPrefs}) if($user->{UserPrefs});
+
+    foreach my $modName (sort keys %{$mods}) {
+      my $prefs = $mods->{$modName}->{MOD}->{Preferences};
+
+      my @m = split('::', $modName);
+      shift(@m);#'XXV'
+      shift(@m);#'MODULES'
+      my $modul = join('::',@m);
+
+      my $cfg = $defaultconfig->{$modul};
+
+      next if(exists $mods->{$modName}->{active} and $cfg->{active} eq 'n');
+
+      foreach my $name (sort { lc($a) cmp lc($b) } keys(%{$prefs})) {
+          my $def;
+          if($values) {
+            foreach my $userpref (@$values) {
+              my ($modname, $parameter, $value) = $userpref =~ /(\S+)::(\S+)\=(.+)/sg;
+              if($modname eq $modul && $name eq $parameter) {
+                $def = $value;
+                last;
+              }    
+            }
+          }
+          $def = $cfg->{$name}
+              if(!(defined $def) && defined $cfg->{$name} && $cfg->{$name} ne "");
+          $def = $prefs->{$name}->{default} unless(defined $def);
+
+          push(@$questions, $modul .'::'. $name,
+              {
+                  typ => $prefs->{$name}->{type} || 'string',
+                  options => $prefs->{$name}->{options},
+                  msg => sprintf("%s:\n%s", ucfirst($modul), ($prefs->{$name}->{description} || ucfirst($name) )),
+                  def => $def,
+                  #req => $prefs->{$name}->{required},
+                  choices  => $prefs->{$name}->{choices},
+                  check  => $prefs->{$name}->{check},
+                  readonly  => $prefs->{$name}->{readonly} || 0,
+              }
+          ) if($prefs->{$name}->{level} 
+                and   $self->getLevel($console->{USER}->{Level}) 
+                   >= $self->getLevel($prefs->{$name}->{level}));
+      }
+    }
     # Ask Questions
-    $data = $console->question(sprintf(gettext('Edit preferences: %s'), $obj->{USER}->{Name}), $questions, $data);
+    $data = $console->question(sprintf(gettext('Edit preferences: %s'), $console->{USER}->{Name}), $questions, $data);
 
-    if(ref $data eq 'HASH') {
-        $obj->_insert($data);
+    if(ref $data eq 'HASH' && $data->{Id} eq $id) {
+        my $userpref;
+        foreach my $item (keys(%{$data})) { 
+          next unless($item =~ /::/s);
+          my $value = delete $data->{$item};
+          my ($modname, $parameter) = $item =~ /(\S+)::(\S+)/sg;
+          my $mod = main::getModule($modname);
+          unless(exists $mod->{$parameter}) {
+            error sprintf(("The module '%s' does not exist!"),$mod);
+            next;
+          }
+          unless(exists $mod->{$parameter}) {
+            error sprintf(("The parameter '%s' in module '%s' does not exist!"),$parameter, $mod);
+            next;
+          }
+          my $prefs = $mod->{MOD}->{Preferences};
+          unless($prefs->{$parameter}->{level} 
+                  and $self->getLevel($console->{USER}->{Level}) 
+                   >= $self->getLevel($prefs->{$parameter}->{level})) {
+            error sprintf(("You are not authorized for change this parameter '%s' in module '%s'!"),$parameter, $mod);
+            next;
+          }
+          my $cfg = $defaultconfig->{$modname};
+          unless($cfg->{$parameter} ne $value) {
+            next;
+          }
 
-        $obj->refreshUserSettings($data->{UserPrefs}, $user->{UserPrefs});
+          push(@$userpref,$modname .'::'. $parameter .'='.$value);
+        }
+        $data->{UserPrefs} = $userpref ? join('\n', @$userpref) : undef;
+        $self->_insert($data);
 
         $console->message(gettext('User account saved!'));
         if($console->typ eq 'HTML') {
@@ -327,17 +394,18 @@ sub userprefs {
 # ------------------
 # Name:  edit
 # Descr: Edit an existing User in the Usertable.
-# Usage: my $ok = $obj->edit($console, $id, [$data]);
+# Usage: my $ok = $self->edit($console, $id, [$data]);
 # ------------------
 sub edit {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
     my $user;
     if($id and not ref $data) {
-        my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from USER where Id = ?');
+        my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from USER where Id = ?');
         $sth->execute($id)
             or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
         $user = $sth->fetchrow_hashref();
@@ -370,17 +438,15 @@ sub edit {
             def   => '',
             check   => sub{
                 my $value = shift || return;
+
+                return $value unless(ref $value eq 'ARRAY');
+
                 # If no password given the
                 # take the old password as default
-                if($console->typ eq 'HTML') {
-                    if($value->[0] and $value->[0] ne $value->[1]) {
-                        return undef, gettext("The fields with the 1st and the 2nd password must match!");
-                    } else {
-                        return $value->[0];
-                    }
-                }
-                else {
-                    return $value;
+                if($value->[0] and $value->[0] ne $value->[1]) {
+                    return undef, gettext("The fields with the 1st and the 2nd password must match!");
+                } else {
+                    return $value->[0];
                 }
             },
         },
@@ -428,12 +494,17 @@ sub edit {
             },
         },
         'Prefs' => {
-            def     => $user->{Prefs} || '',
+            def     => sub {
+                            my $value = $user->{Prefs} ? split(/\n/,$user->{Prefs}) : '';
+                            return  (ref $value eq 'ARRAY') ? join(',', @$value) : $value;
+                          },
             msg     => gettext("Preferences for this User: ModName::Param=value, "),
             typ     => 'string',
             check   => sub{
                 my $value = shift || return;
-                foreach my $pref (split(',', $value)) {
+                my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
+
+                foreach my $pref (@vals) {
                     my ($modname, $parameter, $value) = $pref =~ /(\S+)::(\S+)\=(.+)/sg;
                     if(my $mod = main::getModule($modname)) {
                         unless(exists $mod->{$parameter}) {
@@ -441,7 +512,7 @@ sub edit {
                         }
                     }
                 }
-                return $value;
+                return join('\n', @vals);
             },
         },
         'MaxLifeTime' => {
@@ -475,10 +546,10 @@ sub edit {
 				    : gettext('Create new user account')), $questions, $data);
 
     if(ref $data eq 'HASH') {
-        $obj->_insert($data);
+        $self->_insert($data);
 
         debug sprintf('%s account with name "%s" is saved%s',
-            ($id ? 'New' : 'Changed'),
+            ($id ? 'Changed' : 'New'),
             $data->{Name},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
@@ -493,14 +564,15 @@ sub edit {
 # ------------------
 # Name:  delete
 # Descr: Delete an existing User in the Usertable with Id.
-# Usage: my $ok = $obj->delete($console, $id);
+# Usage: my $ok = $self->delete($console, $id);
 # ------------------
 sub delete {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id = shift || return $console->err(gettext("No user account defined for deletion! Please use udelete 'uid'."));
 
-    my $sth = $obj->{dbh}->prepare('delete from USER where Id = ?');
+    my $sth = $self->{dbh}->prepare('delete from USER where Id = ?');
     $sth->execute($id)
         or return $console->err(sprintf(gettext("User account '%s' does not exist in the database!"),$id));
     $console->message(sprintf gettext("User account %s deleted."), $id);
@@ -519,8 +591,9 @@ sub delete {
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my %f = (
         'Id' => gettext('Service'),
@@ -531,7 +604,7 @@ sub list {
     );
 
     my $sql = qq|
-SELECT SQL_CACHE  
+SELECT SQL_CACHE 
   Id as \'$f{Id}\', 
   Name as \'$f{Name}\', 
   Level as \'$f{Level}\', 
@@ -541,7 +614,7 @@ from
   USER
     |;
 
-    my $sth = $obj->{dbh}->prepare($sql);
+    my $sth = $self->{dbh}->prepare($sql);
     $sth->execute()
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $fields = $sth->{'NAME'};
@@ -553,47 +626,39 @@ from
 
 # ------------------
 # Name:  logout
-# Descr: The routine for logout the user, this will clean the user temp files
-#        and make a rollback to the standard user settings.
-# Usage: my $ok = $obj->logout();
+# Descr: The routine for logout the user, this will clean the user temp files.
+# Usage: my $ok = $self->logout();
 # ------------------
-sub logout {
-    my $obj = shift || return error('No object defined!');
+sub _logout {
+    my $self = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     lg sprintf('Logout called%s',
-        $obj->{USER}->{Name} ? sprintf(" by user %s", $obj->{USER}->{Name}) : "" 
+        $console->{USER}->{Name} ? sprintf(" by user %s", $console->{USER}->{Name}) : "" 
         );
 
-    # get the default user settings
-    $obj->setUserSettings($obj->{USER}->{UserPrefs}, 'rollback')
-        if($obj->{USER}->{UserPrefs});
-
-    # get the default settings
-    $obj->setUserSettings($obj->{USER}->{Prefs}, 'rollback')
-        if($obj->{USER}->{Prefs});
-
-    main::toCleanUp($obj->{USER}->{Name});
-    delete $obj->{USER};
+    main::toCleanUp($console->{USER}->{Name});
     return 1;
 }
 
 # ------------------
 sub _checkIp {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $handle = shift || return;
 
     my $ip = getip($handle);
 
-    if($obj->{withAuth}) {
-        my $regexp = create_iprange_regexp(split(/\s*,\s*/, $obj->{withAuth}));
+    if($self->{withAuth}) {
+        my $regexp = create_iprange_regexp(split(/\s*,\s*/, $self->{withAuth}));
         if (match_ip($ip, $regexp)) {
            return 0;
         }
     }
 
-    if($obj->{noAuth}) {
-        my $regexp = create_iprange_regexp(split(/\s*,\s*/, $obj->{noAuth}));
+    if($self->{noAuth}) {
+        my $regexp = create_iprange_regexp(split(/\s*,\s*/, $self->{noAuth}));
         if (match_ip($ip, $regexp)) {
            return 1;
         }
@@ -606,88 +671,63 @@ sub _checkIp {
 # Descr: The loginroutine to check the User Name, Password
 #        or the ClientIPAdress.
 #        This will return a Userhash with the DB-Entrys.
-# Usage: my $userHash = $obj->check($handle);
+# Usage: my $userHash = $self->check($handle);
 # ------------------
 sub check {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $handle = shift || return;
 
-    if($obj->_checkIp($handle)) {
-        $obj->{USER}->{Name} = undef;
-        $obj->{USER}->{Level} = 'admin';
+    my $user;
+    if($self->{active} ne 'y' 
+        or $self->_checkIp($handle)) {
+        $user->{Name} = 'su'; # we are Superuser
+        $user->{Level} = 'admin';
+        #$user->{MaxLifeTime} = 0; #0 - disabled
+        #$user->{MaxPriority} = 0; #0 - disabled
+        $user->{config} = main::getModule('CONFIG')->{config};
     } else {
         my $name = shift || return;
         my $password = shift || return;
 
-
-        my $oldprefs = $obj->{USER}->{UserPrefs};
-
-        my $newUser = 0;
-        if((!$obj->{USER}) or (!scalar keys %{$obj->{USER}}) or $name ne $obj->{USER}->{Name}) {
-            lg sprintf('User %s try to login!', $name );
-            $newUser = $name;
-            $obj->logout()
-                if($obj->{USER} and (scalar keys %{$obj->{USER}}));
-        }
-
         # check User
-        my $sth = $obj->{dbh}->prepare('SELECT SQL_CACHE  * from USER where Name = ? and Password = md5( ? )');
+        my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from USER where Name = ? and Password = md5( ? )');
         $sth->execute($name, $password)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-        $obj->{USER} = $sth->fetchrow_hashref();
+        $user = $sth->fetchrow_hashref();
+
+        return undef 
+          unless($user);
+
+        $user->{config} = make_cow_ref(main::getModule('CONFIG')->{config});
 
         # Set the user settings from user
-        $obj->refreshUserSettings($obj->{USER}->{UserPrefs}, $oldprefs);
+        $self->applySettings($user->{UserPrefs}, $user->{config})
+          if($user->{UserPrefs});
 
         # Set the user settings from admin
-        $obj->setUserSettings($obj->{USER}->{Prefs}, 'set')
-            if($obj->{USER}->{Prefs} and $newUser);
+        $self->applySettings($user->{Prefs}, $user->{config})
+          if($user->{Prefs});
     }
 
-    if(my $level = $obj->getLevel($obj->{USER}->{Level})) {
-        $obj->{USER}->{value} = $level if($level);
+    if(my $level = $self->getLevel($user->{Level})) {
+        $user->{value} = $level if($level);
     }
 
-    return $obj->{USER};
+    return $user;
 }
 
 # ------------------
-sub refreshUserSettings {
+sub applySettings {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
-    my $newprefs = shift || '';
-    my $oldprefs = shift || '';
+    my $self = shift  || return error('No object defined!');
+    my $newprefs = shift || return error ('No settings defined!');
+    my $config = shift || return error ('No config defined!');
 
-    return 1 if($newprefs eq $oldprefs);
-
-    $obj->setUserSettings($oldprefs, 'rollback')
-        if($oldprefs);
-
-    $obj->setUserSettings($newprefs, 'set')
-        if($newprefs);
-
-    my $mod = main::getModule('CONFIG');
-    $mod->reconfigure();
-
-}
-
-
-# ------------------
-sub setUserSettings {
-# ------------------
-    my $obj = shift  || return error('No object defined!');
-    my $prefs = shift || return error ('No Settings??');
-    my $mode = shift || 'set';
-
-    foreach my $pref (split(',', $prefs)) {
+    foreach my $pref (split('\n', $newprefs)) {
         my ($modname, $parameter, $value) = $pref =~ /(\S+)::(\S+)\=(.*)/sg;
         if($modname and my $mod = main::getModule($modname) and my $cfg = main::getModule('CONFIG')->{config}) {
             if(exists $mod->{$parameter}) {
-                if($mode eq 'set') {
-                    $cfg->{$modname}->{$parameter} = $value;
-                } else {
-                    $cfg->{$modname}->{$parameter} = $mod->{$parameter};
-                }
+                $config->{$modname}->{$parameter} = $value;
             } else {
                 error("The Parameter '$parameter' in Module '$mod' is doesn't exist!");
             }
@@ -698,16 +738,16 @@ sub setUserSettings {
 # ------------------
 sub allowCommand {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $modCfg = shift || return error('No modul defined!');
     my $cmdName = shift || return error('No command name defined!');
     my $user = shift || return error('No user defined!');
     my $DontdumpViolation = shift || '';
 
     if(
-        (exists $modCfg->{Level} and $user->{value} < $obj->getLevel($modCfg->{Level}))
+        (exists $modCfg->{Level} and $user->{value} < $self->getLevel($modCfg->{Level}))
         or
-        (exists $modCfg->{Commands}->{$cmdName}->{Level} and $user->{value} < $obj->getLevel($modCfg->{Commands}->{$cmdName}->{Level}))
+        (exists $modCfg->{Commands}->{$cmdName}->{Level} and $user->{value} < $self->getLevel($modCfg->{Commands}->{$cmdName}->{Level}))
         or
         ($user->{Deny} and exists $modCfg->{Commands}->{$cmdName}->{DenyClass} and $user->{Deny} =~ /$modCfg->{Commands}->{$cmdName}->{DenyClass}/)
     ) {
@@ -728,7 +768,7 @@ sub allowCommand {
 #           'noperm'    = Permission denied for the called User
 #           'noexists'  = Command does not exist!
 #        $error is the full Errortext to diaply im Userinterface.
-# Usage: my ($cmdobj, $cmdname, $shorterr, $error) = $obj->checkCommand($console, $command);
+# Usage: my ($cmdobj, $cmdname, $shorterr, $error) = $self->checkCommand($console, $command);
 # Test:
 sub t_checkCommand {
     my ($cmdobj, $cmdname, $shorterr, $error, $t)
@@ -741,7 +781,7 @@ sub t_checkCommand {
 }
 # ------------------
 sub checkCommand {
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $ucmd = shift || return error('No command defined!');
     my $DontdumpViolation = shift || '';
@@ -751,12 +791,12 @@ sub checkCommand {
     my $shorterr = 0;
     my $cmdobj = 0;
     my $cmdname = 0;
-    my $cfg = main::getModule('CONFIG')->{config};
+    my $cmdModule;
     my $ok = 0;
 
     # Checks the Commands Syntax (double shortcmds?)
-    $obj->checkCmdSyntax()
-        unless(defined $obj->{Check});
+    $self->checkCmdSyntax()
+        unless(defined $self->{Check});
 
     foreach my $modName (keys %{$mods}) {
         my $modCfg = $mods->{$modName}->{MOD};
@@ -765,16 +805,17 @@ sub checkCommand {
                 $ok++;
                 $cmdobj = $modCfg->{Commands}->{$cmdName};
                 $cmdname = $cmdName;
+                $cmdModule = $modCfg->{Name};
                 # Check on active Modul
-                if(exists $mods->{$modName}->{active} and $cfg->{$modCfg->{Name}}->{active} eq 'n') {
+                if(exists $mods->{$modName}->{active} and $console->{USER}->{config}->{$modCfg->{Name}}->{active} eq 'n') {
                     $err = sprintf(gettext("Sorry, but the module %s is inactive! Enable it with %s:Preferences:active = y"),
-                        $modCfg->{Name}, $modCfg->{Name});
+                        $cmdModule, $cmdModule);
                     $shorterr = 'noactive';
                 }
 
-                if($obj->{active} eq 'y') {
+                if($self->{active} eq 'y') {
                     # Check Userlevel and Permissions
-                    unless($obj->allowCommand($modCfg, $cmdName, $console->{USER},$DontdumpViolation)) {
+                    unless($self->allowCommand($modCfg, $cmdName, $console->{USER},$DontdumpViolation)) {
                         $err = gettext('You are not authorized for this function!');
                         $shorterr = 'noperm';
                     }
@@ -788,23 +829,23 @@ sub checkCommand {
     }
 
     if($shorterr) {
-        return (undef, 'nothing', $shorterr, $err)
+        return (undef, 'nothing', undef, $shorterr, $err)
     } else {
-        return ($cmdobj, $cmdname, undef, undef)
+        return ($cmdobj, $cmdname, $cmdModule, undef, undef)
     }
 }
 
 # ------------------
 # Name:  checkCmdSyntax
 # Descr: Check the Syntax of Commands and for double Names in different Modules
-# Usage: my $ok = $obj->checkCmdSyntax(tlist);
+# Usage: my $ok = $self->checkCmdSyntax(tlist);
 # Test:
 sub t_checkCmdSyntax {
     return $_[0]->checkCmdSyntax('tlist');
 }
 # ------------------
 sub checkCmdSyntax {
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $mods    = main::getModules();
 
     my $shorts = {};
@@ -820,34 +861,34 @@ sub checkCmdSyntax {
             }
         }
     }
-    $obj->{Check} = 1;
+    $self->{Check} = 1;
     1;
 }
 
 # ------------------
 # Name:  getLevel
 # Descr: Translate the Levelname to an numeric level
-# Usage: my $score = $obj->getLevel(levelname);
+# Usage: my $score = $self->getLevel(levelname);
 # Test:
 sub t_getLevel {
     return $_[0]->getLevel('user') == 5;
 }
 # ------------------
 sub getLevel {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $name = shift || return;
 
     # Level Table
-    $obj->{LEV} = {
+    $self->{LEV} = {
         admin   => 10,
         user    => 5,
         guest   => 1,
-    } unless(exists $obj->{LEV});
+    } unless(exists $self->{LEV});
 
-    if($obj->{LEV}->{$name}) {
-        return $obj->{LEV}->{$name};
+    if($self->{LEV}->{$name}) {
+        return $self->{LEV}->{$name};
     } else {
-        return error("This Levelname '$name' does not exist");
+        return error("Name of level '$name' does not exist!");
     }
 
 }
@@ -855,7 +896,7 @@ sub getLevel {
 # ------------------
 sub _insert {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || return;
 
     if(ref $data eq 'HASH') {
@@ -894,10 +935,10 @@ sub _insert {
                     join(', ', @$kenn),
             );
         }
-        my $sth = $obj->{dbh}->prepare( $sql );
+        my $sth = $self->{dbh}->prepare( $sql );
         $sth->execute( @$vals );
     } else {
-        my $sth = $obj->{dbh}->prepare('REPLACE INTO USER VALUES (?,?,?,?)');
+        my $sth = $self->{dbh}->prepare('REPLACE INTO USER VALUES (?,?,?,?)');
         $sth->execute( @$data );
     }
 }
@@ -905,14 +946,14 @@ sub _insert {
 # ------------------
 # Name:  userTmp
 # Descr: Return a temp directory only for logged user and delete this by exit xxv.
-# Usage: my $tmpdir = $obj->userTmp([username]);
+# Usage: my $tmpdir = $self->userTmp([username]);
 # ------------------
 sub userTmp {
-    my $obj = shift  || return error('No object defined!');
-    my $user = ($obj->{active} eq 'y' ?  ( shift  || ($obj->{USER}->{Name}?$obj->{USER}->{Name}:"nobody") ) : "nobody" );
+    my $self = shift  || return error('No object defined!');
+    my $user = shift  || return error('No username defined!');
 
     # /var/cache/xxv/temp/xpix/$PID
-    my $dir = sprintf('%s/%s/%d', $obj->{tempimages} , $user, $$);
+    my $dir = sprintf('%s/%s/%d', $self->{tempimages} , $user, $$);
 
     unless(-d $dir) {
         mkpath($dir) or error "Couldn't mkpath $dir : $!";

@@ -116,7 +116,6 @@ sub module {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
     my $lastReportTime = shift || 0;
 
     my $sql = "SELECT SQL_CACHE count(*) from CHANNELS";
@@ -391,7 +390,8 @@ sub _insertGrp {
 sub readData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     if($self->_readData($console)) {
       $console->redirect({url => '?cmd=clist', wait => 1})
@@ -431,7 +431,7 @@ sub _readData {
             or return error sprintf("Couldn't execute query: %s.",$dsth->errstr);
 
           my $msg = [ sprintf(gettext("No channels on '%s' available!"),$self->{svdrp}->hostname($vid)), $error ];
-          $console->err($msg);
+          $console->err($msg) if(defined $console);
           next;
       }
 
@@ -593,6 +593,7 @@ sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id      = shift || '';
     my $params = shift;
 
@@ -1023,6 +1024,7 @@ sub newChannel {
 # ------------------
     my $self     = shift || return error('No object defined!');
     my $console  = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id       = shift || 0;
     my $default  = shift || 0;
 
@@ -1034,6 +1036,7 @@ sub editChannel {
 # ------------------
     my $self    = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $cid     = shift || 0;  # If channelid then edit channel
     my $data    = shift || 0;  # Data for defaults
 
@@ -1336,7 +1339,8 @@ sub saveChannel {
 sub deleteChannel {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $channelid = shift || return con_err($console, gettext("No channel defined for deletion! Please use cdelete 'pos'!"));
     my $answer  = shift || 0;
 

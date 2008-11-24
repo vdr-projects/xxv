@@ -101,6 +101,7 @@ sub logger {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $logname = shift || 'standard';
     my $params  = shift || {};
 

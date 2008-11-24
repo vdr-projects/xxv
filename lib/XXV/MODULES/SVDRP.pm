@@ -21,6 +21,7 @@ sub module {
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
+        Status => sub{ $self->status(@_) },
         Preferences => {
             timeout => {
                 description => gettext('Connection timeout defines after how many seconds an unrequited connection is terminated.'),
@@ -57,7 +58,7 @@ sub module {
             sstatus => {
                 description => gettext('Status from video disk recorder.'),
                 short       => 'ss',
-                callback    => sub{ $self->status(@_) },
+                callback    => sub{ $self->state(@_) },
                 Level       => 'user',
                 DenyClass   => 'remote',
             },
@@ -179,15 +180,17 @@ sub _insert {
 sub create {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
-    $self->edit($console, $id, $data);
+    $self->edit($console, $config, $id, $data);
 }
 
 sub edit {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id      = shift || 0;
     my $data    = shift || 0;
 
@@ -272,6 +275,8 @@ sub edit {
 sub delete {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
+
     my $id = shift || return $console->err(gettext("No definition of video disk recorder for deletion! Please use sdelete 'id'."));
 
     my $sth = $self->{dbh}->prepare('delete from RECORDER where id = ?');
@@ -309,6 +314,7 @@ sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my %f = (
         'id' => gettext('Service'),
@@ -445,6 +451,15 @@ sub enum_onlinehosts {
     return $hosts;
 }
 
+sub enum_hosts {
+    my $self = shift  || return error('No object defined!');
+
+    my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE host,id FROM RECORDER");
+    $sth->execute()
+      or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    return $sth->fetchall_arrayref();
+}
+
 # ------------------
 sub IDfromHostname {
 # ------------------
@@ -538,16 +553,15 @@ sub command {
 
     my $data;
     my $line;
-    my @commands;
-    push(@commands, (ref $cmd eq 'ARRAY' ? @$cmd : $cmd));
+    my $commands;
+    push(@$commands, (ref $cmd eq 'ARRAY' ? @$cmd : $cmd));
 
-    unless(scalar @commands > 0) {
+    unless(scalar @$commands > 0) {
       $error = 'No commands defined!';
       error ($error);
       return (undef, $error);
     }
-    push(@commands, "quit");
-
+    push(@$commands, "quit");
 
     # Open connection
     my $so = IO::Socket::INET->new(PeerAddr => $vdr->{host}, PeerPort => $vdr->{port} , Proto => 'tcp' );
@@ -597,8 +611,9 @@ sub command {
       #my $enc = find_encoding($encoding);
 
       # send commando queue
-      foreach my $command (@commands) {
-          $command =~ s/\r?\n//;
+      foreach my $command (@$commands) {
+          $command =~ s/\r//g;
+          $command =~ s/\n$//;
           #if($encoding ne $self->{charset}) {
           #  $command = $enc->encode($command);
           #}
@@ -648,7 +663,7 @@ sub command {
 
     $self->{Cache}->{$vdrid}->{online} = 'yes';
 
-    foreach my $command (@commands) {
+    foreach my $command (@$commands) {
       my @lines = (split(/[\r\n]/, $command));
       event(sprintf('Call command "%s" on %s %s.', $lines[0], $vdr->{host}, $error ? " failed" : "successful")) 
         if($command ne "quit");
@@ -657,10 +672,11 @@ sub command {
 }
 
 # ------------------
-sub status {
+sub state {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return;
+    my $config = shift || return error('No config defined!');
     my $vdrid = shift;
 
     my ($erg,$error) = $self->command('stat disk', $vdrid);
@@ -676,6 +692,7 @@ sub scommand {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $text = shift || return $console->err(gettext("No command defined! Please use scommand 'cmd'."));
     my $vdrid = shift;
 
@@ -690,5 +707,51 @@ sub scommand {
       unless($error);
     return 0;
 }
+
+# ------------------
+sub status {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $lastReportTime = shift;
+
+    my %f = (
+        'host' => gettext('Recorder'),
+        'state' => gettext('State')
+    );
+
+    my $sql = qq|
+SELECT SQL_CACHE
+  id as __id,
+  host as \'$f{host}\',
+  active as \'$f{state}\'
+from RECORDER WHERE active = 'y'|;
+
+    my $sth = $self->{dbh}->prepare($sql);
+    $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
+    my $erg = $sth->fetchall_arrayref();
+
+    map { 
+        if(defined $self->{Cache}->{$_->[0]} 
+            && defined $self->{Cache}->{$_->[0]}->{online}) {
+          if($self->{Cache}->{$_->[0]}->{online} eq 'yes') {
+            $_->[2] = gettext("Online");
+          } else {
+            $_->[2] = gettext("Offline");
+          }
+        } else {
+            $_->[2] = gettext("Unknown");
+        }
+    } @$erg;
+
+    unshift(@$erg, $fields);
+    return {
+        message => sprintf(gettext('%d active recorder'),
+                             (scalar @$erg -1)),
+        table   => $erg,
+    };
+}
+
 
 1;

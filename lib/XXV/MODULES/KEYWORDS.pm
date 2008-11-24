@@ -200,6 +200,7 @@ sub suggest {
     my $self = shift  || return error('No object defined!');
     my $type = shift || return error('No type defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $search = shift;
     my $params  = shift;
 
@@ -280,6 +281,7 @@ sub timer_keywords {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $text    = shift; 
     my $params  = shift;
 
@@ -302,6 +304,7 @@ sub recording_keywords {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $text    = shift; 
     my $params  = shift;
 

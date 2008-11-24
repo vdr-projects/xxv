@@ -109,6 +109,7 @@ sub new {
 sub findfirst {
   	my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my $basedir = $self->{dir};
     unless($basedir and -d $basedir) {
@@ -141,6 +142,7 @@ sub findfirst {
 sub channel {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $channel = shift;
 
     my $basedir = $self->{dir};
@@ -152,7 +154,7 @@ sub channel {
     }
 
     unless($channel) {
-      return $self->findfirst ($console);
+      return $self->findfirst ($console, $config);
     }
 
     my $mod = main::getModule ('CHANNELS');
@@ -252,8 +254,9 @@ sub channel {
 sub page {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $page = shift || "";
-    my $channel = $self->{CHANNEL} || return $self->findfirst ($console);
+    my $channel = $self->{CHANNEL} || return $self->findfirst ($console, $config);
     my $basedir = $self->{dir} || return error('No base directory defined!');
     my $chandir  = $self->{CHANNELDIR} || return error('No channel defined!');
     my $cache = $self->{cache} || 'packed';
@@ -1371,7 +1374,7 @@ sub HighLight {
     my $ub = "</font>";
 
     foreach my $line (split('\n',$result)) {
-        $line =~ s/$search/$ua$search$ub/g;
+        $line =~ s/$search/$ua$1$ub/ig;
         $lines .= $line;
     }
     return $lines;
@@ -1382,6 +1385,7 @@ sub HighLight {
 sub search {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $search = shift;
 
     my $channel = $self->{CHANNEL};
@@ -1447,6 +1451,7 @@ sub image {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift;
 
     return $console->err(gettext("Sorry, get image is'nt supported"))

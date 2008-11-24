@@ -113,7 +113,8 @@ sub init {
 sub report {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $modulename = shift || '';
 
     my $mods = main::getModules();
@@ -126,7 +127,7 @@ sub report {
         next if($modulename and uc($modulename) ne $modCfg->{Name});
         next if(exists $mods->{$modName}->{active} and $cfg->{$modCfg->{Name}}->{active} eq 'n');
         if(exists $modCfg->{Status} and ref $modCfg->{Status} eq 'CODE') {
-            $result->{$modCfg->{Name}} = $modCfg->{Status}($console, $self->{LastReportTime});
+            $result->{$modCfg->{Name}} = $modCfg->{Status}($self->{LastReportTime});
         }
     }
 

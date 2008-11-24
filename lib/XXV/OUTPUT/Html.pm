@@ -87,8 +87,7 @@ sub new {
     $self->{htmdir} = $attr{'-htmdir'}
         || return error('No htmdir given!');
 
-    $self->{htmdef} = $attr{'-htmdef'}
-        || return error('No htmdef given!');
+    $self->{htmdef} = sprintf('%s/default', $self->{htmdir});
 
     $self->{cgi} = $attr{'-cgi'}
         || return error('No cgi given!');
@@ -98,9 +97,6 @@ sub new {
 
     $self->{browser} = $attr{'-browser'}
         || return error('No browser given!');
-
-    $self->{start} = $attr{'-start'}
-        || return error('No start page given!');
 
     $self->{debug} = $attr{'-debug'}
         || 0;
@@ -141,10 +137,12 @@ sub parseTemplate {
 sub index {
 # ------------------
     my $self = shift || return error('No object defined!');
+    my $start = shift || return error('No start page defined!');
+
     $self->{nopack} = 1;
     $self->{call} = 'index';
     my $params = {};
-    $params->{start} = $self->{start};
+    $params->{start} = $start;
     $self->out( $self->parseTemplateFile("index", {}, $params, $self->{call}));
 }
 
@@ -167,7 +165,7 @@ sub parseTemplateFile {
       $self->{tt} = Template->new(
         START_TAG    => '\<\?\%',		    # Tagstyle
         END_TAG      => '\%\?\>',		    # Tagstyle
-        INCLUDE_PATH => [$self->{htmdir},$self->{htmdef}] ,  # or list ref
+        INCLUDE_PATH => [$self->{Skin},$self->{htmdef}] ,  # or list ref
         INTERPOLATE  => 1,                # expand "$var" in plain text
         PRE_CHOMP    => 1,                # cleanup whitespace
         EVAL_PERL    => 1,                # evaluate Perl code blocks
@@ -183,9 +181,7 @@ sub parseTemplateFile {
     # StandardTemplate: ./htmlRoot/widgets/menu.tmpl
     my $widget_first  = sprintf('%s.tmpl', $call);
     my $widget_second = sprintf('widgets/%s.tmpl', $name);
-    my $widget = (-e sprintf('%s/%s', $self->{htmdir}, $widget_first) ? $widget_first : $widget_second);
-
-    my $user = ($u->{active} eq 'y' && $self->{USER}->{Name} ? $self->{USER}->{Name} : "nobody" );
+    my $widget = (-e sprintf('%s/%s', $self->{Skin}, $widget_first) ? $widget_first : $widget_second);
     my $output;
     my $vars = {
         cgi     => $self->{cgi},
@@ -197,7 +193,7 @@ sub parseTemplateFile {
         pid     => $$,
         debug   => 0, # Avoid losing encoding like utf8
         verbose => $self->{debug},
-        user    => $user,
+        user    => $self->{USER}->{Name},
         charset => $self->{charset},
         # query the current locale
         locale  => main::getGeneralConfig->{Language},
@@ -289,7 +285,7 @@ sub parseTemplateFile {
             my $filename = shift || return error('No filename defined!');
             my $data = shift || return error('No data defined!');
 
-            my $dir = $u->userTmp;
+            my $dir = $u->userTmp($self->{USER}->{Name});
 
             # absolut Path to file
             my $file = sprintf('%s/%s', $dir, $filename);
@@ -491,7 +487,7 @@ sub status404 {
     my $file = shift || return error('No file defined!');
     my $why = shift || "";
 
-    $file =~ s/$self->{htmdir}\///g; # Don't post html root, avoid spy out
+    $file =~ s/$self->{Skin}\///g; # Don't post html root, avoid spy out
 
     $self->statusmsg(404,sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),
                     gettext("Not found"));
@@ -939,7 +935,7 @@ sub pod {
         unless(-r $podfile);
 
     my $u = main::getModule('USER');
-    my $tmpdir = $u->userTmp;
+    my $tmpdir = $u->userTmp($self->{USER}->{Name});
     my $outfile = sprintf('%s/%s_%d.pod', $tmpdir, $modname, time);
 
     pod2html(
@@ -980,7 +976,7 @@ sub txtfile {
             return $self->err(sprintf(gettext("Could not open file '%s'! : %s"), $filename, $e));
           }
         }
-        $txtfile = main::getModule('HTTPD')->unzip($gzfile);
+        $txtfile = main::getModule('HTTPD')->unzip($self,$gzfile);
       }
     }
 
@@ -992,7 +988,7 @@ sub txtfile {
     }
 
     my $u = main::getModule('USER');
-    my $htmlfile = sprintf('%s/temp_txt.html', $u->userTmp);
+    my $htmlfile = sprintf('%s/temp_txt.html', $u->userTmp($self->{USER}->{Name}));
 
     # create TextToHTML object
     unless(exists $self->{txt2html}) {
@@ -1028,6 +1024,17 @@ sub setCall {
     $self->{call} = $name;
     return $self->{call};
 }
+
+# ------------------
+sub setSkin {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $name = shift || return error ('No skin defined!');
+
+    $self->{Skin} = sprintf('%s/%s', $self->{htmdir}, $name);
+    return $self->{Skin};
+}
+
 
 # ------------------
 sub browser {

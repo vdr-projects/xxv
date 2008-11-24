@@ -166,6 +166,7 @@ sub list {
 # ------------------
     my $self = shift;
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift;
     my $params = shift;
 
@@ -244,7 +245,8 @@ sub search {
 # ------------------
     my $self = shift;
     my $console = shift || return error('No console defined!');
-    my $text  = shift || return $console->err(gettext("No 'string' to search for! Please use chrsearch 'text'."));
+    my $config = shift || return error('No config defined!');
+    my $text  = shift || return $console->err(gettext("No 'string' to search defined! Please use chrsearch 'text'."));
     my $params = shift;
 
     my $query = buildsearch("title",$text);
@@ -326,6 +328,7 @@ sub delete {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $items  = shift || return $console->err(gettext("No ID to delete! Please use chrdelete 'id'"));
 
     my @ids  = reverse sort{ $a <=> $b } split(/[^0-9]/, $items);

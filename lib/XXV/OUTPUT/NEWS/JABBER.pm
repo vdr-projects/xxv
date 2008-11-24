@@ -128,7 +128,8 @@ Then you must receive a message in your running jabber client.
 
                     return $value unless(ref $value eq 'ARRAY');
 
-                    # If no password given the take the old password as default
+                    # If no password given the
+                    # take the old password as default
                     if($value->[0] and $value->[0] ne $value->[1]) {
                         return undef, gettext("The fields with the 1st and the 2nd password must match!");
                     } else {

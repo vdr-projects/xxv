@@ -85,6 +85,7 @@ sub module {
                 type        => 'list',
                 required    => gettext('This is required!'),
                 choices     => sub{ return $self->findskins(); },
+                level       => 'guest'
             },
             StartPage => {
                 description => gettext('Startup screen'),
@@ -95,7 +96,8 @@ sub module {
                                     my $erg = $self->_get_startpage_as_array();
                                     map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
                                     return $erg;
-                                 }
+                                 },
+                level       => 'guest'
             },
             Debug => {
                 description => gettext('Dump additional debugging information, required only for software development.'),
@@ -172,7 +174,7 @@ sub init {
     LocalAddr => $self->{Interface},
 		Reuse		=> 1
     ) or return error("Couldn't create socket: $!");
-
+    binmode $socket, ":encoding(utf8)" if($self->{charset} eq 'UTF-8');
     # install an initial watcher
     Event->io(
         fd => $socket,
@@ -223,8 +225,6 @@ sub communicator {
         if(exists $self->{LOGOUT});
 
     my $ip = getip($handle);
-    my $htmlRootDir = sprintf('%s/%s', $self->{paths}->{HTMLDIR}, $self->{HtmlRoot});
-		my $htmlDefDir = sprintf('%s/%s', $self->{paths}->{HTMLDIR}, 'default');
 
     my $query = $data->{Query};                     
     if($data->{Method} eq 'POST' && $data->{Post}) {
@@ -238,6 +238,7 @@ sub communicator {
     my $cgi = CGI->new( $query );
 
     my $console;
+    my $htmlRootDir;
     if(my $outputtype = $cgi->param('ajax')) {
         # Is a Ajax Request
         $console = XXV::OUTPUT::Ajax->new(
@@ -253,31 +254,33 @@ sub communicator {
         $console = XXV::OUTPUT::Html->new(
             -handle => $handle,
             -dbh    => $self->{dbh},
-            -htmdir => $htmlRootDir,
-						-htmdef => $htmlDefDir,
+            -htmdir => $self->{paths}->{HTMLDIR},
             -cgi    => $cgi,
             -mime   => $mime,
             -browser=> $data,
             -paths  => $self->{paths},
-            -start  => $self->{StartPage},
             -debug  => ($self->{Debug} eq 'y' ? 1 : 0),
             -charset=> $self->{charset},
         );
+        $htmlRootDir = $console->setSkin($self->{HtmlRoot}); # Set default skin
     }
 
     my $userMod = main::getModule('USER');
-    if(ref $userMod and $userMod->{active} eq 'y') {
-        $console->{USER} = $userMod->check($handle, $data->{username}, $data->{password});
-        $console->login(gettext('You are not authorized to use this system!'))
-            unless(exists $console->{USER}->{Level});
-    }
-
-    if(ref $userMod and
-            ($userMod->{active} ne 'y'
-                or exists $console->{USER}->{Level})) {
-
+    unless(ref $userMod) {
+      $self->ModulNotLoaded($console,'USER');
+    } else {
+      $console->{USER} = $userMod->check($handle, $data->{username}, $data->{password});
+      unless(exists $console->{USER}->{Level}) {
+        $console->login(gettext('You are not authorized to use this system!'));
+      } else {
         $console->setCall('nothing');
-        if(not $data->{Query} and 
+        my $config = $console->{USER}->{config}->{'HTTPD'};
+    
+        $htmlRootDir = $console->setSkin($config->{HtmlRoot})
+          if($htmlRootDir); # Set user skin on HTML console
+
+        if($htmlRootDir and 
+            not $data->{Query} and 
               ($data->{Request} eq '/' or -d sprintf('%s/%s', $htmlRootDir,$data->{Request}))) {
             my $request = $htmlRootDir;
             $request .= '/';
@@ -288,7 +291,7 @@ sub communicator {
             $request =~ s/\/+/\//g;
             # Send the first page (index.html)
             if(-r sprintf('%sindex.tmpl', $request)) {
-                $console->index;
+                $console->index($config->{StartPage});
             } else {
                 $console->datei(sprintf('%sindex.html', $request));
             }
@@ -299,7 +302,7 @@ sub communicator {
             $request =~ s/\/\.\.//g;
             $request =~ s/\/+/\//g;
             if($request =~ /tempimages\//) {
-                my $tmp = $userMod->userTmp;
+                my $tmp = $userMod->userTmp($console->{USER}->{Name});
                 $request =~ s/.*tempimages\//$tmp\//;
                 $console->datei($request, $typ);
             } else {
@@ -308,9 +311,7 @@ sub communicator {
         } else {
             $self->handleInput($console, $cgi);
         }
-
-    } else {
-      $self->ModulNotLoaded($console,'USER');
+      }
     }
     $console->footer() if($console->{inclFooter});
     $console->printout();
@@ -461,7 +462,7 @@ sub handleInput {
     # Test the command on exists, permissions and so on
     my $u = main::getModule('USER');
     if($u) {
-      my ($cmdobj, $cmdname, $shorterr, $err) = $u->checkCommand($console, $ucmd);
+      my ($cmdobj, $cmdname, $cmdModule, $shorterr, $err) = $u->checkCommand($console, $ucmd);
       $console->setCall($cmdname);
       if($cmdobj and not $shorterr) {
 
@@ -469,11 +470,11 @@ sub handleInput {
             $console->{nocache} = 1 
                 if($cmdobj->{binary} eq 'nocache');
           }
-          $cmdobj->{callback}($console, $udata, $result );
+          $cmdobj->{callback}($console, $console->{USER}->{config}->{$cmdModule}, $udata, $result );
       } elsif($shorterr eq 'noperm' or $shorterr eq 'noactive') {
           $console->status403($err);
       } else {
-          $self->usage($console, undef, $err);
+          $self->_usage($console, undef, $err);
       } 
     } else {
       $self->ModulNotLoaded($console,'USER');
@@ -481,7 +482,7 @@ sub handleInput {
 }
 
 # ------------------
-sub usage {
+sub _usage {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
@@ -490,7 +491,7 @@ sub usage {
 
     my $m = main::getModule('CONFIG');
     if ($m){
-      return $m->usage($console,$modulename,$hint);
+      return $m->usage($console,undef, $modulename,$hint);
     } else {
       $self->ModulNotLoaded($console,'CONFIG');
     }
@@ -501,7 +502,6 @@ sub usage {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift || return;
     my $lastReportTime = shift || 0;
 
     return {
@@ -555,10 +555,11 @@ sub findskins
 # ------ unzip ------------
 sub unzip {
     my $self  = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
     my $file = shift || return error('No file defined!');
 
     my $gz = gzopen($file, "rb")
-         or return $self->msg(undef, sprintf(gettext("Could not open file '%s'! : %s"), $file, &gzerror ));
+         or return $console->msg(undef, sprintf(gettext("Could not open file '%s'! : %s"), $file, &gzerror ));
 
     my $text;
     while($gz->gzread(my $buffer) > 0) {
@@ -567,10 +568,9 @@ sub unzip {
 
     $gz->gzclose();
     my $u = main::getModule('USER');
-    if($u) {
-      my $tmpfile = sprintf('%s/gz_%d.tmp', $u->userTmp, time);
-      return save_file($tmpfile, $text);
-    }
+    return $self->ModulNotLoaded($console,'USER') unless(ref $u);
+    my $tmpfile = sprintf('%s/gz_%d.tmp', $u->userTmp($console->{USER}->{Name}), time);
+    return save_file($tmpfile, $text);
 }
 
 
@@ -584,6 +584,7 @@ sub checkvalue {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
     my @query = split(':',$data);

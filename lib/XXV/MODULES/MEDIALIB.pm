@@ -43,18 +43,6 @@ sub module {
                 type        => 'dir',
                 required    => gettext("This is required!"),
             },
-            listcols => {
-                description => gettext('Number of columns in listview'),
-                default     => 4,
-                type        => 'integer',
-                required    => gettext('This is required!'),
-            },
-            actorcols => {
-                description => gettext('Number of columns of actors in detailview'),
-                default     => 6,
-                type        => 'integer',
-                required    => gettext('This is required!'),
-            },
             deflanguage => {
                 description => gettext('Default media language'),
                 default     => 'german',
@@ -294,7 +282,6 @@ sub _init {
 # ------------------
 sub status {
     my $obj = shift || return error('No object defined!');
-    my $console = shift;
     
     my $sql = qq|
 SELECT SQL_CACHE 
@@ -315,9 +302,9 @@ sub researchMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || 0;
     my $params = shift || {};
-
 
     if(ref $params eq 'HASH') {
         
@@ -344,10 +331,11 @@ sub createMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || 0;
     my $params  = shift || 0;
 
-    $obj->editMedia($console, 0, $params);
+    $obj->editMedia($console, $config, 0, $params);
 }
 
 # ------------------
@@ -355,6 +343,7 @@ sub copyMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || 0;
     my $params  = shift || 0;
 
@@ -373,7 +362,7 @@ WHERE
     delete $erg->{id};
     $erg->{range} = $params->{range} if($params && $params->{range});
 
-    $obj->editMedia($console, 0, $erg);
+    $obj->editMedia($console, $config, 0, $erg);
 }
 
 # ------------------
@@ -381,6 +370,7 @@ sub importMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
 
@@ -437,8 +427,8 @@ sub importMedia {
         }
     }
     
-    $params->{mediatype} = $obj->{defmediatype} unless defined $params->{mediatype} && $params->{mediatype} != 0;
-    $params->{language} = $obj->{deflanguage} unless defined $params->{language} && $params->{language} ne '';
+    $params->{mediatype} = $config->{defmediatype} unless defined $params->{mediatype} && $params->{mediatype} != 0;
+    $params->{language} = $config->{deflanguage} unless defined $params->{language} && $params->{language} ne '';
     
     $console->table({},
         {
@@ -456,6 +446,7 @@ sub searchMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
 
@@ -520,7 +511,7 @@ ORDER BY title
         $setcount = defined $erg ? scalar @$erg : 0;
         map {
             $_->[1] =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-        } @$erg if $obj->{usecache} eq "y";
+        } @$erg if $config->{usecache} eq "y";
     }
 
     $console->table($erg,
@@ -529,10 +520,9 @@ ORDER BY title
             fields => $obj->_getsearchsfields_as_array,
             allgenres => $obj->_get_videogenres_as_array,
             setcount => $setcount,
-            range => defined $params->{range} && $params->{range} ne '' ? $params->{range} : $obj->{defrange},
+            range => defined $params->{range} && $params->{range} ne '' ? $params->{range} : $config->{defrange},
             ranges => $obj->_get_ranges_as_array,
-            cols => $obj->{listcols},
-            usecache => $obj->{usecache},
+            usecache => $config->{usecache},
         }
     );
 }
@@ -542,6 +532,7 @@ sub editMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || 0;
     my $params  = shift || {};
 
@@ -569,8 +560,8 @@ WHERE
         }
     }
 
-    $params->{mediatype} = $obj->{defmediatype} unless defined $params->{mediatype} && $params->{mediatype} != 0;
-    $params->{language} = $obj->{deflanguage} unless defined $params->{language} && $params->{language} ne '';
+    $params->{mediatype} = $config->{defmediatype} unless defined $params->{mediatype} && $params->{mediatype} != 0;
+    $params->{language} = $config->{deflanguage} unless defined $params->{language} && $params->{language} ne '';
     
     $console->table({},
         {
@@ -588,13 +579,14 @@ sub listMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || "";
     my $params  = shift;
 
     my ($r, $range,$where);
     $r = uc($params->{range})
       if ( $params && defined $params->{range} && $params->{range}=~ /^.+?/ );
-    $r = uc($obj->{defrange})
+    $r = uc($config->{defrange})
       if ( ! $r );
     
     if ( $r eq "SEEN" ) {
@@ -630,14 +622,13 @@ ORDER BY title
     # da sonst die Formatierung des Listenansicht nicht mehr passt
     map {
         $_->[1] =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-    } @$erg if $obj->{usecache} eq "y";
+    } @$erg if $config->{usecache} eq "y";
     
     my $param = {
         setcount => $setcount,
         range => $r,
         ranges => $obj->_get_ranges_as_array,
-        cols => $obj->{listcols},
-        usecache => $obj->{usecache},
+        usecache => $config->{usecache},
     };
     return $console->table($erg, $param);
 }
@@ -647,6 +638,7 @@ sub displayMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || "";
     my $params  = shift;
 
@@ -666,7 +658,7 @@ WHERE id = ?
     my $erg = $sth->fetchall_arrayref();
     my $actors = $obj->_get_actors( $erg->[0][12] );
     my $actorcount = ref $actors ? scalar @$actors : 0;
-    $erg->[0][10] =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg if $obj->{usecache} eq "y";
+    $erg->[0][10] =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg if $config->{usecache} eq "y";
     $erg->[0][18] = '' if $erg->[0][18] eq '0000-00-00 00:00:00';
     
     #\r\n will be replace with <br/> by output from OUTPUT::HTML    
@@ -679,10 +671,9 @@ WHERE id = ?
         actorcount => $actorcount,
         genres_all => $obj->_get_videogenres_as_hash_by_id,
         genres_sel => $obj->_get_videogenres_byvideoid( $id ),
-        range => defined $params->{range} && $params->{range} ne '' ? $params->{range} : $obj->{defrange},
+        range => defined $params->{range} && $params->{range} ne '' ? $params->{range} : $config->{defrange},
         ranges => $obj->_get_ranges_as_array,
-        actorcols => $obj->{actorcols},
-        usecache => $obj->{usecache},
+        usecache => $config->{usecache},
     };
     return $console->table($erg, $param);
 }
@@ -692,6 +683,7 @@ sub saveMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || "";
     my $params  = shift;
 
@@ -735,6 +727,7 @@ sub deleteMedia {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || "";
     my $params  = shift;
 
@@ -773,7 +766,6 @@ sub deleteMedia {
 sub _saveActors {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $console = shift || return error('No console defined!');
     my $input = shift || '';
     
     $input =~ s/\r\n/\n/g;
@@ -984,6 +976,7 @@ sub mediacache {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id   = shift || 0;
     my $params  = shift || '';
     

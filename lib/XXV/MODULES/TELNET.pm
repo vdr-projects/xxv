@@ -48,21 +48,11 @@ sub module {
             },
         },
         Commands => {
-            quit => {
-                description => gettext("This will exit the telnet session"),
-                short       => 'q',
-                callback    => sub{
-                    my ($w, $c, $l) = @_;
-                    lg "Telnet session closed.\n";
-                    $c->message(gettext("Session closed."));
-                    $obj->{LOGOUT} = 1;
-                },
-            },
             bye => {
                 description => gettext("This will exit the xxv system."),
                 short       => 'x',
                 callback    => sub{
-                    my ($w, $c, $l) = @_;
+                my ($console, $config) = @_;
         		    my $answer;
         		    my $questions = [
             		    'really' =>	{
@@ -70,10 +60,8 @@ sub module {
                                     msg => gettext("Are you sure to exit the xxv system?"),
                                     def => 'n'}
         		    ];
-                    $answer = $c->question(gettext("This will exit the xxv system."),$questions,$answer);
+                    $answer = $console->question(gettext("This will exit the xxv system."),$questions,$answer);
                     if($answer->{really} eq 'y') {
-                        $w->w->fd->close;
-                        $w->w->cancel;
                         lg "Closed session and exit.\n";
                         main::quit;
                     }

@@ -486,7 +486,7 @@ sub scandirectory {
                 wanted => sub{
                     if(-r $File::Find::name) {
                         if($File::Find::name =~ /\.$typ\/\d{3}.vdr$/sig) {  # Lookup for *.rec/001.vdr
-                          my $filename = $File::Find::name;#$enc->decode($File::Find::name);
+                          my $filename = $File::Find::name;
 
                           my $path = dirname($filename);
                           my $md5 = md5_hex($path);
@@ -508,6 +508,7 @@ sub scandirectory {
                             my $title = dirname($path);
                             $title =~ s/^$self->{videodir}//g;
                             $title =~ s/^\///g;
+#                           $rec->{title} = $enc->decode($self->converttitle($title));
                             $rec->{title} = $self->converttitle($title);
 
                             # add file
@@ -537,6 +538,7 @@ sub readData {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
     my $waiter = shift;
     # Read manual or Once at day, make full scan
     my $forceUpdate = shift;
@@ -656,7 +658,7 @@ sub readData {
                       my $job = $self->videoPreview( $db_data->{$h}, 1);
                       if($job) {
                         push(@{$self->{JOBS}}, $job);
-                        $self->_updatePreview($job->{RecordMD5}, $db_data->{$h}->{preview});
+                        $self->_updatePreview($self->{dbh}, $job->{RecordMD5}, $db_data->{$h}->{preview});
                       }
                   }
                   $self->_updateEvent($db_data->{$h});
@@ -750,7 +752,8 @@ sub readData {
         defined(my $child = fork()) or return con_err($console, sprintf("Couldn't fork : %s",$!));
         if($child == 0) {
             $self->{dbh}->{InactiveDestroy} = 1;
-
+            my $dbh = $self->{dbh}->clone();
+            error(sprintf("Couldn't clone database handle : %s",$!)) unless($dbh);
             while(scalar @jobs > 0) {
                 my $job = shift (@jobs);
 
@@ -764,8 +767,9 @@ sub readData {
                   push(@{$preview},$frame);
                   last if(scalar @{$preview} >= $self->{previewcount});
                 }
-                $self->_updatePreview($job->{RecordMD5},$preview);
+                $self->_updatePreview($dbh, $job->{RecordMD5},$preview) if($dbh);
             }
+            undef $dbh;
             exit 0;
         }
     }
@@ -834,6 +838,7 @@ sub refresh {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
 
     my $waiter;
     if(ref $console && $console->typ eq 'HTML') {
@@ -842,7 +847,7 @@ sub refresh {
       con_msg($console,gettext("Get information on recordings ..."));
     }
 
-    if($self->readData($console,$waiter,'force')) {
+    if($self->readData($console,$config, $waiter,'force')) {
 
       $console->redirect({url => '?cmd=rlist', wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -913,10 +918,11 @@ sub _updateState {
 sub _updatePreview {
 # ------------------
     my $self = shift || return error('No object defined!');
+    my $dbh = shift || return error ('No dbh defined!');
     my $RecordMD5 = shift || return error ('No data defined!');
     my $preview = shift || return error ('No data to replace!');
     my $images = join(',',@{$preview});
-    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET preview=?, addtime=NOW() where RecordMD5=?');
+    my $sth = $dbh->prepare('UPDATE RECORDS SET preview=?, addtime=NOW() where RecordMD5=?');
     return $sth->execute($images,$RecordMD5);
 }
 # ------------------
@@ -1477,6 +1483,7 @@ sub display {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $recordid = shift;
 
     unless($recordid) {
@@ -1546,6 +1553,7 @@ sub play {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
     my $params  = shift;
 
@@ -1574,7 +1582,7 @@ sub play {
 
 
     my $cmd = sprintf('PLAY %d %s', $rec->{RecordID}, $start);
-    if($self->{svdrp}->scommand($console, $cmd)) {
+    if($self->{svdrp}->scommand($console, $config, $cmd)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1589,6 +1597,7 @@ sub cut {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
 
     my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
@@ -1615,6 +1624,7 @@ sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $text    = shift || "";
     my $params  = shift;
 
@@ -1757,18 +1767,20 @@ sub search {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
-    my $text    = shift || return $self->list($console);
+    my $config = shift || return error('No config defined!');
+    my $text    = shift || return $self->list($console,$config);
     my $params  = shift;
 
     my $query = buildsearch("e.title,e.subtitle,e.description",$text);
-    return $self->_search($console,$query->{query},$query->{term},$params);
+    return $self->_search($console,$config,$query->{query},$query->{term},$params);
 }
 
 # ------------------
 sub _search {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift; 
+    my $console = shift;
+    my $config = shift;
     my $search = shift; 
     my $term = shift; 
     my $params  = shift;
@@ -1892,6 +1904,7 @@ sub delete {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $record  = shift || return con_err($console,gettext("No recording defined for deletion! Please use rdelete 'id'."));
     my $answer  = shift || 0;
 
@@ -2026,6 +2039,7 @@ sub redit {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $recordid  = shift || return con_err($console,gettext("No recording defined for editing!"));
     my $data    = shift || 0;
 
@@ -2305,6 +2319,7 @@ sub conv {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift || 0;
 
     $self->_loadreccmds;
@@ -2361,7 +2376,6 @@ sub conv {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
     my $lastReportTime = shift;
 
     my $sql = qq|
@@ -2589,6 +2603,7 @@ sub suggest {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $search = shift;
     my $params  = shift;
 
@@ -2633,6 +2648,7 @@ sub recover {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $recordid  = shift || 0;
     my $data    = shift || 0;
 
@@ -2772,6 +2788,7 @@ sub image {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift;
 
     return $console->err(gettext("Sorry, get image is'nt supported"))

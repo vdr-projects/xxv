@@ -207,21 +207,17 @@
 <tr>
     <td colspan="5">
         <b><?% gettext("Actors") %?>:</b><br>
-        <table width="100%">
+            <div>    
             <?% WHILE param.actors.size %?>
-            <tr>    
-                <?% FOREACH [ 1 .. param.actorcols ] %?>
                 <?% actor = param.actors.shift %?>
-                    <td width="<?% (100 - (100 mod param.actorcols)) / param.actorcols %?>%" valign="top">
+                    <div style="float:left;height:60px;width:160px;overflow:hidden">
                         <?% IF actor.0 %?>
-                        <img src='?cmd=mlcache&__source=<?% actor.1 %?>' alt="" border="0" width="44" height="60" />
-                        &nbsp;<a href="?cmd=mlsearch&__search&__selfields=actors&__searchitem=<?% actor.0 %?>"><?% actor.0 %?></a>
+                        <img style="float:left;margin-right:10px" src='?cmd=mlcache&__source=<?% actor.1 %?>' alt="" border="0" width="44" height="60" />
+                        <a href="?cmd=mlsearch&__search&__selfields=actors&__searchitem=<?% actor.0 %?>"><?% actor.0 %?></a>
                         <?% END %?>
-                    </td>
-                <?% END %?>
-            </tr>
+                    </div>
             <?% END %?>
-        </table>
+            </div>
     </td>
 </tr>
 <?% END %?>

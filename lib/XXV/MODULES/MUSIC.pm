@@ -336,6 +336,7 @@ sub refresh {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
 
@@ -454,6 +455,7 @@ sub play {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
     debug sprintf('Call play%s',
@@ -468,6 +470,7 @@ sub playlist {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
@@ -521,6 +524,7 @@ sub search {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $text   = shift;
 
     unless($text) {
@@ -536,6 +540,7 @@ sub list {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $param  = shift;
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
@@ -905,7 +910,6 @@ sub GenreArray {
 sub status {
 # ------------------
     my $obj = shift || return error('No object defined!');
-    my $console = shift;
     my $lastReportTime = shift || 0;
 
     return
@@ -962,6 +966,7 @@ sub getcovers {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
     my $force = shift;
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
@@ -1097,7 +1102,7 @@ sub getcovers {
     }
 
     # Start Robots
-    $rob->start( 'coverimage', $console, sub{ $waiter->end if(ref $waiter and $current); } );
+    $rob->start( 'coverimage', sub{ $waiter->end if(ref $waiter and $current); } );
 
     return $erg;
 }
@@ -1290,6 +1295,7 @@ sub coverimage {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
@@ -1360,6 +1366,7 @@ sub getfile {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
     my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
@@ -1398,6 +1405,7 @@ sub suggest {
 # ------------------
     my $obj = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $search = shift;
     my $params  = shift;
 

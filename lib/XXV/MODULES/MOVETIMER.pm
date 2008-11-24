@@ -168,7 +168,8 @@ sub _init {
 sub movetimermanual {
 # ------------------
   my $self = shift || return error('No object defined!');
-  my $console = shift;
+  my $console = shift || return error('No console defined!');
+  my $config = shift || return error('No config defined!');
   my $id = shift;
 
   return 0 unless($self->_movetimer($console,$id));
@@ -362,10 +363,11 @@ sub modifyTimer {
 sub movetimercreate {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
 
-    $self->movetimeredit($console, $id, $data);
+    $self->movetimeredit($console, $config, $id, $data);
 }
 
 # ------------------
@@ -376,6 +378,7 @@ sub movetimercreate {
 sub movetimeredit {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
 
@@ -537,6 +540,7 @@ sub _insert {
 sub movetimerdelete {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id = shift || return $console->err(gettext("Missing ID to select rules for deletion! Please use movetimerdelete 'id'")); 
 
     my @rules  = reverse sort{ $a <=> $b } split(/[^0-9]/, $id);
@@ -566,6 +570,7 @@ sub movetimerdelete {
 sub movetimerlist {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my %f = (
         'id' => gettext('Service'),

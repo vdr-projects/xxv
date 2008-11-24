@@ -16,7 +16,7 @@ sub module {
       Prereq => {
             'Template'  => 'Front-end module to the Template Toolkit ',
             'Date::Manip' => 'date manipulation routines',
-            'Time::Local' => 'efficiently compute time from local and GMT time ',
+            'Time::Local' => 'efficiently compute time from local and GMT time',
             'XML::Simple' => 'Easy API to maintain XML (esp config files)'
       },
       Description => gettext('This module import epg data from xmltv sources.'),
@@ -180,7 +180,7 @@ sub _init {
 
             return 0 if($self->{active} ne 'y');
             lg 'Start callback to import xmltv epg data!';
-            $self->_XMLTV($console,$waiter);
+            $self->_XMLTV($console,undef,$waiter);
             }
         );
         return 1;
@@ -194,6 +194,7 @@ sub manual {
 # ------------------
   my $self = shift || return error('No object defined!');
   my $console = shift;
+  my $config = shift;
   my $id = shift;
 
   my $waiter;
@@ -201,7 +202,7 @@ sub manual {
       $waiter = $console->wait(gettext("Import epg data from xmltv sources ..."),0,1000,'no');
   }
 
-  my ($msg, $error) = $self->_XMLTV($console,$waiter,$id);
+  my ($msg, $error) = $self->_XMLTV($console,$config,$waiter,$id,'force');
 
   $waiter->end() if(ref $waiter);
   $console->start() if(ref $waiter);
@@ -220,12 +221,15 @@ sub _XMLTV {
 # ------------------
   my $self = shift || return error('No object defined!');
   my $console = shift;
+  my $config = shift;
   my $waiter = shift;
   my $id = shift;
+  my $force = shift;
 
-  my $sth = $self->{dbh}->prepare(q|
+  my $sql = qq|
     select
       x.id,
+      x.vid,
       x.active,
       x.xmltvname,
       x.channel,
@@ -234,12 +238,18 @@ sub _XMLTV {
       x.source,
       UNIX_TIMESTAMP(x.updated) as updated,
       c.Name
-    from XMLTV as x, CHANNELS as c
+    from XMLTV as x, CHANNELS as c, RECORDER as r
     where 
-      active != 'n'
-      AND x.channel = c.Id
-  |);
-  if(!$sth->execute()) {
+      x.active != 'n'
+      and x.channel = c.Id
+      and x.vid = r.id
+      and r.active != 'n'
+  |;
+  $sql .= qq| and x.id = ?| if($id);
+  $sql .= qq| ORDER BY x.vid|;
+
+  my $sth = $self->{dbh}->prepare($sql);
+  unless($id ? $sth->execute($id) : $sth->execute()) {
       error sprintf("Couldn't execute query: %s.",$sth->errstr);
       return (undef, undef)
   }
@@ -247,12 +257,13 @@ sub _XMLTV {
   return (undef, undef) unless($rules);
 
   # Adjust waiter max value now.
-  $waiter->max(scalar keys %$rules)
+  $waiter->max((scalar keys %$rules)+1)
       if(ref $console && ref $waiter);
 
 	my $now = time();
   my $l = 0;
-  my $output;
+  my $output = "";
+  my $vid;
 
   foreach my $id (sort keys %$rules) {
     my $rule = $rules->{$id};
@@ -260,12 +271,14 @@ sub _XMLTV {
     $waiter->next(++$l, undef, sprintf(gettext("Import epg data for channel '%s'"), $rule->{Name}))
       if(ref $waiter);
 
-    if($rule->{updateinterval} eq 'd' && ($rule->{updated} + 86400) > $now  ) {
-      lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
-      next;
-    } elsif($rule->{updateinterval} eq 'w' && ($rule->{updated} + (86400 * 7)) > $now ) {
-      lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
-      next;
+    unless($force && $id) {
+      if($rule->{updateinterval} eq 'd' && ($rule->{updated} + 86400) > $now  ) {
+        lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
+        next;
+      } elsif($rule->{updateinterval} eq 'w' && ($rule->{updated} + (86400 * 7)) > $now ) {
+        lg sprintf("Skip import xml data by update interval : %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
+        next;
+      }
     }
 
     my $file = sprintf("%s/%s",$self->{paths}->{XMLTV},$rule->{source});
@@ -285,19 +298,28 @@ sub _XMLTV {
         error sprintf("Can't process xml data at %s (%s) id %d",$rule->{Name},$rule->{channel},$rule->{id});
       }
     }
+    if($vid && $vid != $rule->{vid}) {
+      $self->{svdrp}->queue_add("PUTE\n" . $output . ".\n",$rule->{vid});
+      $output = "";
+    }
+    $vid = $rule->{vid};
   }
 
-  if($output and length $output) {
+  if($vid && $output && length $output) {
+      $self->{svdrp}->queue_add("PUTE\n" . $output . ".\n",$vid);
+  }
+  if($self->{svdrp}->queue_count()) {
     $waiter->next(undef,undef,gettext('Transmit data.'))
       if(ref $waiter);
-    my ($erg,$error) = $self->{svdrp}->command(sprintf("PUTE\n%s\n.\n",$output));
+
+    my ($erg,$error) = $self->{svdrp}->queue_flush();
     unless($error) {
           debug 'Data import complete';
           return ($erg, undef);
 
     } else {
       error sprintf('Data does\'nt imported : %s',$error);
-      return (undef, $erg);
+      return (undef, $error);
     }
   } else {
       error sprintf('None data exits to import');
@@ -346,7 +368,7 @@ sub _ProcessXML {
 
   # Create output
 
-  my $epgdata = '';
+  my $epgdata;
 
 
   # Find XML events
@@ -364,7 +386,7 @@ sub _ProcessXML {
 #      'channel' => 'abc',
 #      'start' => '20080317160000 +0100'
 #    },
-    next if($xmltvname and $xml->{channel} ne $xmltvname);
+    next if($xmltvname && $xml->{channel} ne $xmltvname);
 
     my $vdrst = &xmltime2vdr($xml->{start}, $adjust);
     my $vdret = &xmltime2vdr($xml->{stop}, $adjust);
@@ -377,10 +399,8 @@ sub _ProcessXML {
     $vdrdesc =~ s/\r\n/\|/g;            # pipe used from vdr as linebreak
     $vdrdesc =~ s/\n/\|/g;              # pipe used from vdr as linebreak
 
-    if($self->{charset} ne 'UTF-8') {
-      $vdrtitle = encode($self->{charset},$vdrtitle);
-      $vdrdesc = encode($self->{charset},$vdrdesc);
-    }
+    $vdrtitle = encode($self->{charset},$vdrtitle);
+    $vdrdesc = encode($self->{charset},$vdrdesc);
 
     # Send VDR Event
     $epgdata .= "E $vdrid $vdrst $vdrdur 0\n";
@@ -390,9 +410,11 @@ sub _ProcessXML {
 
   }
 
-  return unless($epgdata and length $epgdata);
+  return unless($epgdata && length $epgdata);
 
-  return "C $cid $channel_name\n".$epgdata . "c\n";
+  return "C $cid $channel_name\n"
+         . $epgdata
+         . "c\n";
 }
 
 # ------------------
@@ -447,10 +469,11 @@ sub _parse_template {
 sub create {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
 
-    $self->edit($console, $id, $data);
+    $self->edit($console, $config, $id, $data);
 }
 
 # ------------------
@@ -461,13 +484,14 @@ sub create {
 sub edit {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id = shift || 0;
     my $data    = shift || 0;
 
     my $modC = main::getModule('CHANNELS');
 
     my $rule;
-    if($id and not ref $data) {
+    if($id && not ref $data) {
         my $sth = $self->{dbh}->prepare("select * from XMLTV where id = ?");
         $sth->execute($id)
             or return $console->err(sprintf(gettext("Rule to import epg data from xmltv sources with ID '%s' does not exist in the database!"),$id));
@@ -476,6 +500,7 @@ sub edit {
     } elsif (ref $data eq 'HASH') {
         $rule = $data;
     }
+    my $vlist = $self->{svdrp}->enum_hosts();
 
     my $con = $console->typ eq "CONSOLE";
     my $questions = [
@@ -500,26 +525,27 @@ sub edit {
             def => $rule->{xmltvname} || '',
             typ => 'string'
         },
+        'vid' => {
+            typ     => scalar @$vlist > 1 ? 'list' : 'hidden',
+            def     => $rule->{vid} || $self->{svdrp}->primary_hosts(),
+            choices => $vlist,
+            msg     => gettext('Which video disk recorder should record'),
+        },
         'channel' => {
             typ     => 'list',
             def     => $con ? $modC->ChannelToPos($rule->{channel}) : $rule->{channel},
-            choices => $con ? $modC->ChannelArray('Name') : $modC->ChannelWithGroup('Name,Id'),
+            choices => $con ? $modC->ChannelArray('name') : $modC->ChannelWithGroup('c.name,c.id'),
             msg     => gettext('Assign data to channel?'),
             req     => gettext("This is required!"),
             check   => sub{
-                my $value = shift || return;
+                my $value = shift;
+                return undef, gettext("This is required!")
+                  unless($value);
 
-                if(my $name = $modC->ChannelToName($value)) {
-                    $data->{channel} = $value;
-                    return $value;
-                } elsif(my $ch = $modC->PosToChannel($value) || $modC->NameToChannel($value) ) {
-                    $data->{channel} = $value;
-                    return $ch;
-                } elsif( ! $modC->NameToChannel($value)) {
-                    return undef, sprintf(gettext("This channel '%s' does not exist!"),$value);
-                } else {
-                   return undef, gettext("This is required!");
-                }
+                my $ch = $modC->ToCID($value,$data->{vid});
+                return undef, sprintf(gettext("Channel '%s' does not exist on video disk recorder %s!"),$value, $self->{svdrp}->hostname($data->{vid}))
+                  unless($ch);
+                return $ch;                
             },
         },
         'template' => {
@@ -556,11 +582,11 @@ sub edit {
 
         $console->message(gettext('Rule to import epg data from xmltv sources saved!'));
         debug sprintf('%s rule to import epg data from xmltv sources is saved%s',
-            ($id ? 'New' : 'Changed'),
+            ($id ? 'Changed' : 'New'),
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
-        my ($msg, $error) = $self->_XMLTV($console,undef,$data->{id});
+        my ($msg, $error) = $self->_XMLTV($console,$config,undef,$data->{id});
 
         if($error) { $console->err($error); }
         elsif($msg) {
@@ -628,6 +654,7 @@ sub _updateTime {
 sub remove {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id = shift || return $console->err(gettext("Missing ID to select rules for deletion! Please use xmltvremove 'id'")); 
 
     my @rules  = reverse sort{ $a <=> $b } split(/[^0-9]/, $id);
@@ -657,6 +684,7 @@ sub remove {
 sub list {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     my %f = (
         'id' => gettext('Service'),
@@ -665,23 +693,27 @@ sub list {
         'template' => gettext('Parse data as template'),
         'interval' => gettext('Interval to parse data'),
         'source' => gettext('source to import'),
+        'host' => gettext('Video disk recorder')
     );
 
     my $sql = qq|
     select
-      id as \'$f{'id'}\',
-      active as \'$f{'active'}\',
+      x.id as \'$f{'id'}\',
+      IF(x.active!='n' and r.active!='n','y','n') as \'$f{'active'}\',
       (SELECT Name
           FROM CHANNELS as c
           WHERE x.channel = c.Id
           LIMIT 1) as \'$f{'channel'}\',
-      template as \'$f{'template'}\',
-      updateinterval as \'$f{'interval'}\',
-      source as \'$f{'source'}\'
+      x.template as \'$f{'template'}\',
+      x.updateinterval as \'$f{'interval'}\',
+      x.source as \'$f{'source'}\',
+      r.host  as \'$f{'host'}\'
     from
-      XMLTV as x
+      XMLTV as x, RECORDER as r
+    where
+      x.vid = r.id
     order by 
-      id
+      x.id
     |;
 
     my $sth = $self->{dbh}->prepare($sql);
@@ -708,8 +740,10 @@ sub list {
     } @$erg;
 
     unshift(@$erg, $fields);
-
-    $console->table($erg);
+    my $hostlist = $self->{svdrp}->list_hosts();
+    $console->table($erg, {
+        recorder => scalar @$hostlist,
+    });
 }
 
 # ------------------

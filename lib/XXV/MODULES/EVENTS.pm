@@ -341,6 +341,7 @@ sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $data = shift || 1;
 
     my %f = (
@@ -388,6 +389,8 @@ sub request {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
+
     # To this time you can set on
     # cmd=request&data=rss&ver=2 or
     # cmd=request&data=mail&__test=1

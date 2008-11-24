@@ -27,31 +27,74 @@ sub module {
                 default     => 30 * 60,
                 type        => 'integer',
                 required    => gettext("This is required!"),
+                check       => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value > 60) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
             },
             prevminutes => {
                 description => gettext('Buffer time in minutes before the scheduled start of a recording'),
                 default     => 5,
                 type        => 'integer',
+                check       => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 0 and $value <= 1440) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
+                level       => 'guest'
             },
             afterminutes => {
                 description => gettext('Buffer time in minutes past the scheduled end of a recording'),
                 default     => 5,
                 type        => 'integer',
+                check       => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 0 and $value <= 1440) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
+                level       => 'guest'
             },
             Priority => {
                 description => gettext('Priority of a timer for recordings when creating a new timer'),
                 default     => 50,
                 type        => 'integer',
+                check       => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 0 and $value < 100) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
             },
             Lifetime => {
                 description => gettext('The guaranteed lifetime (in days) of a recording created by this timer'),
                 default     => 50,
                 type        => 'integer',
+                check   => sub{
+                    my $value = shift || 0;
+                    if($value =~ /^\d+$/sig and $value >= 0 and $value < 100) {
+                        return int($value);
+                    } else {
+                        return undef, gettext('Value incorrect!');
+                    }
+                },
             },
             usevpstime => {
                 description => gettext('Use Programme Delivery Control (PDC) to control start time'),
                 default     => 'n',
                 type        => 'confirm',
+                level       => 'guest'
             },
             adjust => {
                 description => gettext('Change timers if EPG entries change'),
@@ -219,7 +262,6 @@ sub module {
 sub status {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
     my $lastReportTime = shift || 0;
 
     my $total = 0;
@@ -427,13 +469,14 @@ sub _saveTimer {
 
 sub _newTimerdefaults {
     my $self     = shift || return error('No object defined!');
-    my $timer     = shift;
+    my $config   = shift || return error('No config defined!');
+    my $timer    = shift;
 
     $timer->{active} = 'y';
-    $timer->{priority} = $self->{Priority};
-    $timer->{lifetime} = $self->{Lifetime};
+    $timer->{priority} = $config->{Priority};
+    $timer->{lifetime} = $config->{Lifetime};
 
-    if($timer->{vpsstart} && $self->{usevpstime} eq 'y' && $timer->{vpsstart} > time ) {
+    if($timer->{vpsstart} && $config->{usevpstime} eq 'y' && $timer->{vpsstart} > time ) {
       $timer->{vps} = 'y';
       $timer->{day} = $timer->{vpsday};
       $timer->{start} = $timer->{vpsstart};
@@ -447,6 +490,7 @@ sub newTimer {
 # ------------------
     my $self     = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $epgid   = shift || 0;
     my $epg     = shift || 0;
 
@@ -472,7 +516,7 @@ WHERE|;
 
       my $data;
       my $sth = $self->{dbh}->prepare($sql);
-      if(!$sth->execute($self->{prevminutes} * 60, $self->{prevminutes} * 60, $self->{afterminutes} * 60, @events)
+      if(!$sth->execute($config->{prevminutes} * 60, $config->{prevminutes} * 60, $config->{afterminutes} * 60, @events)
         || !($data = $sth->fetchall_hashref('eventid'))
         || (scalar keys %{$data} < 1)) {
           return $console->err(sprintf(gettext("Event '%s' does not exist in the database!"),join(',',@events)));
@@ -481,9 +525,9 @@ WHERE|;
       my $count = 1;
       foreach my $eventid (keys %{$data}) {
         $epg = $data->{$eventid};
-        $self->_newTimerdefaults($epg);
+        $self->_newTimerdefaults($config, $epg);
         $epg->{action} = 'save' if(scalar keys %{$data} > 1 || $fast );
-        $self->_editTimer($console, 0, $epg) if($count < scalar keys %{$data});
+        $self->_editTimer($console, $config, 0, $epg) if($count < scalar keys %{$data});
         $count += 1;
       }
     }
@@ -496,9 +540,9 @@ WHERE|;
             start     => my_strftime("%H%M",$t),
             stop      => my_strftime("%H%M",$t + 3600)
     	};
-      $self->_newTimerdefaults($epg);
+      $self->_newTimerdefaults($config, $epg);
     }
-    $self->editTimer($console, 0, $epg);
+    $self->editTimer($console, $config, 0, $epg);
 }
 
 # ------------------
@@ -506,6 +550,7 @@ sub _editTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift || 0;   # If timerid the edittimer
     my $data    = shift || 0;  # Data for defaults
 
@@ -762,10 +807,11 @@ sub editTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift;  # id of present timer, then edit this timer
     my $data    = shift;  # Data for defaults
 
-    if($self->_editTimer($console,$timerid,$data) 
+    if($self->_editTimer($console,$config,$timerid,$data) 
         && $self->{svdrp}->queue_count()) {
           my ($erg,$error) = $self->{svdrp}->queue_flush(); # Aufrufen der Kommandos
 
@@ -799,6 +845,7 @@ sub deleteTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift || return $console->err(gettext("No timer defined for deletion! Please use tdelete 'tid'."));   # If timerid the edittimer
     my $answer  = shift || 0;
 
@@ -884,6 +931,7 @@ sub toggleTimer {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $timerid = shift || return $console->err(gettext("No timer defined to toggle! Please use ttoggle 'id'."));   # If timerid the edittimer
 
     my @timers  = split(/[^0-9a-f]/, $timerid);
@@ -1122,7 +1170,8 @@ sub _readData {
 sub readData {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift;
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
 
     if($self->_readData($console)) {
       $console->redirect({url => '?cmd=tlist', wait => 1})
@@ -1157,6 +1206,7 @@ sub list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $id    = shift;
     my $params  = shift;
 
@@ -1168,7 +1218,7 @@ sub list {
       foreach(@timers) { push(@{$term},$_); }
 	  }
 
-    return $self->_list($console,$search,$term,$params);
+    return $self->_list($console,$config,$search,$term,$params);
 }
 
 # ------------------
@@ -1176,6 +1226,7 @@ sub search {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $text    = shift || return $self->list($console);
     my $params  = shift;
 
@@ -1185,7 +1236,7 @@ sub search {
     $search = sprintf('AND ( %s )', $query->{query});
     foreach(@{$query->{term}}) { push(@{$term},$_); }
 
-    return $self->_list($console,$search,$term,$params);
+    return $self->_list($console,$config,$search,$term,$params);
 }
 
 # ------------------
@@ -1193,6 +1244,7 @@ sub _list {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
 	  my $search = shift || '';
 	  my $term = shift;
 	  my $params = shift;
@@ -1966,6 +2018,7 @@ sub suggest {
 # ------------------
     my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
     my $search = shift;
     my $params  = shift;
 

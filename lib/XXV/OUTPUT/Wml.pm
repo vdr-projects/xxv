@@ -127,7 +127,6 @@ sub parseTemplate {
     my $widget_first  = sprintf('%s.tmpl', (exists $self->{call}) ? $self->{call} : 'nothing');
     my $widget_second = sprintf('widgets/%s.tmpl', $name);
     my $widget = (-e sprintf('%s/%s', $self->{wmldir}, $widget_first) ? $widget_first : $widget_second);
-    my $user = ($u->{active} eq 'y' && $self->{USER}->{Name} ? $self->{USER}->{Name} : "nobody" );
     my $output;
     my $vars = {
         cgi     => $self->{cgi},
@@ -138,7 +137,7 @@ sub parseTemplate {
         param   => $params,
         pid     => $$,
         debug   => 1,
-        user    => $user,
+        user    => $self->{USER}->{Name},
         charset => $self->{charset},
         allow   => sub{
             my($cmdobj, $cmdname, $se, $err) = $u->checkCommand($self, $_[0],"1");
@@ -160,7 +159,7 @@ sub parseTemplate {
             my $filename = shift || return error('No Filename to write');
             my $data = shift || return error('Nothing data to write');
 
-            my $dir = $u->userTmp;
+            my $dir = $u->userTmp($self->{USER}->{Name});
 
             # absolut Path to file
             my $file = sprintf('%s/%s', $dir, $filename);
@@ -375,7 +374,7 @@ sub pod {
     $modname = ucfirst($modname) if($modname eq 'GENERAL');
 
     my $podfile = sprintf('%s/%s.pod', $self->{paths}->{PODPATH}, $modname);
-    my $tmpdir = main::getModule('USER')->userTmp;
+    my $tmpdir = main::getModule('USER')->userTmp($self->{USER}->{Name});
     my $outfile = sprintf('%s/%s_%d.pod', $tmpdir, $modname, time);
 
     pod2html(

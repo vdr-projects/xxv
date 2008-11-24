@@ -43,7 +43,7 @@ sub module {
                 description => gettext("Restart all modules."),
                 short       => 'rel',
                 callback    => sub{
-                    my ($console, $l) = @_;
+                    my ($console, $config, $l) = @_;
                     $Module::Reload::Debug = CORE::int(($Tools::VERBOSE+.5)/2);
 #                   my %Status = %Module::Reload->Stat;
                     my $cnt = Module::Reload->check();
@@ -99,14 +99,15 @@ sub new {
 }
 
 # ------------------
-sub menu {
+sub _menu {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift;
     my $sector  = shift || 0;
 
     my $ret = {};
-    $ret->{title} = gettext("Settings for XXV");
+    $ret->{title} = gettext("Global settings");
     $ret->{highlight} = $sector;
 
     my $mods = main::getModules;
@@ -129,10 +130,11 @@ sub edit {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift;
     my $sector  = shift || 0;
     my $data    = shift || 0;
 
-    $obj->menu( $console, $sector )
+    $obj->_menu( $console, $config, $sector )
         if($console->{TYP} eq 'HTML' or ($console->{TYP} ne 'HTML' and not $sector));
     return unless $sector;
 
@@ -204,6 +206,7 @@ sub get {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift;
+    my $config = shift;
     my $modname = shift || 0;
 
     return con_err($console, gettext('Need a name of the module to display the configuration!'))
@@ -292,6 +295,7 @@ sub usage {
 # ------------------
     my $obj = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
+    my $config = shift;
     my $modulename = shift || 0;
     my $hint = shift || '';
     my $user = shift || $console->{USER};
