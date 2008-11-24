@@ -7,6 +7,10 @@
             link = '?cmd=rdisplay&data=';
         ELSIF name == 'AUTOTIMER';
             link = '?cmd=tedit&data=';
+        ELSIF name == 'SVDRP';
+            link = '?cmd=vdredit&data=';
+        ELSE;
+            link = '';
         END;
      %?>
 
@@ -32,7 +36,10 @@
                         <?% FOREACH field = zeile %?>
                             <?% c = c + 1 %?>
                             <?% NEXT IF fields.$c.match('^__') %?>
-                            <td><a href='<?% link %?><?% zeile.first %?>'><?% field %?></a></td>
+                            <td><?% IF link %?><a href="<?% link %?><?% zeile.first %?>"><?% END %?>
+                                <?% field %?>
+                                <?% IF link %?></a><?% END %?>
+                            </td>
                         <?% END %?>
                     </tr>
                     <?% END %?>

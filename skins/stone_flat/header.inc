@@ -25,7 +25,7 @@
       <?% IF allow( 'rp' ) %?>       <a accesskey="b" href="?cmd=rp"><?% gettext("Report") %?></a> &middot;
       <?% ELSIF allow( 'lg' ) %?>    <a accesskey="b" href="?cmd=lg&data=main"><?% gettext("Log files") %?></a> &middot;<?% END %?>
       <?% IF allow( 'ce' ) %?>       <a accesskey="c" href="?cmd=ce"><?% gettext("Preferences") %?></a> &middot;
-      <?% ELSIF allow( 'uprefs' ) %?><a accesskey="u" href="javascript:popupcmd('uprefs',620,450,0)"><?% gettext("Personality") %?></a> &middot; 
+      <?% ELSIF allow( 'uprefs' ) %?><a accesskey="u" href="javascript:popupcmd('uprefs',620,450,0)"><?% gettext("Own settings") %?></a> &middot; 
       <?% END %?>
       <?% IF allow( 'logout' ) %?>   <a accesskey="q" href="javascript:popupcmd('logout',620,450,1)"><?% gettext("Logout") %?></a> &middot; <?% END %?>
       <?% IF allow( 'help' ) %?>     <a accesskey="h" href="?cmd=help">?</a> &middot; <?% END %?>

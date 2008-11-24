@@ -64,7 +64,7 @@ END %?>
       <?% IF allow( 'r' ) %?>        <a accesskey="f" class="headerNav" href="?cmd=r"><?% gettext("Remote") %?></a> &middot; <?% END %?>
       <?% IF allow( 'sa' ) %?>       <a accesskey="s" class="headerNav" href="?cmd=sa"><?% gettext("Status") %?></a> &middot; <?% END %?>
       <?% IF allow( 'ce' ) %?>       <a accesskey="c" class="headerNav" href="?cmd=ce"><?% gettext("Preferences") %?></a> &middot;
-      <?% ELSIF allow( 'uprefs' ) %?><a accesskey="u" class="headerNav" href="?cmd=uprefs"><?% gettext("Personality") %?></a> &middot; 
+      <?% ELSIF allow( 'uprefs' ) %?><a accesskey="u" class="headerNav" href="?cmd=uprefs"><?% gettext("Own settings") %?></a> &middot; 
       <?% END %?>
       <?% IF allow( 'logout' ) %?>   <a accesskey="q" class="headerNav" href="?cmd=logout"><?% gettext("Logout") %?></a> &middot; <?% END %?>
       <?% IF allow( 'help' ) %?>     <a accesskey="h" class="headerNav" href="?cmd=help">?</a> &middot; <?% END %?>

@@ -1,12 +1,9 @@
 <?% IF data.size %?>
 <!-- TableTemplate -->
-<table width="100%">
 <?% WHILE data.size %?>
-<tr>    
-    <?% FOREACH [ 1 .. param.cols ] %?>
     <?% fields = data.shift %?>
-    <td width="<?% (100 - (100 mod param.cols)) / param.cols %?>%">
         <?% IF fields.0 %?>
+        <div style="float:left;height:150px;width:325px;overflow:hidden">
         <table width="100%">
             <tr>
                 <td>
@@ -46,10 +43,7 @@
                 </td>
             </tr>
         </table>
+        </div>
         <?% END %?>
-    </td>
     <?% END %?>
-</tr>
-<?% END %?>
-</table>
 <?% END %?>

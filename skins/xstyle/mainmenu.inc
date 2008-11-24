@@ -7,7 +7,7 @@ webfxMenuUseHover = true;
 webfxMenuHideTime = 500;
 webfxMenuShowTime = 200;
 WebFXMenu.prototype.width = 175;
-<?% cuttext = 25 %?>
+<?% cuttext = 20 %?>
 
 var myBar = new WebFXMenuBar;
 
@@ -121,8 +121,8 @@ var myBar = new WebFXMenuBar;
     var admin = new WebFXMenu;
     <?% IF allow('vl') %?>admin.add(new WebFXMenuItem("<?% gettext("Video disk recorder",cuttext ) %?>","?cmd=vl"));<?% END %?>
     <?% IF allow('cl') %?>admin.add(new WebFXMenuItem("<?% gettext("Channels",cuttext ) %?>",  "?cmd=cl"));<?% END %?>
-    <?% IF allow('ul') %?>admin.add(new WebFXMenuItem("<?% gettext("User",cuttext ) %?>","?cmd=ul"));
-    <?% ELSIF allow('uprefs') %?>admin.add(new WebFXMenuItem("<?% gettext("Personality",cuttext ) %?>","?cmd=uprefs"));<?% END %?>
+    <?% IF allow('ul') %?>admin.add(new WebFXMenuItem("<?% gettext("User",cuttext ) %?>","?cmd=ul"));<?% END %?>
+    <?% IF allow('uprefs') %?>admin.add(new WebFXMenuItem("<?% gettext("Own settings",cuttext ) %?>","?cmd=uprefs"));<?% END %?>
     <?% IF allow('rel') %?>admin.add(new WebFXMenuItem("<?% gettext("Reload",cuttext ) %?>","?cmd=rel"));<?% END %?>
     <?% IF allow('logout') %?>admin.add(new WebFXMenuItem("<?% gettext("Logout",cuttext ) %?>","?cmd=logout"));<?% END %?>
 
