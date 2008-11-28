@@ -495,7 +495,8 @@ sub edit {
         },
         'Prefs' => {
             def     => sub {
-                            my $value = $user->{Prefs} ? split(/\n/,$user->{Prefs}) : '';
+                            my $value;
+                            @$value = $user->{Prefs} ? split(/\n/,$user->{Prefs}) : [];
                             return  (ref $value eq 'ARRAY') ? join(',', @$value) : $value;
                           },
             msg     => gettext("Preferences for this User: ModName::Param=value, "),

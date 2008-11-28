@@ -206,8 +206,7 @@ sub init {
         prio => 6,  # -1 very hard ... 6 very low
         cb => sub{
             if($self->{active} eq 'y') {
-              my $content = $self->_req();
-              $self->send($content);
+              $self->send();
             }
         },
     );
@@ -221,20 +220,26 @@ sub init {
 sub send {
 # ------------------
     my $self = shift  || return error('No object defined!');
+    my $content = shift || $self->_req();
 
     return error('This function is deactivated!')
         if($self->{active} ne 'y');
 
-    my $content = $self->_req();
-
-    my @addresses = split(/\s*,\s*/, $self->{address});
+    use Mail::SendEasy; # Hmm, failed with standard eval { use _$ } ...
 
     my $mail = new Mail::SendEasy(
         smtp => $self->{smtp},
         user => $self->{susr},
-        pass => $self->{spwd}
+        pass => $self->{spwd},
+        timeout => 60,
+        port => 25
     );
+    unless($mail) {
+      error sprintf("Can't create mail instance %s!", $!);
+      return undef;
+    }
 
+    my @addresses = split(/\s*,\s*/, $self->{address});
 
     # Send mail
     my $status = $mail->send(
@@ -244,7 +249,7 @@ sub send {
         cc      => join(',', @addresses),
         subject => gettext("News from your XXV System!"),
         msg     => $content,
-        msgid   => $self->{COUNT},
+        msgid   => $self->{COUNT}
     ) || return error sprintf("Can't send mail: %s", $mail->error);
 
     lg sprintf('Mail %d. send successfully', $self->{COUNT}++);

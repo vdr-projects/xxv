@@ -63,6 +63,11 @@ sub module {
                 default     => 'y',
                 type        => 'confirm',
             },
+            warnlevel => {
+                description => gettext('Warning level, if volume filled more then this level'),
+                default     => 90,
+                type        => "integer",
+            },
         },
         Commands => {
             all => {
@@ -788,7 +793,7 @@ sub watchDog {
 
     foreach my $m (@$mou) {
         next unless($m->[0] =~ /^\//);
-        if($m->[5] >= 90 ) {
+        if($obj->{warnlevel} && $m->[5] >= $obj->{warnlevel} ) {
             my $rm = main::getModule('EVENTS');
             $rm->news(
                 sprintf(gettext("PANIC! Only %s%% space left on device %s"),(100 - $m->[5]),$m->[0]),

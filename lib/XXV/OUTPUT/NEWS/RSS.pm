@@ -82,6 +82,11 @@ sub new {
 	my $self = {};
 	bless($self, $class);
 
+    $self->{charset} = delete $attr{'-charset'} || 'ISO-8859-1';
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
+
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
@@ -145,6 +150,8 @@ sub createRSS {
     if($ver == 1) {
         $rss = XML::RSS->new(
             version => '1.0',
+            'encoding' => $self->{charset},
+            'encode_output' => 1
         ) || return error("Can't create rss 1.0 object");
 
 
@@ -169,6 +176,8 @@ sub createRSS {
 
         $rss = XML::RSS->new(
             version => '2.0',
+            'encoding' => $self->{charset},
+            'encode_output' => 1
         ) || return error("Can't create rss 2.0 object");
 
         $rss->channel(
@@ -225,13 +234,17 @@ sub req {
               if($cmd && $data);
 
         my $category = $emod->translate_scala($level);
+        if($self->{charset} eq 'UTF-8') {
+          utf8::decode( $title ) unless utf8::is_utf8( $title );
+          utf8::decode( $message ) unless utf8::is_utf8( $message );
+        }
         $message =~ s/\r\n/<br \/>/g; 
 
         if($ver == 1) {
           $rss->add_item(
               title       => $title,
               link        => $link,
-              description => entities($message),
+              description => $message,
       	    	dc => {
       				  date    => datum($addtime, 'rss'),
        				  subject => $category,
@@ -241,7 +254,7 @@ sub req {
           $rss->add_item(
               title       => $title,
               link        => $link,
-              description => entities($message),
+              description => $message,
               pubDate     => datum($addtime, 'rss'),
               category    => $category,
               guid        => $id,
