@@ -473,16 +473,18 @@ sub _newTimerdefaults {
     my $timer    = shift;
 
     $timer->{active} = 'y';
+    $timer->{vps} = 'n';
     $timer->{priority} = $config->{Priority};
     $timer->{lifetime} = $config->{Lifetime};
 
-    if($timer->{vpsstart} && $config->{usevpstime} eq 'y' && $timer->{vpsstart} > time ) {
-      $timer->{vps} = 'y';
-      $timer->{day} = $timer->{vpsday};
-      $timer->{start} = $timer->{vpsstart};
-      $timer->{stop} = $timer->{vpsstop};
-    } else {
-      $timer->{vps} = 'n';
+    if($timer->{vpsstart} && $config->{usevpstime} eq 'y') { # VPS/PDC Time present and enabled by user
+      my $vpstime = $self->getNextTime( $timer->{vpsday}, $timer->{vpsstart}, $timer->{vpsstop} );
+      if($vpstime && $vpstime->{start} > time) { # use pdc only if data valid and if'nt event already running
+        $timer->{vps} = 'y';
+        $timer->{day} = $timer->{vpsday};
+        $timer->{start} = $timer->{vpsstart};
+        $timer->{stop} = $timer->{vpsstop};
+      }
     }
 }
 # ------------------
