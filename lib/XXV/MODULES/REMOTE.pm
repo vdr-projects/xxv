@@ -28,7 +28,7 @@ sub module {
                 required    => gettext('This is required!'),
             },
             monitor => {
-                description => gettext('Grab video framebuffer, as preview on remotecontrol.'),
+                description => gettext('Show grabbed video framebuffer in addition to remote control.'),
                 default     => 'y',
                 type        => 'confirm',
                 required    => gettext('This is required!'),

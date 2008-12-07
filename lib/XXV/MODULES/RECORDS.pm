@@ -51,12 +51,6 @@ sub module {
                 type        => 'integer',
                 required    => gettext("This is required!"),
             },
-            videodir => {
-                description => gettext('Directory where recordings are stored'),
-                default     => '/var/lib/video',
-                type        => 'dir',
-                required    => gettext("This is required!"),
-            },
             previewbinary => {
                 description => gettext('Location of used program to produce thumbnails on your system.'),
                 default     => '/usr/bin/mplayer',
@@ -297,7 +291,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 29; # Must be increment if rows of table changed
+    my $version = 31; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($self->{dbh},'RECORDS',$version,1)) {
@@ -311,10 +305,11 @@ sub _init {
           RecordId int unsigned not NULL,
           RecordMD5 varchar(32) NOT NULL,
           Path text NOT NULL,
-          Prio tinyint NOT NULL,
-          Lifetime tinyint NOT NULL,
+          priority tinyint NOT NULL,
+          lifetime tinyint NOT NULL,
           State tinyint NOT NULL,
           FileSize int unsigned default '0', 
+          cutlength int unsigned default '0', 
           Marks text,
           Type enum('TV', 'RADIO', 'UNKNOWN') default 'TV',
           preview text NOT NULL,
@@ -345,27 +340,7 @@ sub _init {
            return 0;
         }
 
-        my $updatefile = sprintf("%s/.update",$self->{videodir});
-        if( -r $updatefile) {
-          my $inotify = new Linux::Inotify2
-            or panic sprintf("Unable to create new inotify object: %s",$!);
-
-          if($inotify) {
-            # Bind watch to event::io
-            Event->io( 
-              fd => $inotify->fileno, 
-              poll => 'r', 
-              cb => sub { $inotify->poll }
-            );
-            # watch update file
-            $inotify->watch(
-                $updatefile, 
-                IN_ALL_EVENTS, 
-                sub {  my $e = shift; $self->_notify_readData($e); }
-            );
-            $self->{inotify} = 'active';
-          }
-        }
+        $self->_watch_updatefile();
 
         # Interval to read recordings and put to DB
         Event->timer(
@@ -374,13 +349,13 @@ sub _init {
             cb => sub {
                 my $forceUpdate = ($self->{countReading} % ( $self->{fullreading} * 60 / $self->{reading} ) == 0);
                 if($forceUpdate || (time - $self->{lastupdate}) > ($self->{reading}/2) ) {
-                  $self->readData(undef,undef,undef,$forceUpdate);
+                  $self->_readData(undef,undef,$forceUpdate);
                   $self->{lastupdate} = time;
                 }
                 $self->{countReading} += 1;
             },
         );
-        $self->readData(undef,undef,undef);
+        $self->_readData(undef,undef,undef);
         $self->{countReading} += 1;
         $self->{lastupdate} = time;
         return 1;
@@ -389,17 +364,59 @@ sub _init {
     1;
 }
 
+sub _watch_updatefile {
+    my $self = shift || return error('No object defined!');
+
+    my $hostlist = $self->{svdrp}->list_unique_recording_hosts();
+    foreach my $vid (@$hostlist) {
+
+      next if(exists $self->{inotify} 
+           && exists $self->{inotify}->{$vid});
+
+      my $videodirectory = $self->{svdrp}->videodirectory($vid);
+        unless($videodirectory && -d $videodirectory) {
+          my $hostname = $self->{svdrp}->hostname($vid);
+          error(sprintf("Missing video directory on %s!",$hostname));
+          next;
+        }
+      my $updatefile = sprintf("%s/.update",$videodirectory);
+      if( -r $updatefile) {
+        $self->{inotify}->{$vid}->{handle} = new Linux::Inotify2
+          or panic sprintf("Unable to create new inotify object: %s",$!);
+
+        if($self->{inotify}->{$vid}->{handle}) {
+          # Bind watch to event::io
+          $self->{inotify}->{$vid}->{event} = Event->io( 
+            fd => $self->{inotify}->{$vid}->{handle}->fileno, 
+            poll => 'r', 
+            cb => sub { $self->{inotify}->{$vid}->{handle}->poll }
+          );
+          # watch update file
+          $self->{inotify}->{$vid}->{handle}->watch(
+              $updatefile, 
+              IN_ALL_EVENTS, 
+              sub {
+                     my $e = shift; 
+                     $self->_notify_updatefile($e, $vid); 
+                  }
+          );
+        }
+      }
+    }
+}
 # ------------------
 # Callback to reread data if /video/.update changed by VDR 
 # trigged by file notifcation from inotify
-sub _notify_readData {
+sub _notify_updatefile {
 # ------------------
   my $self = shift || return error('No object defined!');
   my $e = shift;
-  lg sprintf "notify events for %s:%d received: %x", $e->fullname, $e->cookie, $e->mask;
+  my $vid = shift;
+
+  lg sprintf "On recorder %d notify events for %s:%d received: %x", $vid, $e->fullname, $e->cookie, $e->mask;
 
   if((time - $self->{lastupdate}) > 3  # Only if last update prior 3 seconds (avoid callback chill)
-     && $self->readData()) {
+     && $self->_readData()) {
 
         $self->{lastupdate} = time;
 
@@ -412,7 +429,7 @@ sub _notify_readData {
         after => $after, 
         cb => sub {
           if((time - $self->{lastupdate}) >= ($after - 30)) {
-              if($self->readData()) {
+              if($self->_readData(undef, undef, undef, $vid)) {
                 $self->{lastupdate} = time;
               }
               $_[0]->w->cancel;
@@ -476,6 +493,7 @@ sub parseData {
 sub scandirectory {
 # ------------------
     my $self = shift || return error('No object defined!');
+    my $directory = shift;
     my $typ = shift;
 
     #my $enc = find_encoding($self->{charset});
@@ -506,7 +524,7 @@ sub scandirectory {
 
                             # convert path to title
                             my $title = dirname($path);
-                            $title =~ s/^$self->{videodir}//g;
+                            $title =~ s/^$directory//g;
                             $title =~ s/^\///g;
 #                           $rec->{title} = $enc->decode($self->converttitle($title));
                             $rec->{title} = $self->converttitle($title);
@@ -528,61 +546,100 @@ sub scandirectory {
                 follow => 1,
                 follow_skip => 2,
             },
-        $self->{videodir}
+        $directory
     );
     return $files;
 }
 
 # ------------------
-sub readData {
+sub _readData {
 # ------------------
-    my $self = shift || return error('No object defined!');
-    my $console = shift;
-    my $config = shift;
-    my $waiter = shift;
-    # Read manual or Once at day, make full scan
-    my $forceUpdate = shift;
+  my $self = shift || return error('No object defined!');
+  my $console = shift;
+  my $waiter = shift;
+  my $forceUpdate = shift; # Read manual or Once at day, make full scan
+  my $onlyvid = shift;
 
-    # Read recording over SVDRP
-    my ($lstr,$error) = $self->{svdrp}->command('lstr');
+  my $outdatedRecordings;
+  if($onlyvid) {
+      my $sth = $self->{dbh}->prepare('SELECT RecordMD5,CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as hash FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid and vid = ?');
+      if(!$sth->execute($onlyvid)) {
+          con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+      }
+      $outdatedRecordings = $sth->fetchall_hashref('hash');
+  } else  {
+      my $sth = $self->{dbh}->prepare('SELECT RecordMD5,CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as hash FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid');
+      if(!$sth->execute()) {
+          con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+      }
+      $outdatedRecordings = $sth->fetchall_hashref('hash');
+  }
+
+  if($forceUpdate) {
+      $self->{dbh}->do('DELETE FROM RECORDS');
+      $self->{keywords}->removesource('recording');
+  }
+  my $err = [];
+  my $insertedData = 0;
+  my $updatedState = 0;
+  my $removedData = 0;
+  my @todel;
+
+  my $hostlist; 
+  $hostlist = [ $onlyvid ] if($onlyvid);
+  $hostlist = $self->{svdrp}->list_unique_recording_hosts() unless($hostlist);
+  # Read recording over SVDRP
+  foreach my $vid (@$hostlist) {
+    my ($lstr,$error) = $self->{svdrp}->command('lstr',$vid);
+    my $hostname = $self->{svdrp}->hostname($vid);
     my $vdata = [ grep(/^250/, @$lstr) ];
-
-    unless(scalar @$vdata) {
-        # Delete old Records
-        $self->{dbh}->do('DELETE FROM RECORDS');
-        $self->{keywords}->removesource('recording');
-
-        my $msg = [gettext('No recordings available!'), $error ];
-        $console->err($msg) if($console);
-        return;
+    if($error) {
+      if($console) {
+        my $msg = [
+          sprintf(gettext("Can't read recordings from %s !"),$hostname), 
+          $error 
+        ];
+        $console->err($msg);
+      }
+      next;
     }
 
     # Get state from used harddrive (/video)
-    my ($disk,$error2) = $self->{svdrp}->command('stat disk');
-    my ($total, $totalUnit, $free, $freeUnit, $percent);    
-    my $totalDuration = 0;
-    my $totalSpace = 0;
-
+    my ($disk,$error2) = $self->{svdrp}->command('stat disk',$vid);
     if(!$error2 and $disk->[1] and $disk->[1] =~ /^250/s) {
         #250 473807MB 98028MB 79%
-        ($total, $totalUnit, $free, $freeUnit, $percent)
+        my ($total, $totalUnit, $free, $freeUnit, $percent)
             = $disk->[1] =~ /^250[\-|\s](\d+)(\S+)\s+(\d+)(\S+)\s+(\S+)/s;
+        error sprintf("Unsupported unit '%s' to calc free capacity",$freeUnit) unless($freeUnit eq 'MB');
 
-        $self->{CapacityMessage} = sprintf(gettext("Used %s, total %s%s, free %s%s"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit);
-        $self->{CapacityPercent} = int($percent);
-
+        $self->{Capacity}->{$vid}->{Message} = sprintf(gettext("Used %s, total %s%s, free %s%s on '%s'"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit, $hostname);
+        $self->{Capacity}->{$vid}->{Free}    = $free;
+        $self->{Capacity}->{$vid}->{Duration} = 0;
+        $self->{Capacity}->{$vid}->{FileSize} = 0;
     } else {
-        error("Couldn't get disc state : ".join("\n", @$disk));
-        $self->{CapacityMessage} = gettext("Unknown disc capacity!");
-        $self->{CapacityPercent} = 0;
-
+        error(sprintf("Couldn't get disc state from %s\n%s", $hostname, join("\n", @$disk)));
+        $self->{Capacity}->{$vid}->{Message} = sprintf(gettext("Unknown disc capacity on '%s'!"),$hostname);
+        $self->{Capacity}->{$vid}->{Free}     = 0;
+        $self->{Capacity}->{$vid}->{Duration} = 0;
+        $self->{Capacity}->{$vid}->{FileSize} = 0;
     }
 
-    my @merkMD5;
-    my $insertedData = 0;
-    my $updatedState = 0;
+    # There none recordings present
+    unless(scalar @$vdata) {
+        unless($forceUpdate) {
+          # then delete old recordings
+          my $sth = $self->{dbh}->prepare('DELETE FROM RECORDS as r,OLDEPG as e where e.vid = ? and r.eventid = e.eventid');
+          if(!$sth->execute($vid)) {
+              con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+              next;
+          }
+        }
+        next;
+    }
+
+
+
     my $l = 0;
-    my $err = [];
 
     my $vdrData = $self->parseData($vdata);
 
@@ -591,10 +648,7 @@ sub readData {
         if(ref $console && ref $waiter);
 
     my $db_data;
-    if($forceUpdate) {
-        $self->{dbh}->do('DELETE FROM RECORDS');
-        $self->{keywords}->removesource('recording');
-    } else {
+    unless($forceUpdate) {
         # read database for compare with vdr data
         my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.RecordId as id, 
                         UNIX_TIMESTAMP(e.starttime) as starttime, 
@@ -608,11 +662,17 @@ sub readData {
                         r.Marks as marks,
                         r.RecordMD5
                  from RECORDS as r,OLDEPG as e 
-                 where r.eventid = e.eventid |;
-       $db_data = $self->{dbh}->selectall_hashref($sql, 'hash');
-
+                 where e.vid = ? and r.eventid = e.eventid |;
+       my $sth = $self->{dbh}->prepare($sql);
+       if(!$sth->execute($vid)) {
+             error sprintf("Couldn't execute query: %s.",$sth->errstr);
+             $console->err(sprintf(gettext("Couldn't query recordings from database!")))
+               if($console);
+             next;
+       }
+       $db_data = $sth->fetchall_hashref('hash');
        lg sprintf( 'Compare recording database with data from %s : %d / %d', 
-                    $self->{svdrp}->hostname(),
+                    $hostname,
                     scalar keys %$db_data,scalar keys %$vdrData );
     }
 
@@ -667,11 +727,12 @@ sub readData {
                   $updatedState++;
               }
           }
-
-          $totalDuration += $db_data->{$h}->{duration};
-          $totalSpace += $db_data->{$h}->{FileSize};
           
-          push(@merkMD5,$db_data->{$h}->{RecordMD5});
+          
+          $self->{Capacity}->{$vid}->{Duration} += $db_data->{$h}->{duration};
+          $self->{Capacity}->{$vid}->{FileSize} += $db_data->{$h}->{FileSize};
+          
+          delete $outdatedRecordings->{$h};
 
           # delete updated rows from hash
           delete $db_data->{$h};
@@ -683,19 +744,25 @@ sub readData {
 
           # Read VideoDir only at first call
           unless($files) {
-            $files = $self->scandirectory('rec');
+            my $videodirectory = $self->{svdrp}->videodirectory($vid);
+            unless($videodirectory && -d $videodirectory) {
+              $console->err(sprintf(gettext("Missing video directory on %s!"),$hostname))
+                if($console);
+              last;
+            }
+            $files = $self->scandirectory( $videodirectory, 'rec');
           }
           unless($files && keys %{$files}) {
             last;
           }
 
-          my $info = $self->analyze($files,$event);
+          my $info = $self->analyze($vid,$files,$event);
           if(ref $info eq 'HASH') {
-              $totalDuration += $info->{Duration};
-              $totalSpace += $info->{FileSize};
+              $self->{Capacity}->{$vid}->{Duration} += $info->{Duration};
+              $self->{Capacity}->{$vid}->{FileSize} += $info->{FileSize};
 
               if($self->insert($info)) {
-                  push(@merkMD5,$info->{RecordMD5});
+                  delete $outdatedRecordings->{$h};
                   $insertedData++;
 
                   $self->{keywords}->insert('recording',$info->{RecordMD5},$info->{keywords});
@@ -711,37 +778,63 @@ sub readData {
 
       if($forceUpdate) {
         foreach my $md5 (keys %{$files}) {
-           push(@{$err},sprintf(gettext("Recording '%s' without id or unique title and date from VDR!"),$files->{$md5}->{title}));
+           push(@{$err},sprintf(gettext("Recording '%s' without id or unique title and date from '%s'!"),$files->{$md5}->{title},$hostname));
         }
       }
 
       if($db_data && scalar keys %$db_data > 0) {
-        my @todel;
         foreach my $t (keys %{$db_data}) {
+            delete $outdatedRecordings->{$t};
             push(@todel,$db_data->{$t}->{RecordMD5});
         }
-        my $sql = sprintf('DELETE FROM RECORDS WHERE RecordMD5 IN (%s)', join(',' => ('?') x @todel)); 
-        my $sth = $self->{dbh}->prepare($sql);
-        $sth->execute(@todel)
-            or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
-
-        $self->{keywords}->remove('recording',\@todel);
       }
 
-    my $removedData = $db_data ? scalar keys %$db_data : 0;
+      $removedData += $db_data ? scalar keys %$db_data : 0;
+    }
+
     debug sprintf 'Finish .. %d recordings inserted, %d recordings updated, %d recordings removed',
            $insertedData, $updatedState, $removedData;
 
-    error sprintf("Unsupported unit '%s' to calc free capacity",$freeUnit) unless($freeUnit eq 'MB');
+    map { push(@todel,$outdatedRecordings->{$_}->{RecordMD5}); } keys %{$outdatedRecordings};
+    if(!$forceUpdate && scalar @todel) {
+      my $sql = sprintf('DELETE FROM RECORDS WHERE RecordMD5 IN (%s)', join(',' => ('?') x @todel)); 
+      my $sth = $self->{dbh}->prepare($sql);
+      $sth->execute(@todel)
+          or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+
+      $self->{keywords}->remove('recording',\@todel);
+    }
+
     # use store capacity and recordings length to calc free capacity
+    my $totalDuration = 0;
+    my $totalSpace = 0;
+    my $totalFree = 0;
+    my $Message;
+
+    foreach my $vid (keys %{$self->{Capacity}}) {
+      push(@$Message,$self->{Capacity}->{$vid}->{Message});
+      $totalDuration += $self->{Capacity}->{$vid}->{Duration};
+      $totalSpace += $self->{Capacity}->{$vid}->{FileSize};
+      $totalFree += $self->{Capacity}->{$vid}->{Free};
+    }
+
+    $self->{CapacityMessage} = join("\n",@$Message);
     $self->{CapacityTotal} = $totalDuration;
     if($totalSpace > 1) {
-      $self->{CapacityFree} = int(($free * $totalDuration) / $totalSpace);
+      $self->{CapacityFree} = int(($totalFree * $totalDuration) / $totalSpace);
     } else {
-      $self->{CapacityFree} = int($free * 3600 / 2000); # use 2GB at one hour as base
+      $self->{CapacityFree} = int($totalFree * 3600 / 2000); # use 2GB at one hour as base
     }
-    $self->{CapacityPercent}  = ($totalSpace * 100 / ($free + $totalSpace))
-      unless($self->{CapacityPercent});
+    $self->{CapacityPercent}  = ($totalSpace * 100 / ($totalFree + $totalSpace));
+
+
+
+    # alte PreviewDirs loeschen
+    foreach my $md5 (@todel) {
+        my $dir = sprintf('%s/%s_shot', $self->{previewimages} , $md5);
+        lg sprintf("Remove old preview files : '%s'",$dir);
+        deleteDir($dir);
+    }
 
     # Previews im fork erzeugen
     if(scalar @{$self->{JOBS}}) {
@@ -774,15 +867,6 @@ sub readData {
         }
     }
 
-    # alte PreviewDirs loeschen
-    foreach my $dir (glob(sprintf('%s/*_shot', $self->{previewimages}))) {
-        my $basedir = basename($dir);
-        unless(grep(sprintf('%s_shot',$_) eq $basedir, @merkMD5)) {
-            lg sprintf("Remove old preview files : '%s'",$dir);
-            deleteDir($dir);
-        }
-    }
-
     # Delete all old EPG entrys
     if($forceUpdate || $removedData) {
         my $sqldeleteEvents = qq|
@@ -803,9 +887,9 @@ DELETE FROM OLDEPG
 
     $console->start() if(ref $waiter && ref $console);
     if(scalar @{$err} == 0) {
-        $console->message(sprintf(gettext("Write %d recordings to the database."), scalar @merkMD5)) if(ref $console);
+        $console->message(sprintf(gettext("Write %d recordings to the database."), ($insertedData + $updatedState))) if(ref $console);
     } else {
-        unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Couldn't assign %d recordings."), scalar @merkMD5 , scalar @{$err}));
+        unshift(@{$err}, sprintf(gettext("Write %d recordings to the database. Couldn't assign %d recordings."), ($insertedData + $updatedState) , scalar @{$err}));
         con_err($console,$err);
     }
     return (scalar @{$err} == 0);
@@ -847,7 +931,7 @@ sub refresh {
       con_msg($console,gettext("Get information on recordings ..."));
     }
 
-    if($self->readData($console,$config, $waiter,'force')) {
+    if($self->_readData($console,$waiter,'force')) {
 
       $console->redirect({url => '?cmd=rlist', wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -866,8 +950,8 @@ sub insert {
     my $sth = $self->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
-        (eventid, RecordId, RecordMD5, Path, Prio, Lifetime, State, FileSize, Marks, Type, preview, aux, addtime )
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NOW())
+        (eventid, RecordId, RecordMD5, Path, priority, lifetime, State, FileSize, cutlength, Marks, Type, preview, aux, addtime )
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
     |);
 
     $attr->{Marks} = ""
@@ -878,10 +962,11 @@ sub insert {
         $attr->{RecordId},
         $attr->{RecordMD5},
         $attr->{Path},
-        $attr->{Prio},
-        $attr->{Lifetime},
+        $attr->{priority},
+        $attr->{lifetime},
         $attr->{State},
         $attr->{FileSize},
+        $attr->{cutlength},
         $attr->{Marks},
         $attr->{Type},
         $attr->{preview},
@@ -939,6 +1024,7 @@ sub _updateFileSize {
 sub analyze {
 # ------------------
     my $self = shift || return error('No object defined!');
+    my $vid = shift; # ID of Video disk recorder
     my $files = shift; # Hash with md5 and path to recording
     my $recattr = shift;
 
@@ -950,7 +1036,7 @@ sub analyze {
       return 0;
     }
 
-    my $event = $self->SearchEpgId( $recattr->{starttime}, $info->{duration}, $recattr->{title}, $info->{channel} );
+    my $event = $self->SearchEpgId( $vid, $recattr->{starttime}, $info->{duration}, $recattr->{title}, $info->{channel} );
     if($event) {
         my $id = $event->{eventid};
         $event->{addtime} = time;
@@ -972,7 +1058,7 @@ sub analyze {
             $title = join('~',@t);
         }
 
-        $event = $self->createOldEventId($recattr->{id}, $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info);
+        $event = $self->createOldEventId($vid, $recattr->{id}, $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info);
         unless($event) {
           error sprintf("Couldn't create event!: '%s' !",$recattr->{id});
           return 0;
@@ -990,12 +1076,13 @@ sub analyze {
         Duration => $info->{duration},
         Start => $recattr->{starttime},
         Path  => $info->{path},
-        Prio  => $info->{Prio},
-        Lifetime  => $info->{Lifetime},
+        priority  => $info->{priority},
+        lifetime  => $info->{lifetime},
         eventid => $event->{eventid},
         Type  => $info->{type} || 'UNKNOWN',
         State => $recattr->{state},
         FileSize => $info->{FileSize},
+        cutlength => $info->{cutlength},
         aux => $info->{aux},
         keywords => $info->{keywords}
     };
@@ -1034,14 +1121,15 @@ sub videoInfo {
 
               $info->{RecordMD5} = $md5;
               $info->{path} = $rec->{path};
-              $info->{Prio} = $rec->{priority};
-              $info->{Lifetime} = $rec->{lifetime};
+              $info->{priority} = $rec->{priority};
+              $info->{lifetime} = $rec->{lifetime};
               $info->{duration} = $self->_recordinglength($rec->{path});
               $info->{FileSize} = $self->_recordingCapacity($rec->{files},
                                    ($info->{duration} * 8 * $self->{framerate}));
 
-              my $marks = $self->readmarks($rec->{path});
+              my $marks = $self->_readmarks($rec->{path});
               map { $info->{$_} = $marks->{$_}; } keys %{$marks}; 
+              $info->{cutlength} = $self->_calcmarks($info->{marks} , $info->{duration});
 
               delete $files->{$md5}; # remove from hash, avoid double lookup
               return $info;
@@ -1054,7 +1142,7 @@ sub videoInfo {
 
 #-------------------------------------------------------------------------------
 # get cut marks from marks.vdr
-sub readmarks {
+sub _readmarks {
     my $self     = shift || return error('No object defined!');
     my $path    = shift || return error ('No recording path defined!');
 
@@ -1074,6 +1162,35 @@ sub readmarks {
         }
     }
     return $status;
+}
+
+
+sub _calcmarks {
+    my $self = shift;
+    my $marks = shift;
+    my $duration = shift;
+
+    unless ($marks) {
+      return $duration;
+    }
+    
+    my $frames = 0;
+    for (my $i = 0; $i < (scalar(@$marks)); $i += 2) {
+    		my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i];
+    		my $startframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
+
+        if ($marks->[$i+1]) {
+        		my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i + 1];
+        		my $endframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
+            $frames += $endframe - $startframe;
+        } else {
+            $frames += ($duration * ($self->{framerate})) - $startframe;
+            last;
+        }
+    }
+		
+    return $frames / $self->{framerate};
+    
 }
 
 #-------------------------------------------------------------------------------
@@ -1397,6 +1514,7 @@ sub _mark2frames{
 sub SearchEpgId {
 # ------------------
     my $self = shift || return error('No object defined!');
+    my $vid = shift; # ID of Video disk recorder
     my $start = shift || return error('No start time defined!');
     my $dur = shift || return 0;
     my $title = shift || return error('No title defined!');
@@ -1407,19 +1525,21 @@ sub SearchEpgId {
     if($channel && $channel ne "") {
         $sth = $self->{dbh}->prepare(
 qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
-        UNIX_TIMESTAMP(starttime) >= ? 
+        vid = ?
+    AND UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND CONCAT_WS("~",title,subtitle) = ?
     AND channel_id = ?|);
-        $sth->execute($start,$bis,$title,$channel)
+        $sth->execute($vid,$start,$bis,$title,$channel)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     } else {
         $sth = $self->{dbh}->prepare(
 qq|SELECT SQL_CACHE * FROM OLDEPG WHERE 
-        UNIX_TIMESTAMP(starttime) >= ? 
+        vid = ?
+    AND UNIX_TIMESTAMP(starttime) >= ? 
     AND UNIX_TIMESTAMP(starttime)+duration <= ? 
     AND CONCAT_WS("~",title,subtitle) = ?|);
-        $sth->execute($start,$bis,$title)
+        $sth->execute($vid,$start,$bis,$title)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     }
     return 0 if(!$sth);
@@ -1432,6 +1552,7 @@ qq|SELECT SQL_CACHE * FROM OLDEPG WHERE
 sub createOldEventId {
 # ------------------
     my $self = shift || return error('No object defined!');
+    my $vid = shift; # ID of Video disk recorder
     my $id = shift || return error('No eventid defined!');
     my $start = shift || return error('No start time defined!');
     my $duration = shift || 0;
@@ -1457,11 +1578,12 @@ sub createOldEventId {
     lg sprintf('Create event "%s" into OLDEPG', $subtitle ? $title .'~'. $subtitle : $title);
 
     my $sth = $self->{dbh}->prepare(
-q|REPLACE INTO OLDEPG(eventid, title, subtitle, description, channel_id, 
+q|REPLACE INTO OLDEPG(vid, eventid, title, subtitle, description, channel_id, 
                       duration, tableid, starttime, vpstime, video, audio, addtime) 
-  VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?,NOW())|);
+  VALUES (?,?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?,NOW())|);
 
     $sth->execute(
+        $vid,
         $attr->{eventid},
         $attr->{title},
         $attr->{subtitle},
@@ -1497,8 +1619,8 @@ SELECT SQL_CACHE
     r.eventid,
     e.Duration,
     r.Marks,
-    r.Prio,
-    r.Lifetime,
+    r.priority,
+    r.lifetime,
     UNIX_TIMESTAMP(e.starttime) as StartTime,
     UNIX_TIMESTAMP(e.starttime) + e.duration as StopTime,
     e.title as Title,
@@ -1510,7 +1632,8 @@ SELECT SQL_CACHE
       FROM CHANNELS as c
       WHERE e.channel_id = c.Id
       LIMIT 1) as Channel,
-    preview
+    preview,
+    cutlength
 from
     RECORDS as r,OLDEPG as e
 where
@@ -1557,8 +1680,9 @@ sub play {
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
     my $params  = shift;
 
-    my $sql = qq|SELECT SQL_CACHE r.RecordID,r.RecordMD5,e.duration as duration FROM
-    RECORDS as r, OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 = ?|;
+    my $sql = qq|SELECT SQL_CACHE vid, RecordID, RecordMD5, duration 
+    FROM RECORDS as r, OLDEPG as e 
+    WHERE e.eventid = r.eventid and RecordMD5 = ?|;
     my $sth = $self->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
@@ -1580,9 +1704,13 @@ sub play {
       $start = 'begin';
     }
 
+    my $vdr = $rec->{vid};
+    if($params && exists $params->{vdr}) {
+      $vdr = $params->{vdr};
+    }
 
     my $cmd = sprintf('PLAY %d %s', $rec->{RecordID}, $start);
-    if($self->{svdrp}->scommand($console, $config, $cmd)) {
+    if($self->{svdrp}->scommand($console, $config, $cmd, $vdr)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1599,8 +1727,11 @@ sub cut {
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
+    my $params  = shift;
 
-    my $sql = qq|SELECT SQL_CACHE RecordID,RecordMD5 FROM RECORDS WHERE RecordMD5 = ?|;
+    my $sql = qq|SELECT SQL_CACHE vid, RecordID, RecordMD5 
+    FROM RECORDS as r, OLDEPG as e 
+    WHERE e.eventid = r.eventid and r.RecordMD5 = ?|;
     my $sth = $self->{dbh}->prepare($sql);
     my $rec;
     if(!$sth->execute($recordid)
@@ -1608,8 +1739,13 @@ sub cut {
         return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
     }
 
+    my $vdr = $rec->{vid};
+    if($params && exists $params->{vdr}) {
+      $vdr = $params->{vdr};
+    }
+
     my $cmd = sprintf('EDIT %d', $rec->{RecordID});
-    if($self->{svdrp}->scommand($console, $cmd)) {
+    if($self->{svdrp}->scommand($console, $cmd, $vdr)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
@@ -1629,14 +1765,11 @@ sub list {
     my $params  = shift;
 
     my $deep = 1;
-    my $folder = scalar (my @a = split('/',$self->{videodir})) + 1;
     my $term;
 
-    my $where = "e.eventid = r.eventid";
+    my $where = "";
     if($text) {
-        $deep   = scalar (my @c = split('~',$text));
-        $folder += $deep;
-        $deep += 1;
+        $deep   += scalar (my @c = split('~',$text));
 
         $text =~ s/\'/\\\'/sg;
         $text =~ s/%/\\%/sg;
@@ -1673,15 +1806,17 @@ SELECT SQL_CACHE
     SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) as __fulltitle,
     IF(COUNT(*)>1,0,1) as __IsRecording,
     e.description as __description,
-    preview as __preview
+    preview as __preview,
+    cutlength as __cutlength
 FROM
     RECORDS as r,
     OLDEPG as e
 WHERE
+    e.eventid = r.eventid
     $where 
 GROUP BY
-    SUBSTRING_INDEX(r.Path, '/', IF(Length(e.subtitle)<=0, $folder + 1, $folder))
-ORDER BY __IsRecording asc, 
+    SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle,RecordMD5), '~', $deep)
+ORDER BY __IsRecording asc,
 |;
 
 
@@ -1810,7 +1945,8 @@ SELECT SQL_CACHE
     CONCAT_WS('~',e.title,e.subtitle) as __fulltitle,
     1 as __IsRecording,
     e.description as __description,
-    preview as __preview
+    preview as __preview,
+    cutlength as __cutlength
 FROM
     RECORDS as r,
     OLDEPG as e
@@ -1925,7 +2061,11 @@ sub delete {
     }
     my @recordings = keys %rec;
     
-    my $sql = sprintf("SELECT SQL_CACHE  r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 FROM RECORDS as r,OLDEPG as e WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) ORDER BY r.RecordId desc", join(',' => ('?') x @recordings)); 
+    my $sql = sprintf(
+qq|SELECT SQL_CACHE e.vid, r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 
+   FROM RECORDS as r,OLDEPG as e 
+   WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) 
+   ORDER BY e.vid, r.RecordId desc|, join(',' => ('?') x @recordings)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@recordings)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
@@ -1934,9 +2074,10 @@ sub delete {
     foreach my $recording (@$data) {
         # Make hash for better reading
         my $r = {
-          Id       => $recording->[0],
-          Title    => $recording->[1],
-          MD5      => $recording->[2]
+          vid      => $recording->[0],
+          Id       => $recording->[1],
+          Title    => $recording->[2],
+          MD5      => $recording->[3]
         };
 
         if(ref $console and $console->{TYP} eq 'CONSOLE') {
@@ -1956,14 +2097,14 @@ sub delete {
             );
 
 
-        $self->{svdrp}->queue_add(sprintf("delr %s",$r->{Id}));
+        $self->{svdrp}->queue_add(sprintf("delr %s",$r->{Id}), $r->{vid});
         push(@{$todelete},$r->{Title}); # Remember title
         push(@{$md5delete},$r->{MD5}); # Remember hash
 
         # Delete recordings from request, if found in database
         my $i = 0;
         for my $x (@recordings) {
-          if ( $x eq $recording->[2] ) { # Remove known MD5 from user request
+          if ( $x eq $r->{MD5} ) { # Remove known MD5 from user request
             splice @recordings, $i, 1;
           } else {
           $i++;
@@ -2001,7 +2142,7 @@ sub delete {
           $self->{keywords}->remove('recording',$md5delete);
         }
 
-        $self->readData($console,$waiter)
+        $self->_readData($console,$waiter)
           unless($self->{inotify});
 
         if(ref $console && $console->typ eq 'HTML') {
@@ -2046,12 +2187,13 @@ sub redit {
     my $rec;
     if($recordid) {
         my $sql = qq|
-SELECT SQL_CACHE 
+SELECT SQL_CACHE
+    e.vid,
     CONCAT_WS('~',e.title,e.subtitle) as title,
     e.eventid as EventId,
     r.Path,
-    r.Prio,
-    r.Lifetime
+    r.priority,
+    r.lifetime
 FROM
     RECORDS as r,
     OLDEPG as e
@@ -2086,7 +2228,7 @@ WHERE
         'lifetime' => {
             typ     => 'integer',
             msg     => sprintf(gettext('Lifetime (%d ... %d)'),0,99),
-            def     => int($rec->{Lifetime}),
+            def     => int($rec->{lifetime}),
             check   => sub{
                 my $value = shift || 0;
                 if($value >= 0 and $value < 100) {
@@ -2100,7 +2242,7 @@ WHERE
         'priority' => {
             typ     => 'integer',
             msg     => sprintf(gettext('Priority (%d ... %d)'),0,99),
-            def     => int($rec->{Prio}),
+            def     => int($rec->{priority}),
             check   => sub{
                 my $value = shift || 0;
                 if($value >= 0 and $value < 100) {
@@ -2167,6 +2309,13 @@ WHERE
         my $dropEPGEntry = 0;
         my $ChangeRecordingData = 0;
 
+        my $videodirectory = $self->{svdrp}->videodirectory($rec->{vid});
+          unless($videodirectory && -d $videodirectory) {
+            my $hostname = $self->{svdrp}->hostname($rec->{vid});
+            $console->err(sprintf(gettext("Missing video directory on %s!"),$hostname))
+              if($console);
+          return;
+        }
 
 	      $data->{title} =~s#~+#~#g;
 	      $data->{title} =~s#^~##g;
@@ -2206,16 +2355,16 @@ WHERE
         }
 
 
-        if($data->{lifetime} ne $rec->{Lifetime}
-            or $data->{priority} ne $rec->{Prio}) {
+        if($data->{lifetime} ne $rec->{lifetime}
+            or $data->{priority} ne $rec->{priority}) {
 
             my @options = split('\.', $rec->{Path});
 
             $options[-2] = sprintf("%02d",$data->{lifetime})
-                if($data->{lifetime} ne $rec->{Lifetime});
+                if($data->{lifetime} ne $rec->{lifetime});
 
             $options[-3] = sprintf("%02d",$data->{priority})
-                if($data->{priority} ne $rec->{Prio});
+                if($data->{priority} ne $rec->{priority});
 
             my $newPath = join('.', @options);
 
@@ -2229,7 +2378,7 @@ WHERE
         if($data->{title} ne $rec->{title}) {
 
             # Rename auf der Platte
-            my $newPath = sprintf('%s/%s/%s', $self->{videodir}, $self->translate($data->{title}),basename($rec->{Path}));
+            my $newPath = sprintf('%s/%s/%s', $videodirectory, $self->translate($data->{title}),basename($rec->{Path}));
 
             my $parentnew = dirname($newPath);
             unless( -d $parentnew) {
@@ -2241,7 +2390,7 @@ WHERE
                     or return con_err($console,sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$data->{title},$!));
 
             my $parentold = dirname($rec->{Path});
-            if($self->{videodir} ne $parentold
+            if($videodirectory ne $parentold
                 and -d $parentold
                 and is_empty_dir($parentold)) {
                 rmdir($parentold)
@@ -2270,7 +2419,7 @@ WHERE
         }
         if($dropEPGEntry || $ChangeRecordingData) {
             $self->{lastupdate} = 0;
-            touch($self->{videodir}."/.update");
+            touch($videodirectory."/.update");
         }
         if($dropEPGEntry || $ChangeRecordingData) {
           my $waiter;
@@ -2282,7 +2431,7 @@ WHERE
           }
           sleep(1);
   
-          $self->readData($console,$waiter)
+          $self->_readData($console,$waiter)
             unless($self->{inotify});
 
         } else {
@@ -2449,10 +2598,7 @@ sub getGroupIds {
     }
     my  $text    = $data->{title};
 
-    my $folder = scalar (my @a = split('/',$self->{videodir})) + 1;
-    my $deep   = scalar (my @c = split('~',$text));
-    $folder += $deep;
-    $deep += 1;
+    my $deep   = ( scalar (my @c = split('~',$text)) ) + 1;
 
     $text =~ s/\'/\\\'/sg;
     $text =~ s/%/\\%/sg;
@@ -2471,7 +2617,7 @@ AND (
       SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE ?
     )
 GROUP BY
-    SUBSTRING_INDEX(r.Path, '/', IF(Length(e.subtitle)<=0, $folder + 1, $folder))
+    SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle,RecordMD5), '~', $deep)
 |;
 
     my $sth = $self->{dbh}->prepare($sql);
@@ -2652,7 +2798,24 @@ sub recover {
     my $recordid  = shift || 0;
     my $data    = shift || 0;
 
-    my $files = $self->scandirectory('del');
+    my $files;
+    my $directories;
+
+    my $hostlist = $self->{svdrp}->list_unique_recording_hosts();
+    foreach my $vid (@$hostlist) {
+        my $videodirectory = $self->{svdrp}->videodirectory($vid);
+        unless($videodirectory && -d $videodirectory) {
+          my $hostname = $self->{svdrp}->hostname($vid);
+          $console->err(sprintf(gettext("Missing video directory on %s!"),$hostname))
+            if($console);
+          next;
+        }
+      my $f = $self->scandirectory($videodirectory, 'del');
+      if($f) {
+        map { $files->{$_} = $f->{$_}; } keys %{$f}; 
+        push(@$directories, $videodirectory);
+      }
+    }
 
     return con_msg($console,gettext("There none recoverable recordings!"))
       unless($files and keys %{$files});
@@ -2709,7 +2872,9 @@ sub recover {
           my $waiter;
 
           $self->{lastupdate} = 0;
-          touch($self->{videodir}."/.update");
+          foreach my $d (@$directories) {
+            touch($d."/.update");
+          }
 
           if(ref $console && $console->typ eq 'HTML' && !($self->{inotify})) {
             $waiter = $console->wait(gettext('Recording recovered!'),0,1000,'no');
@@ -2718,7 +2883,7 @@ sub recover {
           }
           sleep(1);
   
-          $self->readData($console,$waiter)
+          $self->_readData($console,$waiter)
             unless($self->{inotify});
 
         } else {

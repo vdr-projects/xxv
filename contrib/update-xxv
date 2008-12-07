@@ -18,7 +18,7 @@
 
 # Increment the version number each time the database changes!
 #
-actualVersion=30
+actualVersion=31
 
 # Specify tables to export before and import after update
 #
@@ -43,6 +43,7 @@ showHelp()
     echo '-d <database>  : XXV database name (default: xxv)'
     echo '-u <user>      : Username (default: root)'
     echo '-p <password>  : Password (default: no password)'
+    echo '-s <sql-file>  : Upgrade sql script (default: upgrade-xxv-db.sql)'
     echo '-a             : Ask for password'
     echo '-f             : Force upgrade, do not check version'
     echo '-v             : Display actual version'
@@ -76,6 +77,7 @@ setDefaults()
     [ -z $user ] && user='root'
     [ -z $isForceUpdate ] && isForceUpdate='false'
     [ -z $askPassword ] && askPassword='false'
+    [ -z $upgrade ] && upgrade='upgrade-xxv-db.sql'
 }
 
 buildMysqlParams()
@@ -97,6 +99,14 @@ checkXxv()
 {
     if pgrep xxvd >/dev/null 2>&1 ; then
         showError 'XXV is still running, please stop XXV first!'
+        exit 1
+    fi
+}
+
+checkFiles()
+{
+    if [ ! -e "$upgrade" ]; then
+        showError "File '$upgrade' not found!"
         exit 1
     fi
 }
@@ -157,7 +167,7 @@ importDb()
 updateDb()
 {
     showInfo 'Updating database'
-    if ! eval mysql $mysqlParams -f -B $database < upgrade-xxv-db.sql ; then
+    if ! eval mysql $mysqlParams -f -B $database < $upgrade ; then
         showError 'Update failed!' ;
     	  exit 1
     fi
@@ -235,6 +245,9 @@ while [ $# -ge 1 ] ; do
         -p)
             password=$2 ; shift
         ;;
+        -s)
+            $upgrade=$2 ; shift
+        ;;
     	-a)
             askPassword='true'
     	;;
@@ -260,6 +273,9 @@ checkXxv
 # set defaults and build mysql command line
 setDefaults
 buildMysqlParams
+
+# check needed files
+checkFiles
 
 # check the database
 checkServer

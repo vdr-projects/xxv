@@ -1008,7 +1008,7 @@ sub toggleTimer {
           $sth->execute(@success)
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
           my $erg = $sth->fetchall_arrayref();
-          $console->table($erg);
+          $console->table($erg,{state => 'success'});
         }
 
         return 1;

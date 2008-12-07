@@ -180,6 +180,13 @@ sub init {
 # ------------------
     my $self = shift || return error('No object defined!');
 
+    main::after(sub{
+        $self->{svdrp} = main::getModule('SVDRP');
+        unless($self->{svdrp}) {
+           return 0;
+        }
+    }, "STREAM: Prepare streaming ...");
+
     1;
 }
 
@@ -277,7 +284,7 @@ sub playrecord {
       unless($console->can('stream'));
 
     my $rmod = main::getModule('RECORDS');
-    my $result = $rmod->IdToData($recid)
+    my $rec = $rmod->IdToData($recid)
         or return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid));
 
     my $start = 0;
@@ -291,20 +298,20 @@ sub playrecord {
       $data .= sprintf("&__start=%d", $start) if($start);
 
       my $param = {
-          title => $result->{title},
+          title => $rec->{title},
           widget => $self->{widget},
           width  => $self->{width},
           height => $self->{height},
       };
-      $param->{title} .= '~' . $result->{subtitle} if($result->{subtitle});
+      $param->{title} .= '~' . $rec->{subtitle} if($rec->{subtitle});
 
       return $console->player($data, $param);
     }
 
     return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid))
-      unless $result->{Path};
+      unless $rec->{Path};
 
-    my $path = $result->{Path};
+    my $path = $rec->{Path};
     my @files = bsd_glob("$path/[0-9][0-9][0-9].vdr");
 
     return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid))
@@ -325,7 +332,13 @@ sub playrecord {
       return $console->stream(\@files, $self->{mimetyp}, $offset);
     } else {
 
-      my $videopath = $rmod->{videodir};
+      my $videodirectory = $self->{svdrp}->videodirectory($rec->{vid});
+        unless($videodirectory && -d $videodirectory) {
+          my $hostname = $self->{svdrp}->hostname($rec->{vid});
+          $console->err(sprintf(gettext("Missing video directory on %s!"),$hostname))
+            if($console);
+        return;
+      }
 
       my $data;
       $data  = "#EXTM3U\r\n";
@@ -333,7 +346,7 @@ sub playrecord {
       foreach my $file (@files) {
         my $fstat = stat($file);
 
-        $file =~ s/^$videopath//si;
+        $file =~ s/^$videodirectory//si;
         $file =~ s/^[\/|\\]//si;
         my $URL = sprintf("%s/%s\r\n", $self->{netvideo}, $file);
         $URL =~s/\//\\/g
@@ -343,10 +356,10 @@ sub playrecord {
 
         if($fstat) {
           # estimate duration of file in seconds ( filesize * totaltime / totalsize )
-          my $duration = CORE::int($fstat->size * $result->{duration} / ($result->{FileSize} * 1024 * 1024));
+          my $duration = CORE::int($fstat->size * $rec->{duration} / ($rec->{FileSize} * 1024 * 1024));
           # add duration and title as extended infomations
-          $data .= "#EXTINF:". $duration ."," . $result->{title};
-          $data .= "~" . $result->{subtitle} if($result->{subtitle});
+          $data .= "#EXTINF:". $duration ."," . $rec->{title};
+          $data .= "~" . $rec->{subtitle} if($rec->{subtitle});
           $data .= "\r\n";
         }
         $data .= $URL;

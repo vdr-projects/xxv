@@ -141,6 +141,7 @@ sub _init {
           host varchar(100) NOT NULL default 'localhost',
           port smallint unsigned default 2001,
           cards varchar(100) default '',
+          videodirectory text default '',
           PRIMARY KEY (id)
         ) COMMENT = '$version'
     |);
@@ -153,7 +154,8 @@ sub _init {
             master => 'y',
             host => 'localhost',
             port => 2001,
-            cards => ''
+            cards => '',
+            videodirectory => '/var/lib/video'
         });
     }
 
@@ -166,14 +168,15 @@ sub _insert {
     my $self = shift || return error('No object defined!');
     my $data = shift || return;
 
-    my $sth = $self->{dbh}->prepare('REPLACE INTO RECORDER VALUES (?,?,?,?,?,?)');
+    my $sth = $self->{dbh}->prepare('REPLACE INTO RECORDER VALUES (?,?,?,?,?,?,?)');
     $sth->execute( 
          $data->{id} || 0,
          $data->{active},
          $data->{master},
          $data->{host},
          $data->{port},
-         $data->{cards}
+         $data->{cards},
+         $data->{videodirectory}
      ) or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
 }
 
@@ -240,6 +243,12 @@ sub edit {
         'cards' => {
             msg   => gettext("List of present source of DVB cards. (eg. S19.2E,S19.2E,T,T )"),
             def   => $default->{cards} || main::getModule('CHANNELS')->buildSourceList($id || $self->primary_hosts()),
+        },
+        'videodirectory' => {
+            msg   => gettext("Directory where recordings are stored"),
+            def   => $default->{videodirectory},
+            req   => gettext('This is required!'),
+            typ     => 'dir',
         },
 
     ];
@@ -321,7 +330,8 @@ sub list {
         'active' => gettext('Active'),
         'master' => gettext('Primary'),
         'host' => gettext('Host'),
-        'cards' => gettext('Typ of Cards')
+        'cards' => gettext('Typ of Cards'),
+        'videodirectory'  => gettext('Video directory')
     );
 
     my $sql = qq|
@@ -330,7 +340,8 @@ SELECT SQL_CACHE
   active as \'$f{active}\',
   master as \'$f{master}\',
   host as \'$f{host}\',
-  cards as \'$f{cards}\'
+  cards as \'$f{cards}\',
+  videodirectory as \'$f{videodirectory}\'
 from 
   RECORDER
     |;
@@ -458,6 +469,31 @@ sub enum_hosts {
     $sth->execute()
       or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     return $sth->fetchall_arrayref();
+}
+
+sub list_unique_recording_hosts() {
+    my $self = shift  || return error('No object defined!');
+  
+    my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE id from RECORDER where active = 'y' GROUP BY videodirectory");
+       $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $result = $sth->fetchall_hashref('id');
+    return undef unless($result);
+
+    my $hosts;
+    foreach my $id (keys %{$result}) {
+      push(@$hosts,$id);
+    }
+
+    return $hosts;
+}
+
+sub videodirectory {
+    my $self = shift  || return error('No object defined!');
+    my $vdrid = shift;
+  
+    my $vdr = $self->_gethost($vdrid);
+    return $vdr ? $vdr->{videodirectory} : undef;
 }
 
 # ------------------

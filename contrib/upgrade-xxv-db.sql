@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS `RECORDER` (
   `host` varchar(100) NOT NULL default 'localhost',
   `port` smallint(4) unsigned default '2001',
   `cards` varchar(100) default '',
+  `videodirectory` text default '',
   PRIMARY KEY  (`id`)
 );
 
@@ -159,10 +160,10 @@ CREATE TABLE IF NOT EXISTS `RECORDER` (
 CREATE TABLE IF NOT EXISTS `USER` (
   `Id` int(11) unsigned NOT NULL auto_increment,
   `Name` varchar(100) NOT NULL default '',
-  `Password` varchar(100) NOT NULL,
+  `Password` varchar(32) NOT NULL,
   `Level` set('admin','user','guest') NOT NULL,
-  `Prefs` varchar(100) default '',
-  `UserPrefs` varchar(100) default '',
+  `Prefs` text default '',
+  `UserPrefs` text default '',
   `Deny` set('tlist','alist','rlist','mlist','tedit','aedit','redit','remote','stream','cedit','media') default NULL,
   `MaxLifeTime` tinyint(2) default '0',
   `MaxPriority` tinyint(2) default '0',
