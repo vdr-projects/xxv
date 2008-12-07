@@ -208,7 +208,7 @@ sub _init {
       CREATE TABLE IF NOT EXISTS USER (
           Id int(11) unsigned auto_increment NOT NULL,
           Name varchar(100) NOT NULL default '',
-          Password varchar(100) NOT NULL,
+          Password varchar(32) NOT NULL,
           Level set('admin', 'user', 'guest' ) NOT NULL,
           Prefs text default '',
           UserPrefs text default '',
@@ -378,7 +378,7 @@ sub userprefs {
 
           push(@$userpref,$modname .'::'. $parameter .'='.$value);
         }
-        $data->{UserPrefs} = $userpref ? join('\n', @$userpref) : undef;
+        $data->{UserPrefs} = $userpref ? join("\n", @$userpref) : undef;
         $self->_insert($data);
 
         $console->message(gettext('User account saved!'));
@@ -493,13 +493,25 @@ sub edit {
                 return join(',', @vals);
             },
         },
+        'UserPrefs' => {
+            def     => sub {
+                            my $value = $user->{UserPrefs};
+                            return gettext('None own settings') unless($value);
+                            my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\n/, $value);
+                            return join(',', @vals);
+                          },
+            msg     => gettext("Preferences selected by user own settings"),
+            typ     => 'string',
+            readonly => '1',
+        },
         'Prefs' => {
             def     => sub {
-                            my $value;
-                            @$value = $user->{Prefs} ? split(/\n/,$user->{Prefs}) : [];
-                            return  (ref $value eq 'ARRAY') ? join(',', @$value) : $value;
+                            my $value = $user->{Prefs};
+                            return '' unless($value);
+                            my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\n/, $value);
+                            return join(',', @vals);
                           },
-            msg     => gettext("Preferences for this User: ModName::Param=value, "),
+            msg     => gettext("Overwrite preferences for this user: ModName::Param=value, "),
             typ     => 'string',
             check   => sub{
                 my $value = shift || return;
@@ -513,7 +525,7 @@ sub edit {
                         }
                     }
                 }
-                return join('\n', @vals);
+                return join("\n", @vals);
             },
         },
         'MaxLifeTime' => {
@@ -547,6 +559,7 @@ sub edit {
 				    : gettext('Create new user account')), $questions, $data);
 
     if(ref $data eq 'HASH') {
+        delete $data->{UserPrefs};
         $self->_insert($data);
 
         debug sprintf('%s account with name "%s" is saved%s',
@@ -724,7 +737,7 @@ sub applySettings {
     my $newprefs = shift || return error ('No settings defined!');
     my $config = shift || return error ('No config defined!');
 
-    foreach my $pref (split('\n', $newprefs)) {
+    foreach my $pref (split(/\n/, $newprefs)) {
         my ($modname, $parameter, $value) = $pref =~ /(\S+)::(\S+)\=(.*)/sg;
         if($modname and my $mod = main::getModule($modname) and my $cfg = main::getModule('CONFIG')->{config}) {
             if(exists $mod->{$parameter}) {
@@ -738,6 +751,7 @@ sub applySettings {
 
 # ------------------
 sub allowCommand {
+
 # ------------------
     my $self = shift || return error('No object defined!');
     my $modCfg = shift || return error('No modul defined!');
