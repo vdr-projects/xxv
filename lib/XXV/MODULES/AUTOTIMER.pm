@@ -1558,6 +1558,9 @@ sub _placeholder {
     $at_details{'rating'}           = $1 if $data->{description} =~ m/\|Rating: (.*?)\|/;
     $at_details{'cast'}             = $1 if $data->{description} =~ m/\|Cast: (.*?)\|/;
 
+    $at_details{'abstract'}         = $1 if $data->{description} =~ m/^(.*?)[\.\n]/;
+    $at_details{'abstract'} = substr($at_details{'abstract'},0,100) if($at_details{'abstract'});
+
     if ($at->{Dir}) {
     	my $title = $at->{Dir};
         if($title =~ /.*%.*%.*/sig) {
