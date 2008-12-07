@@ -135,7 +135,7 @@
                 <?% IF folder <= 1 %?>
                 <a href="javascript:popup('rdisplay','<?% id %?>',620,670,0)" class="fieldinline description">
                     <?% start %?><br />
-                    <?% PROCESS dur d=duration %?>
+                    <?% PROCESS dur d=duration %?><?% IF ( cutlength + 10 ) <  duration %?>&nbsp;(<?% PROCESS dur d=cutlength %?>)<?% END %?>
                 </a>
                 <br />
                 <?% INCLUDE widgets/tooltip.inc cmd="rdisplay" linkid=id ttp_offset=-300 %?>
@@ -178,6 +178,7 @@
           isrecording=zeile.10;
           description=zeile.11;
           preview=zeile.12;
+          cutlength=zeile.13;
           foldertitle=fulltitle.split('&#x7e;').last;
           IF foldertitle == " ";  foldertitle=fulltitle.split('&#x7e;').last(2).join(" "); END;
           PROCESS ItemAsFlat;

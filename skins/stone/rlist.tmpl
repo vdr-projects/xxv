@@ -21,7 +21,7 @@
     <?% Stunden = d div 3600 %?>
     <?% Minuten = d div 60 mod 60 %?>
     <?% Sekunden =  d mod 60 %?>
-    <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?> 
+    <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% total = 0 %?>
@@ -167,7 +167,7 @@
     	             <?% END %?>
                     <td class="push" style="vertical-align:middle; text-align:left;" >
                         <a href="javascript:popup('rdisplay','<?% id %?>',620,670,0)" class="fieldinline">
-                        <font class="description"><?% start %?><br /><?% PROCESS dur d=duration %?></font>
+                        <font class="description"><?% start %?><br /><?% PROCESS dur d=duration %?><?% IF ( cutlength + 10 ) <  duration %?>&nbsp;(<?% PROCESS dur d=cutlength %?>)<?% END %?></font>
                         </a>
                     </td>
                     <td class="push">
@@ -193,7 +193,6 @@
     <?% gettext("Stored recordings") %?>
     <?% IF search.defined %?> : "<?% search %?>" 
     <?% END %?>
-    &nbsp;<small>(<?% param.usage %?>)</small>
 </h1>
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
@@ -214,6 +213,7 @@
           isrecording=zeile.10;
           description=zeile.11;
           preview=zeile.12;
+          cutlength=zeile.13;
           foldertitle=fulltitle.split('&#x7e;').last;
           IF foldertitle == " ";  foldertitle=fulltitle.split('&#x7e;').last(2).join(" "); END;
     -%?>

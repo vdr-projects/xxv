@@ -37,7 +37,7 @@
                  <?% FOREACH frame = files %?>
             		  <?% x = ( frame ) / 25 %?>
                  <?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs d=x %?>')" ><?% END %?>
-                  <img src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" title="<?% PROCESS hfs d=x %?>" />
+                  <img class="recording" src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" title="<?% PROCESS hfs d=x %?>" />
                   <?% IF allowplay %?></a><?% END %?>
                 <?% IF (loop.count) mod 5 == 0 && loop.count != loop.size %?>
  	    					</td>
@@ -163,6 +163,7 @@
 			          <?% date.format(data.StartTime,"%A, %x",locale) %?>&nbsp;
                 &nbsp;&nbsp;&nbsp;<?% date.format(data.StartTime,"%H:%M",locale) %?>&nbsp;-&nbsp;<?% date.format(data.StopTime,"%H:%M",locale) %?>
                 <?% PROCESS dur d=data.Duration %?>
+                <?% IF ( data.cutlength + 10 ) <  data.Duration %?>&nbsp;<?% gettext("By cut") %?> : <?% PROCESS hfs d=data.cutlength %?><?% END %?>
                 <?% IF data.Channel %?>
 								<br /><?% gettext('Channel') %?> : <?% data.Channel %?>
 								<?% END %?>
@@ -216,8 +217,8 @@
 							</tr>						
                             <tr>
                                 <td colspan="2">
-                                <?% gettext('Lifetime') %?>&nbsp;:&nbsp;<?% data.Lifetime %?>,&nbsp;
-                                <?% gettext('Priority') %?>&nbsp;:&nbsp;<?% data.Prio %?>
+                                <?% gettext('Lifetime') %?>&nbsp;:&nbsp;<?% data.lifetime %?>,&nbsp;
+                                <?% gettext('Priority') %?>&nbsp;:&nbsp;<?% data.priority %?>
                                 </td>
                             </tr>
                         </table>

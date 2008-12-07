@@ -225,7 +225,7 @@
 								<td>
 			          <?% date.format(data.StartTime,"%A, %x",locale) %?>&nbsp;
                 &nbsp;&nbsp;&nbsp;<?% date.format(data.StartTime,"%H:%M",locale) %?>&nbsp;-&nbsp;<?% date.format(data.StopTime,"%H:%M",locale) %?>
-                <?% PROCESS dur d=data.Duration %?>
+                <?% PROCESS dur d=data.Duration %?><?% IF ( data.cutlength + 10 ) <  data.Duration %?>&nbsp;(<?% PROCESS hfs d=data.cutlength %?>)<?% END %?>
                 <?% IF data.Channel %?>
 								<br /><?% gettext('Channel') %?> : <?% data.Channel %?>
 								<?% END %?>
@@ -277,8 +277,8 @@
 							</tr>
                             <tr>
                                 <td>
-                                <?% gettext('Lifetime') %?>&nbsp;:&nbsp;<?% data.Lifetime %?>,&nbsp;
-                                <?% gettext('Priority') %?>&nbsp;:&nbsp;<?% data.Prio %?>
+                                <?% gettext('Lifetime') %?>&nbsp;:&nbsp;<?% data.lifetime %?>,&nbsp;
+                                <?% gettext('Priority') %?>&nbsp;:&nbsp;<?% data.priority %?>
                                 </td>
                                 <td class="push">
                                 <?% PROCESS RowButtons %?>

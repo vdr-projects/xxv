@@ -63,7 +63,7 @@
     <?% Stunden = d div 3600 %?>
     <?% Minuten = d div 60 mod 60 %?>
     <?% Sekunden =  d mod 60 %?>
-    <?% gettext('Duration') %?> : <?% Stunden div 1 %?>:<?% Minuten div 1 | format('%02d') %?>:<?% Sekunden div 1 | format('%02d') %?>
+    <?% Stunden div 1 %?>:<?% Minuten div 1 | format('%02d') %?>:<?% Sekunden div 1 | format('%02d') %?>
 <?% END %?>
 <?% END %?>
 
@@ -145,7 +145,9 @@
             <td>&nbsp;</td>
             <td><?% date.format(data.StartTime,"%A, %x",locale) %?>&nbsp;
                 &nbsp;&nbsp;&nbsp;<?% date.format(data.StartTime,"%H:%M",locale) %?>&nbsp;-&nbsp;<?% date.format(data.StopTime,"%H:%M",locale) %?>&nbsp;
-                 (<?% PROCESS dur d=data.Duration IF data.Duration > (60*5)%?>)</td>
+                 (<?% gettext('Duration') %?> : <?% PROCESS dur d=data.Duration %?>
+                  <?% IF ( data.cutlength + 10 ) <  data.Duration %?>&nbsp;<?% gettext("By cut") %?> : <?% PROCESS dur d=data.cutlength %?><?% END %?>
+                 )
         </tr>
         <tr>
             <td>&nbsp;</td>
@@ -189,13 +191,13 @@
         <tr>
             <td>&nbsp;</td>
             <td>
-            <?% gettext('Lifetime') %?> : <?% data.Lifetime %?>
+            <?% gettext('Lifetime') %?> : <?% data.lifetime %?>
             </td>
         </tr>
         <tr>
             <td>&nbsp;</td>
             <td>
-            <?% gettext('Priority') %?> : <?% data.Prio %?>
+            <?% gettext('Priority') %?> : <?% data.priority %?>
             </td>
         </tr>
         </table>

@@ -19,14 +19,14 @@
     <?% Stunden = d div 60 %?>
     <?% Minuten = d mod 60 %?>
     <?% Sekunden = ( d * 60 ) mod 60 %?>
-    <br />Dauer: <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?> 
+    <br />Dauer: <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?>
 <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK dur # d in Sekunden %?>
     <?% Stunden = d div 3600 %?>
     <?% Minuten = d div 60 mod 60 %?>
     <?% Sekunden =  d mod 60 %?>
-    <br />Dauer: <?% Stunden div 1 %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?> 
+    <?% Stunden %?>:<?% Minuten | format('%02d') %?>:<?% Sekunden | format('%02d') %?> 
 <?% END %?>
 <?% ######################################################################## %?>
 <?% total = 0 %?>
@@ -39,7 +39,7 @@
         <td></td>
         <?% END %?>
         <td></td>
-        <td class="description" style="padding: 0;">
+        <td colspan="2" class="description" style="padding: 0;">
         		<?% IF total > 0;
                     sec  = total mod 60;
                     min  = total div 60 mod 60;
@@ -56,8 +56,7 @@
     					<br /><?% gettext("available capacity") %?> : 
 						<?% IF hourf > 0 %?><?% hourf FILTER format('%02d') %?>:<?% END %?><?% minf FILTER format('%02d') %?>:<?% secf FILTER format('%02d')%?>
    			    <?% END %?>
-		</td>
-        <td></td>
+  		</td>
     </tr>
 
 <?% END %?>
@@ -143,7 +142,9 @@
         </td>
         <td>
             <a href="?cmd=rdisplay&amp;data=<?% id %?>" title="<?% title %?>">
-            <?% start%?>&nbsp;<?% PROCESS dur d=duration %?>
+            <?% start%?><br />
+            <?% gettext("Duration") %?> : <?% PROCESS dur d=duration %?>
+            <?% IF ( cutlength + 10 ) <  duration %?><br /><?% gettext("By cut") %?> : <?% PROCESS dur d=cutlength %?><?% END %?>
             </a>
         </td>
         <td>
@@ -193,6 +194,7 @@
           isrecording=zeile.10;
           description=zeile.11;
           preview=zeile.12;
+          cutlength=zeile.13;
           foldertitle=fulltitle.split('&#x7e;').last;
           IF foldertitle == " ";  foldertitle=fulltitle.split('&#x7e;').last(2).join(" "); END;
           PROCESS item;
