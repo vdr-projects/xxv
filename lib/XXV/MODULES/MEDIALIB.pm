@@ -713,7 +713,7 @@ sub saveMedia {
 
         $console->message(sprintf gettext('Media %s saved!'), $params->{id});
         debug sprintf('%s media is saved%s',
-            ($id ? 'New' : 'Changed'),
+            ($id ? 'Changed' : 'New'),
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
         $console->redirect({url => '?cmd=mldisplay&data='. $params->{id}."&__range=". $range, wait => 2})

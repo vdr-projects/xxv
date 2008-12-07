@@ -483,7 +483,7 @@ sub movetimeredit {
 
         $console->message(gettext('Rule to move timer saved!'));
         debug sprintf('%s rule to move timer is saved%s',
-            ($id ? 'New' : 'Changed'),
+            ($id ? 'Changed' : 'New'),
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 

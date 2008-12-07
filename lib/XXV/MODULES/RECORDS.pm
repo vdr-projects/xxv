@@ -331,6 +331,10 @@ sub _init {
         unless($self->{svdrp}) {
            return 0;
         }
+        $self->{svdrp}->updated(  sub{
+            return $self->_watch_changerecorder(@_);
+        });
+
         $self->{timers} = main::getModule('TIMERS');
         unless($self->{timers}) {
            return 0;
@@ -340,7 +344,7 @@ sub _init {
            return 0;
         }
 
-        $self->_watch_updatefile();
+        $self->_watch_recorder();
 
         # Interval to read recordings and put to DB
         Event->timer(
@@ -364,44 +368,104 @@ sub _init {
     1;
 }
 
-sub _watch_updatefile {
+sub _watch_recorder {
     my $self = shift || return error('No object defined!');
 
-    my $hostlist = $self->{svdrp}->list_unique_recording_hosts();
+    my $hostlist = $self->{svdrp}->list_hosts(); # Query active hosts;
     foreach my $vid (@$hostlist) {
+      $self->_watch_addrecorder($vid);
+    }
+}
 
-      next if(exists $self->{inotify} 
-           && exists $self->{inotify}->{$vid});
+sub _watch_addrecorder {
+    my $self = shift || return error('No object defined!');
+    my $vid = shift;
 
-      my $videodirectory = $self->{svdrp}->videodirectory($vid);
-        unless($videodirectory && -d $videodirectory) {
-          my $hostname = $self->{svdrp}->hostname($vid);
-          error(sprintf("Missing video directory on %s!",$hostname));
-          next;
+    my $videodirectory = $self->{svdrp}->videodirectory($vid);
+      unless($videodirectory && -d $videodirectory) {
+        my $hostname = $self->{svdrp}->hostname($vid);
+        error(sprintf("Missing video directory on %s!",$hostname));
+        return;
+    }
+    my $updatefile = sprintf("%s/.update",$videodirectory);
+    if( -r $updatefile) {
+
+      if(exists $self->{inotify} 
+         && exists $self->{inotify}->{$updatefile}) {
+          $self->{inotify}->{$updatefile}->{count} += 1;
+          return;
         }
-      my $updatefile = sprintf("%s/.update",$videodirectory);
-      if( -r $updatefile) {
-        $self->{inotify}->{$vid}->{handle} = new Linux::Inotify2
-          or panic sprintf("Unable to create new inotify object: %s",$!);
+      $self->{inotify}->{$updatefile}->{handle} = new Linux::Inotify2
+        or panic sprintf("Unable to create new inotify object %s: %s",$updatefile, $!);
 
-        if($self->{inotify}->{$vid}->{handle}) {
-          # Bind watch to event::io
-          $self->{inotify}->{$vid}->{event} = Event->io( 
-            fd => $self->{inotify}->{$vid}->{handle}->fileno, 
-            poll => 'r', 
-            cb => sub { $self->{inotify}->{$vid}->{handle}->poll }
-          );
-          # watch update file
-          $self->{inotify}->{$vid}->{handle}->watch(
-              $updatefile, 
-              IN_ALL_EVENTS, 
-              sub {
-                     my $e = shift; 
-                     $self->_notify_updatefile($e, $vid); 
-                  }
-          );
+      if($self->{inotify}->{$updatefile}->{handle}) {
+        $self->{inotify}->{$updatefile}->{count} = 1;
+        # Bind watch to event::io
+        $self->{inotify}->{$updatefile}->{event} = Event->io( 
+          fd => $self->{inotify}->{$updatefile}->{handle}->fileno, 
+          poll => 'r', 
+          cb => sub { $self->{inotify}->{$updatefile}->{handle}->poll }
+        );
+        # watch update file
+        $self->{inotify}->{$updatefile}->{watch} =
+          $self->{inotify}->{$updatefile}->{handle}->watch(
+            $updatefile, 
+            IN_ALL_EVENTS, 
+            sub {
+                   my $e = shift; 
+                   $self->_notify_updatefile($e, $vid); 
+                }
+            );
+          lg(sprintf("Monitor file '%s'",$updatefile));
+        } else {
+          delete $self->{inotify}->{$updatefile};
         }
-      }
+    }
+}
+
+sub _watch_removerecorder {
+    my $self = shift || return error('No object defined!');
+    my $vid = shift;
+    my $force = shift;
+
+    unless(exists $self->{inotify}) {
+      return;
+    }
+
+    my $videodirectory = $self->{svdrp}->videodirectory($vid);
+      unless($videodirectory && -d $videodirectory) {
+        my $hostname = $self->{svdrp}->hostname($vid);
+        error(sprintf("Missing video directory on '%s'!",$hostname));
+        return;
+    }
+
+    my $updatefile = sprintf("%s/.update",$videodirectory);
+    if(exists $self->{inotify}->{$updatefile}) {
+        unless($force) {
+          if($self->{inotify}->{$updatefile}->{count} > 1) {
+            $self->{inotify}->{$updatefile}->{count} -= 1;
+            return;
+          }
+        }
+        lg(sprintf("Remove watching file '%s'",$updatefile));
+        $self->{inotify}->{$updatefile}->{watch}->cancel()
+          if($self->{inotify}->{$updatefile}->{watch});
+
+        delete $self->{inotify}->{$updatefile}->{watch};
+        delete $self->{inotify}->{$updatefile}->{event};
+        delete $self->{inotify}->{$updatefile}->{handle};
+        delete $self->{inotify}->{$updatefile};
+    }
+}
+
+sub _watch_changerecorder {
+    my $self = shift || return error('No object defined!');
+    my $vid = shift;
+    my $state = shift;
+    if($state && $state eq 'y') {
+      $self->_watch_addrecorder($vid);
+    } else {
+      $self->_watch_removerecorder($vid);
     }
 }
 # ------------------
@@ -413,7 +477,14 @@ sub _notify_updatefile {
   my $e = shift;
   my $vid = shift;
 
-  lg sprintf "On recorder %d notify events for %s:%d received: %x", $vid, $e->fullname, $e->cookie, $e->mask;
+  if($e->{mask} & (IN_UNMOUNT|IN_Q_OVERFLOW|IN_IGNORED)) {
+      error(sprintf("Can't monitor events, '%s' is no longer mounted",$e->{w}{name})) if($e->{mask} & IN_UNMOUNT);
+      error(sprintf("Monitor events for '%s' have been lost",$e->{w}{name})) if($e->{mask} & IN_Q_OVERFLOW);
+      $self->_watch_removerecorder($vid,'force'); 
+      $e->w->cancel;
+  }
+
+  lg sprintf "On recorder %d notify events for %s received event: %x", $vid, $e->fullname, $e->mask;
 
   if((time - $self->{lastupdate}) > 3  # Only if last update prior 3 seconds (avoid callback chill)
      && $self->_readData()) {

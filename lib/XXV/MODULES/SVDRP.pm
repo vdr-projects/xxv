@@ -159,7 +159,28 @@ sub _init {
         });
     }
 
+    $self->{updated} = [];
+
     return 1;
+}
+
+# function to register callback for notify state of recorder
+# ------------------
+sub updated {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $param = shift;
+    my $state = shift;
+
+    if($param && ref $param eq 'CODE') {
+        push(@{$self->{updated}}, [$param]);
+    } else {
+        foreach my $CB (@{$self->{updated}}) {
+            next unless(ref $CB eq 'ARRAY');
+            &{$CB->[0]}($param,$state)
+                if(ref $CB->[0] eq 'CODE');
+        }
+    }
 }
 
 # ------------------
@@ -198,7 +219,7 @@ sub edit {
     my $data    = shift || 0;
 
     my $default;
-    if($id and not ref $data) {
+    if($id) {
         my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from RECORDER where id = ?');
         $sth->execute($id)
             or return $console->err(sprintf(gettext("Definition of video disk recorder '%s' does not exist in the database!"),$id));
@@ -259,6 +280,8 @@ sub edit {
 
     if(ref $data eq 'HASH') {
 
+        $data->{'videodirectory'} =~ s/\/$//;
+
         if($data->{'master'} eq 'y') {
           $self->{dbh}->do("UPDATE RECORDER SET master='n' WHERE master = 'y'");
         }
@@ -268,8 +291,12 @@ sub edit {
 
         delete $self->{Cache};
 
+        # Update depends moduls
+        $self->updated($data->{'id'},$data->{'active'}) 
+            if(!$default || $default->{'active'} ne $data->{'active'});
+
         debug sprintf('%s video disk recorder definition "%s" is saved%s',
-            ($id ? 'New' : 'Changed'),
+            ($id ? 'Changed' : 'New'),
             $data->{host},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
@@ -291,6 +318,9 @@ sub delete {
     my $sth = $self->{dbh}->prepare('delete from RECORDER where id = ?');
     $sth->execute($id)
         or return $console->err(sprintf(gettext("Definition of video disk recorder '%s' does not exist in the database!"),$id));
+
+    # Remove recorder from depends moduls
+    $self->updated($id,'n'); 
 
     $self->_deletevdrdata($id);
 
@@ -360,7 +390,7 @@ from
 sub _gethost {
     my $self = shift  || return error('No object defined!');
     my $vdrid = shift;
-    
+
     unless(exists $self->{Cache}) {
       my $sth = $self->{dbh}->prepare("SELECT * from RECORDER where active = 'y'");
       $sth->execute()
@@ -491,9 +521,15 @@ sub list_unique_recording_hosts() {
 sub videodirectory {
     my $self = shift  || return error('No object defined!');
     my $vdrid = shift;
-  
-    my $vdr = $self->_gethost($vdrid);
-    return $vdr ? $vdr->{videodirectory} : undef;
+
+    my $sql = qq|
+SELECT SQL_CACHE videodirectory FROM RECORDER WHERE id = ? 
+|;
+    my $sth = $self->{dbh}->prepare($sql);
+    $sth->execute($vdrid)
+        or return error(sprintf("Video disk recorder '%s' does not exist in the database!",$vdrid));
+    my $erg = $sth->fetchrow_hashref();
+    return $erg ? $erg->{videodirectory} : undef;
 }
 
 # ------------------
