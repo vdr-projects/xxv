@@ -291,7 +291,12 @@ sub ConnectToService {
        $ua->agent(sprintf("xxv %s",$version)) if($ua);
       }
     }
-    my $webservice = $client->service($service);
+
+    my $webservice = eval "\$client->service(\$service)";
+    if($@) {
+        return error("Couldn't connect to popularity web service: $@");
+    }
+
       
     my $usrkey;
     if($webservice) {

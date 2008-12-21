@@ -51,6 +51,16 @@ sub module {
                 type        => 'integer',
                 required    => gettext("This is required!"),
             },
+            seriesorder => {
+                description => gettext('Default order for series'),
+                type        => 'list',
+                choices     => [
+                    [gettext('By date'), 'date'],
+                    [gettext('By title'), 'title']
+                ],
+                default     => 'date',
+                level       => 'guest'
+            },
             previewbinary => {
                 description => gettext('Location of used program to produce thumbnails on your system.'),
                 default     => '/usr/bin/mplayer',
@@ -78,6 +88,7 @@ sub module {
                 description => gettext('Display recording list with thumbnails?'),
                 default     => 'n',
                 type        => 'confirm',
+                level       => 'guest'
             },
             previewimages => {
                 description => gettext('Common directory for preview images'),
@@ -202,15 +213,15 @@ sub module {
                     Msg => 'delr',
                 },
                 # Search for a Match and extract the information
-                # of the RecordId
+                # of the id
                 # ...
                 Match => {
-                    RecordId => qr/delr\s+(\d+)/s,
+                    id => qr/delr\s+(\d+)/s,
                 },
                 Actions => [
                     q|sub{  my $args = shift;
                             my $event = shift;
-                            my $record  = getDataById($args->{RecordId}, 'RECORDS', 'RecordId');
+                            my $record  = getDataById($args->{id}, 'RECORDS', 'id');
                             my $epg = main::getModule('EPG')->getId($record->{eventid}, 'title, subtitle, description');
 
                             my $title = sprintf(gettext("Recording deleted: %s"), $epg->{title});
@@ -291,7 +302,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 31; # Must be increment if rows of table changed
+    my $version = 32; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($self->{dbh},'RECORDS',$version,1)) {
@@ -302,12 +313,13 @@ sub _init {
     $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS RECORDS (
           eventid int unsigned NOT NULL,
-          RecordId int unsigned not NULL,
-          RecordMD5 varchar(32) NOT NULL,
+          id int unsigned NOT NULL,
+          hash varchar(32) NOT NULL,
           Path text NOT NULL,
+          track text NOT NULL,
           priority tinyint NOT NULL,
           lifetime tinyint NOT NULL,
-          State tinyint NOT NULL,
+          status set('new', 'cutted'),
           FileSize int unsigned default '0', 
           cutlength int unsigned default '0', 
           Marks text,
@@ -315,8 +327,8 @@ sub _init {
           preview text NOT NULL,
           aux text,
           addtime timestamp,
-          PRIMARY KEY  (eventid),
-          UNIQUE KEY  (eventid)
+          PRIMARY KEY (eventid),
+          UNIQUE KEY (eventid)
         ) COMMENT = '$version'
     |);
 
@@ -523,16 +535,16 @@ sub parseData {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $vdata = shift || return error('No data defined!');
-    my ($event, $hash, $id, $date, $hour, $minute, $state, $duration, $title, $day, $month, $year);
-    my $dataHash = {};
+    my ($event, $idx, $id, $date, $hour, $minute, $new, $duration, $title, $day, $month, $year);
+    my $data = {};
 
     foreach my $record (@{$vdata}) {
         if($record =~ /\s+\d+\xB4\s+/) { # VDR is patched with recording length patch
-          ($id, $date, $hour, $minute, $state, $duration, $title)
+          ($id, $date, $hour, $minute, $new, $duration, $title)
             = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)(.?)\s*(\d*).*?\s+(.+)/si;
         } else { # Vanilla VDR
           # 250-1  01.11 15:14* Discovery~Die Rose von Kerrymore Spielfilm D/2000
-          ($id, $date, $hour, $minute, $state, $title)
+          ($id, $date, $hour, $minute, $new, $title)
             = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)(.?).*?\s+(.+)/si;
         }
 
@@ -550,14 +562,26 @@ sub parseData {
             if($year < 1900); # Adjust year, 70-99 => 1977-1999 ... 2000-2069
 
         $event->{id} = $id;
-        $event->{state} = $state eq '*' ? 1 : 0;
+        
+        my @status;
+        push(@status,'new') 
+          if($new && $new eq '*');
+        my @t = split(/~/,$title);
+        if($t[-1] =~ /^%/) {
+          push(@status,'cutted');
+          $t[-1] =~ s/^%//g;
+        }
+
+        $event->{status} = join(',',@status);
+        $event->{track} = join('~',@t);
+
         $event->{starttime} = timelocal(0,$minute,$hour,$day,$month-1, $year);
         $event->{title} = $title;
 
-        $hash = sprintf("%s~%s",$title,$event->{starttime});
-        %{$dataHash->{$hash}} = %{$event};
+        $idx = sprintf("%s~%s",$title,$event->{starttime});
+        %{$data->{$idx}} = %{$event};
     }
-    return ($dataHash);
+    return ($data);
 }
 
 # ------------------
@@ -578,8 +602,8 @@ sub scandirectory {
                           my $filename = $File::Find::name;
 
                           my $path = dirname($filename);
-                          my $md5 = md5_hex($path);
-                          unless(exists $files->{$md5}) {
+                          my $hash = md5_hex($path);
+                          unless(exists $files->{$hash}) {
                             my $rec;
                             $rec->{path} = $path;
                           	# Splitt 2005-01-16.04:35.88.99
@@ -602,11 +626,11 @@ sub scandirectory {
 
                             # add file
                             push(@{$rec->{files}},$filename);
-                            $files->{$md5} = $rec;
+                            $files->{$hash} = $rec;
 
                           } else {
 
-                            push(@{$files->{$md5}->{files}},$filename);
+                            push(@{$files->{$hash}->{files}},$filename);
 
                           }
                         }
@@ -633,17 +657,17 @@ sub _readData {
 
   my $outdatedRecordings;
   if($onlyvid) {
-      my $sth = $self->{dbh}->prepare('SELECT RecordMD5,CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as hash FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid and vid = ?');
+      my $sth = $self->{dbh}->prepare('SELECT hash,CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as idx FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid and vid = ?');
       if(!$sth->execute($onlyvid)) {
           con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
       }
-      $outdatedRecordings = $sth->fetchall_hashref('hash');
+      $outdatedRecordings = $sth->fetchall_hashref('idx');
   } else  {
-      my $sth = $self->{dbh}->prepare('SELECT RecordMD5,CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as hash FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid');
+      my $sth = $self->{dbh}->prepare('SELECT hash,CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as idx FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid');
       if(!$sth->execute()) {
           con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
       }
-      $outdatedRecordings = $sth->fetchall_hashref('hash');
+      $outdatedRecordings = $sth->fetchall_hashref('idx');
   }
 
   if($forceUpdate) {
@@ -721,17 +745,17 @@ sub _readData {
     my $db_data;
     unless($forceUpdate) {
         # read database for compare with vdr data
-        my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.RecordId as id, 
+        my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.id as id, 
                         UNIX_TIMESTAMP(e.starttime) as starttime, 
-                        e.duration as duration, r.State as state, 
+                        e.duration, r.status, 
                         CONCAT_WS("~",e.title,e.subtitle) as title, 
-                        CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as hash,
+                        CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as idx,
                         UNIX_TIMESTAMP(e.addtime) as addtime,
                         r.Path as path,
                         r.Type as type,
                         r.FileSize,
                         r.Marks as marks,
-                        r.RecordMD5
+                        r.hash
                  from RECORDS as r,OLDEPG as e 
                  where e.vid = ? and r.eventid = e.eventid |;
        my $sth = $self->{dbh}->prepare($sql);
@@ -741,7 +765,7 @@ sub _readData {
                if($console);
              next;
        }
-       $db_data = $sth->fetchall_hashref('hash');
+       $db_data = $sth->fetchall_hashref('idx');
        lg sprintf( 'Compare recording database with data from %s : %d / %d', 
                     $hostname,
                     scalar keys %$db_data,scalar keys %$vdrData );
@@ -761,8 +785,8 @@ sub _readData {
               if(ref $waiter);
 
           # Compare fields
-          foreach my $field (qw/id state/) {
-            if($db_data->{$h}->{$field} != $event->{$field}) {
+          foreach my $field (qw/id status/) {
+            if($db_data->{$h}->{$field} ne $event->{$field}) {
 
               $self->_updateState($db_data->{$h}, $event);
 
@@ -789,7 +813,7 @@ sub _readData {
                       my $job = $self->videoPreview( $db_data->{$h}, 1);
                       if($job) {
                         push(@{$self->{JOBS}}, $job);
-                        $self->_updatePreview($self->{dbh}, $job->{RecordMD5}, $db_data->{$h}->{preview});
+                        $self->_updatePreview($self->{dbh}, $job->{hash}, $db_data->{$h}->{preview});
                       }
                   }
                   $self->_updateEvent($db_data->{$h});
@@ -836,7 +860,7 @@ sub _readData {
                   delete $outdatedRecordings->{$h};
                   $insertedData++;
 
-                  $self->{keywords}->insert('recording',$info->{RecordMD5},$info->{keywords});
+                  $self->{keywords}->insert('recording',$info->{hash},$info->{keywords});
 
               } else {
                   push(@{$err},sprintf(gettext("Can't add recording '%s' into database!"),$info->{title}));
@@ -848,15 +872,15 @@ sub _readData {
       }
 
       if($forceUpdate) {
-        foreach my $md5 (keys %{$files}) {
-           push(@{$err},sprintf(gettext("Recording '%s' without id or unique title and date from '%s'!"),$files->{$md5}->{title},$hostname));
+        foreach my $idx (keys %{$files}) {
+           push(@{$err},sprintf(gettext("Recording '%s' without id or unique title and date from '%s'!"),$files->{$idx}->{title},$hostname));
         }
       }
 
       if($db_data && scalar keys %$db_data > 0) {
         foreach my $t (keys %{$db_data}) {
             delete $outdatedRecordings->{$t};
-            push(@todel,$db_data->{$t}->{RecordMD5});
+            push(@todel,$db_data->{$t}->{hash});
         }
       }
 
@@ -866,9 +890,9 @@ sub _readData {
     debug sprintf 'Finish .. %d recordings inserted, %d recordings updated, %d recordings removed',
            $insertedData, $updatedState, $removedData;
 
-    map { push(@todel,$outdatedRecordings->{$_}->{RecordMD5}); } keys %{$outdatedRecordings};
+    map { push(@todel,$outdatedRecordings->{$_}->{hash}); } keys %{$outdatedRecordings};
     if(!$forceUpdate && scalar @todel) {
-      my $sql = sprintf('DELETE FROM RECORDS WHERE RecordMD5 IN (%s)', join(',' => ('?') x @todel)); 
+      my $sql = sprintf('DELETE FROM RECORDS WHERE hash IN (%s)', join(',' => ('?') x @todel)); 
       my $sth = $self->{dbh}->prepare($sql);
       $sth->execute(@todel)
           or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
@@ -901,8 +925,8 @@ sub _readData {
 
 
     # alte PreviewDirs loeschen
-    foreach my $md5 (@todel) {
-        my $dir = sprintf('%s/%s_shot', $self->{previewimages} , $md5);
+    foreach my $hash (@todel) {
+        my $dir = sprintf('%s/%s_shot', $self->{previewimages} , $hash);
         lg sprintf("Remove old preview files : '%s'",$dir);
         deleteDir($dir);
     }
@@ -913,12 +937,16 @@ sub _readData {
         my @jobs = @{$self->{JOBS}};
         $self->{JOBS} = [];
 
-        defined(my $child = fork()) or return con_err($console, sprintf("Couldn't fork : %s",$!));
-        if($child == 0) {
+        my $child = fork(); 
+        if ($child < 0) {
+          con_err($console, sprintf("Couldn't fork : %s",$!));
+        } elsif ($child > 0) {
+
+        } elsif ($child == 0) {
             $self->{dbh}->{InactiveDestroy} = 1;
             my $dbh = $self->{dbh}->clone();
             error(sprintf("Couldn't clone database handle : %s",$!)) unless($dbh);
-            while(scalar @jobs > 0) {
+            while($dbh && scalar @jobs > 0) {
                 my $job = shift (@jobs);
 
                 my $preview = [];
@@ -928,10 +956,10 @@ sub _readData {
                 foreach(@images) {
                   my $frame = basename($_);
                   $frame =~ s/\.jpg$//ig;
-                  push(@{$preview},$frame);
-                  last if(scalar @{$preview} >= $self->{previewcount});
+                  push(@{$preview},$frame)
+                    if(scalar @{$preview} < $self->{previewcount});
                 }
-                $self->_updatePreview($dbh, $job->{RecordMD5},$preview) if($dbh);
+                $self->_updatePreview($dbh, $job->{hash},$preview);
             }
             undef $dbh;
             exit 0;
@@ -1021,8 +1049,8 @@ sub insert {
     my $sth = $self->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
-        (eventid, RecordId, RecordMD5, Path, priority, lifetime, State, FileSize, cutlength, Marks, Type, preview, aux, addtime )
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
+        (eventid, track, id, hash, Path, priority, lifetime, status, FileSize, cutlength, Marks, Type, preview, aux, addtime )
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
     |);
 
     $attr->{Marks} = ""
@@ -1030,12 +1058,13 @@ sub insert {
 
     return $sth->execute(
         $attr->{eventid},
-        $attr->{RecordId},
-        $attr->{RecordMD5},
+        $attr->{track},
+        $attr->{id},
+        $attr->{hash},
         $attr->{Path},
         $attr->{priority},
         $attr->{lifetime},
-        $attr->{State},
+        $attr->{status},
         $attr->{FileSize},
         $attr->{cutlength},
         $attr->{Marks},
@@ -1066,8 +1095,8 @@ sub _updateState {
     my $oldattr = shift || return error ('No data defined!');
     my $attr = shift || return error ('No data to replace!');
 
-    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET RecordId=?, State=?, addtime=NOW() where RecordMD5=?');
-    return $sth->execute($attr->{id},$attr->{state},$oldattr->{RecordMD5});
+    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET id=?, status=?, addtime=NOW() where hash=?');
+    return $sth->execute($attr->{id},$attr->{status},$oldattr->{hash});
 }
 
 # ------------------
@@ -1075,11 +1104,11 @@ sub _updatePreview {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $dbh = shift || return error ('No dbh defined!');
-    my $RecordMD5 = shift || return error ('No data defined!');
+    my $hash = shift || return error ('No data defined!');
     my $preview = shift || return error ('No data to replace!');
     my $images = join(',',@{$preview});
-    my $sth = $dbh->prepare('UPDATE RECORDS SET preview=?, addtime=NOW() where RecordMD5=?');
-    return $sth->execute($images,$RecordMD5);
+    my $sth = $dbh->prepare('UPDATE RECORDS SET preview=?, addtime=NOW() where hash=?');
+    return $sth->execute($images,$hash);
 }
 # ------------------
 sub _updateFileSize {
@@ -1087,8 +1116,8 @@ sub _updateFileSize {
     my $self = shift || return error('No object defined!');
     my $attr = shift || return error ('No data to replace!');
 
-    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=NOW() where RecordMD5=?');
-    return $sth->execute($attr->{FileSize},$attr->{RecordMD5});
+    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=NOW() where hash=?');
+    return $sth->execute($attr->{FileSize},$attr->{hash});
 }
 
 # ------------------
@@ -1141,9 +1170,10 @@ sub analyze {
     push(@{$self->{JOBS}}, $job) if($job);
 
     my $ret = {
-        RecordMD5 => $info->{RecordMD5},
+        hash => $info->{hash},
         title => $recattr->{title},
-        RecordId => $recattr->{id},
+        track => $recattr->{track},
+        id => $recattr->{id},
         Duration => $info->{duration},
         Start => $recattr->{starttime},
         Path  => $info->{path},
@@ -1151,7 +1181,7 @@ sub analyze {
         lifetime  => $info->{lifetime},
         eventid => $event->{eventid},
         Type  => $info->{type} || 'UNKNOWN',
-        State => $recattr->{state},
+        status => $recattr->{status},
         FileSize => $info->{FileSize},
         cutlength => $info->{cutlength},
         aux => $info->{aux},
@@ -1179,8 +1209,8 @@ sub videoInfo {
     my $hour=$ltime[2];
     my $minute=$ltime[1];
 
-    foreach my $md5 (keys %{$files}) {
-        my $rec = $files->{$md5};
+    foreach my $hash (keys %{$files}) {
+        my $rec = $files->{$hash};
         if($rec->{title} eq $title
 #          && $rec->{year} == $year
            && $rec->{month} == $month
@@ -1190,7 +1220,7 @@ sub videoInfo {
 
               my $info = $self->readinfo($rec->{path});    
 
-              $info->{RecordMD5} = $md5;
+              $info->{hash} = $hash;
               $info->{path} = $rec->{path};
               $info->{priority} = $rec->{priority};
               $info->{lifetime} = $rec->{lifetime};
@@ -1202,7 +1232,7 @@ sub videoInfo {
               map { $info->{$_} = $marks->{$_}; } keys %{$marks}; 
               $info->{cutlength} = $self->_calcmarks($info->{marks} , $info->{duration});
 
-              delete $files->{$md5}; # remove from hash, avoid double lookup
+              delete $files->{$hash}; # remove from hash, avoid double lookup
               return $info;
         }
     }
@@ -1473,7 +1503,7 @@ sub videoPreview {
         return 0;
     }
 
-    my $outdir = sprintf('%s/%s_shot', $self->{previewimages}, $info->{RecordMD5});
+    my $outdir = sprintf('%s/%s_shot', $self->{previewimages}, $info->{hash});
 
     my $count = $self->{previewcount};
     # Stop here if enough files present
@@ -1568,7 +1598,7 @@ sub videoPreview {
     return {
       command    => $mversions->{$self->{previewcommand}},
       previewdir => $outdir,
-      RecordMD5  => $info->{RecordMD5}
+      hash  => $info->{hash}
     }
 }
 
@@ -1677,16 +1707,16 @@ sub display {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
-    my $recordid = shift;
+    my $id = shift;
 
-    unless($recordid) {
+    unless($id) {
         con_err($console,gettext("No recording defined for display! Please use rdisplay 'rid'"));
         return;
     }
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as RecordId,
+    r.hash as RecordId,
     r.eventid,
     e.Duration,
     r.Marks,
@@ -1697,7 +1727,7 @@ SELECT SQL_CACHE
     e.title as Title,
     e.subtitle as SubTitle,
     e.description as Description,
-    r.State as New,
+    r.status as New,
     r.Type as Type,
     (SELECT Name
       FROM CHANNELS as c
@@ -1709,17 +1739,17 @@ from
     RECORDS as r,OLDEPG as e
 where
     r.eventid = e.eventid
-    and RecordMD5 = ?
+    and hash = ?
 |;
 
     my $erg;
 #   my $fields;
     my $sth = $self->{dbh}->prepare($sql);
-    if(!$sth->execute($recordid)
+    if(!$sth->execute($id)
 #     || !($fields = $sth->{'NAME'})
       || !($erg = $sth->fetchrow_hashref())) {
-        con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
-        return;
+        con_err($console,gettext("This recording does not exist in the database!"));
+        return undef;
     }
 
     if($console->{TYP} ne 'HTML') {
@@ -1733,7 +1763,7 @@ where
       $_ =~ s/\s*\:.*$//;
     } @reccmds;
 
-    my ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',[ $erg->{'RecordId'} ]);
+    my ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',[ $erg->{'id'} ]);
 
     my $param = {
         reccmds => \@reccmds,
@@ -1748,17 +1778,18 @@ sub play {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
-    my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
+    my $id = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
     my $params  = shift;
 
-    my $sql = qq|SELECT SQL_CACHE vid, RecordID, RecordMD5, duration 
+    my $sql = qq|SELECT SQL_CACHE vid, id, hash, duration 
     FROM RECORDS as r, OLDEPG as e 
-    WHERE e.eventid = r.eventid and RecordMD5 = ?|;
+    WHERE e.eventid = r.eventid and hash = ?|;
     my $sth = $self->{dbh}->prepare($sql);
     my $rec;
-    if(!$sth->execute($recordid)
+    if(!$sth->execute($id)
       || !($rec = $sth->fetchrow_hashref())) {
-        return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+        con_err($console,gettext("This recording does not exist in the database!"));
+        return undef;
     }
 
     my $start = 0;
@@ -1780,10 +1811,10 @@ sub play {
       $vdr = $params->{vdr};
     }
 
-    my $cmd = sprintf('PLAY %d %s', $rec->{RecordID}, $start);
+    my $cmd = sprintf('PLAY %d %s', $rec->{id}, $start);
     if($self->{svdrp}->scommand($console, $config, $cmd, $vdr)) {
 
-      $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
+      $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{hash}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
 
       return 1;
@@ -1797,17 +1828,18 @@ sub cut {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
-    my $recordid = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
+    my $id = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
     my $params  = shift;
 
-    my $sql = qq|SELECT SQL_CACHE vid, RecordID, RecordMD5 
+    my $sql = qq|SELECT SQL_CACHE vid, id, hash 
     FROM RECORDS as r, OLDEPG as e 
-    WHERE e.eventid = r.eventid and r.RecordMD5 = ?|;
+    WHERE e.eventid = r.eventid and r.hash = ?|;
     my $sth = $self->{dbh}->prepare($sql);
     my $rec;
-    if(!$sth->execute($recordid)
+    if(!$sth->execute($id)
       || !($rec = $sth->fetchrow_hashref())) {
-        return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+        con_err($console,gettext("This recording does not exist in the database!"));
+        return undef;
     }
 
     my $vdr = $rec->{vid};
@@ -1815,10 +1847,10 @@ sub cut {
       $vdr = $params->{vdr};
     }
 
-    my $cmd = sprintf('EDIT %d', $rec->{RecordID});
+    my $cmd = sprintf('EDIT %d', $rec->{id});
     if($self->{svdrp}->scommand($console, $cmd, $vdr)) {
 
-      $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{RecordMD5}), wait => 1})
+      $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{hash}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
 
       return 1;
@@ -1856,7 +1888,7 @@ AND (
     }
 
     my %f = (
-        'RecordMD5' => gettext('Index'),
+        'hash' => gettext('Index'),
         'Title' => gettext('Title'),
         'Subtitle' => gettext('Subtitle'),
         'Duration' => gettext('Duration'),
@@ -1865,13 +1897,13 @@ AND (
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as \'$f{'RecordMD5'}\',
+    r.hash as \'$f{'hash'}\',
     r.eventid as __EventId,
     e.title as \'$f{'Title'}\',
     e.subtitle as \'$f{'Subtitle'}\',
     SUM(e.duration) as \'$f{'Duration'}\',
     UNIX_TIMESTAMP(e.starttime) as \'$f{'starttime'}\',
-    SUM(State) as __New,
+    SUM(FIND_IN_SET('new',status)) as __New,
     r.Type as __Type,
     COUNT(*) as __Group,
     SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) as __fulltitle,
@@ -1886,12 +1918,15 @@ WHERE
     e.eventid = r.eventid
     $where 
 GROUP BY
-    SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle,RecordMD5), '~', $deep)
+    SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle,hash), '~', $deep)
 ORDER BY __IsRecording asc,
 |;
 
 
-    my $sortby = $text ? "starttime" : "__fulltitle";
+    my $sortby = "track";
+    $sortby = "starttime"
+      if($text && $config->{seriesorder} eq 'date');
+
     if(exists $params->{sortby}) {
       while(my($k, $v) = each(%f)) {
         if($params->{sortby} eq $k or $params->{sortby} eq $v) {
@@ -1942,13 +1977,13 @@ ORDER BY __IsRecording asc,
     my $keywordmin;
 
     unless($console->typ eq 'AJAX') {
-      my $md5;
+      my $hash;
       map {
-        push(@$md5,$_->[0]);
+        push(@$hash,$_->[0]);
         $_->[5] = datum($_->[5],'short');
       } @$erg;
 
-      ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',$md5);
+      ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',$hash);
 
       unshift(@$erg, $fields);
     }
@@ -1959,7 +1994,7 @@ ORDER BY __IsRecording asc,
         used => $self->{CapacityPercent},
         total => $self->{CapacityTotal},
         free => $self->{CapacityFree},
-        previewcommand => $self->{previewlistthumbs},
+        previewcommand => $config->{previewlistthumbs},
         keywords => $keywords,
         keywordsmax => $keywordmax,        
         keywordsmin => $keywordmin,
@@ -1995,7 +2030,7 @@ sub _search {
 
 
     my %f = (
-        'RecordMD5' => gettext('Index'),
+        'hash' => gettext('Index'),
         'Title' => gettext('Title'),
         'Subtitle' => gettext('Subtitle'),
         'Duration' => gettext('Duration'),
@@ -2004,13 +2039,13 @@ sub _search {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as \'$f{'RecordMD5'}\',
+    r.hash as \'$f{'hash'}\',
     r.eventid as __EventId,
     e.title as \'$f{'Title'}\',
     e.subtitle as \'$f{'Subtitle'}\',
     e.duration as \'$f{'Duration'}\',
     UNIX_TIMESTAMP(e.starttime) as \'$f{'starttime'}\',
-    r.State as __New,
+    FIND_IN_SET('new',r.status) as __New,
     r.Type as __Type,
     0 as __Group,
     CONCAT_WS('~',e.title,e.subtitle) as __fulltitle,
@@ -2078,13 +2113,13 @@ ORDER BY
     my $keywordmin;
 
     unless($console->typ eq 'AJAX') {
-      my $md5;
+      my $hash;
       map {
-        push(@$md5,$_->[0]);
+        push(@$hash,$_->[0]);
         $_->[5] = datum($_->[5],'short');
       } @$erg;
 
-      ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',$md5);
+      ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',$hash);
 
       unshift(@$erg, $fields);
     }
@@ -2095,7 +2130,7 @@ ORDER BY
         used => $self->{CapacityPercent},
         total => $self->{CapacityTotal},
         free => $self->{CapacityFree},
-        previewcommand => $self->{previewcommand},
+        previewcommand => $config->{previewlistthumbs},
         keywords => $keywords,
         keywordsmax => $keywordmax,        
         keywordsmin => $keywordmin,
@@ -2117,7 +2152,7 @@ sub delete {
 
     my @rcs  = split(/[^0-9a-fl\:]/, $record);
     my $todelete;
-    my $md5delete;
+    my $hashdelete;
     my %rec;
         
     foreach my $item (@rcs) {
@@ -2133,10 +2168,10 @@ sub delete {
     my @recordings = keys %rec;
     
     my $sql = sprintf(
-qq|SELECT SQL_CACHE e.vid, r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.RecordMD5 
+qq|SELECT SQL_CACHE e.vid, r.id,CONCAT_WS('~',e.title,e.subtitle),r.hash 
    FROM RECORDS as r,OLDEPG as e 
-   WHERE e.eventid = r.eventid and r.RecordMD5 IN (%s) 
-   ORDER BY e.vid, r.RecordId desc|, join(',' => ('?') x @recordings)); 
+   WHERE e.eventid = r.eventid and r.hash IN (%s) 
+   ORDER BY e.vid, r.id desc|, join(',' => ('?') x @recordings)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@recordings)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
@@ -2148,7 +2183,7 @@ qq|SELECT SQL_CACHE e.vid, r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.Record
           vid      => $recording->[0],
           Id       => $recording->[1],
           Title    => $recording->[2],
-          MD5      => $recording->[3]
+          hash      => $recording->[3]
         };
 
         if(ref $console and $console->{TYP} eq 'CONSOLE') {
@@ -2170,12 +2205,12 @@ qq|SELECT SQL_CACHE e.vid, r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.Record
 
         $self->{svdrp}->queue_add(sprintf("delr %s",$r->{Id}), $r->{vid});
         push(@{$todelete},$r->{Title}); # Remember title
-        push(@{$md5delete},$r->{MD5}); # Remember hash
+        push(@{$hashdelete},$r->{hash}); # Remember hash
 
         # Delete recordings from request, if found in database
         my $i = 0;
         for my $x (@recordings) {
-          if ( $x eq $r->{MD5} ) { # Remove known MD5 from user request
+          if ( $x eq $r->{hash} ) { # Remove known hash from user request
             splice @recordings, $i, 1;
           } else {
           $i++;
@@ -2183,10 +2218,8 @@ qq|SELECT SQL_CACHE e.vid, r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.Record
         }
     }
     
-    con_err($console,
-      sprintf(gettext("Recording '%s' does not exist in the database!"), 
-      join('\',\'',@recordings))) 
-          if(scalar @recordings);
+    con_err($console,gettext("This recording does not exist in the database!"))
+      if(scalar @recordings);
 
     if($self->{svdrp}->queue_count()) {
 
@@ -2205,12 +2238,12 @@ qq|SELECT SQL_CACHE e.vid, r.RecordId,CONCAT_WS('~',e.title,e.subtitle),r.Record
             con_msg($console,$msg);
           }
 
-          my $dsql = sprintf("DELETE FROM RECORDS WHERE RecordMD5 IN (%s)", join(',' => ('?') x @{$md5delete})); 
+          my $dsql = sprintf("DELETE FROM RECORDS WHERE hash IN (%s)", join(',' => ('?') x @{$hashdelete})); 
           my $dsth = $self->{dbh}->prepare($dsql);
-            $sth->execute(@{$md5delete})
+            $sth->execute(@{$hashdelete})
               or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
 
-          $self->{keywords}->remove('recording',$md5delete);
+          $self->{keywords}->remove('recording',$hashdelete);
         }
 
         $self->_readData($console,$waiter)
@@ -2252,11 +2285,11 @@ sub redit {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
-    my $recordid  = shift || return con_err($console,gettext("No recording defined for editing!"));
+    my $id  = shift || return con_err($console,gettext("No recording defined for editing!"));
     my $data    = shift || 0;
 
     my $rec;
-    if($recordid) {
+    if($id) {
         my $sql = qq|
 SELECT SQL_CACHE
     e.vid,
@@ -2270,12 +2303,13 @@ FROM
     OLDEPG as e
 WHERE
     e.eventid = r.eventid
-	AND ( r.RecordMD5 = ? )
+	AND ( r.hash = ? )
 |;
         my $sth = $self->{dbh}->prepare($sql);
-        if(!$sth->execute($recordid)
+        if(!$sth->execute($id)
           || !($rec = $sth->fetchrow_hashref())) {
-          return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recordid));
+            con_err($console,gettext("This recording does not exist in the database!"));
+            return undef;
         }
     }
 
@@ -2481,11 +2515,11 @@ WHERE
         }
 
         if($ChangeRecordingData) { 
-            my $sth = $self->{dbh}->prepare('DELETE FROM RECORDS WHERE RecordMD5 = ?');
-            $sth->execute($recordid)
+            my $sth = $self->{dbh}->prepare('DELETE FROM RECORDS WHERE hash = ?');
+            $sth->execute($id)
                 or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
             my $todel;
-            push(@$todel,$recordid);
+            push(@$todel,$id);
             $self->{keywords}->remove('recording',$todel);
         }
         if($dropEPGEntry || $ChangeRecordingData) {
@@ -2560,9 +2594,13 @@ sub conv {
         $self->list($console);
     }
 
-    my ($cmdid, $recid) = split(/[\s_]/, $data);
+    my ($cmdid, $hash) = split(/[\s_]/, $data);
     my $cmd = (split(':', $self->{reccmds}->[$cmdid-1]))[-1] || return con_err($console,gettext("Couldn't find this command ID!"));
-    my $path = $self->IdToPath($recid) || return con_err($console,sprintf(gettext("Recording '%s' does not exist in the database!"),$recid));
+    my $path = $self->IdToPath($hash);
+    unless($path) {
+        con_err($console,gettext("This recording does not exist in the database!"));
+        return undef;
+    }
 
     my $command = sprintf("%s %s",$cmd,qquote($path));
     debug sprintf('Call command %s%s',
@@ -2600,7 +2638,7 @@ sub status {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5 as __Id,
+    r.hash as __Id,
     r.eventid as __EventId,
     e.title,
     e.subtitle,
@@ -2636,7 +2674,7 @@ sub IdToData {
     my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from RECORDS as r, OLDEPG as e where e.eventid = r.eventid and RecordMD5 = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from RECORDS as r, OLDEPG as e where e.eventid = r.eventid and hash = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -2649,7 +2687,7 @@ sub IdToPath {
     my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE Path from RECORDS where RecordMD5 = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE Path from RECORDS where hash = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -2660,11 +2698,11 @@ sub IdToPath {
 sub getGroupIds {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $recid = shift || return error ('No recording defined!');
+    my $hash = shift || return error ('No recording defined!');
     
-    my $data = $self->IdToData($recid);
+    my $data = $self->IdToData($hash);
     unless($data) {
-      error sprintf("Couldn't find recording '%s'!", $recid);
+      error sprintf("Couldn't find recording '%s'!", $hash);
       return;
     }
     my  $text    = $data->{title};
@@ -2676,7 +2714,7 @@ sub getGroupIds {
 
     my $sql = qq|
 SELECT SQL_CACHE 
-    r.RecordMD5
+    r.hash
 FROM
     RECORDS as r,
     OLDEPG as e
@@ -2688,7 +2726,7 @@ AND (
       SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) LIKE ?
     )
 GROUP BY
-    SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle,RecordMD5), '~', $deep)
+    SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle,hash), '~', $deep)
 |;
 
     my $sth = $self->{dbh}->prepare($sql);
@@ -2866,7 +2904,7 @@ sub recover {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
-    my $recordid  = shift || 0;
+    my $id  = shift || 0;
     my $data    = shift || 0;
 
     my $files;
@@ -2922,13 +2960,13 @@ sub recover {
     if(ref $data eq 'HASH') {
         my $ChangeRecordingData = 0;
 
-        foreach my $md5 (split(/\s*,\s*/, $data->{restore})) {
-          unless(exists $files->{$md5}) {
+        foreach my $hash (split(/\s*,\s*/, $data->{restore})) {
+          unless(exists $files->{$hash}) {
             con_err($console,gettext("Can't recover recording, maybe was this in the meantime deleted!"));
             next;
           }
 
-          my $path = $files->{$md5}->{path};
+          my $path = $files->{$hash}->{path};
           my $newPath = $path;
           $newPath =~ s/\.del$/\.rec/g;
           lg sprintf("Recover recording, rename '%s' to %s",$path,$newPath);
@@ -3033,15 +3071,15 @@ sub image {
     return $console->status404('NULL','Wrong image parameter') 
       unless($data);
 
-    my ($recordid, $frame)
+    my ($id, $frame)
             = $data =~ /^([0-9a-f]{32}).(.*)$/si;
 
     return $console->status404('NULL','Wrong image parameter') 
-      unless($recordid && $frame);
+      unless($id && $frame);
     if(length($frame) < 8) {
       $frame = sprintf("%08d",$frame);
     }
-    return $console->datei(sprintf('%s/%s_shot/%s.jpg', $self->{previewimages}, $recordid, $frame));
+    return $console->datei(sprintf('%s/%s_shot/%s.jpg', $self->{previewimages}, $id, $frame));
 }
 
 1;

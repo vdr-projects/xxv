@@ -314,7 +314,7 @@ sub recording_keywords {
     }
 
     my $query = buildsearch("k.keyword",$text);
-    return $rmod->_search($console,$query->{query}.' ) AND ( r.RecordMD5 = k.hash ',$query->{term},$params,', KEYWORDS as k');
+    return $rmod->_search($console,$query->{query}.' ) AND ( r.hash = k.hash ',$query->{term},$params,', KEYWORDS as k');
 }
 
 # ------------------
