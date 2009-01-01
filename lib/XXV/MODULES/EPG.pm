@@ -1067,7 +1067,18 @@ ORDER BY c.vid, c.pos
 |;
 
     my $sthtemp = $self->{dbh}->prepare($sqltemp);
-    $sthtemp->execute(ref $term eq 'ARRAY' ? @$term : $term)
+    if($term) {
+      if(ref $term eq 'ARRAY') {
+        my $x = 1;
+        foreach (@$term) {
+          $sthtemp->bind_param( $x++, $_ );
+        }
+      } 
+      else {
+        $sthtemp->bind_param( 1, $term );
+      }
+    }
+    $sthtemp->execute()
       or return con_err($console, sprintf("Couldn't execute query: %s.",$sthtemp->errstr));
 
     my %f = (
@@ -1129,7 +1140,18 @@ ORDER BY c.vid, c.pos
     if($limit > 0) {
       # Query total count of rows
       my $rsth = $self->{dbh}->prepare($sql);
-         $rsth->execute(ref $term eq 'ARRAY' ? @$term : $term)
+        if($term) {
+          if(ref $term eq 'ARRAY') {
+            my $x = 1;
+            foreach (@$term) {
+              $sth->bind_param( $x++, $_ );
+            }
+          }
+          else {
+            $sth->bind_param( 1, $term );
+          }
+        }
+        $rsth->execute()
           or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
       $rows = $rsth->rows;
       if($rows <= $limit) {
@@ -1147,7 +1169,18 @@ ORDER BY c.vid, c.pos
 
     unless($sth) {
       $sth = $self->{dbh}->prepare($sql);
-      $sth->execute(ref $term eq 'ARRAY' ? @$term : $term)
+      if($term) {
+        if(ref $term eq 'ARRAY') {
+          my $x = 1;
+          foreach (@$term) {
+            $sth->bind_param( $x++, $_ );
+          }
+        }
+        else {
+          $sth->bind_param( 1, $term );
+        }
+      }
+      $sth->execute()
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       $rows = $sth->rows unless($rows);
     }
