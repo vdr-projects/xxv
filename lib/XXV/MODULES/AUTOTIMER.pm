@@ -423,23 +423,23 @@ sub _autotimerLookup {
 
         # Only search for one at?
         if(ref $console && $autotimerid) {
-            $console->message(sprintf(gettext("Found %d entries for '%s' in EPG database."), scalar keys %$events, $a->{Search}));
-            foreach my $eventid (sort keys %$events) {
+            $console->message(sprintf(gettext("Found %d entries for '%s' in EPG database."), $events ? scalar @$events : 0, $a->{Search}));
+            foreach my $event (@{$events}) {
 
-              my $output = [   [gettext("Title"),     $events->{$eventid}->{title}] ];
-              push(@$output,   [gettext("Subtitle"),  $events->{$eventid}->{subtitle}])
-                if($events->{$eventid}->{subtitle});
-              push(@$output,   [gettext("Channel"),   $events->{$eventid}->{channelname}]);
+              my $output = [   [gettext("Title"),     $event->{title}] ];
+              push(@$output,   [gettext("Subtitle"),  $event->{subtitle}])
+                if($event->{subtitle});
+              push(@$output,   [gettext("Channel"),   $event->{channelname}]);
 
-              if($events->{$eventid}->{vpsstart} and $a->{VPS} eq 'y' and $modT->{usevpstime} eq 'y') {
-                push(@$output, [gettext("Start"),     datum($events->{$eventid}->{vpsstart} )]);
-                push(@$output, [gettext("Stop"),      datum($events->{$eventid}->{vpsstop}  )]);
+              if($event->{vpsstart} and $a->{VPS} eq 'y' and $modT->{usevpstime} eq 'y') {
+                push(@$output, [gettext("Start"),     datum($event->{vpsstart} )]);
+                push(@$output, [gettext("Stop"),      datum($event->{vpsstop}  )]);
               } else {
-                push(@$output, [gettext("Start"),     datum($events->{$eventid}->{starttime})]);
-                push(@$output, [gettext("Stop"),      datum($events->{$eventid}->{stoptime} )]);
+                push(@$output, [gettext("Start"),     datum($event->{starttime})]);
+                push(@$output, [gettext("Stop"),      datum($event->{stoptime} )]);
               }
-              push(@$output,[gettext("Description"),  $events->{$eventid}->{description}])
-                if($events->{$eventid}->{description});
+              push(@$output,[gettext("Description"),  $event->{description}])
+                if($event->{description});
               $console->table($output);
             };
         }
@@ -450,8 +450,7 @@ sub _autotimerLookup {
         # Every found and save this as timer
         my $c = 0;
         my $m = 0;
-        foreach my $eventid (sort keys %$events) {
-            my $event = $events->{$eventid};
+        foreach my $event (@{$events}) {
 
             $event->{active} = 'y';
             $event->{priority} = $a->{Priority};
@@ -1363,13 +1362,18 @@ WHERE
 GROUP BY
     c.id , e.eventid
 ORDER BY
-    e.starttime
+    e.starttime asc,
+    e.eventid desc
     |;
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($prev,$after,@{$term})
       or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    return $sth->fetchall_hashref('eventid');
+    my $lst;
+    while (my $erg = $sth->fetchrow_hashref()) {
+      push(@$lst,$erg);
+    }
+    return $lst;
 }
 
 # ------------------
@@ -1545,7 +1549,7 @@ sub _placeholder {
 
     my %at_details;
     $at_details{'title'}            = $data->{title};
-    $at_details{'subtitle'}         = $data->{subtitle} ? $data->{subtitle} : $data->{start};
+    $at_details{'subtitle'}         = $data->{subtitle};
     $at_details{'date'}             = $data->{day};
     $at_details{'regie'}            = $1 if $data->{description} =~ m/\|Director: (.*?)\|/;
     $at_details{'category'}         = $1 if $data->{description} =~ m/\|Category: (.*?)\|/;
@@ -1558,7 +1562,7 @@ sub _placeholder {
     $at_details{'rating'}           = $1 if $data->{description} =~ m/\|Rating: (.*?)\|/;
     $at_details{'cast'}             = $1 if $data->{description} =~ m/\|Cast: (.*?)\|/;
 
-    $at_details{'abstract'}         = $1 if $data->{description} =~ m/^(.*?)[\.\n]/;
+    $at_details{'abstract'}         = $1 if $data->{description} =~ m/^(.*?)[\.\r\n]/;
     $at_details{'abstract'} = substr($at_details{'abstract'},0,100) if($at_details{'abstract'});
 
     if ($at->{Dir}) {

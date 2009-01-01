@@ -633,7 +633,19 @@ from
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    unshift(@$erg, $fields);
+
+    my %l = (
+        'admin' => gettext('Administrator'),
+        'user' => gettext('User'),
+        'guest' => gettext('Guest')
+    );
+
+    map { 
+      $_->[2] = $l{$_->[2]} || $_->[2];
+    } @$erg;
+
+    unshift(@$erg, $fields)
+      unless($console->typ eq 'AJAX');
 
     $console->table($erg);
 }

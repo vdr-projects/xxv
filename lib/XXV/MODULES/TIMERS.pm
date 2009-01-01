@@ -853,29 +853,23 @@ sub deleteTimer {
 
     my @timers  = split(/[^0-9a-f]/, $timerid);
 
-    my $sql = sprintf('SELECT SQL_CACHE id,vid,pos,file,channel,starttime,flags & 1 and NOW() between starttime and stoptime FROM TIMERS where id in (%s) ORDER BY pos desc', join(',' => ('?') x @timers)); 
+    my $sql = sprintf(qq|
+SELECT SQL_CACHE id, vid, pos, file, channel, starttime,
+                 flags & 1 and NOW() between starttime and stoptime as running
+FROM TIMERS where id in (%s) ORDER BY pos desc|, join(',' => ('?') x @timers)); 
     my $sth = $self->{dbh}->prepare($sql);
+
     $sth->execute(@timers)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $data = $sth->fetchall_arrayref();
-
     my $modC = main::getModule('CHANNELS') or return;
-    foreach my $d (@$data) {
-        my $t = {
-          id      => $d->[0],
-          vid     => $d->[1],
-          pos     => $d->[2],
-          file    => $d->[3],
-          channel => $d->[4],
-          start   => $d->[5],
-          running => $d->[6]
-        };
+
+    while (my $t = $sth->fetchrow_hashref()) {
 
         if(ref $console and $console->{TYP} eq 'CONSOLE') {
             $console->table({
               gettext('Title')   => $t->{file},
               gettext('Channel') => $modC->ChannelToName($t->{channel}),
-              gettext('Start')   => $t->{start},
+              gettext('Start')   => $t->{starttime},
             });
             my $confirm = $console->confirm({
                 typ   => 'confirm',
@@ -938,28 +932,18 @@ sub toggleTimer {
 
     my @timers  = split(/[^0-9a-f]/, $timerid);
 
-    my $sql = sprintf('SELECT SQL_CACHE id,vid,pos,file,flags,starttime,stoptime FROM TIMERS where id in (%s) ORDER BY pos desc', join(',' => ('?') x @timers)); 
+    my $sql = sprintf('SELECT SQL_CACHE id,vid,pos,file,flags,starttime,stoptime FROM TIMERS where id in (%s) ORDER BY vid, pos desc', join(',' => ('?') x @timers)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@timers)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $data = $sth->fetchall_arrayref();
     my $ref;
     my @success;
 
-    foreach my $d (@$data) {
-        my $t = {
-          id      => $d->[0],
-          vid     => $d->[1],
-          pos     => $d->[2],
-          file    => $d->[3],
-          flags   => $d->[4],
-          start   => $d->[5],
-          stop    => $d->[6]
-        };
+    while (my $t = $sth->fetchrow_hashref()) {
 
         # Build query for all timers with possible collisions
-        $ref .= " or '$t->{start}' between starttime and stoptime"
-             .  " or '$t->{stop}'  between starttime and stoptime";
+        $ref .= " or '$t->{starttime}' between starttime and stoptime"
+             .  " or '$t->{stoptime}'  between starttime and stoptime";
 
 
     	  my $status = (($t->{flags} & 1) ? 'off' : 'on');
@@ -1613,11 +1597,11 @@ sub findOverlapping {
         $source =~ s/\s+$//;               # no trailing white space
 
         unshift(@{$CARDS},{
-            Source => $source,
+            source => $source,
             tid => undef,
             stoptime => 0,
             cardID => $cardid ++,
-            VDR => $vid,
+            vid => $vid,
             #CA => ''
           }
         );
@@ -1628,29 +1612,15 @@ sub findOverlapping {
 #     dumper($ca);
 #   }
 
-    use constant fid => 0;
-    use constant fstart => 1;
-    use constant fstop => 2;
-    use constant fpriority => 3;
-    use constant fCardOnly => 4;
-    use constant fVDR => 5;
-    use constant fSource => 6;
-    use constant fTID => 7;
-    use constant fCardUsed => 8;
-    use constant fCollision => 9;
-    use constant fFile => 10;
-
     my $sql = qq|
 SELECT t.id,
-    UNIX_TIMESTAMP(t.starttime),
-    UNIX_TIMESTAMP(t.stoptime),
+    UNIX_TIMESTAMP(t.starttime) as starttime,
+    UNIX_TIMESTAMP(t.stoptime) as stoptime,
     t.priority,
     c.CA,
     c.vid,
     c.source,
-    c.TID,
-    NULL,
-    NULL,
+    c.TID as tid,
     file
 FROM
     TIMERS as t, CHANNELS as c
@@ -1666,30 +1636,31 @@ ORDER BY
     my $sth = $self->{dbh}->prepare($sql);
        $sth->execute()
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $timer = $sth->fetchall_arrayref();
-
+    my $timer;
     # try to assign timer to dvb cards
-    foreach my $ti (@{$timer}) {
+    while (my $ti = $sth->fetchrow_hashref()) {
+      push(@{$timer},$ti);
+
       my $CardOnly = 0;
-      if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 16) {
+      if($ti->{CA} =~ /^(\d+)$/ && $1 < 16) {
         $CardOnly = $1;
       } 
       for my $ca (@{$CARDS}) {
-        my $source = $ca->{Source};
-        if(!($ti->[fCardUsed]) # If'nt assign
-            && $ca->{VDR} eq $ti->[fVDR] # Same host
-            && $ti->[fSource] =~ /$source/ # Same source
+        my $source = $ca->{source};
+        if(!($ti->{UsedCard}) # If'nt assign
+            && $ca->{vid} eq $ti->{vid} # Same host
+            && $ti->{source} =~ /$source/ # Same source
              && (!$CardOnly || $ca->{cardID} == $CardOnly) # if CA has DVB Card number
              && (!$ca->{tid} # Unused transponder
-                || $ca->{tid} eq $ti->[fTID] # or same transponder
-                || $ti->[fstart] >= $ca->{stoptime})) { # or timer ended and card are free for next timer
+                || $ca->{tid} eq $ti->{tid} # or same transponder
+                || $ti->{starttime} >= $ca->{stoptime})) { # or timer ended and card are free for next timer
 
-                $ca->{tid}       = $ti->[fTID];
-                $ca->{stoptime}  = $ti->[fstop];
-                $ti->[fCardUsed] = $ca->{cardID};
+                $ca->{tid}       = $ti->{tid};
+                $ca->{stoptime}  = $ti->{stoptime};
+                $ti->{UsedCard}  = $ca->{cardID};
           }
         }
-      #lg sprintf("Title: %s use dvb card %s", $ti->[fFile], $ti->[fCardUsed] || 'none');
+    #  lg sprintf("%s use dvb card %s", $ti->{file}, $ti->{UsedCard} || '-');
     }
 
     # check priority and mark collisions
@@ -1697,34 +1668,34 @@ ORDER BY
     do {
       $rerun = 0;
       foreach my $ti (@{$timer}) {
-        unless($ti->[fCardUsed]) { # used card
+        unless($ti->{UsedCard}) { # used card
           my $CardOnly = 0;
-          if($ti->[fCardOnly] =~ /^(\d+)$/ && $1 < 16) {
+          if($ti->{CA} =~ /^(\d+)$/ && $1 < 16) {
             $CardOnly = $1;
           } 
           foreach my $co (@{$timer}) {
-            if($ti->[fid] ne $co->[fid]
-                && $co->[fCardUsed] # used card
-                && ($co->[fVDR] eq $ti->[fVDR])      #Same Host
-                && ($co->[fSource] eq $ti->[fSource]) #Same Source
-                && ((($ti->[fstart] >= $co->[fstart]) # start >= start
-                       && ($ti->[fstart] <= $co->[fstop])) # start <= stop
-                   || (($ti->[fstop] >= $co->[fstart]) # stop >= stop
-                       && ($ti->[fstop] <= $co->[fstop])) # stop <= stop
+            if($ti->{id} ne $co->{id}
+                && $co->{UsedCard} # used card
+                && ($co->{vid} eq $ti->{vid})      #Same Host
+                && ($co->{source} eq $ti->{source}) #Same Source
+                && ((($ti->{starttime} >= $co->{starttime}) # start >= start
+                       && ($ti->{starttime} <= $co->{stoptime})) # start <= stop
+                   || (($ti->{stoptime} >= $co->{starttime}) # stop >= stop
+                       && ($ti->{stoptime} <= $co->{stoptime})) # stop <= stop
                    )
-                && (!$CardOnly || $CardOnly == $co->[fCardUsed])
+                && (!$CardOnly || $CardOnly == $co->{UsedCard})
                ) 
             {
-               if($ti->[fpriority] == $co->[fpriority]) {     # Same priority
-                  push(@{$ti->[fCollision]},sprintf('%s:%d',$co->[fid],$co->[fpriority]));
-                  push(@{$co->[fCollision]},sprintf('%s:%d',$ti->[fid],$ti->[fpriority]));
-               } elsif($ti->[fpriority] > $co->[fpriority]) { # bigger priority
-                  $ti->[fCardUsed] = delete $co->[fCardUsed];
-                  push(@{$co->[fCollision]},sprintf('%s:%d',$ti->[fid],$ti->[fpriority]));
+               if($ti->{priority} == $co->{priority}) {     # Same priority
+                  push(@{$ti->{Collision}},sprintf('%s:%d',$co->{id},$co->{priority}));
+                  push(@{$co->{Collision}},sprintf('%s:%d',$ti->{id},$ti->{priority}));
+               } elsif($ti->{priority} > $co->{priority}) { # bigger priority
+                  $ti->{UsedCard} = delete $co->{UsedCard};
+                  push(@{$co->{Collision}},sprintf('%s:%d',$ti->{id},$ti->{priority}));
                   # need rerun
                   $rerun = 1;
                } else {                                      # lesser priority
-                  push(@{$ti->[fCollision]},sprintf('%s:%d',$co->[fid],$co->[fpriority]));
+                  push(@{$ti->{Collision}},sprintf('%s:%d',$co->{id},$co->{priority}));
                }
             }
           }
@@ -1734,9 +1705,9 @@ ORDER BY
 
     my $uth = $self->{dbh}->prepare("UPDATE TIMERS SET collision = ? WHERE id = ?");
     foreach my $ti (@{$timer}) {
-      debug sprintf("%s (none free dvb card)", $ti->[fFile]) unless ($ti->[fCardUsed]);
-      if(!$ti->[fCardUsed] || ($ti->[fCollision] && scalar @{$ti->[fCollision]})) {
-          $uth->execute($ti->[fCollision] ? join(',',@{$ti->[fCollision]}) : 'None free dvb card',$ti->[fid])
+      debug sprintf("%s (none free dvb card)", $ti->{file}) unless ($ti->{UsedCard});
+      if(!$ti->{UsedCard} || ($ti->{Collision} && scalar @{$ti->{Collision}})) {
+          $uth->execute($ti->{Collision} ? join(',',@{$ti->{Collision}}) : 'None free dvb card',$ti->{id})
             or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       }
     }

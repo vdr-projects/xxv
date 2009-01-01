@@ -766,7 +766,7 @@ sub _readData {
              next;
        }
        $db_data = $sth->fetchall_hashref('idx');
-       lg sprintf( 'Compare recording database with data from %s : %d / %d', 
+       debug sprintf( 'Compare recording database with data from %s : %d / %d', 
                     $hostname,
                     scalar keys %$db_data,scalar keys %$vdrData );
     }
@@ -887,7 +887,7 @@ sub _readData {
       $removedData += $db_data ? scalar keys %$db_data : 0;
     }
 
-    debug sprintf 'Finish .. %d recordings inserted, %d recordings updated, %d recordings removed',
+    debug sprintf 'Finish .. %d new recordings inserted, %d recordings updated, %d recordings removed',
            $insertedData, $updatedState, $removedData;
 
     map { push(@todel,$outdatedRecordings->{$_}->{hash}); } keys %{$outdatedRecordings};
@@ -950,7 +950,7 @@ sub _readData {
                 my $job = shift (@jobs);
 
                 my $preview = [];
-                lg sprintf('Call command "%s"', $job->{command});
+                debug sprintf('Call command "%s"', $job->{command});
                 my $erg = system(sprintf('nice -n 19 %s', $job->{command}));
                 my @images = glob(sprintf('%s/[0-9]*.jpg', $job->{previewdir}));
                 foreach(@images) {
@@ -2168,26 +2168,20 @@ sub delete {
     my @recordings = keys %rec;
     
     my $sql = sprintf(
-qq|SELECT SQL_CACHE e.vid, r.id,CONCAT_WS('~',e.title,e.subtitle),r.hash 
+qq|SELECT SQL_CACHE e.vid, r.id,CONCAT_WS('~',e.title,e.subtitle) as title,r.hash 
    FROM RECORDS as r,OLDEPG as e 
    WHERE e.eventid = r.eventid and r.hash IN (%s) 
    ORDER BY e.vid, r.id desc|, join(',' => ('?') x @recordings)); 
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@recordings)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
-    my $data = $sth->fetchall_arrayref(); # Query as array to hold ordering !
 
-    foreach my $recording (@$data) {
-        # Make hash for better reading
-        my $r = {
-          vid      => $recording->[0],
-          Id       => $recording->[1],
-          Title    => $recording->[2],
-          hash      => $recording->[3]
-        };
+    while (my $r = $sth->fetchrow_hashref()) {
 
         if(ref $console and $console->{TYP} eq 'CONSOLE') {
-            $console->table($r);
+            $console->table({
+              gettext('Title')                 => $r->{title}
+            });
             my $confirm = $console->confirm({
                 typ   => 'confirm',
                 def   => 'y',
@@ -2197,14 +2191,14 @@ qq|SELECT SQL_CACHE e.vid, r.id,CONCAT_WS('~',e.title,e.subtitle),r.hash
         }
 
         debug sprintf('Call delete recording with title "%s", id: %d%s',
-            $r->{Title},
-            $r->{Id},
+            $r->{title},
+            $r->{id},
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
             );
 
 
-        $self->{svdrp}->queue_add(sprintf("delr %s",$r->{Id}), $r->{vid});
-        push(@{$todelete},$r->{Title}); # Remember title
+        $self->{svdrp}->queue_add(sprintf("delr %s",$r->{id}), $r->{vid});
+        push(@{$todelete},$r->{title}); # Remember title
         push(@{$hashdelete},$r->{hash}); # Remember hash
 
         # Delete recordings from request, if found in database
@@ -2969,7 +2963,7 @@ sub recover {
           my $path = $files->{$hash}->{path};
           my $newPath = $path;
           $newPath =~ s/\.del$/\.rec/g;
-          lg sprintf("Recover recording, rename '%s' to %s",$path,$newPath);
+          debug sprintf("Recover recording, rename '%s' to %s",$path,$newPath);
           if(!move($path,$newPath)) {
             con_err($console,sprintf(gettext("Recover recording, couldn't rename '%s' to %s : %s"),$path,$newPath,$!));
             next;

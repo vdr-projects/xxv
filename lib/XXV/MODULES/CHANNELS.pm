@@ -1354,15 +1354,8 @@ sub deleteChannel {
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute(@ch)
         or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
-    my $data = $sth->fetchall_arrayref();
 
-    foreach my $d (@$data) {
-        my $c = {
-          vid   => $d->[0],
-          pos   => $d->[1],
-          name  => $d->[2],
-          hash   => $d->[3]
-        };
+    while (my $c = $sth->fetchrow_hashref()) {
 
         if(ref $console and $console->{TYP} eq 'CONSOLE') {
             $console->table({

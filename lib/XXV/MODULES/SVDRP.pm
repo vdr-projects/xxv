@@ -381,7 +381,9 @@ from
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    unshift(@$erg, $fields);
+
+    unshift(@$erg, $fields) 
+      unless($console->typ eq 'AJAX');
 
     $console->table($erg);
 }
