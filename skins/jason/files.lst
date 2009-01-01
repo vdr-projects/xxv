@@ -1,0 +1,29 @@
+FILES = \
+extjs/adapter/ext/ext-base.js \
+extjs/ext-all.js \
+ux/DDView.js \
+ux/multiselect.js \
+ux/sessionprovider.js \
+ux/tabclosemenu.js \
+ux/filter.js \
+common.js \
+reader.js \
+help.js \
+form.js \
+channelspanel.js \
+stream.js \
+monitor.js \
+remote.js \
+channels.js \
+now.js \
+program.js \
+search.js \
+timers.js \
+autotimers.js \
+recordings.js \
+chronicle.js \
+users.js \
+vdr.js \
+menus.js  \
+tabpanel.js  \
+main.js
