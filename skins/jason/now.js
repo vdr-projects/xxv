@@ -50,7 +50,8 @@ Ext.xxv.NowGrid = function(viewer) {
     this.store.setDefaultSort('rang', "ASC");
 
     var range = new Array();
-    range.push([this.szTitle,0]);
+    range.push([this.szPresent,0]);
+    range.push([this.szFollowing,1]);
     for(var i = 0, len = configuration.periods.length; i < len; i++){
       range.push([configuration.periods[i],configuration.periods[i]]);
     }
@@ -142,7 +143,9 @@ Ext.xxv.NowGrid = function(viewer) {
 
 Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
 
-     szTitle         : "Present"
+     szTitle         : "Program guide"
+    ,szPresent       : "Present"
+    ,szFollowing     : "Following"
     ,szFindReRun     : "Find rerun"
     ,szProgram       : "Show program"
     ,szRecord        : "Record"
@@ -166,11 +169,16 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       }
       delete(this.store.baseParams['data']);
       var time = this.timefield.getValue();
-      if(time) {
+      if(time && time != '1') {
         this.store.baseParams.data = time;
+        this.store.baseParams.cmd = 'n';
       } else {
         this.timefield.emptyText = new Date().dateFormat('H:i');
-        this.timefield.setValue(0);
+        this.timefield.setValue(time);
+        if(time != '1')
+          this.store.baseParams.cmd = 'n';
+        else
+          this.store.baseParams.cmd = 'nx';
       }
       this.preview.clear();
     }
@@ -181,17 +189,20 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       }
       this.getSelectionModel().selectFirstRow();
       var time = this.timefield.getValue();
-      if(time) {
+      if(time && time != '1') {
         if(store.reader.meta 
             && store.reader.meta.param 
             && store.reader.meta.param.zeit) {
           var datum = new Date(store.reader.meta.param.zeit * 1000);
           this.ownerCt.SetPanelTitle(datum.dateFormat('l - H:i'));
         } else {
-          this.ownerCt.SetPanelTitle(time);
+          this.ownerCt.SetPanelTitle(this.szTitle + " - " + time);
         }
       } else {
-        this.ownerCt.SetPanelTitle(this.szTitle + " - " + this.timefield.emptyText);
+        if(time != '1')
+          this.ownerCt.SetPanelTitle(this.szPresent + " - " + this.timefield.emptyText);
+        else
+          this.ownerCt.SetPanelTitle(this.szFollowing + " - " + this.timefield.emptyText);
       }
     }
     ,onSelectProgram : function(grid, index, e) {

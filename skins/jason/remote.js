@@ -110,9 +110,9 @@ Ext.xxv.RemoteWindow = function() {
 
 Ext.extend(Ext.xxv.RemoteWindow, Ext.Window, {
 
-    szTitle         : "Remote"
-    //,szRemoteSuccess : "Successful transmit remote control.\r\n{0}"
-    ,szRemoteFailure : "Couldn't transmit remote control!\r\n{0}"
+    szTitle         : "Remote control"
+    //,szRemoteSuccess : "Successful transmit remote control data.\r\n{0}"
+    ,szRemoteFailure : "Couldn't transmit remote control data!\r\n{0}"
     ,hide : function(){
         if(this.task) {
           Ext.TaskMgr.stop(this.task);

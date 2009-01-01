@@ -19,6 +19,7 @@ Ext.xxv.MessageBox.prototype.szSuccess = "Erfolgreich!";
 Ext.xxv.MainMenu.prototype.szMenuXXV = "XXV";
 Ext.xxv.MainMenu.prototype.szMenuProgramming = "Programmierung";
 Ext.xxv.MainMenu.prototype.szMenuMedia = "Medien";
+Ext.xxv.MainMenu.prototype.szMenuRemote = "Fernzugriff";
 Ext.xxv.MainMenu.prototype.szMenuView = "Anzeige";
 Ext.xxv.MainMenu.prototype.szMenuItemSetup = "Einstellungen";
 Ext.xxv.MainMenu.prototype.szGlobalSettings = "Globale Einstellungen";
@@ -86,7 +87,9 @@ Ext.xxv.chronicleGrid.prototype.szLoadException = "Konnte keine Daten der Chroni
 Ext.xxv.chronicleGrid.prototype.szDeleteSuccess = "Eintrag der Chronik erfolgreich gelöscht.\r\n{0}";
 Ext.xxv.chronicleGrid.prototype.szDeleteFailure = "Konnte Eintrag der Chronik nicht löschen!\r\n{0}";
 
-Ext.xxv.NowGrid.prototype.szTitle = "Jetzt";
+Ext.xxv.NowGrid.prototype.szTitle = "Programmführer";
+Ext.xxv.NowGrid.prototype.szPresent = "Jetzt";
+Ext.xxv.NowGrid.prototype.szFollowing = "Folgend";
 Ext.xxv.NowGrid.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.NowGrid.prototype.szProgram = "Zeige Programm";
 Ext.xxv.NowGrid.prototype.szRecord = "Aufnehmen";
@@ -198,6 +201,10 @@ Ext.xxv.usersGrid.prototype.szLoadException = "Konnte keine Daten über die Anwe
 Ext.xxv.usersGrid.prototype.szDeleteSuccess = "Anwenderzugang erfolgreich gelöscht.\r\n{0}";
 Ext.xxv.usersGrid.prototype.szDeleteFailure = "Konnte Anwenderzugang nicht löschen!\r\n{0}";
 
+Ext.xxv.MonitorWindow.prototype.szTitle = "Monitor";
+
+Ext.xxv.RemoteWindow.prototype.szTitle = "Fernbedienung";
+Ext.xxv.RemoteWindow.prototype.szRemoteFailure = "Konnte Daten der Fernbedienung nicht übertragen!\r\n{0}";
 
 Ext.ux.Multiselect.prototype.minLengthText = 'Mindestens sind {0} Einträge notwendig';
 Ext.ux.Multiselect.prototype.maxLengthText = 'Maximal sind {0} Einträge erlaubt';

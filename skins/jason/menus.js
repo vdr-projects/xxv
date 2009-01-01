@@ -233,7 +233,7 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
      szMenuXXV             : 'XXV'
     ,szMenuProgramming     : 'Programming'
     ,szMenuMedia           : 'Media'
-    ,szMenuRemote          : 'Remote'
+    ,szMenuRemote          : 'Remote access'
     ,szMenuView            : 'View'
 
     ,szMenuItemSetup       : 'Setup'
