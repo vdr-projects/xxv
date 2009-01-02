@@ -51,12 +51,12 @@ Ext.xxv.NowGrid = function(viewer) {
 
     var range = new Array();
     range.push([this.szPresent,0]);
-    range.push([this.szFollowing,1]);
+    range.push([this.szFollowing,this.szFollowing]);
     for(var i = 0, len = configuration.periods.length; i < len; i++){
       range.push([configuration.periods[i],configuration.periods[i]]);
     }
 
-    this.timefield = new Ext.form.ComboBox({
+    var timefield = new Ext.form.ComboBox({
                 id:'timefield'
                 ,width:75
                 ,store: new Ext.data.Store({
@@ -68,12 +68,15 @@ Ext.xxv.NowGrid = function(viewer) {
                 ,triggerAction: 'all'                ,lazyRender:true
                 ,listClass: 'x-combo-list-small'
                 ,mode: 'local'
-                ,emptyText:new Date().dateFormat('H:i')
-                ,selectOnFocus:true
-                ,editable: false
+                ,emptyText:this.szPresent
+                ,selectOnFocus:false
+                ,editable: true
+                ,maskRe: /^([0-9\:]+)$/
+                ,regex: new RegExp("^([0-9]+\:[0-9]+)|("+this.szFollowing+")$")
+                ,maxLengthText: 5
 				        ,listeners: {
 						      'select': {fn:this.reload, scope:this}
-						      //'valid': {fn:this.reload, scope:this}
+						      ,'specialkey': {fn:this.onSpecialkey, scope:this}
 				        }
             });
 
@@ -126,7 +129,7 @@ Ext.xxv.NowGrid = function(viewer) {
              pageSize: configuration.pageSize
             ,store: this.store
             ,displayInfo: true
-            ,items:['->', this.timefield ]
+            ,items:['->', timefield ]
         })
     });
 
@@ -163,22 +166,25 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
     }
     ,onBeforeLoad : function(  store, opt ) {
+      var tf = Ext.getCmp('timefield');
+      if(!tf) return;
+
       if(this.getTopToolbar().displayEl) {
-          var size = this.timefield.getSize();
+          var size = tf.getSize();
           this.getTopToolbar().displayEl.setRight(30+size.width);
       }
       delete(this.store.baseParams['data']);
-      var time = this.timefield.getValue();
-      if(time && time != '1') {
-        this.store.baseParams.data = time;
-        this.store.baseParams.cmd = 'n';
+
+
+      var time = tf.lastQuery;
+      if(!time || time == '') time = tf.getValue();
+      if(!time || time == this.szPresent) {
+        store.baseParams.cmd = 'n';
+      } else if(time == this.szFollowing) {
+        store.baseParams.cmd = 'nx';
       } else {
-        this.timefield.emptyText = new Date().dateFormat('H:i');
-        this.timefield.setValue(time);
-        if(time != '1')
-          this.store.baseParams.cmd = 'n';
-        else
-          this.store.baseParams.cmd = 'nx';
+        store.baseParams.cmd = 'n';
+        store.baseParams.data = time;
       }
       this.preview.clear();
     }
@@ -188,21 +194,22 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         records[i].data.rang = i;
       }
       this.getSelectionModel().selectFirstRow();
-      var time = this.timefield.getValue();
-      if(time && time != '1') {
-        if(store.reader.meta 
-            && store.reader.meta.param 
-            && store.reader.meta.param.zeit) {
-          var datum = new Date(store.reader.meta.param.zeit * 1000);
-          this.ownerCt.SetPanelTitle(datum.dateFormat('l - H:i'));
-        } else {
-          this.ownerCt.SetPanelTitle(this.szTitle + " - " + time);
-        }
-      } else {
-        if(time != '1')
-          this.ownerCt.SetPanelTitle(this.szPresent + " - " + this.timefield.emptyText);
-        else
-          this.ownerCt.SetPanelTitle(this.szFollowing + " - " + this.timefield.emptyText);
+
+      if(store.baseParams.data
+        && store.baseParams.cmd != 'nx'
+        && store.reader.meta 
+        && store.reader.meta.param 
+        && store.reader.meta.param.zeit) {
+        var datum = new Date(store.reader.meta.param.zeit * 1000);
+        this.ownerCt.SetPanelTitle(datum.dateFormat('l - H:i'));
+      } else if(store.baseParams.cmd == 'nx')
+        this.ownerCt.SetPanelTitle(this.szFollowing + " - " + new Date().dateFormat('H:i'));
+      else
+        this.ownerCt.SetPanelTitle(this.szPresent + " - " + new Date().dateFormat('H:i'));
+    }
+    ,onSpecialkey : function(f, e) {
+      if(e.getKey() == e.ENTER){
+          this.reload();
       }
     }
     ,onSelectProgram : function(grid, index, e) {
