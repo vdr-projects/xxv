@@ -165,6 +165,7 @@ Ext.xxv.timerGrid = function(viewer) {
               ]})
         ,plugins:[new Ext.ux.grid.Search({
              position:'top'
+            ,shortcutKey:null
             ,paramNames: {
                     fields:'cmd'
                     ,all:'tl'

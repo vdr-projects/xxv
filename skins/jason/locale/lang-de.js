@@ -208,3 +208,5 @@ Ext.xxv.RemoteWindow.prototype.szRemoteFailure = "Konnte Daten der Fernbedienung
 
 Ext.ux.Multiselect.prototype.minLengthText = 'Mindestens sind {0} Einträge notwendig';
 Ext.ux.Multiselect.prototype.maxLengthText = 'Maximal sind {0} Einträge erlaubt';
+
+Ext.ux.grid.Search.prototype.searchTipText = 'Bitte geben Sie einen Text für die Suche ein';

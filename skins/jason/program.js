@@ -92,7 +92,7 @@ Ext.xxv.programGrid = function(viewer, record) {
 
         ,plugins:[new Ext.ux.grid.Search({
              position:'top'
-            ,emptyText:'Search ...'
+            ,shortcutKey:null
             ,paramNames: {
                      fields:'cmd'
                     ,all:'p'

@@ -261,6 +261,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
                       new Ext.DataView.DragSelector()                   //,new Ext.DataView.LabelEditor({dataIndex: 'fulltitle', allow: 'isrecording'})
                      ,new Ext.ux.grid.Search({
                          position:'owner'
+                        ,shortcutKey:null
                         ,paramNames: {
                                 fields:'cmd'
                                 ,all:'rl'

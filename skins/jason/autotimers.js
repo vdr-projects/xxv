@@ -110,6 +110,7 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
               ]})
               ,plugins:[new Ext.ux.grid.Search({
                    position:'top'
+                  ,shortcutKey:null
                   ,paramNames: {
                           fields:'cmd'
                           ,all:'al'

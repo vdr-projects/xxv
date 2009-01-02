@@ -82,6 +82,7 @@ Ext.xxv.chronicleGrid = function(viewer, channels) {
               displayInfo: true })
         ,plugins:[new Ext.ux.grid.Search({
              position:'top'
+            ,shortcutKey:null
             ,paramNames: {
                     fields:'cmd'
                     ,all:'chrl'
