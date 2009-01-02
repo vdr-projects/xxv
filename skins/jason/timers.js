@@ -15,21 +15,22 @@ Ext.xxv.timerStore = function() {
             ,autoLoad:{params:{start:0, limit:configuration.pageSize}}
             ,reader: new Ext.xxv.jsonReader({
                     fields: [
-                      {name: 'id', type: 'string'},
-                      {name: 'flags', type: 'int'},
-                      {name: 'channel', type: 'string'},
-                      {name: 'pos', type: 'string'},
-                      {name: 'day', type:'date', dateFormat:'timestamp'},
-                      {name: 'start', type: 'string'},
-                      {name: 'stop', type: 'string'},
-                      {name: 'title', type: 'string'},
-                      {name: 'priority', type: 'int'},
-                      {name: 'collision', type: 'string'},
-                      {name: 'eventid', type: 'int'},
-                      {name: 'autotimerid', type: 'int'},
-                      {name: 'duration', type: 'int'},
-                      {name: 'description', type: 'string'},
-                      {name: 'running', type: 'bool'}
+                       {name: 'id', type: 'string'}
+                      ,{name: 'flags', type: 'int'}
+                      ,{name: 'channel', type: 'string'}
+                      ,{name: 'pos', type: 'string'}
+                      ,{name: 'day', type:'date', dateFormat:'timestamp'}
+                      ,{name: 'start', type: 'string'}
+                      ,{name: 'stop', type: 'string'}
+                      ,{name: 'title', type: 'string'}
+                      ,{name: 'priority', type: 'int'}
+                      ,{name: 'collision', type: 'string'}
+                      ,{name: 'eventid', type: 'int'}
+                      ,{name: 'autotimerid', type: 'int'}
+                      ,{name: 'duration', type: 'int'}
+                      ,{name: 'description', type: 'string'}
+                      ,{name: 'running', type: 'bool'}
+                      ,{name: 'host', type: 'string'}
                     ]
                 })
             ,proxy : new Ext.data.HttpProxy({
@@ -102,38 +103,41 @@ Ext.xxv.timerGrid = function(viewer) {
 
     this.columns = [
         {
-           header: this.szColTitle,
-           dataIndex: 'title',
-           width: 150,
-           renderer: this.formatTitle,
-           editor: new Ext.form.TextField({allowBlank: false})
+            header: this.szColTitle
+           ,dataIndex: 'title'
+           ,width: 150
+           ,renderer: this.formatTitle
+           //,editor: new Ext.form.TextField({allowBlank: false})
         },
         this.activeColumn,
         this.vpsColumn,
         this.ChannelsCombo,
         {
-           header: this.szColDay,
-           dataIndex: 'day',
-           width: 50,
-           renderer: Ext.util.Format.dateRenderer(this.szColDayFormat),
-           editor: new Ext.form.DateField({
-               minValue:  Ext.util.Format.date(new Date())
-            }),
-           hidden: true
+            header: this.szColDay
+           ,dataIndex: 'day'
+           ,width: 50
+           ,renderer: Ext.util.Format.dateRenderer(this.szColDayFormat)
+           //,editor: new Ext.form.DateField({ minValue:  Ext.util.Format.date(new Date()) })
+           ,hidden: true
         },{
-           header: this.szColStart,
-           dataIndex: 'start',
-           width: 50,
-           editor: new Ext.form.TimeField()
+            header: this.szColStart
+           ,dataIndex: 'start'
+           ,width: 50
+           //,editor: new Ext.form.TimeField()
         },{
-           header: this.szColStop,
-           dataIndex: 'stop',
-           width: 50,
-           editor: new Ext.form.TimeField()
+            header: this.szColStop
+           ,dataIndex: 'stop'
+           ,width: 50
+           //,editor: new Ext.form.TimeField()
+        },{
+            header: this.szHost
+           ,dataIndex: 'host'
+           ,width: 190
+           ,hidden: true
         }
     ];
     var cm = new Ext.grid.ColumnModel(this.columns);
-    cm.defaultSortable = true;
+    cm.defaultSortable = false;
 
     Ext.xxv.timerGrid.superclass.constructor.call(this, {
          region: 'center'
@@ -193,7 +197,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     ,szNew           : "Create new timer"
     ,szEdit          : "Edit timer"
     ,szDelete        : "Delete timer"
-    ,szToggle        : "Enable or disable timer"
+    ,szToggle        : "Enable or disable"
     ,szColTitle      : "Title"
     ,szColActive     : "Active"
     ,szColPDC        : "PDC"
@@ -201,6 +205,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     ,szColChannel    : "Channel"
     ,szColStart      : "Start"
     ,szColStop       : "Stop"
+    ,szHost          : "Host"
     ,szColDayFormat  : "l, m/d/Y"
     ,szSelChEmptyText: "Select a channel..."
     ,szLoadException : "Couldn't get data about timer!\r\n{0}"

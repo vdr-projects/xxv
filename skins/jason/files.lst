@@ -19,6 +19,7 @@ now.js \
 program.js \
 search.js \
 timers.js \
+movetimers.js \
 autotimers.js \
 recordings.js \
 chronicle.js \

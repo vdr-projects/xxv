@@ -104,6 +104,7 @@ display:none;
 .remote-icon {          background-image:url(pic/remote.png) !important; }
 .monitor-icon {         background-image:url(pic/monitor.png) !important; }
 .setup-icon {           background-image:url(pic/setup.png) !important; }
+.movetimers-icon {      background-image:url(pic/movetimers.png) !important;  }
 .vdr-icon {             background-image:url(pic/vdr-logo.png) !important;  }
 .users-icon {           background-image:url(pic/users.png) !important;  }
 .view-icon {            background-image:url(pic/preview.png) !important; }

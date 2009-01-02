@@ -193,6 +193,14 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
         if(!id) return;
         this.gridNow.RecordID(id);
     }
+    ,MoveTimers : function(){
+        var id = 'mtl';
+        var tab;
+        if(!(tab = this.getItem(id))){
+          tab = createMoveTimersView(this,id);
+        }
+        this.setActiveTab(tab);
+    }
     ,openVDRList : function(){
         var id = 'vl';
         var tab;

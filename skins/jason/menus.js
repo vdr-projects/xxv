@@ -52,6 +52,10 @@ Ext.xxv.MainMenu = function(/*config*/){
            ,iconCls: 'setup-icon'
            ,menu: XXV.configMenu
         },'-',{
+          text: Ext.xxv.movetimersGrid.prototype.szTitle, 
+          handler: function() { XXV.tab.MoveTimers(); },
+          iconCls:"movetimers-icon"
+        },{   
           text: Ext.xxv.vdrGrid.prototype.szTitle, 
           handler: function() { XXV.tab.openVDRList(); },
           iconCls:"vdr-icon"
