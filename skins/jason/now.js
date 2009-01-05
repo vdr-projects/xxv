@@ -17,7 +17,7 @@ Ext.xxv.NowStore = function() {
                                     ,{name: 'title', type: 'string'}
                                     ,{name: 'subtitle', type: 'string'}
                                     ,{name: 'channel', type: 'string'}
-                                    ,{name: 'position', type: 'string'}
+                                    ,{name: 'chid', type: 'string'}
                                     ,{name: 'grpname', type: 'string'}
                                     ,{name: 'start', type: 'string' }
                                     ,{name: 'stop', type: 'string' }
@@ -219,7 +219,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
           this.ctxRow = null;
       }
       var record = this.store.getAt(index);
-      var data = {'position':record.data.position,'name':record.data.channel};
+      var data = {'id':record.data.chid,'name':record.data.channel};
       this.viewer.openProgram(data); 
     }
     ,onContextClick : function(grid, index, e){
@@ -236,7 +236,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                     iconCls: 'program-icon',
                     scope:this,
                     handler: function(){ 
-                      var data = {'position':this.ctxRecord.data.position,'name':this.ctxRecord.data.channel};
+                      var data = {'id':this.ctxRecord.data.chid,'name':this.ctxRecord.data.channel};
                       this.viewer.openProgram(data); }
                     },{
                     text: this.szRecord,

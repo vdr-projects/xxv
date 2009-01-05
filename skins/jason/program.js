@@ -10,7 +10,7 @@
 Ext.xxv.programStore = function(data) {
     return new Ext.data.GroupingStore({
              title:data.name
-            ,baseParams:{cmd:'p',data: data.position}
+            ,baseParams:{cmd:'p',data: data.id}
             ,autoLoad:{params:{start:0, limit:configuration.pageSize}}
             ,reader: new Ext.xxv.jsonReader({
                           fields: [
@@ -70,6 +70,18 @@ Ext.xxv.programGrid = function(viewer, record) {
     var cm = new Ext.grid.ColumnModel(this.columns);
     cm.defaultSortable = true;
 
+    this.filter = new Ext.ux.grid.Search({
+             id:'program-filter'
+            ,position:'top'
+            ,shortcutKey:null
+            ,paramNames: {
+                     fields:'cmd'
+                    ,all:'p'
+                    ,cmd:'p'
+                    ,query:'filter'
+                }
+        });
+
     Ext.xxv.programGrid.superclass.constructor.call(this, {
         region: 'center'
         ,id: 'program-grid'
@@ -89,17 +101,7 @@ Ext.xxv.programGrid = function(viewer, record) {
             store: this.store,
             displayInfo: true
         })
-
-        ,plugins:[new Ext.ux.grid.Search({
-             position:'top'
-            ,shortcutKey:null
-            ,paramNames: {
-                     fields:'cmd'
-                    ,all:'p'
-                    ,cmd:'p'
-                    ,query:'filter'
-                }
-        })]
+        ,plugins:[this.filter]
     });
 
     this.store.on({
@@ -177,10 +179,15 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     ,reload : function(data) {
         this.store.baseParams = {
              cmd: 'p'
-            ,data: data.position
+            ,data: data.id
         };
+        var p = {start:0, limit:configuration.pageSize};
+        var f = this.filter.field.getValue();
+        if(f && f != '') {
+          p.filter = f;
+        }
         this.store.title = data.name;
-        this.store.load({params:{start:0, limit:configuration.pageSize}});
+        this.store.load({params:p});
     }
     ,formatTitle: function(value, p, record) {
         return String.format(
