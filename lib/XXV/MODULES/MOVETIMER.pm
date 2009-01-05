@@ -456,7 +456,7 @@ sub movetimeredit {
             choices     => sub {
                                 my $erg = $self->_move_rules();
                                 map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
-                                return @$erg;
+                                return $erg;
                               },
         },
         'original' => {
@@ -466,7 +466,7 @@ sub movetimeredit {
             choices     => sub {
                                 my $erg = $self->_original_timer_rules();
                                 map { my $x = $_->[1]; $_->[1] = $_->[0]; $_->[0] = $x; } @$erg;
-                                return @$erg;
+                                return $erg;
                               },
         },
     ];
@@ -622,7 +622,8 @@ sub movetimerlist {
       $_->[4] = $d{$_->[4]};
     } @$erg;
 
-    unshift(@$erg, $fields);
+    unshift(@$erg, $fields)
+      if(ref $console and $console->typ ne 'AJAX');
 
     $console->table($erg);
 }
