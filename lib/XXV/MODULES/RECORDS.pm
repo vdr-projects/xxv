@@ -1848,7 +1848,7 @@ sub cut {
     }
 
     my $cmd = sprintf('EDIT %d', $rec->{id});
-    if($self->{svdrp}->scommand($console, $cmd, $vdr)) {
+    if($self->{svdrp}->scommand($console, $config, $cmd, $vdr)) {
 
       $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{hash}), wait => 1})
           if(ref $console and $console->typ eq 'HTML');
