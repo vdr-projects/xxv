@@ -53,7 +53,8 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
 
     this.columns = [
         {
-           header: this.szColSearch
+           id:'expand'
+           ,header: this.szColSearch
            ,dataIndex: 'title'
            ,width: 200
            ,renderer: this.formatTitle
@@ -61,11 +62,11 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
         this.activeColumn,
         {           header: this.szColChannels
            ,dataIndex: 'channels'
-           ,width: 130
+           ,width: 150
         },{
            header: this.szColDirectory
            ,dataIndex: 'directory'
-           ,width: 200
+           ,width: 250
         },{
            header: this.szColStart
            ,dataIndex: 'start'
@@ -90,6 +91,7 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
         ,loadMask: true
         ,plugins:[this.activeColumn]
         ,clicksToEdit:1
+        ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:false

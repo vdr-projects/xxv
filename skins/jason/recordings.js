@@ -211,6 +211,16 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
       }
   	);
 
+    this.filter = new Ext.ux.grid.Search({
+         position:'owner'
+        ,shortcutKey:null
+        ,paramNames: {
+              fields:'cmd'
+              ,all:'rl'
+              ,cmd:'rs'
+              ,query:'data'
+        }
+    });
     Ext.xxv.recordingsDataView.superclass.constructor.call(this, {
                     region: 'center'
                     ,store: store
@@ -259,16 +269,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
 		                }
                    ,plugins: [
                       new Ext.DataView.DragSelector()                   //,new Ext.DataView.LabelEditor({dataIndex: 'fulltitle', allow: 'isrecording'})
-                     ,new Ext.ux.grid.Search({
-                         position:'owner'
-                        ,shortcutKey:null
-                        ,paramNames: {
-                                fields:'cmd'
-                                ,all:'rl'
-                                ,cmd:'rs'
-                                ,query:'data'
-                            }
-                      })
+                     ,this.filter
                    ]
                   }
   );
@@ -361,6 +362,10 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 
                 this.store.baseParams.cmd = 'rl';
                 if(record.id == 'up') {
+                  var f = this.filter.field.getValue();
+                  if(f && f != '') {
+                    this.filter.field.setValue('');
+                  }
                   var Woerter = this.store.lastOptions.params.data.split("~");
                   var title = '';
                   for(var i = 0, len = Woerter.length - 1; i < len; i++){

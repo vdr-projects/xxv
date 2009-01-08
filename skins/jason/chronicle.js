@@ -40,7 +40,8 @@ Ext.xxv.chronicleGrid = function(viewer, channels) {
 
     this.columns = [
         {
-           header: this.szColTitle
+           id:'expand'
+           ,header: this.szColTitle
            ,dataIndex: 'title'
            ,width: 200
            ,renderer: this.formatTitle
@@ -72,6 +73,7 @@ Ext.xxv.chronicleGrid = function(viewer, channels) {
         ,id: 'chronicle-view-grid'
         ,loadMask: true
         ,clicksToEdit:1
+        ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:false

@@ -48,10 +48,11 @@ Ext.xxv.programGrid = function(viewer, record) {
     this.store.setDefaultSort('day', "ASC");
 
     this.columns = [{
-           header: this.szColTitle,
-           dataIndex: 'title',
-           width: 150,
-           renderer: this.formatTitle
+           id:'expand'
+           ,header: this.szColTitle
+           ,dataIndex: 'title'
+           ,width: 150
+           ,renderer: this.formatTitle
         },{           header: this.szColDay,
            dataIndex: 'day',
            width: 50,
@@ -71,8 +72,7 @@ Ext.xxv.programGrid = function(viewer, record) {
     cm.defaultSortable = true;
 
     this.filter = new Ext.ux.grid.Search({
-             id:'program-filter'
-            ,position:'top'
+             position:'top'
             ,shortcutKey:null
             ,paramNames: {
                      fields:'cmd'
@@ -86,7 +86,7 @@ Ext.xxv.programGrid = function(viewer, record) {
         region: 'center'
         ,id: 'program-grid'
         ,loadMask: true
-        ,autoExpandColumn:'title'
+        ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:true
@@ -177,17 +177,16 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     }
 
     ,reload : function(data) {
+        var f = this.filter.field.getValue();
+        if(f && f != '') {
+          this.filter.field.setValue('');
+        }
         this.store.baseParams = {
              cmd: 'p'
             ,data: data.id
         };
-        var p = {start:0, limit:configuration.pageSize};
-        var f = this.filter.field.getValue();
-        if(f && f != '') {
-          p.filter = f;
-        }
         this.store.title = data.name;
-        this.store.load({params:p});
+        this.store.load({params:{start:0, limit:configuration.pageSize}});
     }
     ,formatTitle: function(value, p, record) {
         return String.format(

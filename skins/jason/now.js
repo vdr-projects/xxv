@@ -86,10 +86,11 @@ Ext.xxv.NowGrid = function(viewer) {
            width: 20,
            hidden: true
         },{
-           header: this.szColTitle,
-           dataIndex: 'title',
-           width: 150,
-           renderer: this.formatTitle
+           id:'expand'
+           ,header: this.szColTitle
+           ,dataIndex: 'title'
+           ,width: 150
+           ,renderer: this.formatTitle
         },{           header: this.szColChannel,
            dataIndex: 'channel',
            width: 50
@@ -115,7 +116,7 @@ Ext.xxv.NowGrid = function(viewer) {
         region: 'center'
         ,id: 'now-grid'
         ,loadMask: true
-        ,autoExpandColumn:'title'
+        ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:true

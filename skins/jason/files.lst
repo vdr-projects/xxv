@@ -3,7 +3,6 @@ extjs/adapter/ext/ext-base.js \
 extjs/ext-all.js \
 ux/DDView.js \
 ux/multiselect.js \
-ux/sessionprovider.js \
 ux/tabclosemenu.js \
 ux/filter.js \
 common.js \

@@ -76,7 +76,7 @@ Ext.xxv.timerGrid = function(viewer) {
 
     this.ChannelsCombo = new Ext.xxv.ChannelsCombo({           header: this.szColChannel,
            dataIndex: 'pos',
-           width: 100,
+           width: 200,
            store: channels,
            editor: new Ext.form.ComboBox({
                 tpl: new Ext.XTemplate('<tpl for=".">',
@@ -103,9 +103,10 @@ Ext.xxv.timerGrid = function(viewer) {
 
     this.columns = [
         {
-            header: this.szColTitle
+           id:'expand'
+           ,header: this.szColTitle
            ,dataIndex: 'title'
-           ,width: 150
+           ,width: 250
            ,renderer: this.formatTitle
            //,editor: new Ext.form.TextField({allowBlank: false})
         },
@@ -145,6 +146,7 @@ Ext.xxv.timerGrid = function(viewer) {
         ,loadMask: true
         ,plugins:[this.activeColumn,this.vpsColumn,this.ChannelsCombo]
         ,clicksToEdit:1
+        ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:false

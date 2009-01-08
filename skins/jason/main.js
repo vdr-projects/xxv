@@ -16,7 +16,11 @@ Ext.onReady(function(){
 
     Ext.BLANK_IMAGE_URL = 'extjs/resources/images/default/s.gif';
     Ext.QuickTips.init();
-    Ext.state.Manager.setProvider(new Ext.state.SessionProvider({state: Ext.appState}));
+    Ext.state.Manager.setProvider(new Ext.state.CookieProvider(
+        {
+           // state: Ext.appState,
+           expires: new Date(new Date().getTime()+(1000*3600*24*365))
+        }));
 
     var tpl = Ext.Template.from('preview-tpl', {
         compiled:true
