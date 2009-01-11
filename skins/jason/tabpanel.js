@@ -13,16 +13,16 @@ Ext.xxv.tabPanel = function(){
     var tab = creatNowView(this,'n');
 
     Ext.xxv.tabPanel.superclass.constructor.call(this, {
-        id:'main-tabs',
-        activeTab:0,
-        region:'center',
-        margins:'0 5 5 0',
-        resizeTabs:true,
-        tabWidth:150,
-        minTabWidth: 120,
-        enableTabScroll: true,
-        plugins: new Ext.ux.TabCloseMenu(),
-        items: tab
+         id:'main-tabs'
+        ,activeTab:0
+        ,region:'center'
+        ,margins:'0 5 5 0'
+        ,resizeTabs:true
+        ,tabWidth:150
+        ,minTabWidth: 100
+        ,enableTabScroll: true
+        ,plugins: [ new Ext.ux.TabCloseMenu() ]
+        ,items: [ tab ]
     });
 
 };
@@ -168,9 +168,10 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
         if(!(tab = this.getItem(id))){
           tab = this.createTab(id);
         }
-        if(tab)
+        if(tab) {
           this.setActiveTab(tab);
-        this.show()
+          this.show();
+        }
     }
 
     ,createTab : function(id){
