@@ -22,6 +22,8 @@ Ext.onReady(function(){
            expires: new Date(new Date().getTime()+(1000*3600*24*365))
         }));
 
+    Ext.History.init();
+
     var tpl = Ext.Template.from('preview-tpl', {
         compiled:true
         ,getTitle : function(v, all){
@@ -77,8 +79,17 @@ Ext.onReady(function(){
          ]
     });
 
+    // Handle this change event in order to restore the UI to the appropriate history state
+    Ext.History.on('change', function(token){
+        if(!token){
+          token = 'n';
+        }
+        XXV.tab.openTab(token);
+    });
+
     XXV.tab.on('tabchange', function(tp, tab){
         Ext.xxv.Panel.prototype.DocumentTitle(tab.title);
+        Ext.History.add(tab.id);
     });
 
     XXV.viewport.doLayout();
@@ -87,4 +98,6 @@ Ext.onReady(function(){
           Ext.get('loading').remove();
           Ext.get('loading-mask').fadeOut({remove:true});
     }, 250);
+
+
 });

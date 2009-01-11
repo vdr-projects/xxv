@@ -53,15 +53,15 @@ Ext.xxv.MainMenu = function(/*config*/){
            ,menu: XXV.configMenu
         },'-',{
           text: Ext.xxv.movetimersGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.MoveTimers(); },
+          handler: function() { XXV.tab.openTab('mtl'); },
           iconCls:"movetimers-icon"
         },{   
           text: Ext.xxv.vdrGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openVDRList(); },
+          handler: function() { XXV.tab.openTab('vl'); },
           iconCls:"vdr-icon"
         },{   
           text: Ext.xxv.usersGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openUsersList(); },
+          handler: function() { XXV.tab.openTab('ul'); },
           iconCls:"users-icon"
         }
        ]
@@ -90,12 +90,12 @@ Ext.xxv.MainMenu = function(/*config*/){
       items:[
         {
           text: Ext.xxv.autotimerGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openAutoTimer(); },
+          handler: function() { XXV.tab.openTab('al'); },
           iconCls:"autotimer-icon"
         }, 
         {
           text: Ext.xxv.timerGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTimer(); },
+          handler: function() { XXV.tab.openTab('tl'); },
           iconCls:"timer-icon"
         }
        ]
@@ -106,18 +106,23 @@ Ext.xxv.MainMenu = function(/*config*/){
       items:[
         {
           text: Ext.xxv.recordingsDataView.prototype.szTitle, 
-          handler: function() { XXV.tab.openRecordings(); },
+          handler: function() { XXV.tab.openTab('rl'); },
           iconCls:"recordings-icon"
         }
         ,{
           text: Ext.xxv.chronicleGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openChronicle(); },
+          handler: function() { XXV.tab.openTab('chrl'); },
           iconCls:"chronicle-icon"
         }
         /*,{
           text: Ext.xxv.musicDataView.prototype.szTitle, 
-          handler: function() { XXV.tab.openMusic(); },
+          handler: function() { XXV.tab.openTab('ml'); },
           iconCls:"audio-icon",
+          disabled:true
+        },{
+          text: Ext.xxv.mediaDataView.prototype.szTitle, 
+          handler: function() { XXV.tab.openTab('mll'); },
+          iconCls:"media-icon",
           disabled:true
         }*/
        ]

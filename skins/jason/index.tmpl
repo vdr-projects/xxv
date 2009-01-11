@@ -62,7 +62,12 @@
 <script type="text/javascript" src="extjs/locale/ext-lang-<?% lang.0 %?>.js"></script>
 <script type="text/javascript" src="locale/lang-<?% lang.0 %?>.js"></script>
 <?% END %?>
-<!-- Template used for EPG Items -->
+<?% # Fields required for history management %?>
+<form id="history-form" class="x-hidden">
+    <input type="hidden" id="x-history-field" />
+    <iframe id="x-history-frame"></iframe>
+</form>
+<?% # Template used for EPG Items %?>
 <div id="preview-tpl" style="display:none;">
   <div class="preview-header">
       <h3 class="preview-title">{content:this.getTitle}</h3><div class="preview-channel">{content:this.getChannel}</div>

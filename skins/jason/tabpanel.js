@@ -113,11 +113,12 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
             }
         }
     }
+
     ,openNow : function(){
           var id = 'n';
           var tab;
           if(!(tab = this.getItem(id))){
-            tab = creatNowView(this,'n');
+            tab = this.createTab(id);
           } else {
             tab.LoadTitle();
             this.gridNow.reload();
@@ -134,38 +135,6 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
             this.gridProgram.reload(data);
           }
           this.setActiveTab(tab);
-    }
-    ,openAutoTimer : function(){
-        var id = 'al';
-        var tab;
-        if(!(tab = this.getItem(id))){
-          tab = createAutoTimerView(this,id);
-        }
-        this.setActiveTab(tab);
-    }
-    ,openTimer : function(){
-        var id = 'tl';
-        var tab;
-        if(!(tab = this.getItem(id))){
-          tab = createTimerView(this,id);
-        }
-        this.setActiveTab(tab);
-    }
-    ,openRecordings : function(){
-        var id = 'rl';
-        var tab;
-        if(!(tab = this.getItem(id))){
-          tab = createRecordingsView(this,id);
-        }
-        this.setActiveTab(tab);
-    }
-    ,openChronicle : function(){
-        var id = 'chrl';
-        var tab;
-        if(!(tab = this.getItem(id))){
-          tab = createChronicleView(this,id);
-        }
-        this.setActiveTab(tab);
     }
     ,openSearch : function(lookup){
         var id = 's';
@@ -193,28 +162,29 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
         if(!id) return;
         this.gridNow.RecordID(id);
     }
-    ,MoveTimers : function(){
-        var id = 'mtl';
+
+    ,openTab : function(id){
         var tab;
         if(!(tab = this.getItem(id))){
-          tab = createMoveTimersView(this,id);
+          tab = this.createTab(id);
         }
-        this.setActiveTab(tab);
+        if(tab)
+          this.setActiveTab(tab);
+        this.show()
     }
-    ,openVDRList : function(){
-        var id = 'vl';
-        var tab;
-        if(!(tab = this.getItem(id))){
-          tab = createVDRView(this,id);
-        }
-        this.setActiveTab(tab);
-    }
-    ,openUsersList : function(){
-        var id = 'ul';
-        var tab;
-        if(!(tab = this.getItem(id))){
-          tab = createUsersView(this,id);
-        }
-        this.setActiveTab(tab);
-    }
+
+    ,createTab : function(id){
+          switch(id){
+            case 'n':    return creatNowView(this,id);
+            case 'al':   return createAutoTimerView(this,id);
+            case 'tl':   return createTimerView(this,id);
+            case 'rl':   return createRecordingsView(this,id);
+            case 'chrl': return createChronicleView(this,id);
+            case 'mtl':  return createMoveTimersView(this,id);
+            case 'vl':   return createVDRView(this,id);
+            case 'ul':   return createUsersView(this,id);
+          }
+        
+        return 0;
+     }
 });
