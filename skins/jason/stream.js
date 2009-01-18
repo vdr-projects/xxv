@@ -43,9 +43,12 @@ Ext.xxv.StreamWindow = function(item) {
     }
     var marginHeight = 33;
     var marginWidth = 16;
-    
+    var t = this.szTitle;
+    if(item.title) {
+      t = item.title;
+    }
     Ext.xxv.StreamWindow.superclass.constructor.call(this, {
-         title: item.title
+         title: t
         ,streamtpl:tpl
         ,iconCls: 'stream-icon'
         ,id: 'stream-win'
@@ -60,10 +63,9 @@ Ext.xxv.StreamWindow = function(item) {
         ,modal: false
         ,autoScroll: false
         ,closeAction: 'hide'
-        ,collapsible: true
         ,maximizable: true
         ,tools:[
-          {id:'gear',handler:this.aspect, scope:this }
+          {id:'gear',handler:this.aspect, scope:this, qtip:this.szAspect }
         ]
         ,items: [{
            id: 'video'
@@ -84,7 +86,11 @@ Ext.xxv.StreamWindow = function(item) {
 }
 
 Ext.extend(Ext.xxv.StreamWindow, Ext.Window, {
-    aspect : function() {
+
+    szTitle         : "Streaming"
+    ,szAspect        : "Restore aspect ratio correctly"
+
+    ,aspect : function() {
         var size = this.getSize();
         this.setSize(size.width, Math.round((size.width * 3) / 4));
     }
@@ -100,14 +106,13 @@ Ext.extend(Ext.xxv.StreamWindow, Ext.Window, {
         Ext.DomHelper.applyStyles('player_obj', style);
         Ext.DomHelper.applyStyles('player_emb', style);
 
-    },
-
-    hide : function(){
+    }
+    ,hide : function(){
         var video = Ext.getCmp('video');
         if(video && video.body) video.body.update('');
         Ext.xxv.StreamWindow.superclass.hide.apply(this, arguments);
-    },
-    show : function(item){
+    }
+    ,show : function(item){
         if(this.rendered){
           var video = Ext.getCmp('video');
           var size = this.getSize();

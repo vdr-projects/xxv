@@ -9,8 +9,13 @@
 
 Ext.xxv.MonitorWindow = function() {
 
+    this.UpdateRate = 2;
+    this.UpdateRateInv = [1000,2000,5000,10000,15000,30000,60000];
+
+
+//    '<img id="monitor_img" src="?cmd=gdisplay&amp;width={width}&amp;height={height}&amp;_dc={random}" width="{width}" height="{height}" />'
     var tpl = new Ext.XTemplate(
-      '<img id="monitor_img" src="?cmd=gdisplay&amp;width={width}&amp;height={height}&amp;_dc={random}" width="{width}" height="{height}" />'
+      '<img id="monitor_img" style="background:black" src="extjs/resources/images/default/s.gif" width="{width}" height="{height}" />'
     );
 
     var width = configuration.monitorWidth;
@@ -43,11 +48,12 @@ Ext.xxv.MonitorWindow = function() {
         ,modal: false
         ,autoScroll: false
         ,closeAction: 'hide'
-        ,collapsible: true
         ,maximizable: true
         ,tools:[
-          {id:'gear',handler:this.aspect, scope:this },
-          {id:'refresh',handler:this.update, scope:this }
+           {id:'gear',   handler:this.aspect, scope:this, qtip:this.szAspect }
+          ,{id:'plus',   handler:this.upFast, scope:this, qtip:this.szUpdateFast }
+          ,{id:'refresh',handler:this.update, scope:this, qtip:this.szUpdate  }
+          ,{id:'minus',  handler:this.upSlow, scope:this, qtip:this.szUpdateSlow }
         ]
         ,items: [{
            id: 'monitor'
@@ -56,8 +62,7 @@ Ext.xxv.MonitorWindow = function() {
           ,height: height - marginHeight
           ,html: tpl.apply({
                 width : width - marginWidth,
-                height : height - marginHeight,
-                random: (new Date().getTime())
+                height : height - marginHeight
               })
         }]
     });
@@ -65,17 +70,17 @@ Ext.xxv.MonitorWindow = function() {
     Ext.xxv.MonitorWindow.superclass.show.apply(this, arguments);
 
     this.on('resize', this.onresize, this);
-
-    this.task = Ext.TaskMgr.start({
-        run: this.update,
-        scope: this,
-        interval:10000
-    });
+    this.update();
 }
 
 Ext.extend(Ext.xxv.MonitorWindow, Ext.Window, {
 
     szTitle         : "Monitor"
+    ,szAspect       : "Restore aspect ratio correctly"
+    ,szUpdate       : "Update monitor"
+    ,szUpdateFast   : "Faster update monitor"
+    ,szUpdateSlow   : "Slower update monitor"
+
     ,aspect : function() {
         var size = this.getSize();
         this.setSize(size.width, Math.round((size.width * 3) / 4));
@@ -92,42 +97,63 @@ Ext.extend(Ext.xxv.MonitorWindow, Ext.Window, {
         Ext.DomHelper.applyStyles('monitor_img', style);
     }
     ,hide : function(){
-        if(this.task) {
-          Ext.TaskMgr.stop(this.task);
-          delete this.task;
+        if(this.timer) {
+          clearTimeout(this.timer);
+          delete this.timer;
         }
 
         Ext.xxv.MonitorWindow.superclass.hide.apply(this, arguments);
     }
-    ,show : function(){
-        if(this.rendered){
-
-          if(!this.task) {
-            this.task = Ext.TaskMgr.start({
-                run: this.update,
-                scope: this,
-                interval:10000
-            });
-          }
-        }
-        Ext.xxv.MonitorWindow.superclass.show.apply(this, arguments);
-
-    }
+    ,upFast : function(){
+      if(this.UpdateRate > 0) {
+        this.UpdateRate -= 1;
+        this.update();
+        //var tool = Ext.getCmp(this.tools.minus.id);
+        //tool.enable();
+      } else {
+        //var tool = Ext.getCmp(this.tools.plus.id);
+        //tool.disable();
+      }
+   }
+   ,upSlow : function(){
+      if(this.UpdateRate < this.UpdateRateInv.length) {
+        this.UpdateRate += 1;
+        this.update();
+        //var tool = Ext.getCmp(this.tools.plus.id);
+        //tool.enable();
+      } else {
+        //var tool = Ext.getCmp(this.tools.minus.id);
+        //tool.disable();
+      }
+   }
    ,update : function(){
           var monitor = Ext.getCmp('monitor');
-          if(!monitor) {  
+          if(!monitor || this.hidden) {  
             return;
           }
           var size = monitor.getSize();
           if(!size) {  
             return;
           }
-          var img = Ext.getDom('monitor_img');
+          var img = Ext.get('monitor_img');
           if(!img) {  
             return;
           }
-          img.src = '?cmd=gdisplay&width='+ size.width +'&height='+ size.height +'&_dc=' + (new Date().getTime());
+
+          img.un('load', this.onupdate , this);
+          img.on('load', this.onupdate , this);
+          //img.hide();
+          img.dom.src = '?cmd=gdisplay&width='+ size.width +'&height='+ size.height +'&_dc=' + (new Date().getTime());
     }
+   ,onupdate : function(){
+      if(this.timer) {
+        clearTimeout(this.timer);
+        delete this.timer;
+      }
+      this.timer = setTimeout(function(){
+          Ext.getCmp('monitor-win').update();
+      }, this.UpdateRateInv[this.UpdateRate]);
+   }
 });
 
 Ext.xxv.MonitorWindowOpen = function(){
@@ -136,5 +162,6 @@ Ext.xxv.MonitorWindowOpen = function(){
       viewer.monitor = new Ext.xxv.MonitorWindow();
     } else {
       viewer.monitor.show();
+      viewer.monitor.update();
     }
 }

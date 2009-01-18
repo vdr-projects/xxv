@@ -206,14 +206,14 @@ Ext.xxv.programPreview = function(viewer) {
         stateful:true,
         tbar: [ {
             id:'s',
-            text: this.szFindReRun,
+            tooltip: this.szFindReRun,
             iconCls: 'find-icon',
             disabled:true,
             scope: this.viewer,
             handler: function(){ this.searchTab(this.gridProgram.getSelectionModel().getSelected()); }
         } ,{
             id:'tn',
-            text: this.szRecord,
+            tooltip: this.szRecord,
             iconCls: 'record-icon',
             disabled:true,
             scope: this.viewer,

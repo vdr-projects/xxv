@@ -163,7 +163,7 @@ Ext.xxv.timerGrid = function(viewer) {
               {
                    id:'tn'
                   ,iconCls: 'timer-new-icon'
-//                ,text: this.szNew
+                  ,tooltip: this.szNew
                   ,scope: this
                   ,disabled:false
                   ,handler: function(){ this.EditItem(null); }
@@ -502,7 +502,7 @@ Ext.xxv.timerPreview = function(viewer) {
        {
              id:'s'
             ,iconCls: 'find-icon'
-            ,text: this.szFindReRun
+            ,tooltip: this.szFindReRun
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.searchTab(this.gridTimer.getSelectionModel().getSelected()); }
@@ -510,7 +510,7 @@ Ext.xxv.timerPreview = function(viewer) {
         ,{
              id:'te'
             ,iconCls: 'edit-icon'
-            ,text: this.szEdit
+            ,tooltip: this.szEdit
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridTimer.EditItem(this.gridTimer.getSelectionModel().getSelected()); }
@@ -518,7 +518,7 @@ Ext.xxv.timerPreview = function(viewer) {
         ,{
              id:'td'
             ,iconCls: 'delete-icon'
-            ,text: this.szDelete
+            ,tooltip: this.szDelete
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridTimer.DeleteItem(this.gridTimer.getSelectionModel().getSelected()); }

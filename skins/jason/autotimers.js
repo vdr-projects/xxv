@@ -102,9 +102,16 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
               ,displayInfo: true 
               ,items: [
               {
+                   id:'au'
+                  ,iconCls: 'upgrade-icon'
+                  ,tooltip: this.szUpgrade
+                  ,scope: this
+                  ,disabled:false
+                  ,handler: function(){ this.UpgradeItem(); }
+              },{
                    id:'an'
                   ,iconCls: 'new-icon'
-//                ,text: this.szNew
+                  ,tooltip: this.szNew
                   ,scope: this
                   ,disabled:false
                   ,handler: function(){ this.EditItem(null); }
@@ -136,9 +143,9 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
 
      szTitle         : "Search timer"
     ,szFindReRun     : "Find rerun"
-    ,szNew           : "New"
-    ,szEdit          : "Edit"
-    ,szDelete        : "Delete"
+    ,szNew           : "Create new search timer"
+    ,szEdit          : "Edit search timer"
+    ,szDelete        : "Delete search timer"
     ,szColSearch     : "Search text"
     ,szColActive     : "Active"
     ,szColChannels   : "Channels"
@@ -149,7 +156,11 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
     ,szLoadException : "Couldn't get data about autotimer!\r\n{0}"
     ,szDeleteSuccess : "Autotimer deleted successful.\r\n{0}"
     ,szDeleteFailure : "Couldn't delete autotimer!\r\n{0}"
- 
+    ,szUpgrade        : "Lookup for wanted events"
+    ,szUpgradeWait    : "Please wait..."
+    ,szUpgradeSuccess : "Lookup for wanted events successful.\r\n{0}"
+    ,szUpgradeFailure : "Couldn't lookup for wanted events!\r\n{0}"
+
     ,stateful:  true
 
     ,onLoadException :  function( scope, o, arg, e) {
@@ -319,6 +330,55 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
       var record = this.store.getAt(index);
       this.EditItem(record);
     }
+/******************************************************************************/
+    ,onUpgradeSuccess : function( response,options ) 
+    { 
+        Ext.MessageBox.hide();
+        var o = eval("("+response.responseText+")");
+
+        if(o && o.data && typeof(o.data) == 'string' 
+             && o.param && o.param.state && o.param.state == 'success') {
+
+            new Ext.xxv.MessageBox().msgSuccess(this.szUpgradeSuccess, o.data);
+
+        } else {
+            var msg = '';
+            if(o && o.data && typeof(o.data) == 'string') {
+              msg = o.data;
+            }
+            new Ext.xxv.MessageBox().msgFailure(this.szUpgradeFailure, msg);
+        }
+    }
+    ,onUpgradeFailure : function( response,options ) 
+    { 
+        Ext.MessageBox.hide();
+        new Ext.xxv.MessageBox().msgFailure(this.szUpgradeFailure, response.statusText);
+    }
+    ,UpgradeItem : function() {
+		  Ext.Ajax.request({
+		    scope: this
+		   ,url: XXV.help.cmdAJAX('au')
+		   ,timeout: 120000
+		   ,success: this.onUpgradeSuccess
+		   ,failure: this.onUpgradeFailure
+		  });
+
+      Ext.MessageBox.show({
+           title: this.szUpgradeWait
+           ,msg: this.szUpgrade
+           ,width:240
+           ,wait:true
+    		   ,waitConfig:{
+     				 interval:200
+    				,duration:119000
+    				,increment:15
+    				,fn:function() {
+                    Ext.MessageBox.hide();
+      				}
+    		   }
+       });
+    }
+
 });
 
 function createAutoTimerView(viewer,id) {

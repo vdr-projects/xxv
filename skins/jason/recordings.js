@@ -290,7 +290,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,szEdit          : "Edit"
     ,szCut           : "Cut"
     ,szDelete        : "Delete"
-    ,szRecover       : "Recover"
+    ,szRecover       : "Recover deleted recordings"
     ,szStream        : "Stream recording"
     ,szPlay          : "Playback"
     ,szLoadException : "Couldn't get data about recording!\r\n{0}"
@@ -300,6 +300,10 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,szDeleteFailure : "Couldn't delete recordings!\r\n{0}"
     ,szPlayBackSuccess : "Recording started playback successful.\r\n{0}"
     ,szPlayBackFailure : "Couldn't started playback recording!\r\n{0}"
+    ,szUpgrade        : "Update list of recordings"
+    ,szUpgradeWait    : "Please wait..."
+    ,szUpgradeSuccess : "List of recordings update successful.\r\n{0}"
+    ,szUpgradeFailure : "Couldn't update list of recordings!\r\n{0}"
 
     ,onLoadException :  function( scope, o, arg, e) {
 	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
@@ -434,13 +438,6 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.DeleteItem(null); }
-                   },{
-                     id: 'rru'
-                    ,text: this.szRecover
-                    ,iconCls: 'recover-icon'
-                    ,scope:this
-                    ,disabled: true
-                    ,handler: function() { this.Recover(); }
                    },'-',{
                      id: 'pre'
                     ,text: this.szStream
@@ -717,6 +714,59 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       }
       this.viewer.formwin = new Ext.xxv.Question(item,this.store);
     }
+/******************************************************************************/
+    ,onUpgradeSuccess : function( response,options ) 
+    { 
+        Ext.MessageBox.hide();
+        var o = eval("("+response.responseText+")");
+
+        if(o && o.data && typeof(o.data) == 'string' 
+             && o.param && o.param.state && o.param.state == 'success') {
+
+            new Ext.xxv.MessageBox().msgSuccess(this.szUpgradeSuccess, o.data);
+        		this.reload();
+
+        } else {
+            var msg = '';
+            if(o && o.data && typeof(o.data) == 'string') {
+              msg = o.data;
+            }
+            new Ext.xxv.MessageBox().msgFailure(this.szUpgradeFailure, msg);
+        }
+    }
+    ,onUpgradeFailure : function( response,options ) 
+    { 
+        Ext.MessageBox.hide();
+        new Ext.xxv.MessageBox().msgFailure(this.szUpgradeFailure, response.statusText);
+    }
+    ,UpgradeItem : function() {
+		  Ext.Ajax.request({
+		    scope: this
+		   ,url: XXV.help.cmdAJAX('ru')
+		   ,timeout: 120000
+		   ,success: this.onUpgradeSuccess
+		   ,failure: this.onUpgradeFailure
+		  });
+
+      Ext.MessageBox.show({
+           title: this.szUpgradeWait
+           ,msg: this.szUpgrade
+           ,width:240
+           ,wait:true
+		       ,waitConfig:{
+ 			    	 interval:200
+			    	,duration:119000
+			    	,increment:15
+			    	,fn:function() {
+              Ext.MessageBox.hide();
+			    	}
+		       }
+       });
+    }
+    ,reload : function() {
+        this.store.load({params:{start:0, limit:configuration.pageSize}});
+    }
+
 });
 
 function createRecordingsView(viewer,id) {
@@ -770,7 +820,7 @@ function createRecordingsView(viewer,id) {
         {
              id:'s'
             ,iconCls: 'find-icon'
-            ,text: Ext.xxv.recordingsDataView.prototype.szFindReRun
+            ,tooltip: Ext.xxv.recordingsDataView.prototype.szFindReRun
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.searchTab(this.gridRecordings.preview.record); }
@@ -779,7 +829,7 @@ function createRecordingsView(viewer,id) {
         ,{
              id:'re'
             ,iconCls: 'edit-icon'
-            ,text: Ext.xxv.recordingsDataView.prototype.szEdit
+            ,tooltip: Ext.xxv.recordingsDataView.prototype.szEdit
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridRecordings.EditItem(this.gridRecordings.preview.record);  }
@@ -787,7 +837,7 @@ function createRecordingsView(viewer,id) {
         ,{
              id:'rcu'
             ,iconCls: 'cut-icon'
-            ,text: Ext.xxv.recordingsDataView.prototype.szCut
+            ,tooltip: Ext.xxv.recordingsDataView.prototype.szCut
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridRecordings.CutItem(this.gridRecordings.preview.record);  }
@@ -795,7 +845,7 @@ function createRecordingsView(viewer,id) {
         ,{
              id:'rr'
             ,iconCls: 'delete-icon'
-            ,text: Ext.xxv.recordingsDataView.prototype.szDelete
+            ,tooltip: Ext.xxv.recordingsDataView.prototype.szDelete
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridRecordings.DeleteItem(this.gridRecordings.preview.record);  }
@@ -804,7 +854,7 @@ function createRecordingsView(viewer,id) {
         ,{
              id:'pre'
             ,iconCls: 'stream-icon'
-            ,text: Ext.xxv.recordingsDataView.prototype.szStream
+            ,tooltip: Ext.xxv.recordingsDataView.prototype.szStream
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridRecordings.onStream(this.gridRecordings.preview.record, this.gridRecordings.preview.timefield.getValue() );  }
@@ -812,7 +862,7 @@ function createRecordingsView(viewer,id) {
         ,{
              id:'rpv'
             ,iconCls: 'play-icon'
-            ,text: Ext.xxv.recordingsDataView.prototype.szPlay
+            ,tooltip: Ext.xxv.recordingsDataView.prototype.szPlay
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridRecordings.onPlay(this.gridRecordings.preview.record, this.gridRecordings.preview.timefield.getValue() );  }
@@ -930,9 +980,27 @@ function createRecordingsView(viewer,id) {
             }
             ]
       ,tbar:new Ext.PagingToolbar({
-        pageSize: viewer.gridRecordings.store.autoLoad.params.limit,
-        store: viewer.gridRecordings.store,
-        displayInfo: true})
+        	   pageSize: viewer.gridRecordings.store.autoLoad.params.limit
+        	  ,store: viewer.gridRecordings.store
+		      ,displayInfo: true
+              ,items: [
+			  {
+                   id:'ru'
+                  ,iconCls: 'upgrade-icon'
+            	  ,tooltip: viewer.gridRecordings.szUpgrade
+                  ,scope: viewer.gridRecordings
+                  ,disabled:false
+                  ,handler: function(){ this.UpgradeItem(); }
+              },{
+                   id:'rru'
+                  ,iconCls: 'recover-icon'
+            	  ,tooltip: viewer.gridRecordings.szRecover
+                  ,scope: viewer.gridRecordings
+                  ,disabled:false
+                  ,handler: function(){ this.Recover(); }
+              }
+              ]})
+
     });
 
     viewer.add(tab);
