@@ -1763,11 +1763,13 @@ where
       $_ =~ s/\s*\:.*$//;
     } @reccmds;
 
-    my ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',[ $erg->{'id'} ]);
+    if($self->{keywords} && $self->{keywords}->{active} eq 'y') {
+      my ($keywords,$keywordmax,$keywordmin) = $self->{keywords}->list('recording',[ $id ]);
+      $erg->{'keywords'} = $keywords;
+    }
 
     my $param = {
-        reccmds => \@reccmds,
-        keywords => $keywords
+        reccmds => \@reccmds
     };
     $console->table($erg,$param);
 }
@@ -1910,7 +1912,7 @@ SELECT SQL_CACHE
     IF(COUNT(*)>1,0,1) as __IsRecording,
     e.description as __description,
     preview as __preview,
-    cutlength as __cutlength
+    SUM(cutlength) as __cutlength
 FROM
     RECORDS as r,
     OLDEPG as e

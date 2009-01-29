@@ -238,9 +238,10 @@ sub list {
     my $keywordmax = $list->[0]->[1];
     my $keywordmin = $list->[-1]->[1];
     # sort keyworks by name
-    my @keywords = sort {$a->[0] cmp $b->[0]} @$list;
+    my $keywords;
+    @{$keywords} = sort {$a->[0] cmp $b->[0]} @$list;
 
-    return (\@keywords,$keywordmax,$keywordmin);
+    return ($keywords,$keywordmax,$keywordmin);
 }
 
 # ------------------
