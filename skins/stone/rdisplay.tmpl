@@ -253,11 +253,11 @@
 								</td>
 							</tr>
               <?% allowkeywords = allow('rk') %?>
-              <?% IF param.keywords.size > 0 %?>
+              <?% IF data.keywords && data.keywords.size > 0 %?>
 							<tr>
 								<td colspan="2">
                         <?% gettext('Keywords') %?>&nbsp;:&nbsp;
-		                    <?% FOREACH keyword = param.keywords %?>
+		                    <?% FOREACH keyword = data.keywords %?>
                             <?% IF allowkeywords %?>
                                     <a target="_top" href="?cmd=rk&amp;data=<?% keyword.0 %?>">
                             <?% END %?>

@@ -156,8 +156,9 @@ Ext.xxv.recordingsDataView.prototype.szPlayBackSuccess = "Wiedergabe der Aufnahm
 Ext.xxv.recordingsDataView.prototype.szPlayBackFailure = "Konnte Wiedergabe der Aufnahme nicht starten!\r\n{0}";
 Ext.xxv.recordingsDataView.prototype.szUpgrade = "Aktualisiere Liste der Aufnahmen";
 Ext.xxv.recordingsDataView.prototype.szUpgradeWait = "Bitte warten...";
-Ext.xxv.recordingsDataView.prototype.szUpgradeSuccess = "Liste der Aufnahme erfolgreich aktualisieren!\r\n{0}";
-Ext.xxv.recordingsDataView.prototype.szUpgradeFailure = "Konnte Liste der Aufnahme nicht aktualisieren!\r\n{0}";
+Ext.xxv.recordingsDataView.prototype.szUpgradeSuccess = "Liste der Aufnahmen erfolgreich aktualisieren!\r\n{0}";
+Ext.xxv.recordingsDataView.prototype.szUpgradeFailure = "Konnte Liste der Aufnahmen nicht aktualisieren!\r\n{0}";
+Ext.xxv.recordingsDataView.prototype.szDetailsFailure = "Konnte Details der Aufnahme nicht aktualisieren!\r\n{0}";
 
 Ext.xxv.searchGrid.prototype.szTitle = "Suche";
 Ext.xxv.searchGrid.prototype.szFindReRun = "Suche Wiederholung";

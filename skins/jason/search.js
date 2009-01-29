@@ -190,8 +190,6 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
                 );
     }
     ,Record : function( record ) {
-      this.stopEditing();
-
       var gsm = this.getSelectionModel();
       var sel = gsm.getSelections()
       if(sel.length <= 0) {
@@ -218,14 +216,14 @@ Ext.xxv.searchPreview = function(viewer) {
         stateful:true,
         tbar: [ {
             id:'s',
-            text: this.szFindReRun,
+            tooltip: this.szFindReRun,
             iconCls: 'find-icon',
             disabled:true,
             scope: viewer,
             handler: function(){ this.searchTab(this.gridSearch.getSelectionModel().getSelected()); }
         } ,{
             id:'tn',
-            text: this.szRecord,
+            tooltip: this.szRecord,
             iconCls: 'record-icon',
             disabled:true,
             scope: viewer,

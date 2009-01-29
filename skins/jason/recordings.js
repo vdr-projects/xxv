@@ -6,6 +6,296 @@
  *
  * $Id$
  */
+/******************************************************************************/
+SecondsToHMS = function(t) {
+  return new Date(new Date().clearTime().getTime()+(t * 1000)).dateFormat('H:i:s')
+}
+
+/******************************************************************************/
+HMSToSeconds = function(s) {
+  var seconds;
+  var tt = s.replace(/\..*/g, '');
+  var x = tt.split(":");
+  seconds = parseInt(x.pop());
+  if(x.length > 0) {
+    seconds += ( 60 * parseInt(x.pop()));
+  }
+  if(x.length > 0) {
+    seconds += (3600 * parseInt(x.pop()));
+  }
+  return seconds;
+}
+
+/******************************************************************************/
+Ext.xxv.slide = function(config){
+    Ext.xxv.slide.superclass.constructor.call(this, config);
+    
+    Ext.apply(this, config);
+        
+};
+
+Ext.extend(Ext.xxv.slide, Ext.Component, {
+
+	baseCls : 'x-slide',
+
+    setSize : Ext.emptyFn,
+    setWidth : Ext.emptyFn,
+    setHeight : Ext.emptyFn,
+    setPosition : Ext.emptyFn,
+    setPagePosition : Ext.emptyFn,
+    slider: null,
+
+    initComponent : function(){
+        Ext.xxv.slide.superclass.initComponent.call(this);
+
+	    this.addEvents({'selected' : true});
+        if (typeof(this.imageGap)=='undefined') { this.imageGap = 10 }
+        this.tpl = new Ext.Template(
+            '<div class="preview-header">',
+            '<h3 class="preview-title">{title}</h3>',
+            '<div class="preview-channel">{channel}{period}{cutlength}</div>',
+            '<h4 class="preview-shorttitle">{subtitle}&nbsp;</h4>',
+            '<div class="preview-date">{day:date} {start} - {stop}</div>',
+            '</div>',
+            '<div class="{cls}-wrap">',
+                '<div id="images-inner" class="{cls}-inner">',
+	                '<div class="{cls}-images-wrap">',
+	                    '<div class="{cls}-images"></div>',
+	                '</div>',
+	            '</div>',
+            '</div>',
+            '<div id="slider"><div id="slider-inner"></div></div>',
+            '<div class="preview-body">{content}</div>',
+            '<div class="preview-body">{keywords}</div>'
+        );
+        this.tpl.compile();  
+
+        this.tplimg = new Ext.Template('{day:date} - {start} ({period})');
+        this.tplimg.compile();  
+
+    },
+
+    setvalue : function(data, first){
+
+      this.param = {
+         title:     data.fulltitle
+        ,subtitle:  ''
+        ,channel:   (!data.channel || data.channel.length <= 0) ? null : ( '<b>' + data.channel + '</b> - ' )
+        ,day:       data.day
+        ,duration:  data.duration
+        ,start:     data.day.dateFormat('H:i')
+        ,stop:      new Date(data.day.getTime() + (data.duration * 1000)).dateFormat('H:i')
+        ,content:   data.description.replace(/\r\n/g, '<br />')
+        ,cutlength: data.cutlength == data.duration ? null : (' (' + SecondsToHMS(data.cutlength) +')')
+        ,period:    SecondsToHMS(data.duration)
+        ,marks:     data.marks
+      };
+      if(data.keywords) {
+        var k = new Array();
+        for(var j = 0, len = data.keywords.length; j < len; j++){
+          k.push(data.keywords[j][0]);
+        }
+        this.param.keywords = k.join(', ');
+      }
+
+      var title = data.fulltitle.split("~");
+      if(title.length >1) {
+        this.param.subtitle = title.pop();
+        this.param.title = title.join("~");
+      }
+
+      if(first === true) {
+        var images = [];
+        if(!data.preview || data.preview == '') {
+          /*var day = new Date(data.day.getTime());
+          images.push(
+            {
+                 src:     (data.type == 'RADIO') ? 'pic/radio.png' : 'pic/movie.png'
+                ,day:     day
+                ,start:   day.dateFormat('H:i')
+                ,frame:   0
+                ,period:  SecondsToHMS(0)
+            }
+          );*/
+        } else {
+          var frames = data.preview.split(",");
+          Ext.each(frames, function(frame){ 
+            var url = "?cmd=ri&data="+data.id+"_"+frame;
+            var day = new Date(data.day.getTime() + (frame * 40));
+            images.push(
+              {
+                   src:     url
+                  ,day:     day
+                  ,start:   day.dateFormat('H:i')
+                  ,frame:   frame
+                  ,period:  SecondsToHMS((frame * 40)/1000)
+              }
+            );
+          },this);
+        }
+       this.images = images;
+      }
+    },
+
+    render : function(ct, position){
+
+        var inner= Ext.get("images-inner");
+        if(!inner) {
+          this.param.cls = this.baseCls;
+          if(position){
+              this.el = this.tpl.insertBefore(position, this.param, true);
+          }else{
+              this.el = this.tpl.append(ct, this.param, true);
+          }
+          if(this.id){
+              this.el.dom.id = this.id;
+          }
+          
+          inner= Ext.get("images-inner");
+		  if(this.slider) {
+			delete this.slider;
+			this.slider = null;
+		  }
+        }
+        var imagesWrap = Ext.get(inner.dom.firstChild);
+        this.divImages = Ext.get(imagesWrap.dom.firstChild);
+
+        var size = inner.getSize();
+        this.width = size.width;
+        this.height = size.height;
+
+    		inner.setStyle({
+		    	height:(this.imageHeight + (2*this.wrapMarginY)) + 'px',
+		    	width:(this.width-this.wrapMarginX)+'px'
+		    });
+		
+		    var totalImageWidth=this.imageWidth+this.imageGap;
+		    var usableWidth=this.width-(this.wrapMarginX*2);
+		    var maxPicsOnce=Math.floor(usableWidth/totalImageWidth);
+		    var usedWidth=maxPicsOnce*totalImageWidth-this.imageGap;
+		    var offsetLeft=Math.floor((usableWidth-usedWidth)/2);
+		    this.pageSize=usedWidth+this.imageGap;
+		    this.maxPages=Math.round(this.images.length/maxPicsOnce+.04999);
+		    this.curPage=0;
+
+		    if (!Ext.isIE){
+			    offsetLeft+=this.wrapMarginX;
+		    }
+		
+		    imagesWrap.setStyle({
+			    position: 'absolute',
+			    clip:'rect(0,'+(usedWidth*1)+','+(this.imageHeight)+',0)',
+			    'margin-top':this.wrapMarginY+'px',
+			    width:this.width+'px',
+			    height:this.imageHeight+'px',
+			    'margin-left':offsetLeft+'px'
+		    });
+
+		    /*this.divImages.setStyle({
+			    position: 'absolute'
+		    });*/
+
+        Ext.each(this.images, function(image){            
+
+          if (typeof(image)=='string'){
+            image={src:image}
+          }
+          var qtip = this.tplimg.applyTemplate(image);
+
+          thisImage = this.divImages.createChild({tag:"img", src:image.src, 
+          'ext:qtip':qtip,
+           style:{
+           'margin-right': this.imageGap+'px',
+            width:  this.imageWidth+'px'
+    //      height: this.imageHeight+'px'            	
+           }
+          });
+
+          thisImage.on("click", function(e, ele){
+            if (!image.onSelected || !(image.onSelected.call(this, image, e, ele )===false)){
+              this.fireEvent('selected', this, new Date(new Date().clearTime().getTime()+(image.frame * 40)), e, ele);
+
+              var slider = this.slider.getSlider('cutpoint_thumb');
+              slider.value = image.frame/25;
+              this.slider.initSliderPosition(slider);
+            }
+          },this);
+        },this);
+
+        if(this.slider) {
+          this.slider.sliders.clear();
+        } else {
+
+		    this.slider = new Ext.ux.SlideZone('slider-inner', {  
+			    type: 'horizontal',
+			    size: usableWidth-32,
+          sliderWidth: 16,
+			    sliderHeight: 24,
+			    maxValue: this.param.duration,
+			    minValue: 0,
+			    //sliderSnap: 1,
+			    allowSliderCrossing: true
+			});
+			this.ts = new Ext.ux.ThumbSlider({
+				 value: 0
+				,name: 'cutpoint_thumb'
+				,cls: 'x-slide-zone-bottom'
+				,allowMove: true
+			});
+			this.ts.on('drag',
+				function() {
+					var v = parseInt(this.ts.value * 1000);
+					this.fireEvent('selected', this, new Date((new Date().clearTime().getTime())+v), null, null);
+			},this);
+		}
+
+        if(this.param.marks && this.param.marks.length) {
+			var cutpoint = this.param.marks.split(",");
+			for(var i = 0, len = cutpoint.length; i < len; i += 2){
+				var first = HMSToSeconds(cutpoint[i]);
+				var second;
+				if(i+1 < cutpoint.length) {
+					second = HMSToSeconds(cutpoint[i+1]);
+				} else {
+					second = this.param.duration;
+				}
+				var rs = new Ext.ux.RangeSlider({
+					 value: [first,second]
+					,name: 'cutpoint_'+i
+					,cls: 'x-slide-zone-top'
+					,allowMove: false
+				});
+				this.slider.add(rs);	
+			}
+		}
+		this.slider.add(this.ts);
+    },
+
+    CanShift: function(direction) {
+  		if (!this.curPage){
+  			this.offsetLeft=this.divImages.getLeft();
+  		}
+  		var newPage=(direction=='right' ? this.curPage+1 : this.curPage-1 );
+      if (newPage<0 || newPage >= this.maxPages){
+		  	return -1;
+		  }
+      return newPage;
+    },
+
+    Shift: function(direction) {
+      var newPage = this.CanShift(direction);
+      if (newPage<0 || newPage >= this.maxPages){
+		  	return;
+		  }
+		  this.curPage=newPage;
+		  var newLocation=(this.pageSize*this.curPage)*-1+this.offsetLeft;
+		  this.divImages.shift({ x:newLocation, duration: this.duration || .7 });
+    }
+});
+
+Ext.reg('slide', Ext.xxv.slide);
+
+/******************************************************************************/
 
 Ext.DataView.LabelEditor = function(cfg, field){
     Ext.DataView.LabelEditor.superclass.constructor.call(this,
@@ -56,6 +346,8 @@ Ext.extend(Ext.DataView.LabelEditor, Ext.Editor, {
         this.activeRecord.set(this.dataIndex, value);
     }
 });
+
+/******************************************************************************/
 
 Ext.DataView.DragSelector = function(cfg){
     cfg = cfg || {};
@@ -141,7 +433,9 @@ Ext.DataView.DragSelector = function(cfg){
     }
 };
 
-RecordingsStore = function() {
+/******************************************************************************/
+
+Ext.xxv.recordingsStore = function() {
 
     // create the data store
     return new Ext.data.Store({
@@ -163,6 +457,12 @@ RecordingsStore = function() {
                       ,{name: 'description', type: 'string'}
                       ,{name: 'preview', type: 'string'}
                       ,{name: 'cutlength', type: 'int'}
+                      //*** filled later by rdisplay ***
+                      ,{name: 'channel', type: 'string'}
+                      ,{name: 'marks', type: 'string'}
+                      ,{name: 'lifetime', type: 'int'}
+                      ,{name: 'priority', type: 'int'}
+                      ,{name: 'keywords', type: 'string'}
                     ]
                 })
             ,proxy : new Ext.data.HttpProxy({
@@ -183,7 +483,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
         '<div class="thumb-wrap" id="{id}">',
 		    '<div class="thumb">',
         '<tpl if="isrecording == 0">',
-            '<img src="pic/folder.png" ext:qtitle="{shortTitle}" />',
+            '<img src="pic/folder.png"<tpl if="group != 0"> ext:qtitle="{shortTitle}" ext:qtip="{group} recordings ({period})"</tpl>/>',
         '</tpl>',
         '<tpl if="isrecording != 0">',
         '<tpl if="this.isRadio(type)">',
@@ -250,7 +550,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
                       data.shortDesc = Ext.util.Format.ellipsis(data.description, 50).replace(/\"/g,'\'');
                       data.start = data.day.dateFormat('H:i');
                       data.stop =  new Date(data.day.getTime() + (data.duration * 1000)).dateFormat('H:i');
-                      data.period =  new Date((new Date(2000,1,1,0,0,0).getTime())+(data.duration * 1000)).dateFormat('H:i:s');
+                      data.period =  SecondsToHMS(data.duration);
                       var frames = data.preview.split(",");
                       if(data.preview.length && frames.length) {
                         var item = (frames.length) / 2;
@@ -304,11 +604,14 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,szUpgradeWait    : "Please wait..."
     ,szUpgradeSuccess : "List of recordings update successful.\r\n{0}"
     ,szUpgradeFailure : "Couldn't update list of recordings!\r\n{0}"
+	,szDetailsFailure : "Couldn't update details of recording!\r\n{0}"
 
     ,onLoadException :  function( scope, o, arg, e) {
 	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
     }
     ,onBeforeLoad :  function( scope, params ) {
+      if(this.DetailsTransaction) 
+        Ext.Ajax.abort(this.DetailsTransaction);
 	    this.preview.clear();
     }
     ,onLoad :  function( store, records, opt ) {
@@ -371,13 +674,8 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                     this.filter.field.setValue('');
                   }
                   var Woerter = this.store.lastOptions.params.data.split("~");
-                  var title = '';
-                  for(var i = 0, len = Woerter.length - 1; i < len; i++){
-                    if(title.length) {
-                      title += '~';
-                    }
-                    title += Woerter[i];
-                  }
+                  Woerter.pop();
+                  var title = Woerter.join('~');
                   if(title != '') {
                     this.store.title = title;
                     this.store.baseParams.data = title;
@@ -403,7 +701,86 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     },
 	  showDetails : function(record){
         this.preview.content(record);
+        this.DetailsItem(record);
 	  }, 
+/******************************************************************************/
+    onDetailsSuccess : function( response,options ) 
+    { 
+        var o = eval("("+response.responseText+")");
+
+        if(o && o.data && typeof(o.data) == 'object' 
+             && o.param) {
+
+            var RecordingsID = options.params.data.split(",");
+            for(var j = 0, len = RecordingsID.length; j < len; j++){
+              var iSel = this.store.indexOfId(RecordingsID[j]);
+              if(iSel === -1 
+                || this.store.data.items[iSel].id != o.data.RecordId)
+                continue;
+
+              this.store.data.items[iSel].data.channel  = o.data.Channel;
+              this.store.data.items[iSel].data.marks    = o.data.Marks;
+              this.store.data.items[iSel].data.lifetime = parseInt(o.data.lifetime);
+              this.store.data.items[iSel].data.priority = parseInt(o.data.priority);
+              this.store.data.items[iSel].data.keywords = o.data.keywords;
+
+              var record = this.store.getById(RecordingsID[j]);
+              this.preview.update(record);
+            }
+
+        } else {
+            var msg = '';
+            if(o && o.data && typeof(o.data) == 'string') {
+              msg = o.data;
+            }
+            new Ext.xxv.MessageBox().msgFailure(this.szDetailsFailure, msg);
+        }
+    },
+
+    onDetailsFailure : function( response,options ) 
+    { 
+        new Ext.xxv.MessageBox().msgFailure(this.szDetailsFailure, response.statusText);
+    },
+
+    DetailsItem : function(record) {
+      if(record.data.priority 
+      || record.data.id == 'up') {
+        return;
+      }
+      var toDetails = '';
+      if(record && record.data) {
+        toDetails = record.data.id;
+      } else {
+	      var selNode = this.getSelectedNodes();
+		    if(selNode && selNode.length > 0){
+          for(var i = 0, len = selNode.length; i < len; i++){
+            if(selNode[i].id == 'up')
+              continue;
+            if(toDetails.length) {
+              toDetails += ',';
+            }
+            var record = this.store.getById(selNode[i].id);
+            if(record.data.isrecording == 0) {
+              //toDetails += 'all:';
+              continue;
+            }
+            toDetails += record.data.id;
+          }
+        }
+      }
+      if(toDetails.length) {
+      if(this.DetailsTransaction) 
+        Ext.Ajax.abort(this.DetailsTransaction);
+      this.DetailsTransaction = Ext.Ajax.request({
+            scope: this
+           ,url: XXV.help.cmdAJAX('rd')
+           ,timeout: 15000
+           ,success: this.onDetailsSuccess
+           ,failure: this.onDetailsFailure
+           ,params:{ data: toDetails }
+        });
+      }
+    },  
 /******************************************************************************/
     onContextClick : function(grid, index, node, e){
         if(!this.menu){ // create context menu on first right click
@@ -570,12 +947,12 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 
             new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
 
-            var Woerter = options.params.data.split(",");
+            var RecordingsID = options.params.data.split(",");
             var selRecord;
             var iSel = 0;
 
-            for(var j = 0, len = Woerter.length; j < len; j++){
-              var record = this.store.getById(Woerter[j].replace(/all:/g, ''));
+            for(var j = 0, len = RecordingsID.length; j < len; j++){
+              var record = this.store.getById(RecordingsID[j].replace(/all:/g, ''));
               if(!record)
                 continue;
               iSel = this.store.indexOf(record) - 1;
@@ -804,13 +1181,13 @@ function createRecordingsView(viewer,id) {
               id: 'preview-recordings-frame',
 	            xtype:'slide',
 	            wrapMarginY:0,
-	            wrapMarginX:3,
+	            wrapMarginX:0,
 	            imageHeight:120, 
 	            imageWidth:160, 
       		    autoWidth: true,
               listeners:{
-                selected: function(slide, image, e, ele){
-                  this.ownerCt.timefield.setValue(image.tperiod);
+                selected: function(slide, time, e, ele){
+                  this.ownerCt.timefield.setValue(time);
                 }             	
               },
 	            images:[]
@@ -888,8 +1265,8 @@ function createRecordingsView(viewer,id) {
               this.gridRecordings.preview.canshift();
             }
         }
-        ],
-	      canshift : function(){
+        ]
+	      ,canshift : function(){
               var items = this.topToolbar.items;
               if(items) { 
                 if(this.items.items[0].CanShift('right') != -1) {
@@ -903,15 +1280,15 @@ function createRecordingsView(viewer,id) {
                   items.get('recordings-shift-left').disable();
                 }
               }
-        },
-	      content : function(record){
+        }
+	      ,content : function(record){
 
             if(record && this.record != record
                 && record.data.isrecording 
                 && this.body 
                 && this.ownerCt.isVisible()) {
                   this.body.update('');
-                  this.items.items[0].setvalue(record.data);
+                  this.items.items[0].setvalue(record.data,true);
                   this.doLayout();
                   this.record = record;
 
@@ -927,9 +1304,19 @@ function createRecordingsView(viewer,id) {
                   }
                   this.canshift();
                 }
-
-	      }, 
-        clear: function(){
+	      } 
+        ,update : function(record) {
+            if(record
+                && record.data.isrecording 
+                && this.body 
+                && this.ownerCt.isVisible()) {
+                  this.body.update('');
+                  this.items.items[0].setvalue(record.data,false);
+                  this.doLayout();
+                  this.record = record;
+            }
+        }
+        ,clear: function(){
             if(this) {
               if(this.body)
                 this.body.update('');
@@ -947,7 +1334,7 @@ function createRecordingsView(viewer,id) {
     viewer.gridRecordings = new Ext.xxv.recordingsDataView(
                             viewer,
                             preview,
-                            new RecordingsStore(),
+                            new Ext.xxv.recordingsStore(),
                             { id: 'recording-view-grid' });
 
     var tab = new Ext.xxv.Panel({

@@ -89,7 +89,7 @@ Ext.xxv.programGrid = function(viewer, record) {
         ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({
-            singleSelect:true
+            singleSelect:false
         })
         ,view: new Ext.grid.GroupingView({
              enableGroupingMenu:false
@@ -152,7 +152,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
                     text: this.szRecord,
                     iconCls: 'record-icon',
                     scope:this,
-                    handler: function(){ this.viewer.Record(this.ctxRecord); }
+                    handler: function(){ this.Record(null); }
                     }
                 ]
             });
@@ -193,6 +193,21 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
                 '<div class="topic"><b>{0}</b> <span class="subtitle">{1}</span></div>',
                 value, record.data.subtitle
                 );
+    }
+    ,Record : function( record ) {
+      var gsm = this.getSelectionModel();
+      var sel = gsm.getSelections()
+      if(sel.length <= 0) {
+       gsm.selectRecords([record]);
+       sel.push(record);
+      }
+      var ids = "";
+      for(var i = 0, len = sel.length; i < len; i++){
+        if(i != 0)
+   	      ids += ',';
+	      ids += sel[i].data.id;
+      }
+      this.viewer.RecordID(ids);
     }
 });
 

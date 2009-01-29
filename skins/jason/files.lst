@@ -5,6 +5,7 @@ ux/DDView.js \
 ux/multiselect.js \
 ux/tabclosemenu.js \
 ux/filter.js \
+ux/Ext.ux.SlideZone.js \
 common.js \
 reader.js \
 help.js \

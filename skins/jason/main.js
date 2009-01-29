@@ -21,7 +21,6 @@ Ext.onReady(function(){
            // state: Ext.appState,
            expires: new Date(new Date().getTime()+(1000*3600*24*365))
         }));
-
     Ext.History.init();
 
     var tpl = Ext.Template.from('preview-tpl', {
@@ -95,8 +94,14 @@ Ext.onReady(function(){
     XXV.viewport.doLayout();
 
 	  setTimeout(function(){
-          Ext.get('loading').remove();
-          Ext.get('loading-mask').fadeOut({remove:true});
+          var l = Ext.get('loading'); 
+          if(l) {
+            l.remove();
+          }
+          var m = Ext.get('loading-mask'); 
+          if(m) {
+            m.fadeOut({remove:true});
+          }
     }, 250);
 
 
