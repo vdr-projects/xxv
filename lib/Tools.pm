@@ -608,13 +608,13 @@ sub convert {
 
     if ( $kbytes > 1048576 ) {
         $result = sprintf("%.2f", $kbytes / 1048576);
-        $result .= " GB";
+        $result .= " GiB";
     } elsif ( $kbytes > 1024 ) {
         $result = sprintf("%.2f", $kbytes / 1024);
-        $result .= " MB";
+        $result .= " MiB";
     } else {
         $result = sprintf("%.2f", $kbytes);
-        $result .= " KB";
+        $result .= " kiB";
     }
 
     return $result;
