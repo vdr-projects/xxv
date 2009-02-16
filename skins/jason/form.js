@@ -106,13 +106,21 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             config.xtype = 'hidden';
             break;
           case 'confirm':
-            config.xtype = 'xxv-checkboxes';
-			      config.horizontal = true;
+            config.name  = null;
+            config.xtype = 'fieldset';
             config.hideLabel = true;
+            config.fieldLabel = null;
+            config.hideBorders = true;
+            config.autoHeight = true;
+            config.labelWidth = 1;
+            config.baseCls = '';
+            config.style = 'border: 0px none;';
             config.items = [{
-                value: 'y',
-                boxLabel: Ext.util.Format.ellipsis(r[i].data.fieldLabel,80),
-                checked: r[i].data.valuedef == 'y' ? true : false
+      			     xtype: 'checkbox'
+                ,labelSeparator: ''
+                ,boxLabel: Ext.util.Format.ellipsis(r[i].data.fieldLabel,80)
+                ,checked: r[i].data.valuedef == 'y' ? true : false
+                ,name:    r[i].data.id
                 }
             ];
             break;
@@ -263,14 +271,15 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
           var record = this.store.getAt(i);
           if(record.data.readonly == 0) {
              var field = this.form.getForm().findField(record.data.id);
-             /*switch(record.data.type){
+             if(field)
+             switch(record.data.type){
                 case 'confirm':
-                  params['__'+record.data.id] = field.getValue() ? 'y' : 'n';
+                  params['__'+record.data.id] = field.checked ? 'y' : 'n';
                   break;
-                default:*/
+                default:
                   params['__'+record.data.id] = field.getValue();
-              /*    break;
-              } */       
+                  break;
+             }
           }
         }
         Ext.Ajax.request({

@@ -223,9 +223,13 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
         }
     }
     ,formatTitle: function(value, p, record) {
+	      var style = "";
+	      if((record.data.active & 1) == 0) {
+	        style = " deactive";
+	      }
         return String.format(
-              '<div class="topic"><b>{0}</b></div>',
-              value
+              '<div class="topic{1}"><b>{0}</b></div>',
+              value, style
               );
     }
   /******************************************************************************/
