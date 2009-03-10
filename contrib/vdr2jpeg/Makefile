@@ -2,14 +2,15 @@
 #
 # Makefile -- for building vdr2jpeg
 #
-# Copyright (c) 2005-2008 Andreas Brachold
+# Copyright (c) 2005-2009 Andreas Brachold
 #
 # This code is distributed under the terms and conditions of the
 # GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
 #
 
 
-# You can change the compile options here or create a Make.config
+# You can change the compile options here 
+# or add options at own file Make.config
 
 
 # Build ffmpeg e.g. with ./configure --enable-shared --enable-swscale
@@ -61,7 +62,8 @@ CXXFLAGS += -fPIC -Wall -Woverloaded-virtual
 
 ifdef FFMDIR
 INCLUDES += -I$(FFMDIR) 
-LIBS += -L$(FFMDIR)/libavformat -L$(FFMDIR)/libavcodec -L$(FFMDIR)/libavutil -L$(FFMDIR)/libswscale
+LIBS += -L$(FFMDIR) -L$(FFMDIR)/libavformat -L$(FFMDIR)/libavcodec -L$(FFMDIR)/libavutil -L$(FFMDIR)/libswscale
+LIBS += -lavformat -lavcodec -lavutil -lswscale
 else
 INCLUDES += $(shell $(PKG-CONFIG) --cflags libavformat libavcodec libavutil libswscale)
 LIBS    += $(shell $(PKG-CONFIG) --libs libavformat libavcodec libavutil libswscale)
