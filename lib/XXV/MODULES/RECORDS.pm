@@ -904,7 +904,7 @@ sub _readData {
     my $totalDuration = 0;
     my $totalSpace = 0;
     my $totalFree = 0;
-    my $Message;
+    my $Message = [];
 
     foreach my $vid (keys %{$self->{Capacity}}) {
       push(@$Message,$self->{Capacity}->{$vid}->{Message});
