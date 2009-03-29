@@ -113,13 +113,11 @@ Ext.xxv.MainMenu = function(/*config*/){
           text: Ext.xxv.chronicleGrid.prototype.szTitle, 
           handler: function() { XXV.tab.openTab('chrl'); },
           iconCls:"chronicle-icon"
-        }
-        /*,{
-          text: Ext.xxv.musicDataView.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('ml'); },
-          iconCls:"audio-icon",
-          disabled:true
         },{
+          text: Ext.xxv.musicGrid.prototype.szTitle, 
+          handler: function() { XXV.tab.openTab('ml'); },
+          iconCls:"music-icon",
+        }/*,{
           text: Ext.xxv.mediaDataView.prototype.szTitle, 
           handler: function() { XXV.tab.openTab('mll'); },
           iconCls:"media-icon",
@@ -264,6 +262,7 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
     ,styles: [
                ['xtheme-default.css',   'Default Theme']
               ,['xtheme-gray.css',      'Gray']
+              ,['xtheme-slate.css',     'Slate']
               ,['xtheme-darkgray.css',  'Dark Gray']
               ,['xtheme-black.css',     'Black']
               ,['xtheme-olive.css',     'Olive']

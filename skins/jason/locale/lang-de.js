@@ -223,6 +223,21 @@ Ext.xxv.usersGrid.prototype.szLoadException = "Konnte keine Daten über die Anwe
 Ext.xxv.usersGrid.prototype.szDeleteSuccess = "Anwenderzugang erfolgreich gelöscht.\r\n{0}";
 Ext.xxv.usersGrid.prototype.szDeleteFailure = "Konnte Anwenderzugang nicht löschen!\r\n{0}";
 
+
+Ext.xxv.musicGrid.prototype.szTitle = "Musik";
+Ext.xxv.musicGrid.prototype.szToolTip = "Liste von Musiktitel anzeigen";
+Ext.xxv.musicGrid.prototype.szFindTitle = "Suche Titel";
+Ext.xxv.musicGrid.prototype.szPlaying = "Wiedergabe";
+Ext.xxv.musicGrid.prototype.szColAlbum = "Album";
+Ext.xxv.musicGrid.prototype.szColArtist = "Künstler";
+Ext.xxv.musicGrid.prototype.szColTitle = "Titel";
+Ext.xxv.musicGrid.prototype.szColDuration = "Länge";
+Ext.xxv.musicGrid.prototype.szColTrack = "Track";
+Ext.xxv.musicGrid.prototype.szColYear = "Jahr";
+Ext.xxv.musicGrid.prototype.szColGenre = "Genre";
+Ext.xxv.musicGrid.prototype.szColComment = "Kommentar";
+Ext.xxv.musicGrid.prototype.szLoadException = "Konnte keine Titel der Musikliste holen!\r\n{0}";
+
 Ext.xxv.MonitorWindow.prototype.szTitle = "Monitor";
 
 Ext.xxv.RemoteWindow.prototype.szTitle = "Fernbedienung";

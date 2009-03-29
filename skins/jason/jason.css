@@ -113,6 +113,8 @@ display:none;
 .preview-bottom {       background-image:url(pic/preview-bottom.png) !important; }
 .preview-right {        background-image:url(pic/preview-right.png) !important; }
 .preview-hide {         background-image:url(pic/preview.png) !important; }
+.music-icon {           background-image:url(pic/audio.png) !important; }
+.playing-music-icon {   background-image:url(pic/audio.png) !important; }
 
 .x-tree-selected {
 border:1px dotted #a3bae9;

@@ -7,8 +7,12 @@
  * $Id$
  */
 /******************************************************************************/
+clearDate = function() {
+	return new Date(2009,01,01,00,00,00); 
+}
+
 SecondsToHMS = function(t) {
-  return new Date(new Date().clearTime().getTime()+(t * 1000)).dateFormat('H:i:s')
+  return new Date(clearDate().getTime()+(t * 1000)).dateFormat('H:i:s');
 }
 
 /******************************************************************************/
@@ -213,7 +217,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 
           thisImage.on("click", function(e, ele){
             if (!image.onSelected || !(image.onSelected.call(this, image, e, ele )===false)){
-              this.fireEvent('selected', this, new Date(new Date().clearTime().getTime()+(image.frame * 40)), e, ele);
+              this.fireEvent('selected', this, new Date(clearDate().getTime()+(image.frame * 40)), e, ele);
 
               var slider = this.slider.getSlider('cutpoint_thumb');
               slider.value = image.frame/25;
@@ -245,7 +249,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 			this.ts.on('drag',
 				function() {
 					var v = parseInt(this.ts.value * 1000);
-					this.fireEvent('selected', this, new Date((new Date().clearTime().getTime())+v), null, null);
+					this.fireEvent('selected', this, new Date((clearDate().getTime())+v), null, null);
 			},this);
 		}
 
@@ -1153,16 +1157,15 @@ function createRecordingsView(viewer,id) {
                 ,mode:'local'
                 ,width: 100
                 ,format: 'H:i:s'
+								,initDate: clearDate()
                 ,value: '00:00:00'
                 ,increment:5
-                ,minValue: new Date().clearTime()
-                ,maxValue: new Date().clearTime().add('mi', (24 * 60) - 1)
                 ,listeners: {
                   'expand': function(combo){
                       this.store.filterBy(function(record){ 
                         var begin = combo.minValue;
                         var end = combo.maxValue;
-                        var time = Date.parseDate(record.get('text'), combo.format); 
+                        var time = Date.parseDate("2009-01-01T" + record.get('text') + "Z","c"); 
                         return time.between(begin,end);
                       });
                     }
@@ -1292,10 +1295,9 @@ function createRecordingsView(viewer,id) {
                   this.doLayout();
                   this.record = record;
 
-                  this.timefield.duration = record.data.duration;
-                  this.timefield.minValue=new Date().clearTime();
-                  this.timefield.setValue(this.timefield.minValue);
+                  this.timefield.minValue=clearDate();
                   this.timefield.maxValue = new Date((this.timefield.minValue.getTime())+(record.data.duration * 1000));
+                  this.timefield.setValue(this.timefield.minValue);
   
                   // Enable all toolbar buttons
                   var items = this.topToolbar.items;

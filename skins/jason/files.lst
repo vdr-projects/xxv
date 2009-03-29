@@ -23,6 +23,7 @@ movetimers.js \
 autotimers.js \
 recordings.js \
 chronicle.js \
+music.js \
 users.js \
 vdr.js \
 menus.js  \

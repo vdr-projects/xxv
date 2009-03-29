@@ -184,6 +184,7 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
             case 'mtl':  return createMoveTimersView(this,id);
             case 'vl':   return createVDRView(this,id);
             case 'ul':   return createUsersView(this,id);
+            case 'ml':   return createMusicView(this,id);
           }
         
         return 0;
