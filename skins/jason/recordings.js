@@ -7,12 +7,52 @@
  * $Id$
  */
 /******************************************************************************/
-clearDate = function() {
-	return new Date(2009,01,01,00,00,00); 
+todayMidnight = function() {
+	return new Date().clearTime();
 }
 
+/* http://extjs.com/forum/showthread.php?p=145168#post145168 */
+Ext.override(Ext.form.TimeField, {
+	initComponent : function(){
+		Ext.form.TimeField.superclass.initComponent.call(this);
+
+		if(typeof this.minValue == "string"){
+			this.minValue = this.parseDate(this.minValue);
+		}
+		if(typeof this.maxValue == "string"){
+			this.maxValue = this.parseDate(this.maxValue);
+		}
+
+		if(!this.store){
+			var min = this.parseDate(this.minValue);
+			if(!min){
+				min = new Date().clearTime();
+			}
+			var max = this.parseDate(this.maxValue);
+			if(!max){
+				max = new Date().clearTime().add('mi', (24 * 60) - 1);
+			}
+			var times = [];
+			while(min <= max){
+				times.push([min.dateFormat(this.format)]);
+				var next_min = min.add('mi', this.increment);
+				if (next_min < min) {
+					// DST change detected. Trying to go over it.
+					next_min = next_min.add("mi", 120);
+				}
+				min = next_min;
+			}
+			this.store = new Ext.data.SimpleStore({
+				fields: ['text'],
+				data : times
+			});
+			this.displayField = 'text';
+		}
+	}
+});
+
 SecondsToHMS = function(t) {
-  return new Date(clearDate().getTime()+(t * 1000)).dateFormat('H:i:s');
+  return new Date(todayMidnight().getTime()+(t * 1000)).dateFormat('H:i:s');
 }
 
 /******************************************************************************/
@@ -217,7 +257,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 
           thisImage.on("click", function(e, ele){
             if (!image.onSelected || !(image.onSelected.call(this, image, e, ele )===false)){
-              this.fireEvent('selected', this, new Date(clearDate().getTime()+(image.frame * 40)), e, ele);
+              this.fireEvent('selected', this, new Date(todayMidnight().getTime()+(image.frame * 40)), e, ele);
 
               var slider = this.slider.getSlider('cutpoint_thumb');
               slider.value = image.frame/25;
@@ -249,7 +289,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 			this.ts.on('drag',
 				function() {
 					var v = parseInt(this.ts.value * 1000);
-					this.fireEvent('selected', this, new Date((clearDate().getTime())+v), null, null);
+					this.fireEvent('selected', this, new Date((todayMidnight().getTime())+v), null, null);
 			},this);
 		}
 
@@ -1157,16 +1197,18 @@ function createRecordingsView(viewer,id) {
                 ,mode:'local'
                 ,width: 100
                 ,format: 'H:i:s'
-								,initDate: clearDate()
+								,initDate: todayMidnight()
+                ,minValue: todayMidnight()
+                ,maxValue: todayMidnight().add('mi', (24 * 60) - 1)
                 ,value: '00:00:00'
                 ,increment:5
                 ,listeners: {
                   'expand': function(combo){
                       this.store.filterBy(function(record){ 
-                        var begin = combo.minValue;
-                        var end = combo.maxValue;
-                        var time = Date.parseDate("2009-01-01T" + record.get('text') + "Z","c"); 
-                        return time.between(begin,end);
+                        var b = combo.minValue;
+                        var e = combo.maxValue;
+                        var t = Date.parseDate(record.get('text'),combo.format); 
+                        return t.between(b,e);
                       });
                     }
                 }
@@ -1295,7 +1337,6 @@ function createRecordingsView(viewer,id) {
                   this.doLayout();
                   this.record = record;
 
-                  this.timefield.minValue=clearDate();
                   this.timefield.maxValue = new Date((this.timefield.minValue.getTime())+(record.data.duration * 1000));
                   this.timefield.setValue(this.timefield.minValue);
   
