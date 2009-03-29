@@ -223,20 +223,18 @@ sub module {
                             my $event = shift;
                             my $record  = getDataById($args->{id}, 'RECORDS', 'id');
                             my $epg = main::getModule('EPG')->getId($record->{eventid}, 'title, subtitle, description');
+														my $t = [$epg->{title}];
+														push(@$t,$epg->{subtitle}) if($epg->{subtitle});
 
-                            my $title = sprintf(gettext("Recording deleted: %s"), $epg->{title});
+                            my $topic = sprintf(gettext("Recording deleted: %s"),join('~',@$t));
 
                             my $description = '';
-                            if($epg->{subtitle}) {
-                               $description .= sprintf(gettext("Subtitle: %s"), $epg->{subtitle});
-                               $description .= "\r\n";
-                            }
                             if($epg->{description}) {
                                $description .= $epg->{description};
                                # $description .= "\r\n";
                             }
 
-                            main::getModule('EVENTS')->news($title, $description, "display", $record->{eventid}, $event->{Level});
+                            main::getModule('EVENTS')->news($topic, $description, "display", $record->{eventid}, $event->{Level});
                         }
                     |,
                 ],
