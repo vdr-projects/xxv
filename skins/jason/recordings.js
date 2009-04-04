@@ -7,52 +7,62 @@
  * $Id$
  */
 /******************************************************************************/
-todayMidnight = function() {
-	return new Date().clearTime();
-}
 
-/* http://extjs.com/forum/showthread.php?p=145168#post145168 */
+
+/* http://extjs.com/forum/showthread.php?p=309913#post309913 */
 Ext.override(Ext.form.TimeField, {
-	initComponent : function(){
-		Ext.form.TimeField.superclass.initComponent.call(this);
+    // private
+    initDate: '01/01/2008',
 
-		if(typeof this.minValue == "string"){
-			this.minValue = this.parseDate(this.minValue);
-		}
-		if(typeof this.maxValue == "string"){
-			this.maxValue = this.parseDate(this.maxValue);
-		}
+    // private
+    initDateFormat: 'd/m/Y',
 
-		if(!this.store){
-			var min = this.parseDate(this.minValue);
-			if(!min){
-				min = new Date().clearTime();
-			}
-			var max = this.parseDate(this.maxValue);
-			if(!max){
-				max = new Date().clearTime().add('mi', (24 * 60) - 1);
-			}
-			var times = [];
-			while(min <= max){
-				times.push([min.dateFormat(this.format)]);
-				var next_min = min.add('mi', this.increment);
-				if (next_min < min) {
-					// DST change detected. Trying to go over it.
-					next_min = next_min.add("mi", 120);
-				}
-				min = next_min;
-			}
-			this.store = new Ext.data.SimpleStore({
-				fields: ['text'],
-				data : times
-			});
-			this.displayField = 'text';
-		}
-	}
+    initComponent : function(){
+        Ext.form.TimeField.superclass.initComponent.call(this);
+
+        this.minValue = this.parseDate(this.minValue) || Date.parseDate(this.initDate, this.initDateFormat).clearTime();;
+        this.maxValue = this.parseDate(this.maxValue) || this.minValue.add('mi', (24 * 60) - 1);
+
+        if(!this.store){
+            var times = [],
+                min = this.minValue,
+                max = this.maxValue;
+            while(min <= max){
+                times.push([min.dateFormat(this.format)]);
+                min = min.add('mi', this.increment);
+            }
+            this.store = new Ext.data.SimpleStore({
+                fields: ['text'],
+                data : times
+            });
+            this.displayField = 'text';
+        }
+    },
+    
+    parseDate : function(value){
+        if(!value || Ext.isDate(value)){
+            return value;
+        }
+        var v = Date.parseDate(this.initDate + ' ' + value, this.initDateFormat + ' ' + this.format);
+        if(!v && this.altFormats){
+            if(!this.altFormatsArray){
+                this.altFormatsArray = this.altFormats.split("|");
+            }
+            for(var i = 0, len = this.altFormatsArray.length; i < len && !v; i++){
+                v = Date.parseDate(this.initDate + ' ' + value, this.initDateFormat + ' ' + this.altFormatsArray[i]);
+            }
+        }
+        return v;
+    }    
 });
 
+minTime = function() {
+	return Date.parseDate(Ext.form.TimeField.prototype.initDate, 
+                        Ext.form.TimeField.prototype.initDateFormat).clearTime();
+}
+
 SecondsToHMS = function(t) {
-  return new Date(todayMidnight().getTime()+(t * 1000)).dateFormat('H:i:s');
+  return new Date(minTime().getTime()+(t * 1000)).dateFormat('H:i:s');
 }
 
 /******************************************************************************/
@@ -257,7 +267,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 
           thisImage.on("click", function(e, ele){
             if (!image.onSelected || !(image.onSelected.call(this, image, e, ele )===false)){
-              this.fireEvent('selected', this, new Date(todayMidnight().getTime()+(image.frame * 40)), e, ele);
+              this.fireEvent('selected', this, new Date(minTime().getTime()+(image.frame * 40)), e, ele);
 
               var slider = this.slider.getSlider('cutpoint_thumb');
               slider.value = image.frame/25;
@@ -289,7 +299,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 			this.ts.on('drag',
 				function() {
 					var v = parseInt(this.ts.value * 1000);
-					this.fireEvent('selected', this, new Date((todayMidnight().getTime())+v), null, null);
+					this.fireEvent('selected', this, new Date((minTime().getTime())+v), null, null);
 			},this);
 		}
 
@@ -1197,9 +1207,6 @@ function createRecordingsView(viewer,id) {
                 ,mode:'local'
                 ,width: 100
                 ,format: 'H:i:s'
-								,initDate: todayMidnight()
-                ,minValue: todayMidnight()
-                ,maxValue: todayMidnight().add('mi', (24 * 60) - 1)
                 ,value: '00:00:00'
                 ,increment:5
                 ,listeners: {
@@ -1207,7 +1214,7 @@ function createRecordingsView(viewer,id) {
                       this.store.filterBy(function(record){ 
                         var b = combo.minValue;
                         var e = combo.maxValue;
-                        var t = Date.parseDate(record.get('text'),combo.format); 
+                        var t = Date.parseDate(combo.initDate + ' ' + record.get('text'), combo.initDateFormat + ' ' + combo.format);
                         return t.between(b,e);
                       });
                     }
