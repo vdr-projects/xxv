@@ -159,6 +159,10 @@ Ext.xxv.recordingsDataView.prototype.szUpgradeWait = "Bitte warten...";
 Ext.xxv.recordingsDataView.prototype.szUpgradeSuccess = "Liste der Aufnahmen erfolgreich aktualisieren!\r\n{0}";
 Ext.xxv.recordingsDataView.prototype.szUpgradeFailure = "Konnte Liste der Aufnahmen nicht aktualisieren!\r\n{0}";
 Ext.xxv.recordingsDataView.prototype.szDetailsFailure = "Konnte Details der Aufnahme nicht aktualisieren!\r\n{0}";
+Ext.xxv.recordingsDataView.prototype.szRecordingTip = "{0} {1} - {2} ({3})<br />{4}";
+Ext.xxv.recordingsDataView.prototype.szFolderTip0 = "Enthält {0} Aufnahmen<br />Gesamtzeit {1}";
+Ext.xxv.recordingsDataView.prototype.szFolderTip1 = "Enthält {0} Aufnahmen<br />Eine neue Aufnahme<br />Gesamtzeit {2}";
+Ext.xxv.recordingsDataView.prototype.szFolderTip2 = "Enthält {0} Aufnahmen<br />{1} neue Aufnahmen<br />Gesamtzeit {2}";
 
 Ext.xxv.searchGrid.prototype.szTitle = "Suche";
 Ext.xxv.searchGrid.prototype.szFindReRun = "Suche Wiederholung";

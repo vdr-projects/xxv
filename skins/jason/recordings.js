@@ -152,7 +152,10 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
         this.param.keywords = k.join(', ');
       }
 
-      var title = data.fulltitle.split("~");
+      var title = data.title.split("~");
+      if(data.subtitle && data.subtitle.length >1) {
+        title.push(data.subtitle);
+      }
       if(title.length >1) {
         this.param.subtitle = title.pop();
         this.param.title = title.join("~");
@@ -537,18 +540,18 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
         '<div class="thumb-wrap" id="{id}">',
 		    '<div class="thumb">',
         '<tpl if="isrecording == 0">',
-            '<img src="pic/folder.png"<tpl if="group != 0"> ext:qtitle="{shortTitle}" ext:qtip="{group} recordings ({period})"</tpl>/>',
+            '<img src="pic/folder.png"<tpl if="group != 0"> ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}"</tpl>/>',
         '</tpl>',
         '<tpl if="isrecording != 0">',
         '<tpl if="this.isRadio(type)">',
-            '<img src="pic/radio.png" ext:qtitle="{shortTitle}" ext:qtip="{day:date} - {start} - {stop} ({period})<br />{shortDesc}" />',
+            '<img src="pic/radio.png" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
         '</tpl>',
         '<tpl if="this.isRadio(type) == false">',
             '<tpl if="frame == -1">',
-                '<img src="pic/movie.png" ext:qtitle="{shortTitle}" ext:qtip="{day:date} - {start} - {stop} ({period})<br />{shortDesc}" />',
+                '<img src="pic/movie.png" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
             '</tpl>',
             '<tpl if="frame != -1">',
-                '<img src="?cmd=ri&data={id}_{frame}" ext:qtitle="{shortTitle}" ext:qtip="{day:date} - {start} - {stop} ({period})<br />{shortDesc}" />',
+                '<img src="?cmd=ri&data={id}_{frame}" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
             '</tpl>',
         '</tpl>',
         '</tpl>',
@@ -575,6 +578,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
               ,query:'data'
         }
     });
+
     Ext.xxv.recordingsDataView.superclass.constructor.call(this, {
                     region: 'center'
                     ,store: store
@@ -600,17 +604,46 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
                       } else {
                         data.shortName = Ext.util.Format.ellipsis(data.fulltitle, 16);
                       }
-                      data.shortTitle = Ext.util.Format.ellipsis(data.fulltitle, 50).replace(/\"/g,'\'');
-                      data.shortDesc = Ext.util.Format.ellipsis(data.description, 50).replace(/\"/g,'\'');
-                      data.start = data.day.dateFormat('H:i');
-                      data.stop =  new Date(data.day.getTime() + (data.duration * 1000)).dateFormat('H:i');
-                      data.period =  SecondsToHMS(data.duration);
-                      var frames = data.preview.split(",");
-                      if(data.preview.length && frames.length) {
-                        var item = (frames.length) / 2;
-                        data.frame = frames[item.toFixed(0)];
+                      data.shortTitle = Ext.util.Format.ellipsis(data.fulltitle, 40).replace(/\"/g,'\'');
+
+                      if(data.isrecording) {
+                        var frames = data.preview.split(",");
+                        if(data.preview.length && frames.length) {
+                          var item = (frames.length) / 2;
+                          data.frame = frames[item.toFixed(0)];
+                        } else {
+                          data.frame = -1;
+                        }
+
+                        data.ToolTip = String.format(this.szRecordingTip, 
+                            Ext.util.Format.date(data.day), 
+                            String(new Date(data.day.getTime()).dateFormat('H:i')), 
+                            String(new Date(data.day.getTime() + (data.duration * 1000)).dateFormat('H:i')), 
+                            SecondsToHMS(data.duration),
+                            Ext.util.Format.ellipsis(data.description, 50).replace(/\"/g,'\'')
+                        );
+  
                       } else {
-                        data.frame = -1;
+                        if(data.unviewed) {
+                          if(data.unviewed == 1) {
+                            data.ToolTip = String.format(this.szFolderTip1, 
+                                String(data.group), 
+                                String(data.unviewed), 
+                                SecondsToHMS(data.duration)
+                            );
+                          } else {
+                            data.ToolTip = String.format(this.szFolderTip2, 
+                                String(data.group), 
+                                String(data.unviewed), 
+                                SecondsToHMS(data.duration)
+                            );
+                          }
+                        } else {
+                          data.ToolTip = String.format(this.szFolderTip0, 
+                              String(data.group), 
+                              SecondsToHMS(data.duration)
+                          );
+                        }
                       }
                       return data;
                     }
@@ -658,7 +691,11 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,szUpgradeWait    : "Please wait..."
     ,szUpgradeSuccess : "List of recordings update successful.\r\n{0}"
     ,szUpgradeFailure : "Couldn't update list of recordings!\r\n{0}"
-	,szDetailsFailure : "Couldn't update details of recording!\r\n{0}"
+    ,szDetailsFailure : "Couldn't update details of recording!\r\n{0}"
+    ,szRecordingTip   : "{0} {1} - {2} ({3})<br />{4}"
+    ,szFolderTip0     : "There are {0} recordings<br />Total time {1}"
+    ,szFolderTip1     : "There are {0} recordings<br />Have a new recording<br />Total time {2}"
+    ,szFolderTip2     : "There are {0} recordings<br />Have {1} new recordings<br />Total time {2}"
 
     ,onLoadException :  function( scope, o, arg, e) {
 	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
@@ -1103,6 +1140,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
             url: XXV.help.cmdAJAX('rpv',{ data: record.data.id, '__start':begin })
            ,success: this.onPlaySuccess
            ,failure: this.onPlayFailure
+           ,scope: this
         });
       }
   },
