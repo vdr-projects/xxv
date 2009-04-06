@@ -52,17 +52,17 @@ Ext.xxv.MainMenu = function(/*config*/){
            ,iconCls: 'setup-icon'
            ,menu: XXV.configMenu
         },'-',{
-          text: Ext.xxv.movetimersGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('mtl'); },
-          iconCls:"movetimers-icon"
+           text: Ext.xxv.movetimersGrid.prototype.szTitle
+          ,handler: function() { XXV.tab.openTab('mtl'); }
+          ,iconCls:"movetimers-icon"
         },{   
-          text: Ext.xxv.vdrGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('vl'); },
-          iconCls:"vdr-icon"
+           text: Ext.xxv.vdrGrid.prototype.szTitle
+          ,handler: function() { XXV.tab.openTab('vl'); }
+          ,iconCls:"vdr-icon"
         },{   
-          text: Ext.xxv.usersGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('ul'); },
-          iconCls:"users-icon"
+           text: Ext.xxv.usersGrid.prototype.szTitle
+          ,handler: function() { XXV.tab.openTab('ul'); }
+          ,iconCls:"users-icon"
         }
        ]
     });
@@ -89,14 +89,14 @@ Ext.xxv.MainMenu = function(/*config*/){
     {
       items:[
         {
-          text: Ext.xxv.autotimerGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('al'); },
-          iconCls:"autotimer-icon"
+           text: Ext.xxv.autotimerGrid.prototype.szTitle 
+          ,handler: function() { XXV.tab.openTab('al'); }
+          ,iconCls:"autotimer-icon"
         }, 
         {
-          text: Ext.xxv.timerGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('tl'); },
-          iconCls:"timer-icon"
+           text: Ext.xxv.timerGrid.prototype.szTitle
+          ,handler: function() { XXV.tab.openTab('tl'); }
+          ,iconCls:"timer-icon"
         }
        ]
     });
@@ -105,18 +105,18 @@ Ext.xxv.MainMenu = function(/*config*/){
     {
       items:[
         {
-          text: Ext.xxv.recordingsDataView.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('rl'); },
-          iconCls:"recordings-icon"
+           text: Ext.xxv.recordingsDataView.prototype.szTitle
+          ,handler: function() { XXV.tab.openTab('rl'); }
+          ,iconCls:"recordings-icon"
         }
         ,{
-          text: Ext.xxv.chronicleGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('chrl'); },
-          iconCls:"chronicle-icon"
+           text: Ext.xxv.chronicleGrid.prototype.szTitle
+          ,handler: function() { XXV.tab.openTab('chrl'); }
+          ,iconCls:"chronicle-icon"
         },{
-          text: Ext.xxv.musicGrid.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('ml'); },
-          iconCls:"music-icon",
+          text: Ext.xxv.musicGrid.prototype.szTitle
+          ,handler: function() { XXV.tab.openTab('ml'); }
+          ,iconCls:"music-icon"
         }/*,{
           text: Ext.xxv.mediaDataView.prototype.szTitle, 
           handler: function() { XXV.tab.openTab('mll'); },
@@ -130,14 +130,14 @@ Ext.xxv.MainMenu = function(/*config*/){
     {
       items:[
         {
-          text: Ext.xxv.RemoteWindow.prototype.szTitle, 
-          handler: function() { Ext.xxv.RemoteWindowOpen(); },
-          iconCls:"remote-icon"
+          text: Ext.xxv.RemoteWindow.prototype.szTitle
+          ,handler: function() { Ext.xxv.RemoteWindowOpen(); }
+          ,iconCls:"remote-icon"
         }
         ,{
-          text: Ext.xxv.MonitorWindow.prototype.szTitle, 
-          handler: function() { Ext.xxv.MonitorWindowOpen(); },
-          iconCls:"monitor-icon"
+          text: Ext.xxv.MonitorWindow.prototype.szTitle
+          ,handler: function() { Ext.xxv.MonitorWindowOpen(); }
+          ,iconCls:"monitor-icon"
         }
        ]
     });
@@ -300,10 +300,10 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
 /******************************************************************************/
     ,Logout: function(){
         Ext.MessageBox.show({
-                   title: 'Logout',
-                   msg: 'Please wait...',
-                   width:240,
-                   closable:false,
+                   title: 'Logout'
+                   ,msg: 'Please wait...'
+                   ,width:240
+                   ,closable:false
                });
       Ext.Ajax.request({
           url: XXV.help.cmdAJAX('logout')
@@ -311,9 +311,9 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
 	    setTimeout(function(){
             XXV.viewport.container.fadeOut(
               {
-                  remove:true,
-                  duration: .5, 
-                  callback:function(){
+                  remove:true
+                  ,duration: .5
+                  ,callback:function(){
                     Ext.MessageBox.updateText('Session closed!');
                   }
               }

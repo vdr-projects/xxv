@@ -78,7 +78,7 @@ Ext.xxv.MessageBox.prototype = {
             m.slideIn('t').pause(delay).ghost("t", {remove:true,scope: this,callback:this.remove});
         }
         ,init : function(){ }
-        ,remove : function() {delete this;}
+        ,remove : function() {var x = this; delete x;}
         ,createBox : function(t, s){
           return ['<div class="msg">',
                   '<div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>',
