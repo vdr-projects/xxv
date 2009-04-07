@@ -228,22 +228,42 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
                 items: [{
-                    text: this.szFindReRun,
-                    iconCls: 'find-icon',
-                    scope:this,
-                    handler: function(){ this.viewer.searchTab(this.ctxRecord); }
+                     id:'s'
+                    ,text: this.szFindReRun
+                    ,iconCls: 'find-icon'
+                    ,scope: this
+                    ,disabled: true
+                    ,handler: function(){ this.viewer.searchTab(this.ctxRecord); }
                     },{
-                    text: this.szProgram,
-                    iconCls: 'program-icon',
-                    scope:this,
-                    handler: function(){ 
+                     id:'p'
+                    ,text: this.szProgram
+                    ,iconCls: 'program-icon'
+                    ,scope: this
+                    ,disabled: true
+                    ,handler: function(){ 
                       var data = {'id':this.ctxRecord.data.chid,'name':this.ctxRecord.data.channel};
                       this.viewer.openProgram(data); }
                     },{
-                    text: this.szRecord,
-                    iconCls: 'record-icon',
-                    scope:this,
-                    handler: function(){ this.Record(this.ctxRecord); }
+                     id:'tn'
+                    ,text: this.szRecord
+                    ,iconCls: 'record-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function(){ this.Record(this.ctxRecord); }
+                    },'-',{
+                     id:'lst'
+                    ,iconCls:'stream-icon'
+                    ,text: XXV.side.webcastText
+                    ,scope: this
+                    ,disabled: true
+                    ,handler: function(){ XXV.side.onWebCastChannel(this.ctxRecord.data.chid); }
+                    },{
+                     id:'sw'
+                    ,iconCls: 'switch-icon'
+                    ,text: XXV.side.switchText
+                    ,scope: this
+                    ,disabled: true
+                    ,handler: function(){ XXV.side.onSwitchChannel(this.ctxRecord.data.chid); }
                     }
                 ]
             });
@@ -257,6 +277,18 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         this.ctxRow = this.view.getRow(index);
         this.ctxRecord = this.store.getAt(index);
         Ext.fly(this.ctxRow).addClass('x-node-ctx');
+
+        var items = this.menu.items;
+        if(items) { items.eachKey(function(key, f) { 
+                      if(XXV.help.cmdAllowed(key)) 
+                        f.enable();
+                      },items); 
+                  }
+
+        var follow = this.store.baseParams.cmd != 'n' || this.store.baseParams.data; 
+        this.menu.items.get('lst').setDisabled(follow);
+        this.menu.items.get('sw').setDisabled(follow);
+
         this.menu.showAt(e.getXY());
     }
 

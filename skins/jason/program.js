@@ -143,16 +143,20 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
                 items: [{
-                    text: this.szFindReRun,
-                    iconCls: 'find-icon',
-                    scope:this,
-                    handler: function(){ this.viewer.searchTab(this.ctxRecord); }
+                     id:'s'
+                    ,text: this.szFindReRun
+                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function(){ this.viewer.searchTab(this.ctxRecord); }
                     }
                    ,{
-                    text: this.szRecord,
-                    iconCls: 'record-icon',
-                    scope:this,
-                    handler: function(){ this.Record(null); }
+                     id:'tn'
+                    ,text: this.szRecord
+                    ,iconCls: 'record-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function(){ this.Record(null); }
                     }
                 ]
             });
@@ -166,6 +170,14 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
         this.ctxRow = this.view.getRow(index);
         this.ctxRecord = this.store.getAt(index);
         Ext.fly(this.ctxRow).addClass('x-node-ctx');
+
+        var items = this.menu.items;
+        if(items) { items.eachKey(function(key, f) { 
+                      if(XXV.help.cmdAllowed(key)) 
+                        f.enable();
+                      },items); 
+                  }
+
         this.menu.showAt(e.getXY());
     }
 
