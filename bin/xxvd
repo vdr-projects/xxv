@@ -42,7 +42,7 @@ $|++;
 
 my $REV = (split(/ /, '$Revision$'))[1];
 my $MODULES;
-my $VERSION = '1.3'; 
+my $VERSION = '1.4'; 
 my $VDRVERSION = 0;
 my $DBVERSION = 0;
 my $CLEANUP;

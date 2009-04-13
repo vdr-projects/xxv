@@ -4,7 +4,7 @@
 # $Id$
 
 XXV = xxv
-VERSION = 1.3
+VERSION = 1.4
 
 ### The name of the distribution archive:
 
@@ -15,7 +15,6 @@ TMPDIR = /tmp
 ### The subdirectories:
 
 ### Targets:
-INCLUDE = bin contrib doc etc html share lib locale wml README INSTALL Makefile install.sh install-debian.sh
 EXCLUDE = "*~" "*.bak" "*.org" "*.diff" "xxvd.pid" "$(XXV)-*.tgz"
 
 
@@ -28,14 +27,10 @@ clean:
 
 tmpfolder:
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
-	@mkdir -p $(TMPDIR)/$(ARCHIVE)/contrib/
 
 copyfiles:
-	@for i in $(INCLUDE) ;\
-	do \
-	    cp -a $$i $(TMPDIR)/$(ARCHIVE) \
-	|| exit 1;\
-	done
+	@svn export . $(TMPDIR)/$(ARCHIVE)
+
 
 removefiles:
 	@for i in $(EXCLUDE) ;\
@@ -69,8 +64,8 @@ setpermission:
 	@chmod a+x $(TMPDIR)/$(ARCHIVE)/install.sh
 
 dist: tmpfolder\
-    updatesql\
     copyfiles\
+    updatesql\
     removefiles\
     updateversion\
     setpermission

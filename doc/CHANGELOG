@@ -188,7 +188,7 @@ Changes and bug fixes inside modules:
 + Use regular expressions to compare transponder source to detect collision like '(S19.2E|S13.0),T'
 + rewrite event/news handling
 + dump news event if timer adjusted
-+ Store parameter aux inside timer now as xml structure (autotimautotimer id, keywords)
++ Store parameter aux inside timer now as xml structure (autotimer id, keywords)
 + tlist: display used recorder
 + tlist: add paging support by &start= .. &limit=
 + add more parameter check 
