@@ -11,32 +11,33 @@
 # processname: xxvd
 # config: xxvd.cfg
 #
-# to Setup, where is xxvd located
-# In welchem Ordner befindet sich bin/xxvd
+# Need to setup :
+# Define FOLDER directory, ( $FOLDER/bin/xxvd )
 FOLDER="/root/XXV"
 
+# How verbose should log file (0 ... 5)
+VERBOSE="3"
 
 # Run as noprivileged user, else set empty
-RUNAS="root"
+RUNAS="vdr"
 
 # Which translation is used
 LANGUAGE="de_DE@euro";
 
-# See how we were called.
-PROG="bin/xxvd"
-
+# Adjust some moduls directories
 MODPATH="$FOLDER/lib/XXV/MODULES"
 CONFIG="$FOLDER/etc/xxvd.cfg"
-PIDFILE="/var/run/xxvd.pid"
 HTMLDIR="$FOLDER/"
 DOCUDIR="$FOLDER/doc/"
 PODDIR="$FOLDER/doc/"
-LOGFILE="/var/log/xxvd.log"
 CONTRIB="$FOLDER/contrib"
 NEWSMODS="$FOLDER/lib/XXV/OUTPUT/NEWS"
 NEWSTMPL="$FOLDER/share/news"
-VERBOSE="3"
 
+PIDFILE="/var/run/xxvd.pid"
+LOGFILE="/var/log/xxvd.log"
+
+# Create options from 
 OPTIONS="--configfile $CONFIG \
          --logfile $LOGFILE \
          --pidfile $PIDFILE \
@@ -49,37 +50,51 @@ OPTIONS="--configfile $CONFIG \
          --moduledir $MODPATH \
          --verbose $VERBOSE"
 
+# See how we were called.
+PROG="bin/xxvd"
+
 start() {
-	echo -n "Start $PROG: "
-	su - $RUNAS -c "export LANG="$LANGUAGE";cd $FOLDER;nice -n 10 ./$PROG $OPTIONS"
+  echo -n "Start $PROG: "
+
+  if [ -r "$PIDFILE" ]; then
+    PID=$(cat "$PIDFILE")
+    if [ -r "/proc/$PID/cmdline" ]; then
+      grep "xxvd" /proc/$PID/cmdline >/dev/null 2>&1 \
+        || rm -f "$PIDFILE"
+    else
+      rm -f "$PIDFILE"
+    fi
+  fi
+
+  su - $RUNAS -c "export LANG="$LANGUAGE";cd $FOLDER;nice -n 10 ./$PROG $OPTIONS"
 }
 
 stop() {
-	echo -n "Stop $PROG: "
-	su - $RUNAS -c "export LANG="$LANGUAGE";cd $FOLDER;./$PROG --kill $OPTIONS"
+  echo -n "Stop $PROG: "
+  su - $RUNAS -c "export LANG="$LANGUAGE";cd $FOLDER;./$PROG --kill $OPTIONS"
 }
 
 restart() {
-  	stop
-	start
+  stop
+  start
 }
 
 case "$1" in
   start)
-  	start
-	exit 0;
-	;;
+    start
+    exit 0;
+    ;;
   stop)
-  	stop
-	exit 0;
-	;;
+    stop
+    exit 0;
+    ;;
   restart)
-  	restart
-	exit 0;
-	;;
+    restart
+    exit 0;
+    ;;
   *)
-	echo $"Usage: $0 {start|stop|status|restart}"
-	exit 1
+    echo $"Usage: $0 {start|stop|status|restart}"
+    exit 1
 esac
 
 exit $?
