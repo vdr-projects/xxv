@@ -957,7 +957,7 @@ static bool opt_input_file(const char *filename)
     int64_t timestamp;
 
     /* get default parameters from command line */
-    ic = av_alloc_format_context();
+    ic = avformat_alloc_context();
 
     memset(ap, 0, sizeof(*ap));
     ap->prealloced_context = 1;
@@ -1200,7 +1200,7 @@ static bool opt_output_file(const char *filename)
     int use_video, input_has_video = 0;
     AVFormatParameters params, *ap = &params;
 
-    oc = av_alloc_format_context();
+    oc = avformat_alloc_context();
 
     if (!file_oformat) {
         file_oformat = guess_format(NULL, filename, NULL);

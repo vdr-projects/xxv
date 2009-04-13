@@ -34,9 +34,11 @@ TMPDIR = /tmp
 # there none user configurable options below this point
 #
 ################################################################################
-
+ifdef DESTDIR
 INSTALLDIR = $(DESTDIR)/$(INSTALLBINDIR)
-
+else
+INSTALLDIR = $(INSTALLBINDIR)
+endif
 ################################################################################
 # Compiler/linker settings
 CXX      ?= g++
