@@ -97,7 +97,6 @@ previewcount=5
 previewimages=/var/cache/xxv/preview
 previewlistthumbs=n
 vfat=y
-videodir=/video
 
 [REMOTE]
 active=y
@@ -126,8 +125,6 @@ host=192.168.0.23
 netvideo=\\192.168.0.23\video
 
 [SVDRP]
-VdrHost=localhost
-VdrPort=2001
 timeout=60
 
 [TELNET]

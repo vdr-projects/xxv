@@ -918,7 +918,11 @@ sub _readData {
     } else {
       $self->{CapacityFree} = int($totalFree * 3600 / 2000); # use 2GB at one hour as base
     }
-    $self->{CapacityPercent}  = ($totalSpace * 100 / ($totalFree + $totalSpace));
+    if(($totalFree + $totalSpace) > 1) {
+      $self->{CapacityPercent}  = ($totalSpace * 100 / ($totalFree + $totalSpace));
+    } else {
+      $self->{CapacityPercent}  = 0;
+    }
 
 
 
