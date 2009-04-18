@@ -1,21 +1,7 @@
--- MySQL dump 10.11
---
--- Host: localhost    Database: xxv
--- ------------------------------------------------------
--- Server version	5.0.51a-24
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
 --
 -- Table structure for table `AUTOTIMER`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `AUTOTIMER` (
   `Id` int(11) unsigned NOT NULL auto_increment,
   `Activ` enum('y','n') default 'y',
@@ -39,14 +25,11 @@ CREATE TABLE IF NOT EXISTS `AUTOTIMER` (
   `keywords` text,
   PRIMARY KEY  (`Id`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `CHRONICLE`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `CHRONICLE` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `hash` varchar(16) NOT NULL default '',
@@ -57,14 +40,11 @@ CREATE TABLE IF NOT EXISTS `CHRONICLE` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `hash` (`hash`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `MEDIALIB_ACTORS`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `MEDIALIB_ACTORS` (
   `name` varchar(255) NOT NULL default '',
   `actorid` varchar(15) NOT NULL default '',
@@ -72,14 +52,11 @@ CREATE TABLE IF NOT EXISTS `MEDIALIB_ACTORS` (
   `checked` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`name`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `MEDIALIB_VIDEODATA`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `MEDIALIB_VIDEODATA` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `md5` varchar(32) default NULL,
@@ -122,27 +99,21 @@ CREATE TABLE IF NOT EXISTS `MEDIALIB_VIDEODATA` (
   FULLTEXT KEY `actors_idx` (`actors`),
   FULLTEXT KEY `comment` (`comment`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `MEDIALIB_VIDEOGENRE`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `MEDIALIB_VIDEOGENRE` (
   `video_id` int(10) unsigned NOT NULL default '0',
   `genre_id` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`video_id`,`genre_id`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `MOVETIMER`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `MOVETIMER` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `sourcevid` int(10) unsigned NOT NULL default '1',
@@ -154,14 +125,11 @@ CREATE TABLE IF NOT EXISTS `MOVETIMER` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `sourcevid` (`sourcevid`,`source`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `USER`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `USER` (
   `Id` int(11) unsigned NOT NULL auto_increment,
   `Name` varchar(100) NOT NULL default '',
@@ -174,14 +142,11 @@ CREATE TABLE IF NOT EXISTS `USER` (
   `MaxPriority` tinyint(2) default '0',
   PRIMARY KEY  (`Id`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `XMLTV`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `XMLTV` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `active` enum('y','n') default 'n',
@@ -195,14 +160,11 @@ CREATE TABLE IF NOT EXISTS `XMLTV` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `vid` (`vid`,`channel`)
 );
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `RECORDER`
 --
 
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE IF NOT EXISTS `RECORDER` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `active` enum('y','n') default 'y',
@@ -213,12 +175,3 @@ CREATE TABLE IF NOT EXISTS `RECORDER` (
   `videodirectory` text,
   PRIMARY KEY  (`id`)
 );
-SET character_set_client = @saved_cs_client;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2009-04-13  9:58:19

@@ -65,7 +65,6 @@ setpermission:
 
 dist: tmpfolder\
     copyfiles\
-    updatesql\
     removefiles\
     updateversion\
     setpermission
