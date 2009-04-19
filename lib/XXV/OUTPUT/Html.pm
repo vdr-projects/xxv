@@ -419,7 +419,7 @@ sub statusmsg {
             400 => '400 Bad Request',
             401 => '401 Unauthorized',
             403 => '403 Forbidden',
-            403 => '404 Not Found',
+            404 => '404 Not Found',
             405 => '405 Not Allowed',
             408 => '408 Request Timed Out',
             500 => '500 Internal Server Error',

@@ -45,16 +45,16 @@ sub AUTOLOAD {
 # ------------------
 sub new {
 # ------------------
-	my($class, %attr) = @_;
-	my $self = {};
-	bless($self, $class);
+    my($class, %attr) = @_;
+    my $self = {};
+    bless($self, $class);
 
-  $self->{charset} = delete $attr{'-charset'} || 'ISO-8859-1';
-  if($self->{charset} eq 'UTF-8'){
-    eval 'use utf8';
-  }
+    $self->{charset} = delete $attr{'-charset'} || 'ISO-8859-1';
+    if($self->{charset} eq 'UTF-8'){
+      eval 'use utf8';
+    }
 
-	# who am I
+    # who am I
     $self->{MOD} = $self->module;
 
     # Try to use the Requirments
@@ -81,20 +81,20 @@ sub new {
     $self->{debug} = $attr{'-debug'}
         || 0;
 
-		$self->{types} = {
-			'xml'  => 'application/xml; charset='. $self->{charset},
- 			'json' => 'application/json; charset='. $self->{charset},
-			'text' => 'text/plain; charset='. $self->{charset},
-		};
+    $self->{types} = {
+      'xml'  => 'application/xml; charset='. $self->{charset},
+      'json' => 'application/json; charset='. $self->{charset},
+      'text' => 'text/plain; charset='. $self->{charset},
+    };
 
-		# New JSON Object if required
-		if($self->{outtype} eq 'json') {
-			$self->{json} = JSON->new()
+    # New JSON Object if required
+    if($self->{outtype} eq 'json') {
+      $self->{json} = JSON->new()
         || return error("Can't create JSON instance!");
-		}	elsif($self->{outtype} eq 'xml') {
+    } elsif($self->{outtype} eq 'xml') {
       $self->{xml} = XML::Simple->new( NumericEscape => ($self->{charset} eq 'UTF-8' ? 0 : 1) )
         || return error("Can't create XML instance!");
-    }	elsif($self->{outtype} eq 'text') {
+    } elsif($self->{outtype} eq 'text') {
         # ...
     } else {
        $self->{outtype} = 'text';
@@ -109,7 +109,7 @@ sub new {
     eval "use Compress::Zlib";
     $self->{Zlib} = ($@ ? 0 : 1);
 
-	return $self;
+    return $self;
 }
 
 # ------------------
@@ -129,17 +129,17 @@ sub out {
     }
 
     $self->{sendbytes}+= length($data);
-	
-		if($type ne 'application/xml') {
-	    $self->{output}->{data} = $self->_prepare($data);
-	    $self->{output}->{param} = $self->_prepare($para)
-	        if($para);
-		} else {
-	    $self->{output}->{DATA} = $self->_prepare($data);;
-	    $self->{output}->{$name}->{data} = $self->_prepare($data);
-	    $self->{output}->{$name}->{params} = $self->_prepare($para)
-	        if($para);
-		}
+
+    if($type ne 'application/xml') {
+      $self->{output}->{data} = $self->_prepare($data);
+      $self->{output}->{param} = $self->_prepare($para)
+        if($para);
+    } else {
+      $self->{output}->{DATA} = $self->_prepare($data);;
+      $self->{output}->{$name}->{data} = $self->_prepare($data);
+      $self->{output}->{$name}->{params} = $self->_prepare($para)
+        if($para);
+    }
 }
 
 ################################################################################
@@ -190,10 +190,22 @@ sub printout {
       } elsif($self->{outtype} eq 'xml') {
         $content = $self->{xml}->XMLout($self->{output});
       } else {
-        $content = $self->{output}->{data};
+        if(ref $self->{output}->{data} eq 'ARRAY') {
+          $content = "";
+          foreach my $l (@{$self->{output}->{data}}) {                
+            if(ref $l eq 'ARRAY') {                     
+              $content .= join(",",@$l);
+            } else {
+              $content .= $l;
+            }
+            $content .= "\r\n";
+          }
+        } else {
+          $content = $self->{output}->{data};
+        }
       }
 
-	  	# compress data
+      # compress data
       $content = Compress::Zlib::memGzip($content)
         if(! $nopack and $self->{Zlib} and $self->{browser}->{accept_gzip});
     }
@@ -237,16 +249,95 @@ sub header {
 }
 
 # ------------------
-sub headerNoAuth {
+sub statusmsg {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $state = shift || return error('No state defined!');
+    my $msg = shift;
+    my $title = shift;
+    my $typ = shift || $self->{types}->{$self->{outtype}} || 'text/plain';
+
+    unless(defined $self->{header}) {
+        $self->{nopack} = 1;
+
+        my $s = {
+            200 => '200 OK',
+            204 => '204 No Response',
+            301 => '301 Moved Permanently',
+            302 => '302 Found',
+            303 => '303 See Other',
+            304 => '304 Not Modified',
+            307 => '307 Temporary Redirect',
+            400 => '400 Bad Request',
+            401 => '401 Unauthorized',
+            403 => '403 Forbidden',
+            404 => '404 Not Found',
+            405 => '405 Not Allowed',
+            408 => '408 Request Timed Out',
+            500 => '500 Internal Server Error',
+            503 => '503 Service Unavailable',
+            504 => '504 Gateway Timed Out',
+        };
+        my $status = $s->{200};
+        $status = $s->{$state}
+            if(exists $s->{$state});
+
+        my $arg = {};
+
+        $arg->{'Location'} = $msg
+            if($state == 301);
+
+        $arg->{'WWW-Authenticate'} = "Basic realm=\"xxvd\""
+            if($state == 401);
+
+        $arg->{'expires'} = (($state != 304) || (defined $self->{nocache} && $self->{nocache})) ? "now" : "+7d";
+
+        $self->{header} = $state;
+        $self->{output_header} = $self->{cgi}->header(
+            -type   =>  $typ,
+            -status  => $status,
+            -charset => $self->{charset},
+            %{$arg},
+        );
+    }
+    if($msg && $title) {
+       $self->msg( $msg, ( $self->{header} != 200)  );
+    }   
+}
+
+# ------------------
+# Send HTTP Status 401 (Authorization Required)
+sub login {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $typ = shift || 'text/html';
+    my $msg = shift || '';
 
-    $self->{header} = 401;
-    return $self->{cgi}->header(
-        -type    => $typ,
-        -status  => "401 Authorization Required\nWWW-Authenticate: Basic realm=\"xxvd\""
-    );
+    $self->statusmsg(401,$msg,gettext("Authorization required"));
+}
+
+# ------------------
+# Send HTTP Status 403 (Access Forbidden)
+sub status403 {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $msg = shift  || '';
+
+    $self->statusmsg(403,$msg,gettext("Forbidden"));
+}
+
+
+# ------------------
+# Send HTTP Status 404 (File not found)
+sub status404 {
+# ------------------
+    my $self = shift  || return error('No object defined!');
+    my $file = shift || return error('No file defined!');
+    my $why = shift || "";
+
+    $file =~ s/$self->{Skin}\///g; # Don't post html root, avoid spy out
+
+    $self->statusmsg(404,sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),
+                    gettext("Not found"));
 }
 
 # ------------------
