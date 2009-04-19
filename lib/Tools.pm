@@ -33,7 +33,7 @@ use constant FRAMESPERSECOND => 25;
  &getFromSocket &fields &load_file &save_file &tableUpdated &buildsearch 
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
  &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url
- &con_err &con_msg &text2frame &frame2hms &gettext &setcharset);
+ &con_err &con_msg &text2frame &frame2hms &gettext &setcharset &resolv_symlink);
 
 
 # ------------------
@@ -766,6 +766,34 @@ sub gettext($) {
       $text = $LOCALE->get($text);
       return encode($CHARSET,$text);
     }
+}
+################################################################################
+# dereference symbolic link to real filename 
+sub resolv_symlink($) {
+  my $file = shift;
+
+  my @f = split (m|/|, $file); #split file by path /
+  my $deep = 0;
+  for(my $n = 0; $n <= $#f; ++$n) {
+      my $k = join ("/", @f[0 .. $n]);
+      my $orig = $k;
+      while(my $l = readlink ($k)) {
+          $k = $l;
+          if ($deep++ == 64) {
+              error sprintf ("File %s has too many levels of symbolic links" , $file);
+              return undef;
+            }
+      }
+      next if($k eq $orig);
+      if(substr ($k, 0, 1) eq "/") {
+          splice(@f, 0, $n + 1, split (m|/|, $k));
+          $n = -1;
+      } else {
+          splice(@f, $n, 1, split(m|/|, $k));
+          $n--;
+      }
+    }
+  return join("/", @f);
 }
 
 1;

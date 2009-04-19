@@ -223,8 +223,8 @@ sub module {
                             my $event = shift;
                             my $record  = getDataById($args->{id}, 'RECORDS', 'id');
                             my $epg = main::getModule('EPG')->getId($record->{eventid}, 'title, subtitle, description');
-														my $t = [$epg->{title}];
-														push(@$t,$epg->{subtitle}) if($epg->{subtitle});
+                            my $t = [$epg->{title}];
+                            push(@$t,$epg->{subtitle}) if($epg->{subtitle});
 
                             my $topic = sprintf(gettext("Recording deleted: %s"),join('~',@$t));
 
@@ -248,9 +248,9 @@ sub module {
 # ------------------
 sub new {
 # ------------------
-	my($class, %attr) = @_;
-	my $self = {};
-	bless($self, $class);
+    my($class, %attr) = @_;
+    my $self = {};
+    bless($self, $class);
 
     $self->{charset} = delete $attr{'-charset'};
     if($self->{charset} eq 'UTF-8'){
@@ -260,7 +260,7 @@ sub new {
     # paths
     $self->{paths} = delete $attr{'-paths'};
 
-	  # who am I
+    # who am I
     $self->{MOD} = $self->module;
 
     # all configvalues to $self without parents (important for ConfigModule)
@@ -387,7 +387,7 @@ sub _watch_recorder {
     }
 }
 
-sub _watch_addrecorder {
+sub _watch_filename {
     my $self = shift || return error('No object defined!');
     my $vid = shift;
 
@@ -399,6 +399,18 @@ sub _watch_addrecorder {
     }
     my $updatefile = sprintf("%s/.update",$videodirectory);
     if( -r $updatefile) {
+       return resolv_symlink($updatefile);
+    } 
+    error(sprintf("Missing state file %s!",$updatefile));
+    return undef;
+}
+
+sub _watch_addrecorder {
+    my $self = shift || return error('No object defined!');
+    my $vid = shift;
+
+    my $updatefile = $self->_watch_filename($vid);
+    if($updatefile) {
 
       if(exists $self->{inotify} 
          && exists $self->{inotify}->{$updatefile}) {
@@ -442,15 +454,9 @@ sub _watch_removerecorder {
       return;
     }
 
-    my $videodirectory = $self->{svdrp}->videodirectory($vid);
-      unless($videodirectory && -d $videodirectory) {
-        my $hostname = $self->{svdrp}->hostname($vid);
-        error(sprintf("Missing video directory on '%s'!",$hostname));
-        return;
-    }
-
-    my $updatefile = sprintf("%s/.update",$videodirectory);
-    if(exists $self->{inotify}->{$updatefile}) {
+    my $updatefile = $self->_watch_filename($vid);
+    if($updatefile 
+        && exists $self->{inotify}->{$updatefile}) {
         unless($force) {
           if($self->{inotify}->{$updatefile}->{count} > 1) {
             $self->{inotify}->{$updatefile}->{count} -= 1;
@@ -604,8 +610,8 @@ sub scandirectory {
                           unless(exists $files->{$hash}) {
                             my $rec;
                             $rec->{path} = $path;
-                          	# Splitt 2005-01-16.04:35.88.99
-  	                        my ($year, $month, $day, $hour, $minute, $priority, $lifetime)
+                            # Splitt 2005-01-16.04:35.88.99
+                            my ($year, $month, $day, $hour, $minute, $priority, $lifetime)
                                = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\./s;
                             $rec->{year} = $year;
                             $rec->{month} = $month;
@@ -1279,21 +1285,19 @@ sub _calcmarks {
     
     my $frames = 0;
     for (my $i = 0; $i < (scalar(@$marks)); $i += 2) {
-    		my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i];
-    		my $startframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
+        my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i];
+        my $startframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
 
         if ($marks->[$i+1]) {
-        		my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i + 1];
-        		my $endframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
+            my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i + 1];
+            my $endframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
             $frames += $endframe - $startframe;
         } else {
             $frames += ($duration * ($self->{framerate})) - $startframe;
             last;
         }
     }
-		
     return $frames / $self->{framerate};
-    
 }
 
 #-------------------------------------------------------------------------------
@@ -1523,11 +1527,11 @@ sub videoPreview {
     my $startseconds = ($self->{timers}->{prevminutes} * 60) * 2;
     my $endseconds = ($self->{timers}->{afterminutes} * 60) * 2;
     my $stepseconds = ($info->{duration} - ($startseconds + $endseconds)) / $count;
-  	# reduced interval on short movies
-  	if($stepseconds <= 0 or ($startseconds + ($count * $stepseconds)) > $info->{duration}) {
-  		$stepseconds = $info->{duration} / ( $count + 2 ) ;
-  		$startseconds = $stepseconds;
-  	}
+    # reduced interval on short movies
+    if($stepseconds <= 0 or ($startseconds + ($count * $stepseconds)) > $info->{duration}) {
+        $stepseconds = $info->{duration} / ( $count + 2 ) ;
+        $startseconds = $stepseconds;
+    }
 
     if($info->{duration} <= $count or $stepseconds <= 1) {  # dont' create to early ?
         lg sprintf("Recording just started, create images for '%s' later.", $info->{title});
@@ -1606,11 +1610,11 @@ sub videoPreview {
 
 
 sub _mark2frames{
-	my $self = shift;
-	my $mark = shift;
-	my($h, $m, $s, $f) = split /[:.]/, $mark;
-	my $frame = (3600 * $h + 60 * $m + $s) * $self->{framerate} + $f ;
-	return $frame;
+   my $self = shift;
+   my $mark = shift;
+   my($h, $m, $s, $f) = split /[:.]/, $mark;
+   my $frame = (3600 * $h + 60 * $m + $s) * $self->{framerate} + $f ;
+   return $frame;
 };
 
 # ------------------
@@ -2063,7 +2067,7 @@ FROM
     $tables
 WHERE
     e.eventid = r.eventid
-	AND ( $search )
+    AND ( $search )
 ORDER BY 
 |;
 
@@ -2301,7 +2305,7 @@ FROM
     OLDEPG as e
 WHERE
     e.eventid = r.eventid
-	AND ( r.hash = ? )
+    AND ( r.hash = ? )
 |;
         my $sth = $self->{dbh}->prepare($sql);
         if(!$sth->execute($id)
@@ -2316,8 +2320,8 @@ WHERE
     my $marksfile = sprintf('%s/%s', $rec->{Path}, 'marks.vdr');
     my $marks = (-r $marksfile ? load_file($marksfile) : '');
 
-  	$rec->{title} =~s#~+#~#g;
-	  $rec->{title} =~s#^~##g;
+    $rec->{title} =~s#~+#~#g;
+    $rec->{title} =~s#^~##g;
     $rec->{title} =~s#~$##g;
 
     my $modC = main::getModule('CHANNELS');
@@ -2341,7 +2345,7 @@ WHERE
                 }
             },
             req     => gettext("This is required!"),
-         },
+        },
         'priority' => {
             typ     => 'integer',
             msg     => sprintf(gettext('Priority (%d ... %d)'),0,99),
@@ -2356,7 +2360,7 @@ WHERE
             },
             req     => gettext("This is required!"),
         },
-    		'channel' => {
+        'channel' => {
             typ     => 'list',
             def     => $status->{channel},
             choices => sub {
@@ -2380,21 +2384,21 @@ WHERE
             msg   => gettext("Description"),
             def   => $status->{description} || '',
         },
-    		'aux' => {
+        'aux' => {
             typ   => 'hidden',
             def   => $status->{aux},
         },
-    		'keywords' => {
+        'keywords' => {
             typ   => $self->{keywords}->{active} eq 'y' ? 'string' : 'hidden',
             msg   => gettext('Keywords'),
             def   => $status->{keywords},
         },
-    		'video' => {
+        'video' => {
             typ   => 'textfield',
             msg   => gettext('Video'),
             def   => $status->{video},
         },
-    		'audio' => {
+        'audio' => {
             typ   => 'textfield',
             msg   => gettext('Audio'),
             def   => $status->{audio},
@@ -2420,8 +2424,8 @@ WHERE
           return;
         }
 
-	      $data->{title} =~s#~+#~#g;
-	      $data->{title} =~s#^~##g;
+        $data->{title} =~s#~+#~#g;
+        $data->{title} =~s#^~##g;
         $data->{title} =~s#~$##g;
 
         # Keep PDC Time
@@ -2522,7 +2526,11 @@ WHERE
         }
         if($dropEPGEntry || $ChangeRecordingData) {
             $self->{lastupdate} = 0;
-            touch($videodirectory."/.update");
+            my $updatefilename = $self->_watch_filename($rec->{vid});
+            if($updatefilename) {
+              touch($updatefilename) 
+                or con_err($console,sprintf(gettext("Sorry! Couldn't touch '%s'! %s"), $updatefilename, $!));
+            }
         }
         if($dropEPGEntry || $ChangeRecordingData) {
           my $waiter;
@@ -2869,7 +2877,7 @@ sub suggest {
         OLDEPG as e
     WHERE
         e.eventid = r.eventid
-    	AND ( e.title LIKE ? )
+        AND ( e.title LIKE ? )
     GROUP BY
         title
 UNION
@@ -2880,7 +2888,7 @@ UNION
         OLDEPG as e
     WHERE
         e.eventid = r.eventid
-    	AND ( e.subtitle LIKE ? )
+        AND ( e.subtitle LIKE ? )
     GROUP BY
         title
 ORDER BY
@@ -2906,7 +2914,7 @@ sub recover {
     my $data    = shift || 0;
 
     my $files;
-    my $directories;
+    my $vids;
 
     my $hostlist = $self->{svdrp}->list_unique_recording_hosts();
     foreach my $vid (@$hostlist) {
@@ -2919,8 +2927,8 @@ sub recover {
         }
       my $f = $self->scandirectory($videodirectory, 'del');
       if($f) {
-        map { $files->{$_} = $f->{$_}; } keys %{$f}; 
-        push(@$directories, $videodirectory);
+        map { $files->{$_} = $f->{$_}; } keys %{$f};
+        $vids->{$vid} = $videodirectory;
       }
     }
 
@@ -2979,8 +2987,12 @@ sub recover {
           my $waiter;
 
           $self->{lastupdate} = 0;
-          foreach my $d (@$directories) {
-            touch($d."/.update");
+          foreach my $v (keys %{$vids}) {
+            my $updatefilename = $self->_watch_filename($v);
+            if($updatefilename) {
+              touch($updatefilename) 
+                or con_err($console,sprintf(gettext("Sorry! Couldn't touch '%s'! %s"), $updatefilename, $!));
+            }
           }
 
           if(ref $console && $console->typ eq 'HTML' && !($self->{inotify})) {
@@ -3014,43 +3026,42 @@ sub frametofile {
     use constant FRAMESTRUCTSIZE => 8;
 
     my $f = sprintf("%s/index.vdr", $path);
-   	unless(open FH,$f) {
+    unless(open FH,$f) {
       error(sprintf("Can't open file '%s': %s",$f,$!));
       return (undef,undef);
     }
-  	binmode FH;
+    binmode FH;
 
     my $offset = FRAMESTRUCTSIZE * $frame;
     if($offset != sysseek(FH,$offset,0)) { #SEEK_SET
       error(sprintf("Can't seek file '%s': %s",$f,$!));
-    	close FH;
+      close FH;
       return (undef,undef);
     }
 
     do {
-    	my $buffer;
-    	my $bytesread = sysread (FH, $buffer, FRAMESTRUCTSIZE);
+      my $buffer;
+      my $bytesread = sysread (FH, $buffer, FRAMESTRUCTSIZE);
       if($bytesread != FRAMESTRUCTSIZE) {
         error(sprintf("Can't read file '%s': %s",$f,$!));
         return (undef,undef);
       }
       my ($c, $t, $n, $r) = unpack ("I C C S", $buffer);
       if($t == 1) { # I-Frame
-      	close FH;
+        close FH;
         return ($n,$c); # Filenumber, Offset from file begin
       }  
 
       $offset -= FRAMESTRUCTSIZE;
       if($offset != sysseek(FH,-(FRAMESTRUCTSIZE*2), 1)) { #SEEK_CUR
         error(sprintf("Can't seek file '%s': %s",$f,$!));
-      	close FH;
+        close FH;
         return (undef,undef);
       }
       $frame -= 1;
     } while($frame >= 0 && $offset >= 0);
 
-  	close FH;
-
+    close FH;
     return (undef,undef);
 }
 
