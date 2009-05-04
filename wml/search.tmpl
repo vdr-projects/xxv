@@ -3,7 +3,7 @@
     <?% "<i>" IF param.timers.${id} %?>
     <?% IF global.ShowCardTitle %?>
     <a href="?cmd=p&amp;data=<?% channel %?>">
-        <?% channel %?>. <?% sender | truncate(20) | html %?>
+        <?% sender | truncate(20) | html %?>
     </a><br />
     <?% END %?>
     <?% date.format(datum, "%a, %x") | html %?><br />
@@ -36,7 +36,7 @@
 </card>
         <?% END %?>
         <?% id=zeile.0 %?>
-<card id="<?% IF loop.count > 1 %?>s<?% loop.count;ELSE %?>first<?% END %?>" title="<?% channel %?>.<?% sender | truncate(10)| html %?>">
+<card id="<?% IF loop.count > 1 %?>s<?% loop.count;ELSE %?>first<?% END %?>" title="<?% sender | truncate(10)| html %?>">
     <p>
 		<?% PROCESS item %?>
         <?% count =  loop.count + 1 %?>

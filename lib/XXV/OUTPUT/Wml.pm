@@ -116,7 +116,6 @@ sub parseTemplate {
     my $data = shift || return error('No data defined!');
     my $params = shift || {};
 
-    my $t = $self->{tt};
     my $u = main::getModule('USER');
 
     # you can use two templates, first is a user defined template
@@ -171,8 +170,8 @@ sub parseTemplate {
             }
         },
     };
-    $t->process($widget, $vars, \$output)
-          or return error($t->error());
+    $self->{tt}->process($widget, $vars, \$output)
+          or return error($self->{tt}->error());
 
     return $output;
 }
@@ -185,14 +184,13 @@ sub out {
     my $type = shift || 'text/vnd.wap.wml';
     my %args = @_;
 
-    my $q = $self->{cgi};
     unless(defined $self->{header}) {
         # HTTP Header
-        $self->{handle}->print(
-            $self->header($type, \%args)
-        );
+        my $header = $self->header($type, \%args);
+        $self->{sendbytes}+= length($header);
+        $self->{handle}->print($header );
     }
-
+    $self->{sendbytes}+= length($text)+ 2;
     $self->{handle}->print( $text,"\r\n" );
 }
 
@@ -203,7 +201,7 @@ sub header {
     my $typ = shift || return error ('No Type!' );
     my $arg = shift || {};
 
-    $self->{header} = 1;
+    $self->{header} = 200;
     return $self->{cgi}->header(
         -type   =>  $typ,
         -status  => "200 OK",
@@ -217,24 +215,60 @@ sub header {
 sub statusmsg {
 # ------------------
     my $self = shift  || return error('No object defined!');
-    my $msg = shift || return error ('No Msg!');
-    my $status = shift || return error ('No Status!');
+    my $state = shift || return error('No state defined!');
+    my $msg = shift;
+    my $title = shift;
+    my $typ = shift || 'text/vnd.wap.wml';
 
     unless(defined $self->{header}) {
         $self->{nopack} = 1;
-        $self->{header} = 1;
+
+        my $s = {
+            200 => '200 OK',
+            204 => '204 No Response',
+            301 => '301 Moved Permanently',
+            302 => '302 Found',
+            303 => '303 See Other',
+            304 => '304 Not Modified',
+            307 => '307 Temporary Redirect',
+            400 => '400 Bad Request',
+            401 => '401 Unauthorized',
+            403 => '403 Forbidden',
+            404 => '404 Not Found',
+            405 => '405 Not Allowed',
+            408 => '408 Request Timed Out',
+            500 => '500 Internal Server Error',
+            503 => '503 Service Unavailable',
+            504 => '504 Gateway Timed Out',
+        };
+        my $status = $s->{200};
+        $status = $s->{$state}
+            if(exists $s->{$state});
+
+        my $arg = {};
+
+        $arg->{'Location'} = $msg
+            if($state == 301);
+
+        $arg->{'WWW-Authenticate'} = "Basic realm=\"xxvd\""
+            if($state == 401);
+
+        $arg->{'expires'} = (($state != 304) || (defined $self->{nocache} && $self->{nocache})) ? "now" : "+7d";
+
+        $self->{header} = $state;
         my $data = $self->{cgi}->header(
-            -type   =>  'text/vnd.wap.wml',
+            -type   =>  $typ,
             -status  => $status,
-            -expires => "now",
+            -charset => $self->{charset},
+            %{$arg},
         );
         $self->out($data);
     }
-
-    my @title = split ('\n', $status);
-    $self->start(undef,{ title => $title[0] });
-    $self->err($msg);
-    $self->footer();
+    if($msg && $title) {
+        $self->start(undef,{ title => $title });
+        $self->err($msg);
+        $self->footer();
+    }   
 }
 
 # ------------------
@@ -244,7 +278,7 @@ sub login {
     my $self = shift || return error('No object defined!');
     my $msg = shift || '';
 
-    $self->statusmsg($msg,"401 Authorization Required\nWWW-Authenticate: Basic realm=\"xxvd\"");
+    $self->statusmsg(401,$msg,gettext("Authorization required"));
 }
 
 # ------------------
@@ -254,7 +288,7 @@ sub status403 {
     my $self = shift  || return error('No object defined!');
     my $msg = shift  || '';
 
-    $self->statusmsg($msg,"403 Forbidden");
+    $self->statusmsg(403,$msg,gettext("Forbidden"));
 }
 
 
@@ -266,11 +300,10 @@ sub status404 {
     my $file = shift || return error('No file defined!');
     my $why = shift || "";
 
-    lg sprintf("Couldn't open file '%s' : %s!",$file,$why);
-
     $file =~ s/$self->{wmldir}\///g; # Don't post wml root, avoid spy out
 
-    $self->statusmsg(sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),"404 File not found");
+    $self->statusmsg(404,sprintf(gettext("Couldn't open file '%s' : %s!"),$file,$why),
+                    gettext("Not found"));
 }
 
 # ------------------

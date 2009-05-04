@@ -905,7 +905,8 @@ order by
     my $info = {
       rows => $rows
     };
-    if($console->typ eq 'HTML') {
+    if($console->typ eq 'HTML' 
+        || $console->typ eq 'WML') {
       $info->{channels} = $cmod->ChannelWithGroup('c.name,c.hash');
       $info->{current} = $cid;
     }

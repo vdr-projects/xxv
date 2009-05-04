@@ -23,7 +23,7 @@
     <?% IF allow('tedit') %?>
     <a href="?cmd=te&amp;data=<?% id %?>">
     <?% END %?>
-        <?% gettext("Timer") %?> <?% id %?>
+        <?% gettext("Timer") %?> <?% ' ';loop.count %?>
     <?% "</a>" IF allow('tedit') %?>
     <br />
     <?% END %?>
@@ -64,7 +64,7 @@
 </card>
         <?% END %?>
         <?% id=zeile.0 %?>
-<card id="t<?% loop.count %?>" title="<?% gettext("Timer") %?> <?% id %?>">
+<card id="t<?% loop.count %?>" title="<?% gettext("Timer") %?> <?% ' ';loop.count %?>">
      <p>
 		<?% PROCESS item %?>
         <?% count =  loop.count + 1 %?>

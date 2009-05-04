@@ -2,7 +2,7 @@
     <?% "<i>" IF param.timers.${id} %?>
     <?% IF global.ShowCardTitle %?>
     <a href="?cmd=p&amp;data=<?% channel %?>">
-        <?% channel %?>. <?% sender | truncate(20) | html %?>
+        <?% sender | truncate(20) | html %?>
     </a><br />
     <?% END %?>
     <?% start %?> - <?% stop %?><br />
@@ -26,14 +26,18 @@
 <?% fields = data.shift %?>
    	<?% FOREACH zeile = data %?>
         <?% IF loop.count < skip;NEXT;END %?>
-		<?% title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;duration=zeile.7;desc=zeile.8 %?>
+        <?% title=zeile.1;subtitle=zeile.2;sender=zeile.3;
+            channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;
+            desc=zeile.8;duration=zeile.9;
+            timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            pdc=zeile.13; %?>
     	<?% IF id.defined %?>
         <a href="#n<?% loop.count %?>"><img src="images/forward.wbm" alt="<?% gettext("Forward") %?>" /></a>
         <a href="#index"><img src="images/home.wbm" alt="<?% gettext("Menu") %?>" /></a>
     </p>
 </card>
         <?% END %?>
-<card id="<?% IF loop.count > 1 %?>n<?% loop.count;ELSE %?>first<?% END %?>" title="<?% channel %?>.<?% sender | truncate(10)| html %?>">
+<card id="<?% IF loop.count > 1 %?>n<?% loop.count;ELSE %?>first<?% END %?>" title="<?% sender | truncate(10)| html %?>">
         <?% id=zeile.0 %?>
     <p>
 		<?% PROCESS item %?>
