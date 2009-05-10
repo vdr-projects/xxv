@@ -1680,7 +1680,7 @@ sub createOldEventId {
     };
 
     $attr->{eventid} = $self->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(eventid)+1 from OLDEPG')->[0];
-    $attr->{eventid} = 1000000000 if(not defined $attr->{eventid} or $attr->{eventid} < 1000000000 );
+    $attr->{eventid} = 0x70000000 if(not defined $attr->{eventid} or $attr->{eventid} < 0x6FFFFFFF );
 
     lg sprintf('Create event "%s" into OLDEPG', $subtitle ? $title .'~'. $subtitle : $title);
 

@@ -536,6 +536,7 @@ sub encodeEpgId {
 
     # Make a fix format 0xCCCCEEEE : C-Channelid (high-word), E-Eventid(low-word) => real-eventid = uniqueid & FFFF
     my $eventid = (($vid & 0xFF) << 24) | ((($id[-3] + $id[-2] + $id[-1]) & 0x3FFF) << 16) | ($epgid & 0xFFFF);
+       $eventid &= 0x6FFFFFFF; # Keep 0x70000000 .... free for recording events
 
     return $eventid;
 }
