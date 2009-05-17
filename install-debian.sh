@@ -1,8 +1,11 @@
 #!/bin/sh
 #
-# MiniInstall for xxv
+# quick & dirty shell based installer of xxv for debian lenny
+# 
+# ./install-debian.sh
 #
-# Usage: xxv
+# $Id$
+#
 
 XXVSOURCE=`pwd`
 
@@ -27,7 +30,6 @@ apt-get install \
   perl \
   perl-base \
   perl-modules \
-  libcgi-perl \
   libio-zlib-perl \
   libconfig-tiny-perl \
   libdate-manip-perl \
@@ -35,7 +37,6 @@ apt-get install \
   libdbi-perl \
   libmd5-perl \
   libdigest-hmac-perl \
-  libencode-perl \
   libevent-perl \
   libgd-gd2-noxpm-perl libgd-graph-perl libgd-graph3d-perl libgd-text-perl \
   txt2html \
@@ -55,8 +56,14 @@ apt-get install \
   libxml-rss-perl \
   libxml-simple-perl
 
+if [ ! -e /etc/init.d/mysql ] ; then
+apt-get install \
+    mysql-server
+fi 
+
 echo 'start mysql server'
 /etc/init.d/mysql start
+
 
 echo 'create Database'
 cat contrib/create-database.sql | mysql -u root

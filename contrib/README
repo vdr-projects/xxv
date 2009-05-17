@@ -1,5 +1,5 @@
 To create a empty database und create a mysql-useraccount, change on 
-file create-database.sql on all placed username 'xpix' and password 'xpix97' 
+file create-database.sql on all placed username 'xxv' and password 'xxv' 
 to your our values.
 
 $ cat ./contrib/create-database.sql | mysql -u root
@@ -7,8 +7,8 @@ $ cat ./contrib/create-database.sql | mysql -u root
 Adjust your mysql-username and password also on xxvd.cfg 
 [General]
 DSN=DBI:mysql:database=xxv;host=localhost;port=3306
-PWD=xpix97
-USR=xpix
+PWD=xxv
+USR=xxv
 
 
 --------------------------------------------------------------------------------

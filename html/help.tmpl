@@ -94,11 +94,9 @@ status.add(new WebFXTreeItem("<?% gettext("Hardware") %?>",    "?cmd=sh"));
 
 <?% IF allow('more') %?>
 var info = new WebFXTreeItem("<?% gettext("Documentation") %?>",0,tree);
-info.add(new WebFXTreeItem("<?% gettext("News") %?>",   "?cmd=more&data=NEWS"));
 info.add(new WebFXTreeItem("<?% gettext("History") %?>",   "?cmd=more&data=CHANGELOG"));
 info.add(new WebFXTreeItem("<?% gettext("License") %?>",   "?cmd=more&data=COPYING"));
-info.add(new WebFXTreeItem("<?% gettext("Readme") %?>",   "?cmd=more&data=<?% gettext('Readme') FILTER upper %?>"));
-info.add(new WebFXTreeItem("<?% gettext("Tutorial") %?>",   "?cmd=more&data=TUTORIAL"));
+info.add(new WebFXTreeItem("<?% gettext("Readme") %?>",   "?cmd=more&data=README"));
 <?% END %?>
 
 <?% IF allow('logger') %?>
