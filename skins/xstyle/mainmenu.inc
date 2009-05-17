@@ -164,11 +164,9 @@ var myBar = new WebFXMenuBar;
 
 <?% IF allow('more') %?>
     var info = new WebFXMenu;
-    info.add(new WebFXMenuItem("<?% gettext("News") %?>",   "?cmd=more&data=NEWS"));
     info.add(new WebFXMenuItem("<?% gettext("History") %?>",   "?cmd=more&data=CHANGELOG"));
     info.add(new WebFXMenuItem("<?% gettext("License") %?>",   "?cmd=more&data=COPYING"));
-    info.add(new WebFXMenuItem("<?% gettext("Readme") %?>",   "?cmd=more&data=<?% gettext('Readme') FILTER upper %?>"));
-    info.add(new WebFXMenuItem("<?% gettext("Tutorial") %?>",   "?cmd=more&data=TUTORIAL"));
+    info.add(new WebFXMenuItem("<?% gettext("Readme") %?>",   "?cmd=more&data=README"));
     myBar.add(new WebFXMenuButton("<?% gettext("Documentation") %?>",null,null,info));
 <?% END %?>
 

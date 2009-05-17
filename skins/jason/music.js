@@ -15,12 +15,12 @@ Ext.xxv.musicStore = function() {
             ,autoLoad:{params:{start:0, limit:configuration.pageSize}}
             ,reader: new Ext.xxv.jsonReader({
                     fields: [
-                       {name: 'id', type: 'string'}
+                       {name: 'id', type: 'int'}
                       ,{name: 'artist', type: 'string'}
                       ,{name: 'album', type: 'string'}
                       ,{name: 'title', type: 'string'}
-                      ,{name: 'track', type: 'string'}
-                      ,{name: 'year', type: 'string'}
+                      ,{name: 'track', type: 'int'}
+                      ,{name: 'year', type: 'int'}
                       ,{name: 'duration', type: 'string'}
                       ,{name: 'genre', type: 'string'}
                       ,{name: 'comment', type: 'string'}
