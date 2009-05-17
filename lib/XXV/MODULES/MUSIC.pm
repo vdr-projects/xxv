@@ -12,12 +12,12 @@ $SIG{CHLD} = 'IGNORE';
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'MUSIC',
         Prereq => {
-            'DBI'          => 'Database independent interface for Perl ',
-            'DBD::mysql'   => 'MySQL driver for the Perl5 Database Interface (DBI)',
+#            'DBI'          => 'Database independent interface for Perl ',
+#            'DBD::mysql'   => 'MySQL driver for the Perl5 Database Interface (DBI)',
             'MP3::Icecast' => 'Generate Icecast streams, as well as M3U and PLSv2 playlists',
             'MP3::Info'    => 'Manipulate / fetch info from MP3 audio files ',
             'CGI'          => 'Simple Common Gateway Interface Class',
@@ -30,7 +30,7 @@ sub module {
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
         LastAuthor => (split(/ /, '$Author$'))[1],
-        Status => sub{ $obj->status(@_) },
+        Status => sub{ $self->status(@_) },
         Preferences => {
             active => {
                 description => gettext('Activate this service'),
@@ -79,7 +79,15 @@ sub module {
                 type        => 'string',
                 check       => sub{
                     my $value = shift;
-                    $obj->{mdbh} = $obj->ConnectToMuggleDB($value);
+                    if($value ne $self->{muggle}) {
+                      $self->{mdbh}->disconnect() if($self->{mdbh});
+                      $self->{mdbh} = &connectDB(
+                        $value,
+                        main::getGeneralConfig->{USR},
+                        main::getGeneralConfig->{PWD},
+                        $self->{charset}
+                        );
+                    }
                     return $value;
                 },
             },
@@ -93,59 +101,59 @@ sub module {
             mrefresh => {
                 description => gettext('Rereading of the music directory.'),
                 short       => 'mr',
-                callback    => sub{ $obj->refresh(@_) },
+                callback    => sub{ $self->refresh(@_) },
                 Level       => 'admin',
                 DenyClass   => 'mlist',
             },
             mcovers => {
                 description => gettext('Download album covers.'),
                 short       => 'mc',
-                callback    => sub{ $obj->getcovers(@_) },
+                callback    => sub{ $self->getcovers(@_) },
                 Level       => 'admin',
                 DenyClass   => 'mlist',
             },
             mplay => {
                 description => gettext("Play music file 'fid'"),
                 short       => 'mp',
-                callback    => sub{ $obj->play(@_) },
+                callback    => sub{ $self->play(@_) },
                 DenyClass   => 'stream',
             },
             mplaylist => {
                 description => gettext("Get a m3u playlist for 'fid'"),
                 short       => 'm3',
-                callback    => sub{ $obj->playlist(@_) },
+                callback    => sub{ $self->playlist(@_) },
                 DenyClass   => 'stream',
                 binary      => 'nocache'
             },
             mlist => {
                 description => gettext("Shows music 'dir'"),
                 short       => 'ml',
-                callback    => sub{ $obj->list(@_) },
+                callback    => sub{ $self->list(@_) },
                 DenyClass   => 'mlist',
             },
             msearch => {
                 description => gettext("Search music 'txt'"),
                 short       => 'ms',
-                callback    => sub{ $obj->search(@_) },
+                callback    => sub{ $self->search(@_) },
                 DenyClass   => 'mlist',
             },
             mcoverimage => {
                 description => gettext('Show album covers.'),
                 short       => 'mi',
-                callback    => sub{ $obj->coverimage(@_) },
+                callback    => sub{ $self->coverimage(@_) },
                 DenyClass   => 'mlist',
                 binary      => 'cache'
             },
             mgetfile => {
                 description => gettext("Get music file 'fid'"),
                 short       => 'mg',
-                callback    => sub{ $obj->getfile(@_) },
+                callback    => sub{ $self->getfile(@_) },
                 DenyClass   => 'mlist',
                 binary      => 'cache'
             },
             msuggest => {
                 hidden      => 'yes',
-                callback    => sub{ $obj->suggest(@_) },
+                callback    => sub{ $self->suggest(@_) },
                 DenyClass   => 'mlist',
             },
         },
@@ -192,34 +200,32 @@ sub new {
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize modul!');
 
-	return $self;
+    return $self;
 }
 
 # ------------------
 sub _init {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     return 1
-      if($obj->{active} eq 'n');
+      if($self->{active} eq 'n');
 
-    $obj->{Amazon} = Net::Amazon->new(
+    $self->{Amazon} = Net::Amazon->new(
         token       => '1CCSPM94SQW5RNWY6682',
     );
 
-    $obj->{mdbh} = $obj->ConnectToMuggleDB($obj->{muggle});
-
     #create an instance to find all files below /usr/local/mp3
-    $obj->{ICE} = MP3::Icecast->new();
-#   $obj->{ICE}->recursive(1);
+    $self->{ICE} = MP3::Icecast->new();
+#   $self->{ICE}->recursive(1);
 
 #   Use "file::find" & "add_file" instead of use "add_directory" 
 #   avoid dead of modul via link-loops like cd /mp3; ln -s foo ../mp3
-#   $obj->{ICE}->add_directory($obj->{path});
+#   $self->{ICE}->add_directory($self->{path});
     find( {
       wanted => sub{
         if(-r $File::Find::name) {
-          $obj->{ICE}->add_file($File::Find::name)
+          $self->{ICE}->add_file($File::Find::name)
             if($File::Find::name =~ /\.mp3$/sig);  # Lookup for *.mp3
           } else {
             lg "Permissions deny, couldn't read : $File::Find::name";
@@ -228,13 +234,13 @@ sub _init {
         follow => 1,
         follow_skip => 2,
         },
-      $obj->{path}
+      $self->{path}
     );
 
-    $obj->{SOCK} = IO::Socket::INET->new(
-        LocalPort => $obj->{port}, #standard Icecast port
-        LocalAddr => $obj->{Interface},
-        Listen    => $obj->{clients},
+    $self->{SOCK} = IO::Socket::INET->new(
+        LocalPort => $self->{port}, #standard Icecast port
+        LocalAddr => $self->{Interface},
+        Listen    => $self->{clients},
         Proto     => 'tcp',
         Reuse     => 1,
         Timeout   => 3600
@@ -243,11 +249,11 @@ sub _init {
     my $channels;
 
     Event->io(
-        fd => $obj->{SOCK},
+        fd => $self->{SOCK},
         prio => -1,  # -1 very hard ... 6 very low
         cb => sub {
             # accept client
-            my $client = $obj->{SOCK}->accept;
+            my $client = $self->{SOCK}->accept;
             panic "Couldn't connect to new icecast client." and return unless $client;
             $client->autoflush;
 
@@ -266,8 +272,8 @@ sub _init {
 
                     # read new line and report it
                     my $handle=$watcher->w->fd;
-                    my $data = $obj->parseRequest($handle);
-                    my $files = $obj->handleInput($data);
+                    my $data = $self->parseRequest($handle);
+                    my $files = $self->handleInput($data);
                     unless(ref $files eq 'ARRAY') {
                         $watcher->w->cancel;
                         $client->close();
@@ -275,7 +281,7 @@ sub _init {
                         return 1;
                     }
 
-                    $obj->stream($files, $client);
+                    $self->stream($files, $client);
 
                     $watcher->w->cancel;
                     undef $watcher;
@@ -288,21 +294,29 @@ sub _init {
         },
     );
 
-    unless($obj->{mdbh}) {
+    main::after(sub{
 
-        unless($obj->{dbh}) {
+    $self->{mdbh} = &connectDB(
+        $self->{muggle},
+        main::getGeneralConfig->{USR},
+        main::getGeneralConfig->{PWD},
+        $self->{charset}
+        );
+    unless($self->{mdbh}) {
+        unless($self->{dbh}) {
           panic("Session to database is'nt connected");
           return 0;
         }
+        debug("Database 'GiantDisc' not found! Fallback to own internal music table!");
 
         my $version = 26; # Must be increment if rows of table changed
         # this tables hasen't handmade user data,
         # therefore old table could dropped if updated rows
-        if(!tableUpdated($obj->{dbh},'MUSIC',$version,1)) {
+        if(!tableUpdated($self->{dbh},'MUSIC',$version,1)) {
           return 0;
         }
 
-        $obj->{dbh}->do(qq|
+        $self->{dbh}->do(qq|
           CREATE TABLE IF NOT EXISTS MUSIC (
               Id int(11) unsigned auto_increment NOT NULL,
               FILE text NOT NULL,
@@ -320,28 +334,30 @@ sub _init {
             ) COMMENT = '$version'
         |);
 
-        $obj->{fields} = fields($obj->{dbh}, 'SELECT SQL_CACHE * from MUSIC');
+        $self->{fields} = fields($self->{dbh}, 'SELECT SQL_CACHE * from MUSIC');
 
         # Read File to Database, if the DB empty and Musicdir exists
-        $obj->refresh()
-            unless($obj->{dbh}->selectrow_arrayref("SELECT SQL_CACHE count(*) from MUSIC")->[0]);
+        $self->refresh()
+            unless($self->{dbh}->selectrow_arrayref("SELECT SQL_CACHE count(*) from MUSIC")->[0]);
     }
+        return 1;
+    }, "MUSIC: Connect to database ...");
 
-    return 1;
+    1;
 
 }
 
 # ------------------
 sub refresh {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift;
     my $config = shift;
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
-    if( ref $console and not -d $obj->{path} ) {
-        my $errmsg = sprintf(gettext("Directory of the music files '%s' not found"), $obj->{path});
+    if( ref $console and not -d $self->{path} ) {
+        my $errmsg = sprintf(gettext("Directory of the music files '%s' not found"), $self->{path});
         error($errmsg);
         $console->err($errmsg);
         $console->link({
@@ -351,15 +367,15 @@ sub refresh {
         return;
     }
 
-    if($obj->{mugglei} and $obj->{mdbh}) {
+    if($self->{mugglei} and $self->{mdbh}) {
         my $usr = main::getGeneralConfig->{USR};
         my $pwd = main::getGeneralConfig->{PWD};
         my $host = (split(/ /, $dbh->{'mysql_hostinfo'}))[0];
         # /usr/local/bin/mugglei -h 127.0.0.1 -c -u xpix -w xpix97 -t /NAS/Music .
         my $command = sprintf('%s -h %s -z -c -u %s -w %s -t %s . 2>&1',
-            $obj->{mugglei}, lc($host), $usr, $pwd, $obj->{path});
-        lg sprintf("Execute: cd '%s';%s",$obj->{path},$command);
-        chdir($obj->{path});
+            $self->{mugglei}, lc($host), $usr, $pwd, $self->{path});
+        lg sprintf("Execute: cd '%s';%s",$self->{path},$command);
+        chdir($self->{path});
         my @erg = (`$command`);
 
         if( ref $console) {
@@ -369,7 +385,7 @@ sub refresh {
                 url => "?cmd=mlist",
             }) if($console->typ eq 'HTML');
         }
-        undef $obj->{GENRES}; # delete genres cache
+        undef $self->{GENRES}; # delete genres cache
 
         return 1;
     }
@@ -383,14 +399,14 @@ sub refresh {
     lg('Please wait! I search for new Musicfiles!');
 
     #create an instance to find all files below /usr/local/mp3
-    $obj->{ICE} = MP3::Icecast->new();
-    $obj->{ICE}->recursive(1);
-    $obj->{ICE}->add_directory($obj->{path});
+    $self->{ICE} = MP3::Icecast->new();
+    $self->{ICE}->recursive(1);
+    $self->{ICE}->add_directory($self->{path});
 
-    $obj->{CACHE} = {};
+    $self->{CACHE} = {};
 
     my $data = $dbh->selectall_hashref("SELECT SQL_CACHE ID, FILE from MUSIC", 'FILE');
-    my @files = $obj->{ICE}->files;
+    my @files = $self->{ICE}->files;
 
     lg sprintf('Found %d music files !', scalar @files);
 
@@ -425,7 +441,7 @@ sub refresh {
         next if(delete $data->{$file});
         my $info = MP3::Info->new($file);
         $new++
-            if($obj->insert($info));
+            if($self->insert($info));
     }
 
     foreach my $f (sort keys %$data) {
@@ -453,7 +469,7 @@ sub refresh {
 # ------------------
 sub play {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
@@ -468,19 +484,19 @@ sub play {
 # ------------------
 sub playlist {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
     my $host = main::getModule('STREAM')->{host} || main::getModule('STATUS')->IP;
     my $output;
 
     foreach my $id (split('_', $data)) {
         my $data;
-        if($obj->{mdbh}) {
+        if($self->{mdbh}) {
             $data = $dbh->selectrow_hashref("SELECT SQL_CACHE * from tracks where id = '$id'");
         } else {
             $data = $dbh->selectrow_hashref("SELECT SQL_CACHE * from MUSIC where ID = '$id'");
@@ -490,15 +506,15 @@ sub playlist {
         $output .= "#EXTM3U\r\n" unless($output);
 
         my $file;
-        my $proxy = $obj->{proxy};
+        my $proxy = $self->{proxy};
         $proxy =~ s/^\s+//;               # no leading white space
         $proxy =~ s/\s+$//;               # no trailing white space
         if(length($proxy)) {
             $file = sprintf('%s/?cmd=play&data=%s&field=id', $proxy, $id);
         } else {
-            $file = sprintf('http://%s:%lu/?cmd=play&data=%s&field=%s', $host, $obj->{port}, $id, ($obj->{mdbh} ? 'id' : 'ID'));
+            $file = sprintf('http://%s:%lu/?cmd=play&data=%s&field=%s', $host, $self->{port}, $id, ($self->{mdbh} ? 'id' : 'ID'));
         }
-        if($obj->{mdbh}) {
+        if($self->{mdbh}) {
             $output .= sprintf("#EXTINF:%d,%s - %s (%s)\r\n",$data->{'length'},$data->{title},$data->{artist},$data->{sourceid});
         } else {
             $output .= sprintf("#EXTINF:%d,%s - %s (%s)\r\n",$data->{SECS},$data->{TITLE},$data->{ARTIST},$data->{ALBUM});
@@ -522,43 +538,43 @@ sub playlist {
 # ------------------
 sub search {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $text   = shift;
 
     unless($text) {
       error("No text to search defined! Please use msearch 'text'");
-      return $obj->list($console, $config);
+      return $self->list($console, $config);
     } else {
-      return $obj->list($console, $config, "search:".$text);
+      return $self->list($console, $config, "search:".$text);
     }
 }
 
 # ------------------
 sub list {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $param  = shift;
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = $self->{mdbh} ? $self->{mdbh} : $self->{dbh};
     unless($dbh) {
-		 	error ("Connect to database");
-		  return $console->err(gettext("Connect to database"));
+		 	error ("Couldn't connect to database");
+		  return $console->err(gettext("Couldn't connect to database"));
 		}
 
 		unless($param) {
-	    if($obj->{mdbh}) {
-        my $eg = $dbh->selectrow_arrayref('SELECT title from album limit 1');
+	    if($self->{mdbh}) {
+        my $eg = $dbh->selectrow_arrayref('SELECT cddbid from album order by artist,title limit 1');
 			  unless($eg) {
 	         	error sprintf("Couldn't execute query: %s.",$dbh->errstr);
             return $console->err($dbh->errstr);
 				}
-        $param = sprintf('album:%s', $eg->[0]);
+        $param = sprintf('cddbid:%s', $eg->[0]);
 	    } else {
-        my $eg = $dbh->selectrow_arrayref('SELECT SQL_CACHE ALBUM from MUSIC limit 1');
+        my $eg = $dbh->selectrow_arrayref('SELECT SQL_CACHE ALBUM from MUSIC order by ARTIST,TITLE limit 1');
 			  unless($eg) {
 	         	error sprintf("Couldn't execute query: %s.",$dbh->errstr);
             return $console->err($dbh->errstr);
@@ -576,7 +592,7 @@ sub list {
     my $search = '';
     my $term;
     if($typ eq 'search') {
-        if($obj->{mdbh}) {
+        if($self->{mdbh}) {
             my $query = buildsearch("album.artist,tracks.artist,album.title,tracks.title,album.covertxt",$text);
             $search = $query->{query};
             foreach(@{$query->{term}}) { push(@{$term},$_); }
@@ -589,6 +605,7 @@ sub list {
     } else {
 		  # assign xxv tables to giantdisc table name
 		  my $translate = {
+		      cddbid  => 'cddbid',
 		      artist  => 'artist',
 		      album   => 'title',
 		      genre   => 'genre1',
@@ -598,28 +615,30 @@ sub list {
 
 	    my $t;
 		  if($typ eq 'genre') {
-		      $t = ($obj->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
+		      $t = ($self->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
 
 					# caching genres
-					$obj->{GENRES} = $dbh->selectall_hashref('SELECT * from genre', 'id')
-						  if($obj->{mdbh} && !$obj->{GENRES});
+					$self->{GENRES} = $dbh->selectall_hashref('SELECT * from genre', 'id')
+						  if($self->{mdbh} && !$self->{GENRES});
 
-		      $text = $obj->{GENRES}->{$text}->{id} if($obj->{mdbh});
+		      $text = $self->{GENRES}->{$text}->{id} if($self->{mdbh});
 		  } elsif($typ eq 'year') {
-		      $t = ($obj->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
+		      $t = ($self->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
 		  } elsif($typ eq 'album') {
-		      $t = ($obj->{mdbh} ? 'album.'.$translate->{$typ} : uc($typ));
+		      $t = ($self->{mdbh} ? 'album.'.$translate->{$typ} : uc($typ));
+		  } elsif($typ eq 'cddbid') {
+		      $t = ($self->{mdbh} ? 'album.'.$translate->{$typ} : uc($typ));
 		  } else {
-		      $t = ($obj->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
+		      $t = ($self->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
 		  }
 
-			if($typ eq 'genre' && $obj->{mdbh}) {
+			if($typ eq 'genre' && $self->{mdbh}) {
         $search = sprintf("%s LIKE ?", $t);  #?%
         push(@{$term},$text.'%');
 	    } else {
         $search = sprintf("%s RLIKE ?", $t); #%?%
         push(@{$term},$text);
-        push(@{$term},$text) if($obj->{mdbh});
+        push(@{$term},$text) if($self->{mdbh});
 	    }
 		}
 
@@ -634,7 +653,7 @@ sub list {
     );
 
     my $sql;
-    if($obj->{mdbh}) {
+    if($self->{mdbh}) {
 
         $sql = qq|
         SELECT 
@@ -746,10 +765,10 @@ sub list {
       rows => $rows
     };
     if($console->typ eq 'HTML') {
-	    $info->{albums} = ($obj->{mdbh} ? $obj->GroupArray('title', 'album', 'cddbid') : $obj->GroupArray('ALBUM'));
-			$info->{artists} = ($obj->{mdbh} ? $obj->GroupArray('artist', 'tracks', 'id'): $obj->GroupArray('ARTIST'));
-			$info->{genres} = $obj->GenreArray();
-			$info->{getCover} = sub{ return $obj->_findcoverfromcache(@_, 'relative') };
+	    $info->{albums} = ($self->{mdbh} ? $self->GroupArray('title', 'album', 'cddbid') : $self->GroupArray('ALBUM'));
+			$info->{artists} = ($self->{mdbh} ? $self->GroupArray('artist', 'tracks', 'id'): $self->GroupArray('ARTIST'));
+			$info->{genres} = $self->GenreArray();
+			$info->{getCover} = sub{ return $self->_findcoverfromcache(@_, 'relative') };
 	    $console->setCall('mlist');
 		}
   	$console->table($erg, $info);
@@ -758,17 +777,25 @@ sub list {
 # ------------------
 sub handleInput {
 # ------------------
-    my $obj     = shift || return error('No object defined!');
+    my $self     = shift || return error('No object defined!');
     my $data    = shift || return error('No request defined!');
     my $cgi = CGI->new( $data->{Query} );
 
     my $ucmd = $cgi->param('cmd')   || 'play';
-    my $ufield = $cgi->param('field') || ($obj->{mdbh} ? 'id' : 'ID');
+    my $ufield = $cgi->param('field') || ($self->{mdbh} ? 'id' : 'ID');
     my $udata = $cgi->param('data') || '*';
+
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
+
+    return 0
+      if(!$dbh);
+
+    $dbh->{InactiveDestroy} = 1;
+    my $ldbh = $dbh->clone();
 
     my $files;
     if($ucmd eq 'play' and $ufield and my @search = split(',',$udata)) {
-        $files = $obj->field2path($ufield, \@search);
+        $files = $self->field2path($ldbh, $ufield, \@search);
     } else {
         return error "I don't understand this command '$ucmd'";
     }
@@ -778,20 +805,16 @@ sub handleInput {
 # ------------------
 sub field2path {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
+    my $dbh = shift || return error('No dbh defined!');
     my $field = shift || return error('No field defined!');
     my $data = shift || return error('No data defined!');
     my $pathfield;
     my $sql;
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
-
-    return 0
-      if(!$dbh);
-
     map {$_ = $dbh->quote($_)} @$data;
 
-    if($obj->{mdbh}) {
+    if($self->{mdbh}) {
       $pathfield = 'mp3file';
       $sql = sprintf "SELECT SQL_CACHE %s, %s from tracks", $pathfield, $field;
     } else {
@@ -809,25 +832,25 @@ sub field2path {
 # ------------------
 sub insert {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $data = shift || return 0;
 
     my @setdata;
     foreach my $name (keys %$data) {
-        next unless(grep($name eq $_, @{$obj->{fields}}));
-        push(@setdata, sprintf("%s=%s", $name, $obj->{dbh}->quote($data->{$name})));
+        next unless(grep($name eq $_, @{$self->{fields}}));
+        push(@setdata, sprintf("%s=%s", $name, $self->{dbh}->quote($data->{$name})));
     }
 
     # MD5(File) as ID
     my $sql = sprintf('INSERT INTO MUSIC SET %s', join(', ', @setdata));
-    $obj->{dbh}->do( $sql );
+    $self->{dbh}->do( $sql );
     return 1;
 }
 
 # ------------------
 sub stream {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $files = shift || return error('No file defined!');
     my $client = shift || return error('No client defined!');
 
@@ -836,16 +859,16 @@ sub stream {
 
     defined(my $child = fork()) or die "Couldn't fork: $!";
     if($child == 0) {
-        $obj->{SOCK}->close;
-        $obj->{dbh}->{InactiveDestroy} = 1;
+        $self->{SOCK}->close;
+        $self->{dbh}->{InactiveDestroy} = 1;
 
         foreach my $file (@uniqu) {
 
-            $file = $obj->{path} . "/" . $file
-                if($obj->{mdbh});
+            $file = $self->{path} . "/" . $file
+                if($self->{mdbh});
 
             debug sprintf('Stream file "%s"',$file);
-            my $erg = $obj->{ICE}->stream($file,0,$client)
+            my $erg = $self->{ICE}->stream($file,0,$client)
                 || last;
         }
         exit 0;
@@ -855,7 +878,7 @@ sub stream {
 # ------------------
 sub parseRequest {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $hdl = shift || return error('No request defined!');
 
     my ($Req, $size) = getFromSocket($hdl);
@@ -903,14 +926,14 @@ sub parseRequest {
 # ------------------
 sub GroupArray {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $field = shift || return undef;
     my $table = shift;
     my $idfield = shift;
     my $search = shift;
     my $limitquery = shift;
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
     my $where = '';
     $where = sprintf("WHERE %s LIKE '%%%%%s%%%%'",$field, $search)
@@ -920,7 +943,7 @@ sub GroupArray {
         if($limitquery && $limitquery > 0);
 
     my $sql;
-    if($obj->{mdbh}) {
+    if($self->{mdbh}) {
         $sql = sprintf('SELECT SQL_CACHE %s, %s from %s %s group by %s order by %s %s', $field, $idfield, $table, $where, $field, $field, $limit);
     } else {
         $sql = sprintf('SELECT SQL_CACHE %s, ID from MUSIC %s group by %s order by %s %s %s ', $field, $where, $field, $field, $limit);
@@ -933,12 +956,12 @@ sub GroupArray {
 # ------------------
 sub GenreArray {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
     my $sql;
-    if($obj->{mdbh}) {
+    if($self->{mdbh}) {
         $sql = "SELECT SQL_CACHE genre, genre.id as id from genre,tracks where genre.id = tracks.genre1 group by id order by id";
     } else {
         my $field = 'genre';
@@ -952,23 +975,23 @@ sub GenreArray {
 # ------------------
 sub status {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $lastReportTime = shift || 0;
 
     return
-      if($obj->{active} eq 'n');
+      if($self->{active} eq 'n');
 
     my $report = {};
-    if($obj->{mdbh}) {
-        $report->{FILE} = $obj->{mdbh}->selectrow_arrayref('SELECT SQL_CACHE count(*) from tracks')->[0];
-        $report->{ALBUM} = $obj->{mdbh}->selectrow_arrayref('SELECT SQL_CACHE count(*) from album')->[0];
-        my $d = $obj->{mdbh}->selectall_arrayref('SELECT SQL_CACHE artist from tracks group by artist');
+    if($self->{mdbh}) {
+        $report->{FILE} = $self->{mdbh}->selectrow_arrayref('SELECT SQL_CACHE count(*) from tracks')->[0];
+        $report->{ALBUM} = $self->{mdbh}->selectrow_arrayref('SELECT SQL_CACHE count(*) from album')->[0];
+        my $d = $self->{mdbh}->selectall_arrayref('SELECT SQL_CACHE artist from tracks group by artist');
         $report->{ARTIST} = scalar @$d;
-        $d = $obj->{mdbh}->selectall_arrayref('SELECT SQL_CACHE genre1 from tracks group by genre1');
+        $d = $self->{mdbh}->selectall_arrayref('SELECT SQL_CACHE genre1 from tracks group by genre1');
         $report->{GENRE} = scalar @$d;
     } else {
         foreach my $field (qw/FILE ALBUM ARTIST GENRE/) {
-            my $data = $obj->GroupArray($field);
+            my $data = $self->GroupArray($field);
             $report->{$field} = scalar @$data;
         }
     }
@@ -983,7 +1006,7 @@ sub status {
 # ------------------
 sub _storecover {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $image = shift || return 0;
     my $target = shift;
 
@@ -1007,15 +1030,15 @@ sub _storecover {
 # ------------------
 sub getcovers {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift;
     my $config = shift;
     my $force = shift;
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
     return error('No valid Amazon token exists. Please sign up at http://amazon.com/soap!')
-        unless($obj->{Amazon});
+        unless($self->{Amazon});
 
     debug sprintf('Call getcovers%s',
             ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
@@ -1024,10 +1047,10 @@ sub getcovers {
     my $waiter = $console->wait(gettext("Please wait, search for new covers ..."),0,1000,'no')
         if(ref $console);
 
-    unless(-d $obj->{coverimages}) {
-        mkpath($obj->{coverimages}) or error "Couldn't mkpath $obj->{coverimages} : $!";
+    unless(-d $self->{coverimages}) {
+        mkpath($self->{coverimages}) or error "Couldn't mkpath $self->{coverimages} : $!";
         lg sprintf('mkdir path "%s"',
-                $obj->{coverimages}
+                $self->{coverimages}
             );
     }
 
@@ -1049,7 +1072,7 @@ sub getcovers {
         my $req = Net::Amazon::Request::Artist->new(
             artist  => $artist,
         );
-        my $resp = $obj->{Amazon}->request($req);
+        my $resp = $self->{Amazon}->request($req);
         $album =~ s/[^[:alnum:]]//sig;
         $artist =~ s/[^[:alnum:]]//sig;
 
@@ -1069,15 +1092,15 @@ sub getcovers {
 
               $image = $item->ImageUrlMedium()
                 if($item->can('ImageUrlMedium'));
-              last if($image && $obj->_storecover($image,$target));
+              last if($image && $self->_storecover($image,$target));
 
               $image = $item->ImageUrlLarge()
                 if($item->can('ImageUrlLarge'));
-              last if($image && $obj->_storecover($image,$target));
+              last if($image && $self->_storecover($image,$target));
 
               $image = $item->ImageUrlSmall()
                 if($item->can('ImageUrlSmall'));
-              last if($image && $obj->_storecover($image,$target));
+              last if($image && $self->_storecover($image,$target));
           }
         }
 
@@ -1085,7 +1108,7 @@ sub getcovers {
     });
 
     my $erg;
-    if($obj->{mdbh}) {
+    if($self->{mdbh}) {
         $erg = $dbh->selectall_hashref('SELECT SQL_CACHE DISTINCT t.id as ID,t.mp3file as FILE, a.artist as ARTIST, a.title as ALBUM, t.year as YEAR from album as a, tracks as t where a.cddbid = t.sourceid group by a.title', 'ID');
     } else {
         $erg = $dbh->selectall_hashref('SELECT SQL_CACHE DISTINCT Id as ID, FILE, ARTIST, ALBUM, YEAR from MUSIC group by ALBUM', 'ID');
@@ -1095,12 +1118,12 @@ sub getcovers {
     foreach my $id (sort keys %$erg) {
         my $e = $erg->{$id};
 
-        my $file = sprintf('%s/%s', $obj->{path}, $e->{FILE});
-        my $target = $obj->_findcover($file,$e->{ARTIST},$e->{ALBUM});
+        my $file = sprintf('%s/%s', $self->{path}, $e->{FILE});
+        my $target = $self->_findcover($file,$e->{ARTIST},$e->{ALBUM});
 
         next if($target and -e $target and not $force);
 
-        my $dest = $obj->_findcoverfromcache($e->{ALBUM},$e->{ARTIST});
+        my $dest = $self->_findcoverfromcache($e->{ALBUM},$e->{ARTIST});
         $rob->register('coverimage', $e->{ARTIST}, $e->{ALBUM}, $e->{YEAR}, $dest, ++$current);
     }
 
@@ -1153,7 +1176,7 @@ sub getcovers {
 # ------------------
 sub _findcoverfromcache {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $album = shift || return error('No album defined!');
     my $artist = shift || 0;
     my $typ = shift || 'absolute';
@@ -1162,11 +1185,11 @@ sub _findcoverfromcache {
     my $relative;
 
     if($artist) {
-        $absolute = sprintf('%s/%s-%s.jpg', $obj->{coverimages}, $obj->unique($artist), $obj->unique($album));
-        $relative = sprintf('/coverimages/%s-%s.jpg', $obj->unique($artist), $obj->unique($album));
+        $absolute = sprintf('%s/%s-%s.jpg', $self->{coverimages}, $self->unique($artist), $self->unique($album));
+        $relative = sprintf('/coverimages/%s-%s.jpg', $self->unique($artist), $self->unique($album));
     } else {
-        $absolute = sprintf('%s/%s.jpg', $obj->{coverimages}, $obj->unique($album));
-        $relative = sprintf('/coverimages/%s.jpg', $obj->unique($album));
+        $absolute = sprintf('%s/%s.jpg', $self->{coverimages}, $self->unique($album));
+        $relative = sprintf('/coverimages/%s.jpg', $self->unique($album));
     }
     return $absolute
         if($typ eq 'absolute');
@@ -1180,7 +1203,7 @@ sub _findcoverfromcache {
 # ------------------
 sub unique {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $text = shift || return '';
 
     $text =~ s/[^0-9a-z]//sig;
@@ -1188,55 +1211,9 @@ sub unique {
 }
 
 # ------------------
-sub ConnectToMuggleDB {
-# ------------------
-    my $obj = shift  || return error('No object defined!');
-    my $dsn = shift  || return 0;
-
-    $dsn =~ s/^\s+//;
-    $dsn =~ s/\s+$//;
-
-    #try to connect to muggle database
-    if(length($dsn) and $obj->{active} eq 'y') {
-        my $usr = main::getGeneralConfig->{USR};
-        my $pwd = main::getGeneralConfig->{PWD};
-
-        my $charset = $obj->{charset};
-        my $mdbh = DBI->connect(
-                $dsn, $usr, $pwd,
-                {   PrintError => 1,
-                    AutoCommit => 1,
-                    #mysql_enable_utf8 => ($charset =~ m/UTF-8/ ? 1 : 0),
-                    mysql_auto_reconnect => 1
-                }) || error($DBI::errstr);
-        if($mdbh) {
-    		    my $NAMES = {
-	            'UTF-8' => 'utf8',
-	            'ISO-8859-1' => 'latin1',
-	            'ISO-8859-2' => 'latin2',
-	            'ISO-8859-5' => 'latin5',
-	            'ISO-8859-7' => 'latin7',
-	            'ISO-8859-15' => 'latin1',
-        		};
-            my $n = $NAMES->{$charset} || 'latin1';
-            if (!($mdbh->do("set character set '" . $n . "'"))) {
-                panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
-            }
-            debug sprintf('Connect to database: %s successful.', $dsn);
-            return $mdbh;
-        } else {
-            debug('GiantDisc database not found! Use standard music database!');
-            return 0;
-        }
-    } else {
-        return 0;
-    }
-}
-
-# ------------------
 sub _findcover {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $file = shift || return error('No file defined!');
     my $artist = shift;
     my $album = shift;
@@ -1244,8 +1221,8 @@ sub _findcover {
     my $coverimage;
     my $directory = dirname($file);
 
-    if($obj->{coverimages} && -d $obj->{coverimages}) {
-      my $cache = $obj->_findcoverfromcache($album,$artist);
+    if($self->{coverimages} && -d $self->{coverimages}) {
+      my $cache = $self->_findcoverfromcache($album,$artist);
       $coverimage = $cache
         if($cache && -r $cache);
     }
@@ -1336,12 +1313,12 @@ sub _findcover {
 # ------------------
 sub coverimage {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
     if($dbh) {
       my $sql;
@@ -1350,7 +1327,7 @@ sub coverimage {
       my $coverimage;
       map {$_ = $dbh->quote($_)} @id;
 
-      if($obj->{mdbh}) {
+      if($self->{mdbh}) {
         $sql = sprintf qq|
                 SELECT SQL_CACHE id, mp3file as file, 
                         tracks.artist as artist, 
@@ -1372,9 +1349,9 @@ sub coverimage {
 
       if($ret && $ret->{'id'})
       {
-        my $file = sprintf('%s/%s', $obj->{path}, $ret->{'file'});
+        my $file = sprintf('%s/%s', $self->{path}, $ret->{'file'});
 
-        $coverimage = $obj->_findcover($file,$ret->{'artist'},$ret->{'album'});
+        $coverimage = $self->_findcover($file,$ret->{'artist'},$ret->{'album'});
       }
 
       if($console->typ eq 'HTML') {
@@ -1407,12 +1384,12 @@ sub coverimage {
 # ------------------
 sub getfile {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $data = shift || return error('No data defined!');
 
-    my $dbh = ($obj->{mdbh} ? $obj->{mdbh} : $obj->{dbh});
+    my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
     if($dbh) {
       my $sql;
@@ -1420,7 +1397,7 @@ sub getfile {
       
       map {$_ = $dbh->quote($_)} @id;
 
-      if($obj->{mdbh}) {
+      if($self->{mdbh}) {
         $sql = sprintf qq|
                 SELECT SQL_CACHE id, mp3file as file from tracks
                 where id in (%s)|, join(',', @id);
@@ -1435,7 +1412,7 @@ sub getfile {
           && $ret->{'id'} 
           && $ret->{'file'}
           && $console->typ eq 'HTML') {
-            $console->datei(sprintf('%s/%s', $obj->{path}, $ret->{'file'}));
+            $console->datei(sprintf('%s/%s', $self->{path}, $ret->{'file'}));
             return 1;
         }
     }
@@ -1446,7 +1423,7 @@ sub getfile {
 # ------------------
 sub suggest {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
     my $search = shift;
@@ -1454,13 +1431,13 @@ sub suggest {
 
     if(exists $params->{get}) {
         my $result;
-        $result = ($obj->{mdbh} ? $obj->GroupArray('title', 'album', 'cddbid',$search, 25) : $obj->GroupArray('ALBUM',undef,undef,$search, 25))
+        $result = ($self->{mdbh} ? $self->GroupArray('title', 'album', 'cddbid',$search, 25) : $self->GroupArray('ALBUM',undef,undef,$search, 25))
             if($params->{get} eq 'album');
 
-        $result = ($obj->{mdbh} ? $obj->GroupArray('artist', 'tracks', 'id',$search, 25): $obj->GroupArray('ARTIST',undef,undef,$search, 25))
+        $result = ($self->{mdbh} ? $self->GroupArray('artist', 'tracks', 'id',$search, 25): $self->GroupArray('ARTIST',undef,undef,$search, 25))
             if($params->{get} eq 'artist');
 
-        $result = ($obj->{mdbh} ? $obj->GroupArray('title', 'tracks', 'id',$search, 25): $obj->GroupArray('TITLE',undef,undef,$search, 25))
+        $result = ($self->{mdbh} ? $self->GroupArray('title', 'tracks', 'id',$search, 25): $self->GroupArray('TITLE',undef,undef,$search, 25))
             if($params->{get} eq 'title');
 
         $console->table($result)

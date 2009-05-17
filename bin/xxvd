@@ -314,44 +314,6 @@ sub toCleanUp {
 }
 
 # ------------------
-sub getDbh {
-# ------------------
-    my $dsn = shift || return error('No database parameter defined!');
-    my $usr = shift || return error('No user defined!');
-    my $pwd = shift || '';
-    my $charset = shift || return error('No charset defined!');
-
-    my $dbh = DBI->connect($dsn, $usr, $pwd,{
-                      PrintError => 1,
-                      AutoCommit => 1,
-#                     mysql_enable_utf8 => (($charset =~ m/UTF-8/) ? 1 : 0),
-                      mysql_auto_reconnect => 1
-            });
-
-    if($dbh) {
-      debug sprintf('Connect to database: %s successful.', $dsn);
-
-	    my $NAMES = {
-	      'UTF-8' => 'utf8',
-	      'ISO-8859-1' => 'latin1',
-	      'ISO-8859-2' => 'latin2',
-	      'ISO-8859-5' => 'latin5',
-	      'ISO-8859-7' => 'latin7',
-	      'ISO-8859-15' => 'latin1',
-  		};
-      my $n = $NAMES->{$charset} || 'latin1';
-      if (!($dbh->do("set character set '" . $n . "'"))) {
-          panic sprintf("Could not set charset: %s :", $n, $DBI::errstr);
-      }
-    } else {
-        panic sprintf("Could not connect to database: %s :", $dsn, $DBI::errstr);
-        &quit(1);
-    }
-
-    return $dbh;
-}
-
-# ------------------
 sub addModule {
 # ------------------
     my $name = shift || return error('No modul name defined!');
@@ -642,12 +604,13 @@ sub init_db_connect {
     my $charset = shift || return error('No charset defined!');
 
     # Connect to Database
-    my $dbh = &getDbh(
+    my $dbh = &connectDB(
         $cfg->{General}->{DSN},
         $cfg->{General}->{USR},
         $cfg->{General}->{PWD},
         $charset
         ) or return error "Couldn't connect to database";
+    &quit(1) unless($dbh);
 
     # Set DBH for Toolsmodule
     $Tools::DBH = $dbh;

@@ -127,6 +127,7 @@ sub report {
         next if($modulename and uc($modulename) ne $modCfg->{Name});
         next if(exists $mods->{$modName}->{active} and $cfg->{$modCfg->{Name}}->{active} eq 'n');
         if(exists $modCfg->{Status} and ref $modCfg->{Status} eq 'CODE') {
+            lg sprintf("Collect report data from modul %s",$modCfg->{Name});
             $result->{$modCfg->{Name}} = $modCfg->{Status}($self->{LastReportTime});
         }
     }

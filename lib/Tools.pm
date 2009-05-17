@@ -33,7 +33,9 @@ use constant FRAMESPERSECOND => 25;
  &getFromSocket &fields &load_file &save_file &tableUpdated &buildsearch 
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
  &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url
- &con_err &con_msg &text2frame &frame2hms &gettext &setcharset &resolv_symlink);
+ &con_err &con_msg &text2frame &frame2hms &gettext &setcharset &resolv_symlink
+ &connectDB
+);
 
 
 # ------------------
@@ -794,6 +796,47 @@ sub resolv_symlink($) {
       }
     }
   return join("/", @f);
+}
+
+# ------------------
+sub connectDB {
+# ------------------
+    my $dsn = shift || return error('No database parameter defined!');
+    my $usr = shift || return error('No user defined!');
+    my $pwd = shift || '';
+    my $charset = shift || return error('No charset defined!');
+
+    $dsn =~ s/^\s+//;
+    $dsn =~ s/\s+$//;
+
+    my $dbh = DBI->connect($dsn, $usr, $pwd,{
+                      PrintError => 1,
+                      AutoCommit => 1,
+#                     mysql_enable_utf8 => (($charset =~ m/UTF-8/) ? 1 : 0),
+                      mysql_auto_reconnect => 1
+            });
+
+    if($dbh) {
+      debug sprintf('Connect to database: %s successful.', $dsn);
+
+	    my $NAMES = {
+	      'UTF-8' => 'utf8',
+	      'ISO-8859-1' => 'latin1',
+	      'ISO-8859-2' => 'latin2',
+	      'ISO-8859-5' => 'latin5',
+	      'ISO-8859-7' => 'latin7',
+	      'ISO-8859-15' => 'latin1',
+  		};
+      my $n = $NAMES->{$charset} || 'latin1';
+      if (!($dbh->do("set character set '" . $n . "'"))) {
+          error sprintf("Could not set charset: %s : %s", $n, $DBI::errstr);
+      }
+    } else {
+        panic sprintf("Could not connect to database: %s :", $dsn, $DBI::errstr);
+        return 0;
+    }
+
+    return $dbh;
 }
 
 1;
