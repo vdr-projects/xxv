@@ -469,8 +469,13 @@ sub getDBVersion {
     return $DBVERSION if($DBVERSION);
 
     my $cmd       = sprintf('%s/update-xxv', $PATHS->{CONTRIB});
-    my ($ver) = (`$cmd -v`)[-1] =~ /\'(\d+)\'/;
-    $DBVERSION = $ver;
+    if( -x $cmd) {
+      my ($ver) = (`$cmd -v`)[-1] =~ /\'(\d+)\'/;
+      $DBVERSION = $ver;
+    } else {
+      $DBVERSION = 31;
+      debug sprintf("File '%s' missed!, use database layout %d", $cmd, $DBVERSION);
+    }
     return $DBVERSION;
 }
 

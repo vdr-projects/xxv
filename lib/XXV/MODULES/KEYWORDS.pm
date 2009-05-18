@@ -288,7 +288,7 @@ sub timer_keywords {
 
     my $tmod = main::getModule('TIMERS');
     unless($text) {
-      return $tmod->list($console);
+      return $tmod->list($console,$config);
     }
 
 	  my $term;
@@ -297,7 +297,7 @@ sub timer_keywords {
     $search = sprintf('AND ( %s ) AND ( t.id = k.hash )', $query->{query});
     foreach(@{$query->{term}}) { push(@{$term},$_); }
 
-    return $tmod->_list($console,$search,$term,$params,', KEYWORDS as k');
+    return $tmod->_list($console,$config,$search,$term,$params,', KEYWORDS as k');
 }
 
 # ------------------
@@ -315,7 +315,7 @@ sub recording_keywords {
     }
 
     my $query = buildsearch("k.keyword",$text);
-    return $rmod->_search($console,$query->{query}.' ) AND ( r.hash = k.hash ',$query->{term},$params,', KEYWORDS as k');
+    return $rmod->_search($console,$config,$query->{query}.' ) AND ( r.hash = k.hash ',$query->{term},$params,', KEYWORDS as k');
 }
 
 # ------------------

@@ -1234,6 +1234,7 @@ sub _list {
 	  my $search = shift || '';
 	  my $term = shift;
 	  my $params = shift;
+    my $tables  = shift || '';
 
     my %f = (
         'id' => gettext('Service'),
@@ -1271,6 +1272,7 @@ FROM
     TIMERS as t,
     CHANNELS as c,
     RECORDER as r
+    $tables
 WHERE
     t.stoptime > NOW()
     AND t.channel = c.id

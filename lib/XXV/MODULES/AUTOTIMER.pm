@@ -480,13 +480,13 @@ sub _autotimerLookup {
 
             my $keywords;
             ($event->{file},$keywords) = $obj->_placeholder($event, $a);
+            $event->{keywords} = $keywords if($keywords && $obj->{keywords}->{active} eq 'y');
 
             # Add anchor for reidentify timer
             my $args = {
              'autotimer' => $id,
 #            'eventid' => $eventid
             };
-            $args->{'keywords'} = $keywords if($keywords && $obj->{keywords}->{active} eq 'y');
             $event->{aux} = $obj->{keywords}->createxml($args);
             
             # Wished timer already exist with same data from autotimer ?
