@@ -425,3 +425,30 @@ color:#b03e28;
 .error {
 color:red;
 }
+
+.x-cloud-list {
+  padding:10px;
+}
+
+.x-cloud-item  {
+	display:inline;
+	padding-right:5px;
+}
+.x-cloud-item a  {
+  text-decoration:none;
+	color:#555555;
+}
+
+.x-cloud-item a:hover  {
+	color:#002a85;
+  text-decoration:none;
+}
+
+.x-cloud-item.smallest { font-size: 0.7em; }
+.x-cloud-item.smaller { font-size: 0.8em; }
+.x-cloud-item.small { font-size: 0.9em; }
+.x-cloud-item.medium { font-size: 1.0em; }
+.x-cloud-item.large { font-size: 1.1em; }
+.x-cloud-item.larger { font-size: 1.1em; }
+.x-cloud-item.largest { font-size: 1.3em; } 
+

@@ -86,6 +86,9 @@ Ext.xxv.slide = function(config){
     
     Ext.apply(this, config);
         
+    this.addEvents({
+        'selectKeyword' : true
+    });
 };
 
 Ext.extend(Ext.xxv.slide, Ext.Component, {
@@ -105,9 +108,18 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 	    this.addEvents({'selected' : true});
         if (typeof(this.imageGap)=='undefined') { this.imageGap = 10 }
         this.tpl = new Ext.Template(
+            '<span id="preview-recordings-frame">',
             '<div class="preview-header">',
             '<h3 class="preview-title">{title}</h3>',
-            '<div class="preview-channel">{channel}{period}{cutlength}</div>',
+            '<div class="preview-channel">',
+              '<tpl if="channel != 0">',
+                '<b>{channel}</b> - ',
+              '</tpl>',
+              '{period}',
+              '<tpl if="cutlength != 0">',
+                ' ({cutlength})',
+              '</tpl>',
+            '</div>',
             '<h4 class="preview-shorttitle">{subtitle}&nbsp;</h4>',
             '<div class="preview-date">{day:date} {start} - {stop}</div>',
             '</div>',
@@ -120,7 +132,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
             '</div>',
             '<div id="slider"><div id="slider-inner"></div></div>',
             '<div class="preview-body">{content}</div>',
-            '<div class="preview-body">{keywords}</div>'
+            '</span>'
         );
         this.tpl.compile();  
 
@@ -132,25 +144,18 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
     setvalue : function(data, first){
 
       this.param = {
-         title:     data.fulltitle
+         data:      data
+        ,title:     data.fulltitle
         ,subtitle:  ''
-        ,channel:   (!data.channel || data.channel.length <= 0) ? null : ( '<b>' + data.channel + '</b> - ' )
+        ,channel:   data.channel
         ,day:       data.day
         ,duration:  data.duration
         ,start:     data.day.dateFormat('H:i')
         ,stop:      new Date(data.day.getTime() + (data.duration * 1000)).dateFormat('H:i')
         ,content:   data.description.replace(/\r\n/g, '<br />')
-        ,cutlength: data.cutlength == data.duration ? null : (' (' + SecondsToHMS(data.cutlength) +')')
+        ,cutlength: data.cutlength == data.duration ? null : SecondsToHMS(data.cutlength)
         ,period:    SecondsToHMS(data.duration)
-        ,marks:     data.marks
       };
-      if(data.keywords) {
-        var k = new Array();
-        for(var j = 0, len = data.keywords.length; j < len; j++){
-          k.push(data.keywords[j][0]);
-        }
-        this.param.keywords = k.join(', ');
-      }
 
       var title = data.title.split("~");
       if(data.subtitle && data.subtitle.length >1) {
@@ -196,23 +201,29 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 
     render : function(ct, position){
 
+        /** add preview images ************************************************/
+
         var inner= Ext.get("images-inner");
         if(!inner) {
           this.param.cls = this.baseCls;
           if(position){
-              this.el = this.tpl.insertBefore(position, this.param, true);
+            this.el = this.tpl.insertBefore(position, this.param, true);
           }else{
-              this.el = this.tpl.append(ct, this.param, true);
+            this.el = this.tpl.append(ct, this.param, true);
           }
           if(this.id){
-              this.el.dom.id = this.id;
+            this.el.dom.id = this.id;
           }
           
           inner= Ext.get("images-inner");
-		  if(this.slider) {
-			delete this.slider;
-			this.slider = null;
-		  }
+		      if(this.slider) {
+			      delete this.slider;
+			      this.slider = null;
+		      }
+		      if(this.cloudlist) {
+			      delete this.cloudlist;
+			      this.cloudlist = null;
+		      }
         }
         var imagesWrap = Ext.get(inner.dom.firstChild);
         this.divImages = Ext.get(imagesWrap.dom.firstChild);
@@ -279,56 +290,96 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
           },this);
         },this);
 
-        if(this.slider) {
-          this.slider.sliders.clear();
-        } else {
+      /** add cutmark slider **************************************************/
+      if(this.slider) {
+        this.slider.sliders.clear();
+      } else {
 
 		    this.slider = new Ext.ux.SlideZone('slider-inner', {  
 			    type: 'horizontal',
 			    size: usableWidth-32,
           sliderWidth: 16,
 			    sliderHeight: 24,
-			    maxValue: this.param.duration,
+			    maxValue: this.param.data.duration,
 			    minValue: 0,
 			    //sliderSnap: 1,
 			    allowSliderCrossing: true
-			});
-			this.ts = new Ext.ux.ThumbSlider({
-				 value: 0
-				,name: 'cutpoint_thumb'
-				,cls: 'x-slide-zone-bottom'
-				,allowMove: true
-			});
-			this.ts.on('drag',
-				function() {
-					var v = parseInt(this.ts.value * 1000);
-					this.fireEvent('selected', this, new Date((minTime().getTime())+v), null, null);
-			},this);
-		}
+			    });
+			  this.ts = new Ext.ux.ThumbSlider({
+				   value: 0
+				  ,name: 'cutpoint_thumb'
+				  ,cls: 'x-slide-zone-bottom'
+				  ,allowMove: true
+			    });
+			  this.ts.on('drag',
+				  function() {
+					  var v = parseInt(this.ts.value * 1000);
+					  this.fireEvent('selected', this, new Date((minTime().getTime())+v), null, null);
+			  },this);
+		  }
 
-        if(this.param.marks && this.param.marks.length) {
-			var cutpoint = this.param.marks.split(",");
-			for(var i = 0, len = cutpoint.length; i < len; i += 2){
-				var first = HMSToSeconds(cutpoint[i]);
-				var second;
-				if(i+1 < cutpoint.length) {
-					second = HMSToSeconds(cutpoint[i+1]);
-				} else {
-					second = this.param.duration;
-				}
-				var rs = new Ext.ux.RangeSlider({
-					 value: [first,second]
-					,name: 'cutpoint_'+i
-					,cls: 'x-slide-zone-top'
-					,allowMove: false
-				});
-				this.slider.add(rs);	
-			}
-		}
-		this.slider.add(this.ts);
-    },
+      if(this.param.data.marks && this.param.data.marks.length) {
+			  var cutpoint = this.param.data.marks.split(",");
+			  for(var i = 0, len = cutpoint.length; i < len; i += 2){
+				  var first = HMSToSeconds(cutpoint[i]);
+				  var second;
+				  if(i+1 < cutpoint.length) {
+					  second = HMSToSeconds(cutpoint[i+1]);
+				  } else {
+					  second = this.param.data.duration;
+				  }
+				  var rs = new Ext.ux.RangeSlider({
+					   value: [first,second]
+					  ,name: 'cutpoint_'+i
+					  ,cls: 'x-slide-zone-top'
+					  ,allowMove: false
+				  });
+				  this.slider.add(rs);	
+			  }
+		  }
+		  this.slider.add(this.ts);
+      /** add keywords tagcloud ***********************************************/
+      if(!this.cloudlist && this.param.data.keywords && this.param.data.keywords.length) {
+          var cont = Ext.get(ct.dom.lastChild);
+		      this.cloudlist = cont.createChild({tag: "ol", cls: "x-cloud-list"});
+      		for(var i = 0, len = this.param.data.keywords.length; i < len; i++){
+      			var child = this.cloudlist.createChild({
+                tag: "li", 
+                cls: "x-cloud-item "+this.getWeight(this.param.data.keywords[i][1]),
+                html: '<a href="#">'+this.param.data.keywords[i][0]+'</a>'
+                });
+			
+			      child.on('click', this.onSelectKeyWord, this);
+		      }
+      }
+    }
+    /**************************************************************************/
+    ,onSelectKeyWord : function(e, t){
+    
+        var item = t.parentNode;
+        var tag = item.firstChild.innerHTML;
+        
+        this.fireEvent('selectKeyword', tag);
+        
+        // Prevent the link href from being followed
+        Ext.EventObject.stopEvent(e);
+    }
+    /**************************************************************************/
+	  ,getWeight : function(weight){
+      var nmax = 100;
+      var nmin = 0;
 
-    CanShift: function(direction) {
+      var styles = new Array('smallest','smaller','small','medium','large','larger','largest');
+      var value = weight / (nmax - nmin) * 6;
+		  if(value >= 6.0)
+			  return styles[6];
+		  if(value <= 0.0)
+			  return styles[0];
+
+		  return styles[Math.round(value)];
+	  }
+    /**************************************************************************/
+    ,CanShift: function(direction) {
   		if (!this.curPage){
   			this.offsetLeft=this.divImages.getLeft();
   		}
@@ -337,9 +388,9 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 		  	return -1;
 		  }
       return newPage;
-    },
+    }
 
-    Shift: function(direction) {
+    ,Shift: function(direction) {
       var newPage = this.CanShift(direction);
       if (newPage<0 || newPage >= this.maxPages){
 		  	return;
@@ -648,7 +699,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
                       return data;
                     }
                     ,listeners: {
-			             'selectionchange': {fn:this.doClick, scope:this, buffer:100}
+			                  'selectionchange': {fn:this.doClick, scope:this, buffer:100}
  		                    ,'contextmenu'    : {fn:this.onContextClick, scope:this}
   			                ,'dblclick'       : {fn:this.doDblclick, scope:this}
 //			                ,'loadexception'  : {fn:this.onLoadException, scope:this}
@@ -747,6 +798,15 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     	  this.ownerCt.SetPanelTitle(this.szTitle);
        }
 
+    }
+    ,doSelectKeyword : function(tag) {
+       if(tag) {
+         delete(this.store.baseParams['data']);
+         this.store.title = tag;
+         this.store.baseParams.cmd = 'rk';
+         this.store.baseParams.data = tag;
+         this.store.load({params:{start:0, limit:this.store.autoLoad.params.limit}});
+       }
     }
     ,doDblclick : function() {
 	      var selNode = this.getSelectedNodes();
@@ -1278,7 +1338,10 @@ function createRecordingsView(viewer,id) {
               listeners:{
                 selected: function(slide, time, e, ele){
                   this.ownerCt.timefield.setValue(time);
-                }             	
+                }
+   			        ,'selectKeyword': function(tag) {
+                  viewer.gridRecordings.doSelectKeyword(tag);
+                }          	
               },
 	            images:[]
 	            }],
