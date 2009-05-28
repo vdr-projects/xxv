@@ -794,10 +794,10 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
        }
        if(store.title) {
     	  this.ownerCt.SetPanelTitle(store.title);
+        store.title = undefined;
        } else {
     	  this.ownerCt.SetPanelTitle(this.szTitle);
        }
-
     }
     ,doSelectKeyword : function(tag) {
        if(tag) {
@@ -816,8 +816,6 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
           if(record) {
             if(record.data.isrecording == 0) {
                 delete(this.store.baseParams['data']);
-                this.store.title = undefined;
-
                 this.store.baseParams.cmd = 'rl';
                 if(record.id == 'up') {
                   var f = this.filter.field.getValue();
@@ -1113,7 +1111,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
               selRecord = this.store.getAt(iSel);
             }
             if(!selRecord || selRecord.data.isrecording == 0) {
-              for(iSel++;iSel < store.getCount();iSel++) {
+              for(iSel++;iSel < this.store.getCount();iSel++) {
                 selRecord = this.store.getAt(iSel);
                 if(selRecord.data.isrecording != 0)
                   break;
