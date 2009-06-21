@@ -759,7 +759,7 @@ You can also fine tune your search :
             },
         },
          'Start' => {
-             typ     => 'string',
+             typ     => 'time',
              def     => sub{
 		             my $value = $epg->{Start} || return "";
                      return fmttime($value);
@@ -782,7 +782,7 @@ You can also fine tune your search :
              },
          },
          'Stop' => {
-             typ     => 'string',
+             typ     => 'time',
              def     => sub{
     		         my $value = $epg->{Stop} || return "";
                      return fmttime($value);

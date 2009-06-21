@@ -2298,7 +2298,6 @@ SELECT SQL_CACHE
     CONCAT_WS('~',e.title,e.subtitle) as title,
     e.eventid as EventId,
     r.Path,
-    r.priority,
     r.lifetime
 FROM
     RECORDS as r,
@@ -2336,20 +2335,6 @@ WHERE
             typ     => 'integer',
             msg     => sprintf(gettext('Lifetime (%d ... %d)'),0,99),
             def     => int($rec->{lifetime}),
-            check   => sub{
-                my $value = shift || 0;
-                if($value >= 0 and $value < 100) {
-                    return int($value);
-                } else {
-                    return undef, gettext('Value incorrect!');
-                }
-            },
-            req     => gettext("This is required!"),
-        },
-        'priority' => {
-            typ     => 'integer',
-            msg     => sprintf(gettext('Priority (%d ... %d)'),0,99),
-            def     => int($rec->{priority}),
             check   => sub{
                 my $value = shift || 0;
                 if($value >= 0 and $value < 100) {
@@ -2462,16 +2447,12 @@ WHERE
         }
 
 
-        if($data->{lifetime} ne $rec->{lifetime}
-            or $data->{priority} ne $rec->{priority}) {
+        if($data->{lifetime} ne $rec->{lifetime}) {
 
             my @options = split('\.', $rec->{Path});
 
             $options[-2] = sprintf("%02d",$data->{lifetime})
                 if($data->{lifetime} ne $rec->{lifetime});
-
-            $options[-3] = sprintf("%02d",$data->{priority})
-                if($data->{priority} ne $rec->{priority});
 
             my $newPath = join('.', @options);
 

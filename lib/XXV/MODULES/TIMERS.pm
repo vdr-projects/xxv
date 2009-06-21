@@ -692,7 +692,7 @@ WHERE
             },
         },
         'start' => {
-            typ     => 'string',
+            typ     => $con ? 'string' : 'time',
             def     => sub{
                     return fmttime($default->{start});
                 },
@@ -711,7 +711,7 @@ WHERE
             },
         },
         'stop' => {
-            typ     => 'string',
+            typ     => $con ? 'string' : 'time',
             def     => sub{
                     return fmttime($default->{stop});
                 },
