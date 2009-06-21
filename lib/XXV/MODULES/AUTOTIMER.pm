@@ -731,10 +731,12 @@ You can also fine tune your search :
             choices   => $DoneChoices,
             def   => sub {
                             my $value = $epg->{Done};
-                            my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
                             my $ret;
-                            foreach my $v (@vals) {
-                                push(@$ret,$do{$v});
+                            if($value) {
+                              my @vals = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
+                              foreach my $v (@vals) {
+                                  push(@$ret,$do{$v});
+                              }
                             }
                             return $ret;
                           },
