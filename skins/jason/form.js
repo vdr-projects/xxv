@@ -96,6 +96,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             ,value:      r[i].data.valuedef
             ,anchor:     '100%'  // anchor width by percentage
             ,stateful:   false
+            ,tabIndex:   i + 1
         };
         if(r[i].data.valuereq){
           config.allowBlank = false;
@@ -233,11 +234,15 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             config.editable = false;
 
             break;      
-          /*case 'date':
+          case 'date':
+            var today = new Date();
+            today.clearTime();
             config.xtype = 'datefield';
-          break;*/
+            config.minValue = today;
+            break;
           case 'time':
             config.xtype = 'timefield';
+            config.increment = 15;
             break;
           case 'integer':
             config.xtype = 'numberfield';
