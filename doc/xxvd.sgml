@@ -4,7 +4,7 @@
  [
   <!ENTITY dhfirstname "<firstname>Tobias</firstname>">
   <!ENTITY dhsurname   "<surname>Grimm</surname>">
-  <!ENTITY date        "March 08, 2008">
+  <!ENTITY date        "July 04, 2009">
   <!ENTITY dhdate      "<date>&date;</date>">
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
   <!ENTITY dhemail     "<email>tg@e-tobi.net</email>">
@@ -23,7 +23,7 @@
     <address>&dhemail;</address>
     <author>&dhfirstname; &dhsurname;</author>
     <copyright>
-      <year>2005 - 2008</year>
+      <year>2005 - 2009</year>
       <holder>&dhusername;</holder>
     </copyright>
     &dhdate;
@@ -50,7 +50,6 @@
       <arg><option>--newstmpl=</option><replaceable>DIRECTORY</replaceable></arg>
       <arg><option>--xmltv=</option><replaceable>DIRECTORY</replaceable></arg>
       <arg><option>--verbose=</option><replaceable>LEVEL</replaceable></arg>
-      <arg><option>--utf8</option></arg>
       <arg><option>--version</option></arg>
       <arg><option>--nofork</option></arg>
       <arg><option>--kill</option></arg>
@@ -166,12 +165,6 @@
                 <listitem><para> 5 - Lots of messages</para></listitem>
                 <listitem><para>&gt;5 - Messages with dump of caller stack</para></listitem>
             </itemizedlist>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>--utf8</term>
-        <listitem>
-          <para>Use encoding utf8 as data charset.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

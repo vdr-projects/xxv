@@ -15,7 +15,7 @@ New features:
 * New module to manage keywords within recordings
 * New import module for XML-TV sources and template for scheme based programs.  
 			New commands xn (new) xe (edit) xd (delete) xl (list) xt (manual update)
-* UTF8 Support. Run 'xxvd --utf8'  to use encoding utf8 as data char set.
+* UTF8 Support. Run 'export LANG="de_DE.utf8"; ./xxvd'  to use encoding utf8 as data char set.
 
 Common changes:
 * Log referrer to wrong filename, if database version mismatch

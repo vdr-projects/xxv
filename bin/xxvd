@@ -92,7 +92,6 @@ GetOptions (
     "newstmpl=s"   => \$PATHS->{NEWSTMPL},
     "xmltv=s"      => \$PATHS->{XMLTV},
     "verbose=s"    => \$verbose,    # debug output level
-    "utf8"         => \$useutf8,    # Use encoding utf8 as data charset.
     "version"      => \$version,    # print version
     "nofork"       => \$nofork,     # switch fork off, for better debugging
     "kill"         => \$killer,     # kill old xxvd
@@ -137,7 +136,7 @@ unless($nofork) {
     }
 }
 
-setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"'
+my $current_locale = setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"'
 
 # Load a config
 my $CFGOBJ = Config::Tiny->new();
@@ -148,6 +147,10 @@ unless($Config){
     exit(1);
 }
 
+# Check for environment with UTF-8
+$useutf8 = 1 if($current_locale &&
+                ($current_locale =~ /UTF.+8/sig
+                || $current_locale =~ /utf8/sig));
 
 # Install i18n system
 $charset = &init_locale($Config, $PATHS, $useutf8);
@@ -161,6 +164,8 @@ if($cfgUsrFile ne $cfgFile) {
 } else {
     debug sprintf('Use configuration file "%s"', $cfgUsrFile);
 }
+
+debug sprintf("Used database charset '%s'", $charset);
 
 # Check templateModul
 &init_template($TEMPLMOD);
@@ -487,8 +492,6 @@ sub init_locale {
     my $useutf8 = shift;
 
     my $charset;
-    # use I18N::Langinfo qw(langinfo CODESET);
-    # $charset = langinfo(CODESET);
     if($useutf8){
       $charset = 'UTF-8';
       eval 'use utf8';
