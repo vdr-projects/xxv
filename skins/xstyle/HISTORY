@@ -1,3 +1,11 @@
+Release 1.4
+
+* widget/time.tmpl : Add widget for input time based values
+* rdisplay: transmit keywords as data
+
+Release 1.0
+
+
 * no broken pics in schema on IE
 * add support for IE7
 * Added support for MEDIALIB

@@ -1,3 +1,8 @@
+1.4
+
+* widget/time.tmpl : Add widget for input time based values
+* rdisplay: transmit keywords as data
+
 1.2
 
 * In Datei "skin.cfg" entfällt der Parameter "global.playbackmode", 
