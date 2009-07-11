@@ -1,5 +1,26 @@
-1.3.1
+1.4 - Stable release
+--------------------------------------------------------------------------------
 
+* add automated detect for environment with UTF-8 ('export LANG=de_DE.utf8; xxvd'), remove xxvd option --utf8
+* update install scripts
+* ignore if contrib/update-xxv missed
+* doc: remove outdated files
+* Update locale
+
+* AUTOTIMER: remove warn message, if none done choices defined
+
+* HTTPD: Add widget for input time based values
+* HTTPD: Fix HTTP State 403 (forbidden) deliver wrong state 404
+* KEYWORDS: Update routines
+* MUSIC: refactory database handling
+* RECORDS: redit remove useless edit of recording 'priority'
+* RECORDS: Fix file monitor don't work if path contain symbolic links (resolv now real file name)
+* RECORDS/EPG: separating eventid pedantic
+* REPORT: Add log message
+* WML: Backport changes from module HTTPD
+
+1.3.1
+--------------------------------------------------------------------------------
 * RECORDS: Fix allow missing video directory (after fresh install)
 
 
