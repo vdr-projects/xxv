@@ -136,27 +136,22 @@ unless($nofork) {
     }
 }
 
-my $current_locale = setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"'
+# Install logging
+&init_logging($PATHS);
+
+# Install i18n system
+($charset,$useutf8) = &init_locale($PATHS);
 
 # Load a config
 my $CFGOBJ = Config::Tiny->new();
 my $cfgFile = &getConfigFile();
 my $Config = $CFGOBJ->read( $cfgFile );
 unless($Config){
-    print sprintf("Couldn't read file with configuration '%s' : %s", $cfgFile, $CFGOBJ->errstr);
+    panic sprintf("Couldn't read file with configuration '%s' : %s", $cfgFile, $CFGOBJ->errstr);
     exit(1);
 }
 
-# Check for environment with UTF-8
-$useutf8 = 1 if($current_locale &&
-                ($current_locale =~ /UTF.+8/sig
-                || $current_locale =~ /utf8/sig));
 
-# Install i18n system
-$charset = &init_locale($Config, $PATHS, $useutf8);
-
-# Install logging
-&init_logging($PATHS);
 
 my $cfgUsrFile = &getUsrConfigFile();
 if($cfgUsrFile ne $cfgFile) {
@@ -165,7 +160,7 @@ if($cfgUsrFile ne $cfgFile) {
     debug sprintf('Use configuration file "%s"', $cfgUsrFile);
 }
 
-debug sprintf("Used database charset '%s'", $charset);
+
 
 # Check templateModul
 &init_template($TEMPLMOD);
@@ -272,11 +267,6 @@ sub after {
 # ------------------
 sub reconfigure {
 # ------------------
-    if(!$useutf8 && defined $Config->{General}->{Language}
-        and $Config->{General}->{Language} ne setlocale(LC_ALL)) {
-        setlocale (LC_ALL, "");# It's doesn't work without reset Language
-        setlocale (LC_ALL, $Config->{General}->{Language});
-    }
 }
 
 # Folgende Calls sind möglich:
@@ -487,11 +477,19 @@ sub getDBVersion {
 # ------------------
 sub init_locale {
 # ------------------
-    my $cfg = shift || return error('No configuration defined!');
     my $paths = shift || return error('No path defined!');
-    my $useutf8 = shift;
+
+    setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"';
+    my $current_locale = setlocale (LC_MESSAGES);
+
+    debug sprintf('Current locale is set to %s', $current_locale);
 
     my $charset;
+    # Check for environment with UTF-8
+    my $useutf8 = 1 if($current_locale &&
+                ($current_locale =~ /UTF.+8/sig
+                || $current_locale =~ /utf8/sig));
+
     if($useutf8){
       $charset = 'UTF-8';
       eval 'use utf8';
@@ -500,10 +498,6 @@ sub init_locale {
     }
     setcharset($charset);
 
-    if(!$useutf8 && defined $cfg->{General}->{Language}) {
-        setlocale (LC_ALL, $cfg->{General}->{Language});
-    }
-
     # TODO set to installed folder like /usr/share/locale
     # set /usr/share/locale/de/LC_MESSAGES/xxv.mo
     # Message catalogs will be expected at the pathnames dirname/locale/cate-
@@ -511,7 +505,7 @@ sub init_locale {
     # locale facet such as LC_MESSAGES.
     bindtextdomain ('xxv', abs_path($paths->{LOCDIRNAME}));
 
-    return $charset;
+    return ($charset,$useutf8);
 }
 
 # ------------------
@@ -611,6 +605,8 @@ sub init_db_connect {
     my $cfg = shift || return error('No configuration defined!');
     my $charset = shift || return error('No charset defined!');
 
+    debug sprintf("Used database charset '%s'", $charset);
+
     # Connect to Database
     my $dbh = &connectDB(
         $cfg->{General}->{DSN},
@@ -637,15 +633,6 @@ sub module {
         LastAuthor => (split(/ /, '$Author$'))[1],
         Author => 'Frank Herrmann <xpix at xpix.de>',
         Preferences => {
-            Language => {
-                description => gettext('Interface language'),
-                type        => $useutf8 ? 'hidden' : 'list',
-                choices     => [
-                    [gettext('English'), 'C'], # C Stand for nativ gettext language, and means en_US
-                    [gettext('German'),  'de_DE'],
-                ],
-                default     => 'C',
-            },
             DSN => {
                 description => gettext('Data source for the connection to the database'),
                 default     => 'DBI:mysql:database=xxv;host=localhost;port=3306',

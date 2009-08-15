@@ -5,13 +5,15 @@
 
 ### Targets:
 PREPARE = de.po \
+		it.po \
 #      fr.po \
-#      it.po ne.po po.po \
+#      ne.po po.po \
 #      su.po es.po
 
 TRANSLATION = de.mo \
+		it.mo \
 #      fr.mo \
-#      it.mo ne.mo po.mo \
+#      ne.mo po.mo \
 #      su.mo es.mo
 
 MODULES = ../lib/XXV/MODULES/AUTOTIMER.pm \

@@ -13,7 +13,7 @@
 #
 # Need to setup :
 # Define FOLDER directory, ( $FOLDER/bin/xxvd )
-FOLDER="/root/XXV"
+FOLDER="/opt/XXV"
 
 # How verbose should log file (0 ... 5)
 VERBOSE="3"
