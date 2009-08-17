@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2009-08-15 00:07+0100\n"
 "PO-Revision-Date: 2009-08-15 00:07+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,6 +19,7 @@ msgstr ""
 "X-Poedit-Language: Italian\n"
 "X-Poedit-Country: ITALY\n"
 "X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #--------------------
 #: ../bin/xxvd:442
@@ -360,7 +361,7 @@ msgstr "Esci"
 #--------------------
 #: ../html/help.tmpl:135
 msgid "search"
-msgstr "cerca"
+msgstr "Cerca"
 
 #--------------------
 #: ../html/help.tmpl:23 ../lib/XXV/MODULES/HTTPD.pm:639 ../lib/XXV/MODULES/WAPD.pm:75 ../wml/widgets/footer.tmpl:6
@@ -399,7 +400,7 @@ msgstr "Timer"
 #: ../html/help.tmpl:66 ../lib/XXV/MODULES/HTTPD.pm:641 ../lib/XXV/MODULES/WAPD.pm:77 ../wml/widgets/footer.tmpl:17
 #. (12)
 msgid "Autotimer"
-msgstr "Timer automatico"
+msgstr "Timer automatici"
 
 #--------------------
 #: ../html/help.tmpl:67
@@ -479,7 +480,7 @@ msgstr "Memoria"
 #--------------------
 #: ../html/help.tmpl:90 ../lib/XXV/MODULES/STATUS.pm:718
 msgid "Filesystem"
-msgstr "Filesystem"
+msgstr "File system"
 
 #--------------------
 #: ../html/help.tmpl:91 ../lib/XXV/MODULES/STATUS.pm:236
@@ -534,17 +535,17 @@ msgstr "Visualizzazione completa"
 #--------------------
 #: ../html/logger.tmpl:6
 msgid "Read journal file: "
-msgstr "Lettura file journal:"
+msgstr "Lettura file journal: "
 
 #--------------------
 #: ../html/logger.tmpl:7
 msgid "Size: "
-msgstr "Dimensione:"
+msgstr "Dimensione: "
 
 #--------------------
 #: ../html/logger.tmpl:8
 msgid "Last changed: "
-msgstr "Ultima modifica:"
+msgstr "Ultima modifica: "
 
 #--------------------
 #: ../html/memory.tmpl:38
@@ -644,7 +645,7 @@ msgstr "Titolo"
 #--------------------
 #: ../html/mlcopy.tmpl:27 ../html/mledit.tmpl:27 ../html/mlimport.tmpl:27
 msgid "Search at"
-msgstr "Cerca alle"
+msgstr "Cerca in"
 
 #--------------------
 #: ../html/mlcopy.tmpl:36 ../html/mledit.tmpl:36 ../html/mlimport.tmpl:36 ../lib/XXV/MODULES/AUTOTIMER.pm:430 ../lib/XXV/MODULES/AUTOTIMER.pm:642 ../lib/XXV/MODULES/EPG.pm:933 ../lib/XXV/MODULES/MEDIALIB.pm:1275 ../lib/XXV/MODULES/RECORDS.pm:1901 ../lib/XXV/MODULES/RECORDS.pm:2043
@@ -913,7 +914,7 @@ msgstr "Trasferimento in bytes"
 #--------------------
 #: ../html/next.tmpl:13 ../html/now.tmpl:13 ../html/schema.tmpl:3
 msgid "%A the %D at %H:%M o'clock"
-msgstr "%A il %D alle %H:%M in punto"
+msgstr "%A %D alle %H:%M in punto"
 
 #--------------------
 #: ../html/next.tmpl:27 ../html/now.tmpl:27
@@ -923,12 +924,12 @@ msgstr "In programmazione adesso"
 #--------------------
 #: ../html/next.tmpl:29 ../html/now.tmpl:29
 msgid "What is running now"
-msgstr "In esecuzione ora"
+msgstr "In programmazione adesso"
 
 #--------------------
 #: ../html/next.tmpl:31 ../html/now.tmpl:31 ../html/schema.tmpl:23
 msgid "What is running at"
-msgstr "In esecuzione alle"
+msgstr "In esecuzione"
 
 #--------------------
 #: ../html/next.tmpl:42 ../html/now.tmpl:42
@@ -1123,17 +1124,17 @@ msgstr "Tutte le registrazioni con titolo"
 #--------------------
 #: ../html/schema.tmpl:24
 msgid "Display"
-msgstr "Schermo"
+msgstr "Mostra"
 
 #--------------------
 #: ../html/schema.tmpl:25
 msgid "from"
-msgstr "da"
+msgstr "dalle"
 
 #--------------------
 #: ../html/schema.tmpl:26
 msgid "to"
-msgstr "a"
+msgstr "alle"
 
 #--------------------
 #: ../html/schema.tmpl:27
@@ -1280,7 +1281,7 @@ msgstr "Prime dieci voci"
 #--------------------
 #: ../html/topten.tmpl:11
 msgid "This Screen list the most programmed EPG Events from all XXV Users. Of course, we list only Events these are exists in your EPG Table!"
-msgstr "Questa schermata mostra gli eventi EPG più programmati dagli utenti XXV. Ovviamente, vengono elencati solo eventi che esistono nella tabella EPG!"
+msgstr "Questa schermata mostra gli eventi EPG più programmati dagli utenti XXV. Ovviamente, vengono elencati solo gli eventi che esistono nella tabella EPG!"
 
 #--------------------
 #: ../html/ulist.tmpl:2
@@ -1385,7 +1386,7 @@ msgstr "Applica"
 #--------------------
 #: ../html/widgets/host.tmpl:20
 msgid "Host does not exist!"
-msgstr "Il nome host non esiste!"
+msgstr "Il nome sistema non esiste!"
 
 #--------------------
 #: ../html/widgets/menu.tmpl:4 ../lib/XXV/OUTPUT/Console.pm:151
@@ -1595,7 +1596,7 @@ msgstr "Questo modulo cerca nei valori EPG con il testo definito dall'utente e c
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:201
 msgid "Autotimer has programmed %d new timer(s) since last report to %s"
-msgstr "Sono stati programmati %d nuovi timer automatici dall'ultimo rapporto di %s"
+msgstr "Sono stati programmati %d nuovi timer automatici dall'ultimo rapporto del %s"
 
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:27 ../lib/XXV/MODULES/CHRONICLE.pm:24 ../lib/XXV/MODULES/EVENTS.pm:30 ../lib/XXV/MODULES/HTTPD.pm:59 ../lib/XXV/MODULES/INTERFACE.pm:29 ../lib/XXV/MODULES/KEYWORDS.pm:25 ../lib/XXV/MODULES/LOGREAD.pm:28 ../lib/XXV/MODULES/MEDIALIB.pm:29 ../lib/XXV/MODULES/MOVETIMER.pm:23 ../lib/XXV/MODULES/MUSIC.pm:36 ../lib/XXV/MODULES/REMOTE.pm:25 ../lib/XXV/MODULES/REPORT.pm:26 ../lib/XXV/MODULES/ROBOT.pm:26 ../lib/XXV/MODULES/SHARE.pm:61 ../lib/XXV/MODULES/STATUS.pm:28 ../lib/XXV/MODULES/TELNET.pm:26 ../lib/XXV/MODULES/VTX.pm:25 ../lib/XXV/MODULES/WAPD.pm:39 ../lib/XXV/MODULES/XMLTV.pm:29 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:66 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:30 ../lib/XXV/OUTPUT/NEWS/RSS.pm:30 ../lib/XXV/OUTPUT/NEWS/VDR.pm:27
@@ -1725,7 +1726,7 @@ msgstr "Cronologia registrazione"
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:666
 msgid "Activate this autotimer"
-msgstr "Attiva il timer automatico"
+msgstr "Attiva timer automatico"
 
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:670
@@ -1737,7 +1738,7 @@ msgid ""
 "* by a hyphen to exclude search terms e.g. 'today,-tomorrow'"
 msgstr ""
 "Termini di ricerca per i valori EPG.\n"
-"Puoi anche affinare la ricerca :\n"
+"Puoi anche affinare la ricerca:\n"
 "* aggiungendo 'operatori' ai termini di ricerca come 'AND', 'OR', 'AND NOT' (es. 'oggi AND NOT domani')\n"
 "* con termini di ricerca separati da virgole (es. 'oggi,domani')\n"
 "* con un trattino per escludere termini di ricerca (es. 'oggi,-domani'?"
@@ -1875,7 +1876,7 @@ msgstr "%Y-%m-%d %H:%M:%S"
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:937
 msgid "Start date as YYYY-MM-DD HH:MM:SS."
-msgstr "Data di inizio come YYYY-MM-DD HH:MM:SS."
+msgstr "Data di inizio come YYYY-MM-DD HH:MM:SS"
 
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:944 ../lib/XXV/MODULES/AUTOTIMER.pm:976 ../lib/XXV/MODULES/TIMERS.pm:676
@@ -1890,7 +1891,7 @@ msgstr "Il giorno è incorretto oppure è in un formato errato!"
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:970
 msgid "Stop date as YYYY-MM-DD HH:MM:SS."
-msgstr "Data di fine come YYYY-MM-DD HH:MM:SS."
+msgstr "Data di fine come YYYY-MM-DD HH:MM:SS"
 
 #--------------------
 #: ../lib/XXV/MODULES/AUTOTIMER.pm:989 ../lib/XXV/MODULES/TIMERS.pm:767
@@ -2085,7 +2086,7 @@ msgstr "Gruppo canali"
 #--------------------
 #: ../lib/XXV/MODULES/CHANNELS.pm:65
 msgid "Cleans out channel names, only the 'long' part is visible."
-msgstr "Pulisci i nomi dei canali, solo la parte 'long' è visibile."
+msgstr "Pulisci i nomi dei canali, solo la parte 'long' è visibile"
 
 #--------------------
 #: ../lib/XXV/MODULES/CHANNELS.pm:77
@@ -2130,7 +2131,7 @@ msgstr "Valore cronologia %s eliminato."
 #--------------------
 #: ../lib/XXV/MODULES/CHRONICLE.pm:38
 msgid "Search chronicle for 'text'."
-msgstr "Cerca cronaca per 'testo'."
+msgstr "Cerca nella cronologia il 'testo'."
 
 #--------------------
 #: ../lib/XXV/MODULES/CHRONICLE.pm:44
@@ -2165,7 +2166,7 @@ msgstr "Questo modulo modifica, scrive e salva la configurazione."
 #--------------------
 #: ../lib/XXV/MODULES/CONFIG.pm:170
 msgid "%s manual"
-msgstr "%s manuale"
+msgstr "Manuale %s"
 
 #--------------------
 #: ../lib/XXV/MODULES/CONFIG.pm:173
@@ -2249,7 +2250,7 @@ msgstr "Nessun ID evento definito!"
 #--------------------
 #: ../lib/XXV/MODULES/EPG.pm:159
 msgid "EPG table contains %d entries and since the last login on %s %d new entries."
-msgstr "La tabella EPG contiene %d valori e dall'ultimo accesso il %s %d nuovi valori."
+msgstr "La tabella EPG contiene %d valori e dall'ultimo accesso il %s %d nuovi valori"
 
 #--------------------
 #: ../lib/XXV/MODULES/EPG.pm:1735 ../lib/XXV/MODULES/GRAB.pm:241 ../lib/XXV/MODULES/RECORDS.pm:3058 ../lib/XXV/MODULES/VTX.pm:1457
@@ -2264,7 +2265,7 @@ msgstr "Questo modulo legge i nuovi dati EPG e li salva nel database."
 #--------------------
 #: ../lib/XXV/MODULES/EPG.pm:26
 msgid "Location of additional EPG images."
-msgstr "Percorso immagini EPG aggiuntive."
+msgstr "Percorso immagini EPG aggiuntive"
 
 #--------------------
 #: ../lib/XXV/MODULES/EPG.pm:291
@@ -2377,9 +2378,9 @@ msgid ""
 msgstr ""
 "Questo modulo gestisce gli eventi che controllano e monitorano il sistema XXV.\n"
 "E' presente un gestore aggiuntivo dei log che elabora ogni messaggio. Se\n"
-"un evento definito esiste e corrisponde alle parole chiave definite in\n"
+"esiste un evento definito e corrisponde alle parole chiave definite in\n"
 "Module->RegEvent->SearchForEvent allora chiama il gestore eventi 'callEvent'.\n"
-"Questo cerca all'interno di Module->RegEvent->Actions, e chiama questa routine.\n"
+"Questo a sua volta cerca all'interno di Module->RegEvent->Actions, e chiama questa routine.\n"
 
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:348
@@ -2394,7 +2395,7 @@ msgstr "Messaggio"
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:36
 msgid "Used host of referred link inside reports."
-msgstr "Host dei link di riferimento usato nei rapporti."
+msgstr "Nome sistema utilizzato nei rapporti"
 
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:398
@@ -2429,22 +2430,22 @@ msgstr "Inoffensivi"
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:448
 msgid "Interesting"
-msgstr "Interessante"
+msgstr "Interessanti"
 
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:449
 msgid "Very interesting"
-msgstr "Molto interessante"
+msgstr "Molto interessanti"
 
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:450
 msgid "Important"
-msgstr "Importante"
+msgstr "Importanti"
 
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:451
 msgid "Very important"
-msgstr "Molto importante"
+msgstr "Molto importanti"
 
 #--------------------
 #: ../lib/XXV/MODULES/EVENTS.pm:452
@@ -2479,12 +2480,12 @@ msgstr "Altezza immagine"
 #--------------------
 #: ../lib/XXV/MODULES/GRAB.pm:55
 msgid "Text to display in the grabbed picture."
-msgstr "Testo da mostrare nell'immagine catturata."
+msgstr "Testo da mostrare nell'immagine catturata"
 
 #--------------------
 #: ../lib/XXV/MODULES/GRAB.pm:65
 msgid "Vertical position of displayed text, in pixels."
-msgstr "Posizione verticale del testo visualizzato, in pixel."
+msgstr "Posizione verticale del testo visualizzato (in pixel)"
 
 #--------------------
 #: ../lib/XXV/MODULES/GRAB.pm:78 ../lib/XXV/MODULES/STATUS.pm:56
@@ -2494,17 +2495,17 @@ msgstr "Carattere TrueType per disegno testo in sovrimpressione"
 #--------------------
 #: ../lib/XXV/MODULES/GRAB.pm:84
 msgid "Font size to draw image text (only for ttf font!)."
-msgstr "Dimensione carattere per disegno testo immagine (solo per caratteri TTF!)."
+msgstr "Dimensione carattere per disegno testo immagine (solo per caratteri TTF!)"
 
 #--------------------
 #: ../lib/XXV/MODULES/GRAB.pm:97
 msgid "Quality from image in percent."
-msgstr "Qualità immagine in percentuale."
+msgstr "Qualità immagine in percentuale"
 
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:103
 msgid "Dump additional debugging information, required only for software development."
-msgstr "Esporta Informazioni di debug aggiuntive, richieste solo per lo sviluppo del programma."
+msgstr "Esporta informazioni di debug aggiuntive, richieste solo per lo sviluppo del programma"
 
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:274 ../lib/XXV/MODULES/WAPD.pm:206
@@ -2524,7 +2525,7 @@ msgstr "Errore interno del server"
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:508
 msgid "Traffic on HTTPD socket since %s: transmitted: %s - received: %s - connections: %d."
-msgstr "Traffico HTTPD da %s: trasmesso: %s - ricevuto: %s - connessioni: %d."
+msgstr "Traffico HTTPD da %s: trasmesso: %s - ricevuto: %s - connessioni: %d"
 
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:51
@@ -2559,7 +2560,7 @@ msgstr "File non trovato."
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:619
 msgid "Host does not exist."
-msgstr "Il nome host non esiste!"
+msgstr "Il nome sistema non esiste!"
 
 #--------------------
 #: ../lib/XXV/MODULES/HTTPD.pm:624
@@ -2659,7 +2660,7 @@ msgstr "Elimina supporto"
 #--------------------
 #: ../lib/XXV/MODULES/MEDIALIB.pm:1034
 msgid "wanted"
-msgstr "ricercato"
+msgstr "Ricercato"
 
 #--------------------
 #: ../lib/XXV/MODULES/MEDIALIB.pm:109
@@ -3009,7 +3010,7 @@ msgstr "Regola per spostamento timer salvata!"
 #--------------------
 #: ../lib/XXV/MODULES/MOVETIMER.pm:52
 msgid "Delete rule to move timer between channels"
-msgstr "Eliminare regola per spostamento timer tra i canali"
+msgstr "Elimina regola per spostamento timer tra i canali"
 
 #--------------------
 #: ../lib/XXV/MODULES/MOVETIMER.pm:521 ../lib/XXV/MODULES/MOVETIMER.pm:528
@@ -3174,7 +3175,7 @@ msgstr "%d nuovi file musicali salvati nel database e %d valori non esistenti el
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:48
 msgid "Port to listen for icecast clients."
-msgstr "Porta in ascolto per i client Icecast."
+msgstr "Porta in ascolto per i client Icecast"
 
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:534
@@ -3439,7 +3440,7 @@ msgstr "Torna all'elenco registrazioni"
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:2651
 msgid "%d new recordings since last report time %s"
-msgstr "%d nuove registrazioni dall'ora dell'ultimo rapporto %s"
+msgstr "%d nuove registrazioni dall'ora dell'ultimo rapporto del %s"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:29
@@ -3504,7 +3505,7 @@ msgstr "Per titolo"
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:65
 msgid "Location of used program to produce thumbnails on your system."
-msgstr "Percorso del programma utilizzato per creare le anteprime nel sistema."
+msgstr "Percorso del programma utilizzato per creare le anteprime nel sistema"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:698
@@ -3604,7 +3605,7 @@ msgstr "Prova ad eseguire il comando: %s con cmd: %s"
 #--------------------
 #: ../lib/XXV/MODULES/REMOTE.pm:31
 msgid "Show grabbed video framebuffer in addition to remote control."
-msgstr "Mostra il framebuffer del video catturato in aggiunta al telecomando."
+msgstr "Mostra il framebuffer del video catturato in aggiunta al telecomando"
 
 #--------------------
 #: ../lib/XXV/MODULES/REMOTE.pm:46
@@ -3634,7 +3635,7 @@ msgstr "Questo modulo legge e mostra informazioni di stato di ogni modulo."
 #--------------------
 #: ../lib/XXV/MODULES/REPORT.pm:32
 msgid "Time in hours to send the report."
-msgstr "Orario dell'invio del rapporto (in ore)."
+msgstr "Orario invio del rapporto (in ore)"
 
 #--------------------
 #: ../lib/XXV/MODULES/REPORT.pm:40
@@ -3664,12 +3665,12 @@ msgstr "Il modulo non può essere attivato! Questo modulo dipende dal modulo %s.
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:78
 msgid "URL to access popularity web service."
-msgstr "URL per accesso al servizio web popolarità."
+msgstr "URL per accesso al servizio web popolarità"
 
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:84
 msgid "How often shared data are to be updated (in hours)."
-msgstr "Tempo aggiornamento dati condivisi (in ore)."
+msgstr "Tempo aggiornamento dati condivisi (in ore)"
 
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:96
@@ -3814,7 +3815,7 @@ msgstr "Nessuna cache sul chip."
 #--------------------
 #: ../lib/XXV/MODULES/STATUS.pm:51
 msgid "Save historical data, in hours"
-msgstr "Salva dati storici, in ore"
+msgstr "Salva dati storici (in ore)"
 
 #--------------------
 #: ../lib/XXV/MODULES/STATUS.pm:595
@@ -3844,7 +3845,7 @@ msgstr "Mostrare i dati raccolti come diagramma?"
 #--------------------
 #: ../lib/XXV/MODULES/STATUS.pm:67
 msgid "Warning level, if volume filled more then this level"
-msgstr "Livello di allarme, se il volume viene riempito più di questo livello"
+msgstr "Livello di allarme, se la periferica viene occupata più di questo livello"
 
 #--------------------
 #: ../lib/XXV/MODULES/STATUS.pm:719
@@ -3939,7 +3940,7 @@ msgstr "Impossibile trovare la registrazione: '%s'"
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:30
 msgid "Used host of referred link inside playlist."
-msgstr "Host utilizzato dal link dentro la lista esecuzione."
+msgstr "Nome sistema utilizzato dentro la lista esecuzione"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:36
@@ -3959,12 +3960,12 @@ msgstr "Condivisione remota SMB/NFS"
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:46
 msgid "Used mime type of delivered playlist video streams"
-msgstr "Tipo MIME utilizzato dei flussi video in esecuzione"
+msgstr "Tipo MIME utilizzato dai flussi video in esecuzione"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:51
 msgid "Base directory of remote SMB/NFS share."
-msgstr "Directory principale della condivisione remota SMB/NFS."
+msgstr "Directory principale della condivisione remota SMB/NFS"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:56
@@ -3989,7 +3990,7 @@ msgstr "Lettore VLC incorporato"
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:67
 msgid "Method of connect live-tv stream from recorder."
-msgstr "Metodo di connessione della trasmissione dal vivo da VDR."
+msgstr "Metodo di connessione della trasmissione dal vivo da VDR"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:72
@@ -4059,7 +4060,7 @@ msgstr "Attiva questa definizione"
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:241
 msgid "Host or IP address of video disk recorder"
-msgstr "Nome host o indirizzo IP di Video Disk Recorder"
+msgstr "Nome sistema o indirizzo IP di Video Disk Recorder"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:247
@@ -4074,7 +4075,7 @@ msgstr "Utilizza come Video Disk Recorder primario"
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:265
 msgid "List of present source of DVB cards. (eg. S19.2E,S19.2E,T,T )"
-msgstr "Elenco delle schede DVB sorgenti presenti. (es. S19.2E,S19.2E,T,T )"
+msgstr "Elenco delle schede DVB sorgenti presenti. (es. S19.2E,S19.2E,T,T)"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:269
@@ -4084,7 +4085,7 @@ msgstr "Directory salvataggio registrazioni"
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:27
 msgid "Connection timeout defines after how many seconds an unrequited connection is terminated."
-msgstr "La scadenza connessione definisce ogni quanti secondi una connessione non utilizzata viene terminata."
+msgstr "La scadenza connessione definisce ogni quanti secondi una connessione non utilizzata viene terminata"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:278
@@ -4114,7 +4115,7 @@ msgstr "Definizioni di Video Disk Recorder sono %s eliminate."
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:35
 msgid "List defined video disk recorder."
-msgstr "Elenca Video Disk Recorder definiti."
+msgstr "Elenca Video Disk Recorder definiti"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:361
@@ -4124,7 +4125,7 @@ msgstr "Primario"
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:362
 msgid "Host"
-msgstr "Host"
+msgstr "Nome sistema"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:363
@@ -4139,7 +4140,7 @@ msgstr "Directory video"
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:41
 msgid "Create new video disk recorder definition."
-msgstr "Crea nuova definizione Video Disk Recorder."
+msgstr "Crea nuova definizione Video Disk Recorder"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:47
@@ -4154,7 +4155,7 @@ msgstr "Modifica definizione 'id' Video Disk Recorder"
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:59
 msgid "Status from video disk recorder."
-msgstr "Stato di Video Disk Recorder."
+msgstr "Stato di Video Disk Recorder"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:623
@@ -4164,7 +4165,7 @@ msgstr "Nessun Video Disk Recorder definito nel dtabase."
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:66
 msgid "Send a command to video disk recorder."
-msgstr "Invia un comando a Video Disk Recorder."
+msgstr "Invia un comando a Video Disk Recorder"
 
 #--------------------
 #: ../lib/XXV/MODULES/SVDRP.pm:716
@@ -4348,7 +4349,7 @@ msgstr "Tempo di aggiornamento dei timer (in secondi)"
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:280
 msgid "%d timer exists."
-msgstr "timer %d esistente."
+msgstr "%d timer esistenti"
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:524
@@ -4373,7 +4374,7 @@ msgstr "Abilita timer"
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:625
 msgid "Use PDC time to control timer"
-msgstr "Utilizza orario PDF per controllare il timer"
+msgstr "Utilizza orario PDC per controllare il timer"
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:636 ../lib/XXV/MODULES/XMLTV.pm:532
@@ -4393,7 +4394,7 @@ msgstr "%Y-%m-%d"
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:670
 msgid "Enter a day or weekday in format 'MTWTFSS'."
-msgstr "Inserisci un giorno della settimana nel formato 'LMMGVSD'."
+msgstr "Inserisci un giorno della settimana nel formato 'LMMGVSD'"
 
 #--------------------
 #: ../lib/XXV/MODULES/TIMERS.pm:68
@@ -4433,7 +4434,7 @@ msgstr "Utilizza Programme Delivery Control (PDC) per controllare l'ora di avvio
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:103
 msgid "Log out from current session."
-msgstr "Esci dalla sessione attuale."
+msgstr "Esci dalla sessione attuale"
 
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:110
@@ -4448,7 +4449,7 @@ msgid ""
 "the 'Level' parameter in the main module\n"
 "or the same parameter is set for each function."
 msgstr ""
-"Questo modulo server per la Gestione degli Utenti.\n"
+"Questo modulo serve per la Gestione degli utenti.\n"
 "Puoi impostare un livello per l'intero modulo con \n"
 "il parametro 'Livello' nel modulo principale\n"
 "oppure impostare lo stesso parametro per ogni funzione."
@@ -4601,7 +4602,7 @@ msgstr "Preferenze utente"
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:65
 msgid "common directory for temporary images"
-msgstr "directory comune per immagini temporanee"
+msgstr "Directory comune per immagini temporanee"
 
 #--------------------
 #: ../lib/XXV/MODULES/USER.pm:79
@@ -4698,7 +4699,7 @@ msgid ""
 "'legacy' <= osdteletext-0.3.2 or 'packed' >= osdteletext-0.4.0"
 msgstr ""
 "Sistema cache utilizzato.\n"
-"Scegli 'legacy' per il sistema tradizione 'un file per pagina'.\n"
+"Scegli 'legacy' per il sistema tradizionale di 'un file per pagina'.\n"
 "Il sistema predefinito è 'packet' con 'un file per molte pagine'.\n"
 "Plugin VDR OSDteletext\n"
 "'legacy' <= osdteletext-0.3.2 oppure 'packed' >= osdteletext-0.4.0"
@@ -4756,7 +4757,7 @@ msgstr "Nessun dato esistente per l'importazione"
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:37
 msgid "Manual import epg data from xmltv sources."
-msgstr "Importazione manuale dati EPG dalle fonti XMLTV."
+msgstr "Importazione manuale dati EPG dalle fonti XMLTV"
 
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:395
@@ -4766,7 +4767,7 @@ msgstr "Titolo non disponibile"
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:44
 msgid "List rules to import epg data from xmltv sources."
-msgstr "Elenca regole per importare dati EPG dalle fonti XMLTV."
+msgstr "Elenca regole per importare dati EPG dalle fonti XMLTV"
 
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:497 ../lib/XXV/MODULES/XMLTV.pm:666
@@ -4776,7 +4777,7 @@ msgstr "Regola per importare dati EPG dalle fonti XMLTV con ID '%s' non esistent
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:51
 msgid "Create rule to import epg data from xmltv sources."
-msgstr "Crea regola per importare dati EPG dalle fonti XMLTV."
+msgstr "Crea regola per importare dati EPG dalle fonti XMLTV"
 
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:514
@@ -4821,7 +4822,7 @@ msgstr "Crea nuova regola per importare dati EPG dalle fonti XMLTV"
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:58
 msgid "Delete rule to import epg data from xmltv sources."
-msgstr "Elimina regola per importare dati EPG dalle fonti XMLTV."
+msgstr "Elimina regola per importare dati EPG dalle fonti XMLTV"
 
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:583
@@ -4836,7 +4837,7 @@ msgstr "Impossibile inserire regola per importare dati EPG dalle fonti XMLTV nel
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:65
 msgid "Edit rule to import epg data from xmltv sources."
-msgstr "Modifica regola per importare dati EPG dalle fonti XMLTV."
+msgstr "Modifica regola per importare dati EPG dalle fonti XMLTV"
 
 #--------------------
 #: ../lib/XXV/MODULES/XMLTV.pm:658
@@ -5022,7 +5023,7 @@ msgstr "Questo riceve ed invia messaggi HTML."
 #--------------------
 #: ../lib/XXV/OUTPUT/Html.pm:314
 msgid "Can't proper parse html widget '%s.tmpl'"
-msgstr "Impossibile elaborare il widget HTML '%s.tmpl'"
+msgstr "Impossibile elaborare l'oggetto HTML '%s.tmpl'"
 
 #--------------------
 #: ../lib/XXV/OUTPUT/Html.pm:315
@@ -5067,7 +5068,7 @@ msgstr "Password account Jabber"
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/JABBER.pm:281
 msgid "The module NEWS::JABBER is not active!"
-msgstr "Il modulo NOTIZIE::JABBER non è attivo!"
+msgstr "Il modulo NEWS::JABBER non è attivo!"
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/JABBER.pm:73 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:37 ../lib/XXV/OUTPUT/NEWS/RSS.pm:37 ../lib/XXV/OUTPUT/NEWS/VDR.pm:34
@@ -5092,7 +5093,7 @@ msgstr "Password per accesso al server di posta"
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:23
 msgid "This NEWS module generate mails for news."
-msgstr "Questo modulo NOTIZIE genera email per le notizie."
+msgstr "Questo modulo NEWS genera email per le notizie."
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:250
@@ -5112,7 +5113,7 @@ msgstr "L'email con il seguente contenuto non è stata inviata all'account email
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:337
 msgid "The module NEWS::Mail is not active!"
-msgstr "Il modulo NOTIZIE::MAIL non è attivo!"
+msgstr "Il modulo NEWS::MAIL non è attivo!"
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:74
@@ -5127,12 +5128,12 @@ msgstr "Uno o più indirizzi email per l'invio dei messaggi"
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:94
 msgid "Mail address to describe the sender."
-msgstr "Indirizzo email del mittente."
+msgstr "Indirizzo email del mittente"
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/MAIL.pm:99
 msgid "SMTP mail server host name"
-msgstr "Nome host server di posta SMTP"
+msgstr "Nome server di posta SMTP"
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/RSS.pm:159
@@ -5157,17 +5158,17 @@ msgstr "RSS 2.0 di XXV"
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/RSS.pm:213
 msgid "The module NEWS::RSS is not active!"
-msgstr "Il modulo NOTIZIE::RSS non è attivo!"
+msgstr "Il modulo NEWS::RSS non è attivo!"
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/RSS.pm:23
 msgid "This NEWS module generates an RSS news feed for your RSS reader."
-msgstr "Questo modulo NOTIZIE genera un canale di notizie RSS per il lettore RSS."
+msgstr "Questo modulo NEWS genera un canale di notizie RSS per il lettore RSS."
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/VDR.pm:165
 msgid "The module NEWS::VDR is not active!"
-msgstr "Il modulo NOTIZIE::VDR non è attivo!"
+msgstr "Il modulo NEWS::VDR non è attivo!"
 
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/VDR.pm:178
@@ -5182,7 +5183,7 @@ msgstr "Impossibile inviare messaggi a VDR!"
 #--------------------
 #: ../lib/XXV/OUTPUT/NEWS/VDR.pm:20
 msgid "This NEWS module generates messages for the VDR interface."
-msgstr "Questo modulo NOTIZIE genera messaggi per l'interfaccia VDR."
+msgstr "Questo modulo NEWS genera messaggi per l'interfaccia VDR."
 
 #--------------------
 #: ../lib/XXV/OUTPUT/Wml.pm:20
