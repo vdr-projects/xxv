@@ -16,7 +16,7 @@ Ext.xxv.MainSearchField = Ext.extend(Ext.form.TwinTriggerField, {
             }
         }, this);
     }
-    ,emptyText:'Search ...'
+    ,emptyText:"Search ..."
     ,validationEvent:false
     ,validateOnBlur:false
     //,trigger1Class:'x-form-clear-trigger'
@@ -237,23 +237,23 @@ Ext.xxv.MainMenu = function(/*config*/){
 
 Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
 
-     szMenuXXV             : 'XXV'
-    ,szMenuProgramming     : 'Programming'
-    ,szMenuMedia           : 'Media'
-    ,szMenuRemote          : 'Remote access'
-    ,szMenuView            : 'View'
+     szMenuXXV             : "XXV"
+    ,szMenuProgramming     : "Programming"
+    ,szMenuMedia           : "Media"
+    ,szMenuRemote          : "Remote access"
+    ,szMenuView            : "View"
 
-    ,szMenuItemSetup       : 'Setup'
-    ,szGlobalSettings      : 'Global settings'
-    ,szOwnSettings         : 'Own settings'
-    ,szMenuItemLogout	     : 'Logout'    
-    ,szMenuItemLogoutTooltip : 'Click this button to logout from XXV'
+    ,szMenuItemSetup       : "Setup"
+    ,szGlobalSettings      : "Global settings"
+    ,szOwnSettings         : "Own settings"
+    ,szMenuItemLogout	     : "Logout"    
+    ,szMenuItemLogoutTooltip : "Click this button to logout from XXV"
 
-    ,szSelectTheme         : 'Select theme'
-    ,szPreviewPreviewPane  : 'Preview Pane'
-    ,szPreviewRight        : 'Right'
-    ,szPreviewBottom       : 'Bottom'
-    ,szPreviewHide         : 'Hide'
+    ,szSelectTheme         : "Select theme"
+    ,szPreviewPreviewPane  : "Preview Pane"
+    ,szPreviewRight        : "Right"
+    ,szPreviewBottom       : "Bottom"
+    ,szPreviewHide         : "Hide"
 
     ,szLogoutSuccess : "Successful logout.\r\n{0}"
     ,szLogoutFailure : "Couldn't logout!\r\n{0}"

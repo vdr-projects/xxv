@@ -9,12 +9,16 @@
  * German translation
  */
 
+/* common.js */
 Ext.xxv.Panel.prototype.title = "Verbinde ...";
 Ext.xxv.Panel.prototype.szLoading = "Lade ...";
-Ext.xxv.Panel.prototype.szTitle  = "Xtreme eXtension für VDR";
+Ext.xxv.Panel.prototype.szTitle = "Xtreme eXtension für VDR";
 
 Ext.xxv.MessageBox.prototype.szFailure = "Fehlgeschlagen!";
 Ext.xxv.MessageBox.prototype.szSuccess = "Erfolgreich!";
+
+/* menus.js */
+Ext.xxv.MainSearchField.prototype.emptyText = "Suche ...";
 
 Ext.xxv.MainMenu.prototype.szMenuXXV = "XXV";
 Ext.xxv.MainMenu.prototype.szMenuProgramming = "Programmierung";
@@ -31,9 +35,10 @@ Ext.xxv.MainMenu.prototype.szPreviewPreviewPane = "Vorschau";
 Ext.xxv.MainMenu.prototype.szPreviewRight = "Rechts";
 Ext.xxv.MainMenu.prototype.szPreviewBottom = "Unten";
 Ext.xxv.MainMenu.prototype.szPreviewHide = "Ausgeblendet";
+Ext.xxv.MainMenu.prototype.szLogoutSuccess = "Erfolgreich abgemeldet.\r\n{0}";
+Ext.xxv.MainMenu.prototype.szLogoutFailure = "Abmeldung fehlgeschlagen!\r\n{0}";
 
-Ext.xxv.MainSearchField.prototype.emptyText = "Suche ...";
-
+/* form.js */
 Ext.xxv.Question.prototype.szClose = "Schliessen";
 Ext.xxv.Question.prototype.szApply = "Übernehmen";
 Ext.xxv.Question.prototype.szCommandDeny = "Kommando '{0}' ist nicht erlaubt!";
@@ -42,6 +47,7 @@ Ext.xxv.Question.prototype.szFailure = "Konnte Daten nicht speichern!\r\n{0}";
 Ext.xxv.Question.prototype.szSuccess = "Daten erfolgreich gespeichert.\r\n{0}";
 Ext.xxv.Question.prototype.szComboEmpty = "Wähle ...";
 
+/* channelspanel.js */
 Ext.xxv.channelsPanel.prototype.title = "Kanäle";
 Ext.xxv.channelsPanel.prototype.refreshText = "Aktualisieren";
 Ext.xxv.channelsPanel.prototype.selectText = "Wähle Kanal";
@@ -58,6 +64,7 @@ Ext.xxv.channelsPanel.prototype.szSwitchFailure = "Konnte nicht zum Kanal umgesc
 Ext.xxv.channelsPanel.prototype.szDeleteSuccess = "Kanal erfolgreich gelöscht.\r\n{0}";
 Ext.xxv.channelsPanel.prototype.szDeleteFailure = "Konnte Kanal nicht löschen!\r\n{0}";
 
+/* autotimers.js */
 Ext.xxv.autotimerGrid.prototype.szTitle = "Suchtimer";
 Ext.xxv.autotimerGrid.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.autotimerGrid.prototype.szNew = "Neuen Suchtimer erstellen";
@@ -78,6 +85,7 @@ Ext.xxv.autotimerGrid.prototype.szUpgradeWait = "Bitte warten...";
 Ext.xxv.autotimerGrid.prototype.szUpgradeSuccess = "Suche nach gewünschten Programmeinträgen erfolgreich.\r\n{0}";
 Ext.xxv.autotimerGrid.prototype.szUpgradeFailure = "Suche nach gewünschten Programmeinträgen fehlgeschlagen!\r\n{0}";
 
+/* chronicle.js */
 Ext.xxv.chronicleGrid.prototype.szTitle = "Chronik";
 Ext.xxv.chronicleGrid.prototype.szToolTip = "Zeigt Aufnahmen in chronologischer Anordnung";
 Ext.xxv.chronicleGrid.prototype.szFindReRun = "Suche Wiederholung";
@@ -92,6 +100,7 @@ Ext.xxv.chronicleGrid.prototype.szLoadException = "Konnte keine Daten der Chroni
 Ext.xxv.chronicleGrid.prototype.szDeleteSuccess = "Eintrag der Chronik erfolgreich gelöscht.\r\n{0}";
 Ext.xxv.chronicleGrid.prototype.szDeleteFailure = "Konnte Eintrag der Chronik nicht löschen!\r\n{0}";
 
+/* now.js */
 Ext.xxv.NowGrid.prototype.szTitle = "Programmführer";
 Ext.xxv.NowGrid.prototype.szPresent = "Jetzt";
 Ext.xxv.NowGrid.prototype.szFollowing = "Folgend";
@@ -111,6 +120,7 @@ Ext.xxv.NowGrid.prototype.szRecordFailure = "Konnte Timer nicht erstellen!\r\n{0
 Ext.xxv.NowPreview.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.NowPreview.prototype.szRecord = "Aufnehmen";
 
+/* program.js */
 Ext.xxv.programGrid.prototype.szTitle = "Programführer";
 Ext.xxv.programGrid.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.programGrid.prototype.szRecord = "Aufnehmen";
@@ -124,6 +134,7 @@ Ext.xxv.programGrid.prototype.szLoadException = "Konnte keine Programmdaten hole
 Ext.xxv.programPreview.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.programPreview.prototype.szRecord = "Aufnehmen";
 
+/* search.js */
 Ext.xxv.searchGrid.prototype.szTitle = "Suche";
 Ext.xxv.searchGrid.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.searchGrid.prototype.szRecord = "Aufnehmen";
@@ -133,11 +144,12 @@ Ext.xxv.searchGrid.prototype.szColDay = "Datum";
 Ext.xxv.searchGrid.prototype.szColStart = "Beginn";
 Ext.xxv.searchGrid.prototype.szColStop = "Ende";
 Ext.xxv.searchGrid.prototype.szColDayFormat = "l, d.m.Y";
-Ext.xxv.searchGrid.prototype.szLoadException = "Konnte keine Daten holen!\r\n{0}";
+Ext.xxv.searchGrid.prototype.szLoadException = "Konnte keine Wiederholung finden!\r\n{0}";
 
 Ext.xxv.searchPreview.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.searchPreview.prototype.szRecord = "Aufnehmen";
 
+/* recordings.js */
 Ext.xxv.recordingsDataView.prototype.szTitle = "Aufnahmen";
 Ext.xxv.recordingsDataView.prototype.szToolTip = "Zeigt Aufnahmen";
 Ext.xxv.recordingsDataView.prototype.szFindReRun = "Suche Wiederholung";
@@ -164,11 +176,7 @@ Ext.xxv.recordingsDataView.prototype.szFolderTip0 = "Enthält {0} Aufnahmen<br /
 Ext.xxv.recordingsDataView.prototype.szFolderTip1 = "Enthält {0} Aufnahmen<br />Eine neue Aufnahme<br />Gesamtzeit {2}";
 Ext.xxv.recordingsDataView.prototype.szFolderTip2 = "Enthält {0} Aufnahmen<br />{1} neue Aufnahmen<br />Gesamtzeit {2}";
 
-Ext.xxv.searchGrid.prototype.szTitle = "Suche";
-Ext.xxv.searchGrid.prototype.szFindReRun = "Suche Wiederholung";
-Ext.xxv.searchGrid.prototype.szRecord = "Aufnehmen";
-Ext.xxv.searchGrid.prototype.szLoadException = "Konnte keine Wiederholung finden!\r\n{0}";
-
+/* timers.js */
 Ext.xxv.timerGrid.prototype.szTitle = "Timer";
 Ext.xxv.timerGrid.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.timerGrid.prototype.szNew = "Neuen Timer anlegen";
@@ -194,6 +202,7 @@ Ext.xxv.timerPreview.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.timerPreview.prototype.szEdit = "Bearbeiten";
 Ext.xxv.timerPreview.prototype.szDelete = "Löschen";
 
+/* movetimers.js */
 Ext.xxv.movetimersGrid.prototype.szTitle = "Regeln zum Verschieben von Timern";
 Ext.xxv.movetimersGrid.prototype.szNew = "Neu";
 Ext.xxv.movetimersGrid.prototype.szEdit = "Bearbeiten";
@@ -206,6 +215,20 @@ Ext.xxv.movetimersGrid.prototype.szLoadException = "Konnte keine Daten über Reg
 Ext.xxv.movetimersGrid.prototype.szDeleteSuccess = "Regel zum Verschieben von Timern erfolgreich gelöscht.\r\n{0}";
 Ext.xxv.movetimersGrid.prototype.szDeleteFailure = "Konnte Regel zum Verschieben von Timern nicht löschen!\r\n{0}";
 
+/* users.js */
+Ext.xxv.usersGrid.prototype.szTitle = "Anwenderzugänge";
+Ext.xxv.usersGrid.prototype.szNew = "Neuen Anwenderzugang anlegen";
+Ext.xxv.usersGrid.prototype.szEdit = "Bearbeiten";
+Ext.xxv.usersGrid.prototype.szDelete = "Löschen";
+Ext.xxv.usersGrid.prototype.szColTitle = "Zugang";
+Ext.xxv.usersGrid.prototype.szColLevel = "Ebene";
+Ext.xxv.usersGrid.prototype.szUserPreferences = "Anwender Einstellungen";
+Ext.xxv.usersGrid.prototype.szAdminPreferences = "Einstellungen";
+Ext.xxv.usersGrid.prototype.szLoadException = "Konnte keine Daten über die Anwenderzugänge holen!\r\n{0}";
+Ext.xxv.usersGrid.prototype.szDeleteSuccess = "Anwenderzugang erfolgreich gelöscht.\r\n{0}";
+Ext.xxv.usersGrid.prototype.szDeleteFailure = "Konnte Anwenderzugang nicht löschen!\r\n{0}";
+
+/* vdr.js */
 Ext.xxv.vdrGrid.prototype.szTitle = "Video Disk Rekorder";
 Ext.xxv.vdrGrid.prototype.szEdit = "Bearbeiten";
 Ext.xxv.vdrGrid.prototype.szDelete = "Löschen";
@@ -218,16 +241,7 @@ Ext.xxv.vdrGrid.prototype.szLoadException = "Konnte keine Daten über Video Disk
 Ext.xxv.vdrGrid.prototype.szDeleteSuccess = "Video Disk Rekorder erfolgreich gelöscht.\r\n{0}";
 Ext.xxv.vdrGrid.prototype.szDeleteFailure = "Konnte Video Disk Rekorder nicht löschen!\r\n{0}";
 
-Ext.xxv.usersGrid.prototype.szTitle = "Anwenderzugänge";
-Ext.xxv.usersGrid.prototype.szEdit = "Bearbeiten";
-Ext.xxv.usersGrid.prototype.szDelete = "Löschen";
-Ext.xxv.usersGrid.prototype.szColTitle = "Zugang";
-Ext.xxv.usersGrid.prototype.szColLevel = "Ebene";
-Ext.xxv.usersGrid.prototype.szLoadException = "Konnte keine Daten über die Anwenderzugänge holen!\r\n{0}";
-Ext.xxv.usersGrid.prototype.szDeleteSuccess = "Anwenderzugang erfolgreich gelöscht.\r\n{0}";
-Ext.xxv.usersGrid.prototype.szDeleteFailure = "Konnte Anwenderzugang nicht löschen!\r\n{0}";
-
-
+/* music.js */
 Ext.xxv.musicGrid.prototype.szTitle = "Musik";
 Ext.xxv.musicGrid.prototype.szToolTip = "Liste von Musiktitel anzeigen";
 Ext.xxv.musicGrid.prototype.szFindTitle = "Suche Titel";
@@ -242,12 +256,25 @@ Ext.xxv.musicGrid.prototype.szColGenre = "Genre";
 Ext.xxv.musicGrid.prototype.szColComment = "Kommentar";
 Ext.xxv.musicGrid.prototype.szLoadException = "Konnte keine Titel der Musikliste holen!\r\n{0}";
 
-Ext.xxv.MonitorWindow.prototype.szTitle = "Monitor";
+/* monitor.js */
+Ext.xxv.MonitorWindow.prototype.szTitle = "Monitorbild";
+Ext.xxv.MonitorWindow.prototype.szAspect = "Wiederherstellen des korrekten Seitenverhältnis";
+Ext.xxv.MonitorWindow.prototype.szUpdate = "Aktualisiere Monitorbild";
+Ext.xxv.MonitorWindow.prototype.szUpdateFast = "Schneller Aktualisierung des Monitorbild";
+Ext.xxv.MonitorWindow.prototype.szUpdateSlow = "Langsamere Aktualisierung des Monitorbild";
 
+/* stream.js */
+Ext.xxv.StreamWindow.prototype.szTitle = "Streaming";
+Ext.xxv.StreamWindow.prototype.szAspect = "Wiederherstellen des korrekten Seitenverhältnis";
+
+/* remote.js */
 Ext.xxv.RemoteWindow.prototype.szTitle = "Fernbedienung";
 Ext.xxv.RemoteWindow.prototype.szRemoteFailure = "Konnte Daten der Fernbedienung nicht übertragen!\r\n{0}";
 
-Ext.ux.Multiselect.prototype.minLengthText = 'Mindestens sind {0} Einträge notwendig';
-Ext.ux.Multiselect.prototype.maxLengthText = 'Maximal sind {0} Einträge erlaubt';
+/* ux/multiselect.js */
+Ext.ux.Multiselect.prototype.minLengthText = "Mindestens sind {0} Einträge notwendig";
+Ext.ux.Multiselect.prototype.maxLengthText = "Maximal sind {0} Einträge erlaubt";
 
-Ext.ux.grid.Search.prototype.searchTipText = 'Bitte geben Sie einen Text für die Suche ein';
+/* ux/filter.js */
+Ext.ux.grid.Search.prototype.searchTipText = "Bitte geben Sie einen Text für die Suche ein";
+

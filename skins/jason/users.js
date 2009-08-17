@@ -80,7 +80,7 @@ Ext.xxv.usersGrid = function(viewer) {
               {
                    id:'un'
                   ,iconCls: 'new-icon'
-//                ,text: this.szNew
+                  ,tooltip: this.szNew
                   ,scope: this
                   ,disabled:false
                   ,handler: function(){ this.EditItem(null); }
@@ -101,7 +101,7 @@ Ext.xxv.usersGrid = function(viewer) {
 Ext.extend(Ext.xxv.usersGrid,  Ext.grid.EditorGridPanel, {
 
      szTitle         : "User accounts"
-    ,szNew           : "New"
+    ,szNew           : "Create new account"
     ,szEdit          : "Edit"
     ,szDelete        : "Delete"
     ,szColTitle      : "Account"
