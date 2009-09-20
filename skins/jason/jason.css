@@ -84,6 +84,7 @@ display:none;
 .recordings-icon {      background-image:url(pic/video.png) !important; }
 .timer-icon {           background-image:url(pic/timer.png) !important; }
 .timer-new-icon {       background-image:url(pic/timer.png) !important; }
+.timer-edit-icon {      background-image:url(pic/edit.png) !important; }
 .timer-toggle-icon {    background-image:url(pic/timer-toggle.png) !important; }
 .select-channel-icon {  background-image:url(pic/channel-select.png) !important; }
 .stream-icon {          background-image:url(pic/web-playback.png) !important; }
@@ -115,6 +116,27 @@ display:none;
 .preview-hide {         background-image:url(pic/preview.png) !important; }
 .music-icon {           background-image:url(pic/audio.png) !important; }
 .playing-music-icon {   background-image:url(pic/audio-playback.png) !important; }
+
+
+.remote-logout-icon {   background-image:url(pic/logout.png) !important; }
+.remote-up-icon {   background-image:url(pic/up.png) !important; }
+.remote-left-icon {   background-image:url(pic/left.png) !important; }
+.remote-right-icon {   background-image:url(pic/right.png) !important; }
+.remote-menu-icon {   background-image:url(pic/menu.png) !important; }
+.remote-down-icon {   background-image:url(pic/down.png) !important; }
+.remote-back-icon {   background-image:url(pic/back.png) !important; }
+.remote-red-icon {   background-image:url(pic/red.png) !important; }
+.remote-green-icon {   background-image:url(pic/green.png) !important; }
+.remote-yellow-icon {   background-image:url(pic/yellow.png) !important; }
+.remote-blue-icon {   background-image:url(pic/blue.png) !important; }
+.remote-record-icon {   background-image:url(pic/record.png) !important; }
+.remote-playback-icon {   background-image:url(pic/playback.png) !important; }
+.remote-pause-icon {   background-image:url(pic/pause.png) !important; }
+.remote-stop-icon {   background-image:url(pic/stop.png) !important; }
+.remote-backward-icon {   background-image:url(pic/backward.png) !important; }
+.remote-quiet-icon {   background-image:url(pic/quiet.png) !important; }
+.remote-loud-icon {   background-image:url(pic/loud.png) !important; }
+.remote-forward-icon {   background-image:url(pic/forward.png) !important; }
 
 .x-tree-selected {
 border:1px dotted #a3bae9;
@@ -451,4 +473,8 @@ color:red;
 .x-cloud-item.large { font-size: 1.1em; }
 .x-cloud-item.larger { font-size: 1.1em; }
 .x-cloud-item.largest { font-size: 1.3em; } 
+
+
+.x-form-check-group .x-panel-body {background-color: transparent;}
+.x-form-check-wrap { height:auto; }
 

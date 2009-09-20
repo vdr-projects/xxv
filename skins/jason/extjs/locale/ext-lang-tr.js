@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /**
  * List compiled by mystix on the extjs.com forums.
  * Thank you Mystix!
@@ -182,8 +188,8 @@ if(Ext.form.ComboBox){
 }
 
 if(Ext.form.VTypes){
-	Ext.form.VTypes["emailText"]='Bu alan "user@domain.com" þŸeklinde elektronik posta formatýnda olmalýdýr';
-	Ext.form.VTypes["urlText"]='Bu alan "http://www.domain.com" þŸeklinde URL adres formatýnda olmalýdýr';
+	Ext.form.VTypes["emailText"]='Bu alan "user@example.com" þŸeklinde elektronik posta formatýnda olmalýdýr';
+	Ext.form.VTypes["urlText"]='Bu alan "http://www.example.com" þŸeklinde URL adres formatýnda olmalýdýr';
 	Ext.form.VTypes["alphaText"]='Bu alan sadece harf ve _ içermeli';
 	Ext.form.VTypes["alphanumText"]='Bu alan sadece harf, sayý ve _ içermeli';
 }

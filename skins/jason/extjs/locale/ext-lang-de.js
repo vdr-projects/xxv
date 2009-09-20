@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /*
  * German translation
  * By schmidetzki and humpdi
@@ -173,8 +179,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
    Ext.apply(Ext.form.VTypes, {
-      emailText    : 'Dieses Feld sollte eine E-Mail-Adresse enthalten. Format: "user@domain.com"',
-      urlText      : 'Dieses Feld sollte eine URL enthalten. Format: "http:/'+'/www.domain.com"',
+      emailText    : 'Dieses Feld sollte eine E-Mail-Adresse enthalten. Format: "user@example.com"',
+      urlText      : 'Dieses Feld sollte eine URL enthalten. Format: "http:/'+'/www.example.com"',
       alphaText    : 'Dieses Feld darf nur Buchstaben enthalten und _',
       alphanumText : 'Dieses Feld darf nur Buchstaben und Zahlen enthalten und _'
    });
@@ -282,6 +288,25 @@ if(Ext.grid.PropertyColumnModel){
       valueText  : "Wert",
       dateFormat : "d.m.Y"
   });
+}
+
+if(Ext.grid.BooleanColumn){
+   Ext.apply(Ext.grid.BooleanColumn.prototype, {
+      trueText  : "wahr",
+      falseText : "falsch"
+   });
+}
+
+if(Ext.grid.NumberColumn){
+    Ext.apply(Ext.grid.NumberColumn.prototype, {
+        format : '0.000,00'
+    });
+}
+
+if(Ext.grid.DateColumn){
+    Ext.apply(Ext.grid.DateColumn.prototype, {
+        format : 'd.m.Y'
+    });
 }
 
 if(Ext.layout.BorderLayout && Ext.layout.BorderLayout.SplitRegion){

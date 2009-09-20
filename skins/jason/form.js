@@ -87,6 +87,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
           ,baseCls: 'x-plain'
           ,labelWidth: 200
           ,defaultType: 'textfield'
+          ,forceLayout: true
       });
 
       for(var i = 0, len = r.length; i < len; i++){
@@ -126,12 +127,11 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             ];
             break;
           case 'checkbox':
-      			config.xtype = 'xxv-checkboxes';
-			      config.horizontal = true;
+      			config.xtype = 'checkboxgroup';
             config.items = [];
             for(var f = 0, flen = r[i].data.choices.length; f < flen; f++){
               config.items.push({
-                value: r[i].data.choices[f],
+                name:  r[i].data.choices[f],
                 boxLabel: Ext.util.Format.ellipsis(r[i].data.choices[f],15),
                 checked: (config.value.match(r[i].data.choices[f]) ? true : false)
                 });
@@ -266,6 +266,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
       } else {
         new Ext.xxv.MessageBox().msgFailure(this.szLoadException, "");
       }
+
     },
 
     onApply: function() {
@@ -280,6 +281,17 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
              switch(record.data.type){
                 case 'confirm':
                   params['__'+record.data.id] = field.checked ? 'y' : 'n';
+                  break;
+                case 'checkbox':
+                  var values = field.getValue();
+                  var boxes = [];
+                  for(var f = 0, flen = values.length; f < flen; f++){
+                     boxes.push(values[f].name);
+                  }
+                  params['__'+record.data.id] = boxes.join(',');
+                  break;
+                case 'date':
+                  params['__'+record.data.id] = field.getRawValue();
                   break;
                 default:
                   params['__'+record.data.id] = field.getValue();

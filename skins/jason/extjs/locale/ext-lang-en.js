@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /**
  * List compiled by mystix on the extjs.com forums.
  * Thank you Mystix!
@@ -170,8 +176,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
   Ext.apply(Ext.form.VTypes, {
-    emailText    : 'This field should be an e-mail address in the format "user@domain.com"',
-    urlText      : 'This field should be a URL in the format "http:/'+'/www.domain.com"',
+    emailText    : 'This field should be an e-mail address in the format "user@example.com"',
+    urlText      : 'This field should be a URL in the format "http:/'+'/www.example.com"',
     alphaText    : 'This field should only contain letters and _',
     alphanumText : 'This field should only contain letters, numbers and _'
   });
@@ -277,6 +283,26 @@ if(Ext.grid.PropertyColumnModel){
     valueText  : "Value",
     dateFormat : "m/j/Y"
   });
+}
+
+if(Ext.grid.BooleanColumn){
+   Ext.apply(Ext.grid.BooleanColumn.prototype, {
+      trueText  : "true",
+      falseText : "false",
+      undefinedText: '&#160;'
+   });
+}
+
+if(Ext.grid.NumberColumn){
+    Ext.apply(Ext.grid.NumberColumn.prototype, {
+        format : '0,000.00'
+    });
+}
+
+if(Ext.grid.DateColumn){
+    Ext.apply(Ext.grid.DateColumn.prototype, {
+        format : 'm/d/Y'
+    });
 }
 
 if(Ext.layout.BorderLayout && Ext.layout.BorderLayout.SplitRegion){

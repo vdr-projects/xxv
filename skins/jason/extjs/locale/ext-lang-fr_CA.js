@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 ﻿/*
  * France (Canadian) translation
  * By BernardChhun
@@ -179,8 +185,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
    Ext.apply(Ext.form.VTypes, {
-      emailText    : 'Ce champ doit contenir un courriel et doit être sous ce format: "usager@domaine.com"',
-      urlText      : 'Ce champ doit contenir une URL sous le format suivant: "http:/'+'/www.domaine.com"',
+      emailText    : 'Ce champ doit contenir un courriel et doit être sous ce format: "usager@example.com"',
+      urlText      : 'Ce champ doit contenir une URL sous le format suivant: "http:/'+'/www.example.com"',
       alphaText    : 'Ce champ ne peut contenir que des lettres et le caractère souligné (_)',
       alphanumText : 'Ce champ ne peut contenir que des caractères alphanumériques ainsi que le caractère souligné (_)'
    });

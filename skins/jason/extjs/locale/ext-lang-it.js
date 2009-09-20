@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /*
  * Italian translation
  * By eric_void
@@ -169,8 +175,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
    Ext.apply(Ext.form.VTypes, {
-      emailText    : 'Il campo deve essere un indirizzo e-mail nel formato "user@domain.com"',
-      urlText      : 'Il campo deve essere un indirizzo web nel formato "http:/'+'/www.domain.com"',
+      emailText    : 'Il campo deve essere un indirizzo e-mail nel formato "user@example.com"',
+      urlText      : 'Il campo deve essere un indirizzo web nel formato "http:/'+'/www.example.com"',
       alphaText    : 'Il campo deve contenere solo lettere e _',
       alphanumText : 'Il campo deve contenere solo lettere, numeri e _'
    });

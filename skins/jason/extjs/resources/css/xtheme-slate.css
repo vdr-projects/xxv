@@ -1,5 +1,5 @@
 /*
- * Ext JS Library 2.2.1
+ * Ext JS Library 3.0rc1
  * Copyright(c) 2006-2009, Ext JS, LLC.
  * licensing@extjs.com
  * 
@@ -114,6 +114,7 @@ ul.x-tab-strip-bottom{
 }
 
 
+
 /* Forms */
 
 .x-form-check{
@@ -174,25 +175,32 @@ ul.x-tab-strip-bottom{
 
 
 /* Buttons */
+.x-btn{
+	font:normal 11px tahoma, verdana, helvetica;
+}
 
 .x-btn button{
-	color:#fff;
+    font:normal 11px tahoma, verdana, helvetica;
+    color:#fff;
 }
-.x-btn-over button{
-	color:#fff;
+
+.x-btn em {
+    font-style:normal;
+    font-weight:normal;
 }
-.x-btn-focus button{
-	color:#fff8da;
+
+.x-btn-tl, .x-btn-tr, .x-btn-tc, .x-btn-ml, .x-btn-mr, .x-btn-mc, .x-btn-bl, .x-btn-br, .x-btn-bc{
+	background-image:url(../images/slate/button/btn.gif);
 }
-.x-btn-left{
-	background-image:url(../images/slate/button/btn-sprite.gif);
+
+.x-btn-click .x-btn-text, .x-btn-menu-active .x-btn-text, .x-btn-pressed .x-btn-text{
+    color:#fff;
 }
-.x-btn-right{
-	background-image:url(../images/slate/button/btn-sprite.gif);
+
+.x-btn-disabled *{
+	color:gray !important;
 }
-.x-btn-center{
-	background-image:url(../images/slate/button/btn-sprite.gif);
-}
+
 .x-btn-text-icon .x-btn-with-menu .x-btn-center em{
 	background:transparent url(../images/slate/toolbar/btn-arrow.gif) no-repeat scroll right 3px;
 }
@@ -243,9 +251,10 @@ ul.x-tab-strip-bottom{
 .x-toolbar .x-btn-click .x-btn-center, .x-toolbar .x-btn-pressed .x-btn-center, .x-toolbar .x-btn-menu-active .x-btn-center{
 	background-image:url(../images/slate/toolbar/tb-btn-sprite.gif);
 }
-.x-toolbar .ytb-sep{
+.x-toolbar .xtb-sep{
 	background-image:url(../images/slate/grid/grid-split.gif);
 }
+
 .x-statusbar .x-status-text-panel{
 	border-color:#9ab #9ab #9ab #9ab;
 }
@@ -253,6 +262,9 @@ ul.x-tab-strip-bottom{
 	color:#ddc;
 }
 
+.x-toolbar div.xtb-text{
+ color:#fff;
+}
 
 /* Resizable Handles */
 
@@ -516,6 +528,9 @@ td.x-date-mp-sel a{
 	background:transparent none repeat scroll 0 0;
 }
 
+.x-menu-list-item{
+	font:normal 11px tahoma, verdana, helvetica;
+}
 
 /* Combos */
 

@@ -121,14 +121,14 @@ Ext.extend(Ext.xxv.movetimersGrid,  Ext.grid.EditorGridPanel, {
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
                 items: [{
-                     id:'mte'
+                     itemId:'mte'
                     ,text:  this.szEdit
                     ,iconCls: 'edit-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.EditItem(this.ctxRecord); }
                    },{
-                     id:'mtd'
+                     itemId:'mtd'
                     ,text:  this.szDelete
                     ,iconCls: 'delete-icon'
                     ,scope:this
@@ -150,8 +150,10 @@ Ext.extend(Ext.xxv.movetimersGrid,  Ext.grid.EditorGridPanel, {
 
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) {
-                                  if(XXV.help.cmdAllowed(key)) f.enable();
-                      },items); }
+                      if(XXV.help.cmdAllowed(f.itemId)) 
+                        f.enable();
+                      },items); 
+                  }
 
         this.menu.showAt(e.getXY());
     }
@@ -159,6 +161,11 @@ Ext.extend(Ext.xxv.movetimersGrid,  Ext.grid.EditorGridPanel, {
         if(this.ctxRow){
             Ext.fly(this.ctxRow).removeClass('x-node-ctx');
             this.ctxRow = null;
+        }
+        if(this.menu) {
+          this.menu.destroy();
+          delete this.menu;
+          this.menu = null;
         }
     }
   /******************************************************************************/

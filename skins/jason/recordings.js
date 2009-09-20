@@ -8,54 +8,6 @@
  */
 /******************************************************************************/
 
-
-/* http://extjs.com/forum/showthread.php?p=309913#post309913 */
-Ext.override(Ext.form.TimeField, {
-    // private
-    initDate: '01/01/2008',
-
-    // private
-    initDateFormat: 'd/m/Y',
-
-    initComponent : function(){
-        Ext.form.TimeField.superclass.initComponent.call(this);
-
-        this.minValue = this.parseDate(this.minValue) || Date.parseDate(this.initDate, this.initDateFormat).clearTime();;
-        this.maxValue = this.parseDate(this.maxValue) || this.minValue.add('mi', (24 * 60) - 1);
-
-        if(!this.store){
-            var times = [],
-                min = this.minValue,
-                max = this.maxValue;
-            while(min <= max){
-                times.push([min.dateFormat(this.format)]);
-                min = min.add('mi', this.increment);
-            }
-            this.store = new Ext.data.SimpleStore({
-                fields: ['text'],
-                data : times
-            });
-            this.displayField = 'text';
-        }
-    },
-    
-    parseDate : function(value){
-        if(!value || Ext.isDate(value)){
-            return value;
-        }
-        var v = Date.parseDate(this.initDate + ' ' + value, this.initDateFormat + ' ' + this.format);
-        if(!v && this.altFormats){
-            if(!this.altFormatsArray){
-                this.altFormatsArray = this.altFormats.split("|");
-            }
-            for(var i = 0, len = this.altFormatsArray.length; i < len && !v; i++){
-                v = Date.parseDate(this.initDate + ' ' + value, this.initDateFormat + ' ' + this.altFormatsArray[i]);
-            }
-        }
-        return v;
-    }    
-});
-
 minTime = function() {
 	return Date.parseDate(Ext.form.TimeField.prototype.initDate, 
                         Ext.form.TimeField.prototype.initDateFormat).clearTime();
@@ -201,6 +153,7 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
 
     render : function(ct, position){
 
+        if(!this.param) return;
         /** add preview images ************************************************/
 
         var inner= Ext.get("images-inner");
@@ -641,10 +594,10 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
                     ,itemSelector:'div.thumb-wrap'
                     ,loadMask:true
                     ,prepareData: function(data){
-                      if(data.id != 'up' && this.store.lastOptions.params.data && this.store.lastOptions.params.cmd == 'rl') {
+                      if(data.id != 'up' && this.store.baseParams.data && this.store.baseParams.cmd == 'rl') {
 
                         var Woerter = data.fulltitle.split("~");
-                        var last = this.store.lastOptions.params.data.split("~");
+                        var last = this.store.baseParams.data.split("~");
                         var i = (Woerter.length > last.length) ? last.length : (Woerter.length - 1);
                         var title = '';
                         for(len = Woerter.length; i < len; i++){
@@ -759,7 +712,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,onLoad :  function( store, records, opt ) {
 
       // Add folder to go to back folder
-      if(store.lastOptions && store.lastOptions.params && store.lastOptions.params.data) {
+      if(store.baseParams && store.baseParams.data) {
         var Recording = Ext.data.Record.create( store.fields.items );
         store.insert(0,[new Recording(
               {id: 'up',
@@ -815,6 +768,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
           var record = this.store.getById(firstNode.id);
           if(record) {
             if(record.data.isrecording == 0) {
+                var data = this.store.baseParams['data'];
                 delete(this.store.baseParams['data']);
                 this.store.baseParams.cmd = 'rl';
                 if(record.id == 'up') {
@@ -822,7 +776,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                   if(f && f != '') {
                     this.filter.field.setValue('');
                   }
-                  var Woerter = this.store.lastOptions.params.data.split("~");
+                  var Woerter = data.split("~");
                   Woerter.pop();
                   var title = Woerter.join('~');
                   if(title != '') {
@@ -937,42 +891,42 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                 id:'grid-ctx',
                 items: [
                    {
-                     id: 's'
+                     itemId: 's'
                     ,text: this.szFindReRun
                     ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
                    },{
-                     id: 're'
+                     itemId: 're'
                     ,text: this.szEdit
                     ,iconCls: 'edit-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.EditItem(this.ctxRecord); }
                    },{
-                     id: 'rcu'
+                     itemId: 'rcu'
                     ,text: this.szCut
                     ,iconCls: 'cut-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.CutItem(null); }
                    },{
-                     id: 'rr'
+                     itemId: 'rr'
                     ,text: this.szDelete
                     ,iconCls: 'delete-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.DeleteItem(null); }
                    },'-',{
-                     id: 'pre'
+                     itemId: 'pre'
                     ,text: this.szStream
                     ,iconCls: 'stream-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function(){ this.onStream(this.ctxRecord,'00:00:00');}
                    },{
-                     id: 'rpv'
+                     itemId: 'rpv'
                     ,text: this.szPlay
                     ,iconCls: 'play-icon'
                     ,scope:this
@@ -996,11 +950,12 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         if(items) { 
           items.eachKey(
             function(key, f) {
-              var enable = XXV.help.cmdAllowed(key);
+              var enable = XXV.help.cmdAllowed(f.itemId);
               if(enable) {
-                switch(key) {
+                switch(f.itemId) {
                   case 's':   enable = (record.data.isrecording == 0) ? false : true; break;
                   case 're':  enable = (record.data.isrecording == 0) ? false : true; break;
+                  case 'rcu': enable = (record.data.isrecording == 0) ? false : true; break;
                   case 'rpv': enable = (record.data.isrecording == 0) ? false : true; break;
                   case 'pre': enable = (record.data.isrecording == 0) ? false : true; break;
                 }
@@ -1020,6 +975,11 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         if(this.ctxRow){
             Ext.fly(this.ctxRow).removeClass('x-view-selected');
             this.ctxRow = null;
+        }
+        if(this.menu) {
+          this.menu.destroy();
+          delete this.menu;
+          this.menu = null;
         }
     },
 
@@ -1518,7 +1478,7 @@ function createRecordingsView(viewer,id) {
       ,tbar:new Ext.PagingToolbar({
         	   pageSize: viewer.gridRecordings.store.autoLoad.params.limit
         	  ,store: viewer.gridRecordings.store
-		      ,displayInfo: true
+		        ,displayInfo: true
               ,items: [
 			  {
                    id:'ru'

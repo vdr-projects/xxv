@@ -1,9 +1,15 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /**
  * Catalonian Translation by halkon_polako 6-12-2007
  * December correction halkon_polako 11-12-2007
  *
  * Synchronized with 2.2 version of ext-lang-en.js (provided by Condor 8 aug 2008) 
- *     by halkon_polako 14-aug-2009
+ *     by halkon_polako 14-aug-2008
  */
 
 Ext.UpdateManager.defaults.indicatorText = '<div class="loading-indicator">Carregant...</div>';
@@ -170,8 +176,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
   Ext.apply(Ext.form.VTypes, {
-    emailText    : 'Aquest camp ha de ser una adre&#231;a de e-mail amb el format "user@domain.com"',
-    urlText      : 'Aquest camp ha de ser una URL amb el format "http:/'+'/www.domain.com"',
+    emailText    : 'Aquest camp ha de ser una adre&#231;a de e-mail amb el format "user@example.com"',
+    urlText      : 'Aquest camp ha de ser una URL amb el format "http:/'+'/www.example.com"',
     alphaText    : 'Aquest camp nom&#233;s pot contenir lletres i _',
     alphanumText : 'Aquest camp nom&#233;s por contenir lletres, nombres i _'
   });

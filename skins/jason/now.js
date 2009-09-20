@@ -45,6 +45,8 @@ Ext.xxv.NowGrid = function(viewer) {
     this.viewer = viewer;
     this.preview = new Ext.xxv.NowPreview(viewer);
 
+    //this.timerstore = new Ext.xxv.timerStore();
+
     // create the data store
     this.store = new Ext.xxv.NowStore();
     this.store.setDefaultSort('rang', "ASC");
@@ -90,7 +92,7 @@ Ext.xxv.NowGrid = function(viewer) {
            ,header: this.szColTitle
            ,dataIndex: 'title'
            ,width: 150
-           ,renderer: this.formatTitle
+           ,renderer: { fn: this.formatTitle, scope: this }
         },{           header: this.szColChannel,
            dataIndex: 'channel',
            width: 50
@@ -140,6 +142,11 @@ Ext.xxv.NowGrid = function(viewer) {
         ,'loadexception' : this.onLoadException
         ,scope:this
     });
+    //this.timerstore.on({
+    //     'loadexception' : this.onLoadException
+    //    ,scope:this
+    //});
+
     this.on('rowcontextmenu', this.onContextClick, this);
     this.getSelectionModel().on('rowselect', this.preview.select, this.preview, {buffer:50});
     this.on('rowdblclick', this.onSelectProgram, this);
@@ -153,6 +160,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szFindReRun     : "Find rerun"
     ,szProgram       : "Show program"
     ,szRecord        : "Record"
+    ,szEditTimer     : "Edit timer"
     ,szColPosition   : "Channel position"
     ,szColTitle      : "Title"
     ,szColChannel    : "Channel"
@@ -224,18 +232,19 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       this.viewer.openProgram(data); 
     }
     ,onContextClick : function(grid, index, e){
+
         if(!this.menu){ // create context menu on first right click
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
                 items: [{
-                     id:'s'
+                     itemId:'s'
                     ,text: this.szFindReRun
                     ,iconCls: 'find-icon'
                     ,scope: this
                     ,disabled: true
                     ,handler: function(){ this.viewer.searchTab(this.ctxRecord); }
                     },{
-                     id:'p'
+                     itemId:'p'
                     ,text: this.szProgram
                     ,iconCls: 'program-icon'
                     ,scope: this
@@ -244,21 +253,28 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                       var data = {'id':this.ctxRecord.data.chid,'name':this.ctxRecord.data.channel};
                       this.viewer.openProgram(data); }
                     },{
-                     id:'tn'
+                     itemId:'tn'
                     ,text: this.szRecord
                     ,iconCls: 'record-icon'
                     ,scope:this
                     ,disabled: true
-                    ,handler: function(){ this.Record(this.ctxRecord); }
+                    ,handler: function() { this.Record(this.ctxRecord); }
+                    },{
+                     itemId:'te'
+                    ,text: this.szEditTimer
+                    ,iconCls: 'timer-edit-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function() { this.EditTimer(this.ctxRecord, this.store); }
                     },'-',{
-                     id:'lst'
+                     itemId:'lst'
                     ,iconCls:'stream-icon'
                     ,text: XXV.side.webcastText
                     ,scope: this
                     ,disabled: true
                     ,handler: function(){ XXV.side.onWebCastChannel(this.ctxRecord.data.chid); }
                     },{
-                     id:'sw'
+                     itemId:'sw'
                     ,iconCls: 'switch-icon'
                     ,text: XXV.side.switchText
                     ,scope: this
@@ -278,17 +294,22 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         this.ctxRecord = this.store.getAt(index);
         Ext.fly(this.ctxRow).addClass('x-node-ctx');
 
+        var timerid = this.ctxRecord.data.timerid;
+        var follow = this.store.baseParams.cmd != 'n' || this.store.baseParams.data; 
         var items = this.menu.items;
-        if(items) { items.eachKey(function(key, f) { 
-                      if(XXV.help.cmdAllowed(key)) 
+        if(items) { items.eachKey(function(key, f) {
+                      if(follow) {
+                        if(f.itemId == 'lst') 
+                          return;
+                        if(f.itemId == 'sw') 
+                          return;
+                      }
+                      if(f.itemId == 'tn') { if(timerid) f.hide(); else f.show(); }
+                      if(f.itemId == 'te') { if(timerid) f.show(); else f.hide(); }
+                      if(XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
                       },items); 
                   }
-
-        var follow = this.store.baseParams.cmd != 'n' || this.store.baseParams.data; 
-        this.menu.items.get('lst').setDisabled(follow);
-        this.menu.items.get('sw').setDisabled(follow);
-
         this.menu.showAt(e.getXY());
     }
 
@@ -296,6 +317,11 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         if(this.ctxRow){
             Ext.fly(this.ctxRow).removeClass('x-node-ctx');
             this.ctxRow = null;
+        }
+        if(this.menu) {
+          this.menu.destroy();
+          delete this.menu;
+          this.menu = null;
         }
     }
 
@@ -314,6 +340,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         }
         if(o.param && o.param.state && o.param.state == 'success') {
             new Ext.xxv.MessageBox().msgSuccess(this.szRecordSuccess, o.data);
+            //this.timerstore.reload();
         }else {
             new Ext.xxv.MessageBox().msgFailure(this.szRecordFailure, o.data);
         }
@@ -335,16 +362,50 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
              ,failure: this.onRecordFailure
           });
     }
-    ,formatTitle: function(value, p, record) {
-        return String.format(
-                '<div class="topic"><b>{0}</b> <span class="subtitle">{1}</span></div>',
-                value, record.data.subtitle
-                );
+    ,EditTimer : function(record,store) {
+      var item;
+
+      if(record.data.timerid) {
+        item = {
+           cmd:   'te'
+          ,id:    record.data.timerid
+          ,title: record.data.title
+        };
+      } else {
+        item = {
+           cmd:   'tn'
+          ,id:    record.data.id
+          ,title: this.szEditTimer
+        };
+      }
+
+      if(this.viewer.formwin){
+        this.viewer.formwin.close();
+      }
+      this.viewer.formwin = new Ext.xxv.Question(item,store);
     }
-    ,formatRow: function(value, p, record) {
+    //,TimerPresent : function(eventid) {
+    //    var records = this.timerstore.query('eventid',eventid,false,false);
+    //    if(!records || records.getCount() <= 0) 
+    //      return 0;
+    //    return records.get(0);
+    //}
+    ,formatTitle: function(value, p, record) {
+
+	      var style = "";
+        if(record.data.timerid) {
+	        if(record.data.timeractiv != 1) {
+	          style = " deactive";
+	        } else if(record.data.running == 1) {
+	          style = " running";
+	        } else {
+            style = " active";
+          }
+        }
+
         return String.format(
-                '<span style="color:red">{0}</span>',
-                value
+                '<div class="topic{2}"><b>{0}</b> <span class="subtitle">{1}</span></div>'
+                , value, record.data.subtitle, style
                 );
     }
 });
@@ -359,26 +420,33 @@ Ext.xxv.NowPreview = function(viewer) {
         stateful:true,
         tbar: [ {
             id:'s',
-            tooltip: this.szFindReRun,
+            tooltip: Ext.xxv.NowGrid.prototype.szFindReRun,
             iconCls: 'find-icon',
             disabled:true,
             scope: viewer,
             handler: function(){ this.searchTab(this.gridNow.getSelectionModel().getSelected()); }
-        } ,{
+        },{
             id:'tn',
-            tooltip: this.szRecord,
+            tooltip: Ext.xxv.NowGrid.prototype.szRecord,
             iconCls: 'record-icon',
             disabled:true,
             scope: viewer,
             handler: function(){ this.Record(this.gridNow.getSelectionModel().getSelected()); }
+        },{
+            id:'te',
+            tooltip: Ext.xxv.NowGrid.prototype.szEditTimer,
+            iconCls: 'timer-edit-icon',
+            disabled:true,
+            scope: viewer,
+            handler: function(){
+              this.gridNow.EditTimer(this.gridNow.getSelectionModel().getSelected()); 
+            }
         } ]
     });
 };
 
 Ext.extend(Ext.xxv.NowPreview, Ext.Panel, {
-   szFindReRun : "Find rerun"
-  ,szRecord : "Record"
-  ,select : function(sm, index, record){
+  select : function(sm, index, record){
     if(this.body)
       XXV.getTemplate().overwrite(this.body, record.data);
 
@@ -386,8 +454,10 @@ Ext.extend(Ext.xxv.NowPreview, Ext.Panel, {
     var items = this.topToolbar.items;
     if(items) { 
         items.eachKey(function(key, f) {
-                        if(XXV.help.cmdAllowed(key)) f.enable();
-                      },items); 
+                  if(f.id == 'tn') { if(record.data.timerid) f.hide(); else f.show(); }
+                  if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
+                  if(XXV.help.cmdAllowed(key)) f.enable();
+          },items); 
       }
   }
   ,clear: function(){
@@ -401,7 +471,7 @@ Ext.extend(Ext.xxv.NowPreview, Ext.Panel, {
    }
 });
 
-function creatNowView(viewer,id) {
+function createNowView(viewer,id) {
 
     viewer.gridNow = new Ext.xxv.NowGrid(viewer);
 

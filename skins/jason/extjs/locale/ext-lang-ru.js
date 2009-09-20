@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 ﻿/*
  * Russian translation
  * By ZooKeeper (utf-8 encoding)
@@ -183,8 +189,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
   Ext.apply(Ext.form.VTypes, {
-    emailText     : 'Это поле должно содержать адрес электронной почты в формате "user@domain.com"',
-    urlText       : 'Это поле должно содержать URL в формате "http:/'+'/www.domain.com"',
+    emailText     : 'Это поле должно содержать адрес электронной почты в формате "user@example.com"',
+    urlText       : 'Это поле должно содержать URL в формате "http:/'+'/www.example.com"',
     alphaText     : 'Это поле должно содержать только латинские буквы и символ подчеркивания "_"',
     alphanumText  : 'Это поле должно содержать только латинские буквы, цифры и символ подчеркивания "_"'
   });

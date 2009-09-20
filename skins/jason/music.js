@@ -168,14 +168,14 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
                 items: [/*{
-                     id:'s'
+                     itemId:'s'
                     ,text:  this.szFindTitle
                     ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
                    },*/{
-                     id:'m3'
+                     itemId:'m3'
                     ,text:  this.szPlaying
                     ,iconCls: 'playing-music-icon'
                     ,scope:this
@@ -197,8 +197,10 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
 
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) {
-                                  if(XXV.help.cmdAllowed(key)) f.enable();
-                      },items); }
+                      if(XXV.help.cmdAllowed(f.itemId)) 
+                        f.enable();
+                      },items); 
+                  }
 
         this.menu.showAt(e.getXY());
     },
@@ -207,6 +209,11 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
         if(this.ctxRow){
             Ext.fly(this.ctxRow).removeClass('x-node-ctx');
             this.ctxRow = null;
+        }
+        if(this.menu) {
+          this.menu.destroy();
+          delete this.menu;
+          this.menu = null;
         }
     },
 

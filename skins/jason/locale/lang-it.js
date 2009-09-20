@@ -107,6 +107,7 @@ Ext.xxv.NowGrid.prototype.szFollowing = "Prossimi";
 Ext.xxv.NowGrid.prototype.szFindReRun = "Cerca repliche";
 Ext.xxv.NowGrid.prototype.szProgram = "Mostra programma";
 Ext.xxv.NowGrid.prototype.szRecord = "Registra";
+Ext.xxv.NowGrid.prototype.szEditTimer = "Modifica timer";
 Ext.xxv.NowGrid.prototype.szColPosition = "Posizione canale";
 Ext.xxv.NowGrid.prototype.szColTitle = "Titolo";
 Ext.xxv.NowGrid.prototype.szColChannel = "Canale";
@@ -116,9 +117,6 @@ Ext.xxv.NowGrid.prototype.szColStop = "Fine";
 Ext.xxv.NowGrid.prototype.szLoadException = "Impossibile recuperare i dati!\r\n{0}";
 Ext.xxv.NowGrid.prototype.szRecordSuccess = "Creazione timer riuscita.\r\n{0}";
 Ext.xxv.NowGrid.prototype.szRecordFailure = "Impossibile creare timer!\r\n{0}";
-
-Ext.xxv.NowPreview.prototype.szFindReRun = "Cerca repliche";
-Ext.xxv.NowPreview.prototype.szRecord = "Registra";
 
 /* program.js */
 Ext.xxv.programGrid.prototype.szTitle = "Guida programmi";
@@ -131,9 +129,6 @@ Ext.xxv.programGrid.prototype.szColStop = "Fine";
 Ext.xxv.programGrid.prototype.szColDayFormat = "l, m/d/Y";
 Ext.xxv.programGrid.prototype.szLoadException = "Impossibile recuperare dati del programma!\r\n{0}";
 
-Ext.xxv.programPreview.prototype.szFindReRun = "Cerca repliche";
-Ext.xxv.programPreview.prototype.szRecord = "Registra";
-
 /* search.js */
 Ext.xxv.searchGrid.prototype.szTitle = "Cerca";
 Ext.xxv.searchGrid.prototype.szFindReRun = "Cerca repliche";
@@ -145,9 +140,6 @@ Ext.xxv.searchGrid.prototype.szColStart = "Inizio";
 Ext.xxv.searchGrid.prototype.szColStop = "Fine";
 Ext.xxv.searchGrid.prototype.szColDayFormat = "l, m/d/Y";
 Ext.xxv.searchGrid.prototype.szLoadException = "Impossibile trovare i dati!\r\n{0}";
-
-Ext.xxv.searchPreview.prototype.szFindReRun = "Cerca repliche";
-Ext.xxv.searchPreview.prototype.szRecord = "Registra";
 
 /* recordings.js */
 Ext.xxv.recordingsDataView.prototype.szTitle = "Registrazioni";

@@ -234,28 +234,28 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
                 items: [{
-                     id:'s'
+                     itemId:'s'
                     ,text: this.szFindReRun
                     ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
                    },{
-                     id:'te'
+                     itemId:'te'
                     ,text: this.szEdit
                     ,iconCls: 'edit-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.EditItem(this.ctxRecord); }
                    },{
-                     id:'td'
+                     itemId:'td'
                     ,text: this.szDelete
                     ,iconCls: 'delete-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.DeleteItem(this.ctxRecord); }
                    },{
-                     id:'tt'
+                     itemId:'tt'
                     ,text: this.szToggle
                     ,iconCls: 'timer-toggle-icon'
                     ,scope:this
@@ -277,8 +277,10 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
 
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) {
-                                  if(XXV.help.cmdAllowed(key)) f.enable();
-                      },items); }
+                      if(XXV.help.cmdAllowed(f.itemId)) 
+                        f.enable();
+                      },items); 
+                  }
 
         this.menu.showAt(e.getXY());
     }
@@ -286,6 +288,11 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
         if(this.ctxRow){
             Ext.fly(this.ctxRow).removeClass('x-node-ctx');
             this.ctxRow = null;
+        }
+        if(this.menu) {
+          this.menu.destroy();
+          delete this.menu;
+          this.menu = null;
         }
     }
     ,formatTitle: function(value, p, record) {

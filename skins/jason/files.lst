@@ -1,6 +1,7 @@
 FILES = \
 extjs/adapter/ext/ext-base.js \
 extjs/ext-all.js \
+fixes.js \
 ux/DDView.js \
 ux/multiselect.js \
 ux/tabclosemenu.js \
@@ -15,10 +16,10 @@ stream.js \
 monitor.js \
 remote.js \
 channels.js \
+timers.js \
 now.js \
 program.js \
 search.js \
-timers.js \
 movetimers.js \
 autotimers.js \
 recordings.js \

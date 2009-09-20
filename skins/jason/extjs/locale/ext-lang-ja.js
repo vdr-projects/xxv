@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /*
  * Japanese translation
  * By tyama
@@ -173,8 +179,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
   Ext.apply(Ext.form.VTypes, {
-    emailText    : 'メールアドレスを"user@domain.com"の形式で入力してください。',
-    urlText      : 'URLを"http:/'+'/www.domain.com"の形式で入力してください。',
+    emailText    : 'メールアドレスを"user@example.com"の形式で入力してください。',
+    urlText      : 'URLを"http:/'+'/www.example.com"の形式で入力してください。',
     alphaText    : '半角英字と"_"のみです。',
     alphanumText : '半角英数と"_"のみです。'
   });

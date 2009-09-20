@@ -10,8 +10,8 @@
 Ext.xxv.tabPanel = function(){
 
     this.initPreview();
-    var tab = creatNowView(this,'n');
-
+    var tab = createNowView(this,'n');
+    if(!tab) return;
     Ext.xxv.tabPanel.superclass.constructor.call(this, {
          id:'main-tabs'
         ,activeTab:0
@@ -176,7 +176,7 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
 
     ,createTab : function(id){
           switch(id){
-            case 'n':    return creatNowView(this,id);
+            case 'n':    return createNowView(this,id);
             case 'al':   return createAutoTimerView(this,id);
             case 'tl':   return createTimerView(this,id);
             case 'rl':   return createRecordingsView(this,id);

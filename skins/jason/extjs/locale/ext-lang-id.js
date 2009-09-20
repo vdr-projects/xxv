@@ -1,7 +1,13 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /**
  * Pedoman translasi:
  * http://id.wikisource.org/wiki/Panduan_Pembakuan_Istilah,_Pelaksanaan_Instruksi_Presiden_Nomor_2_Tahun_2001_Tentang_Penggunaan_Komputer_Dengan_Aplikasi_Komputer_Berbahasa_Indonesia
- *Original source: http://vlsm.org/etc/baku-0.txt
+ * Original source: http://vlsm.org/etc/baku-0.txt
  * by Farid GS
  * farid [at] pulen.net
  * 10:13 04 Desember 2007
@@ -177,8 +183,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
   Ext.apply(Ext.form.VTypes, {
-    emailText    : 'Field ini harus dalam format email seperti "user@domain.com"', 
-    urlText      : 'Field ini harus dalam format URL seperti "http:/'+'/www.domain.com"', 
+    emailText    : 'Field ini harus dalam format email seperti "user@example.com"', 
+    urlText      : 'Field ini harus dalam format URL seperti "http:/'+'/www.example.com"', 
     alphaText    : 'Field ini harus terdiri dari huruf dan _', 
     alphanumText : 'Field ini haris terdiri dari huruf, angka dan _'  
   });

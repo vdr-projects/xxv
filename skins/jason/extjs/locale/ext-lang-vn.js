@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 ﻿/**
  * List compiled by mystix on the extjs.com forums.
  * Thank you Mystix!
@@ -143,7 +149,7 @@ if(Ext.form.ComboBox){
 if(Ext.form.VTypes){
    Ext.apply(Ext.form.VTypes, {
       emailText    : 'Giá trị của ô này phải là một địa chỉ email có dạng như "ten@abc.com"',
-      urlText      : 'Giá trị của ô này phải là một địa chỉ web(URL) hợp lệ, có dạng như "http:/'+'/www.domain.com"',
+      urlText      : 'Giá trị của ô này phải là một địa chỉ web(URL) hợp lệ, có dạng như "http:/'+'/www.example.com"',
       alphaText    : 'Ô này chỉ được nhập các kí tự và gạch dưới(_)',
       alphanumText : 'Ô này chỉ được nhập các kí tự, số và gạch dưới(_)'
    });

@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /**
  * Korean Translations By nicetip
  * 05 September 2007
@@ -140,8 +146,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
    Ext.apply(Ext.form.VTypes, {
-      emailText    : '이메일 주소 형식에 맞게 입력해야합니다. (예: "user@domain.com")',
-      urlText      : 'URL 형식에 맞게 입력해야합니다. (예: "http:/'+'/www.domain.com")',
+      emailText    : '이메일 주소 형식에 맞게 입력해야합니다. (예: "user@example.com")',
+      urlText      : 'URL 형식에 맞게 입력해야합니다. (예: "http:/'+'/www.example.com")',
       alphaText    : '영문, 밑줄(_)만 입력할 수 있습니다.',
       alphanumText : '영문, 숫자, 밑줄(_)만 입력할 수 있습니다.'
    });

@@ -1,3 +1,9 @@
+/*!
+ * Ext JS Library 3.0.0
+ * Copyright(c) 2006-2009 Ext JS, LLC
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
 /**
  * List compiled by mystix on the extjs.com forums.
  * Thank you Mystix!
@@ -143,8 +149,8 @@ if(Ext.form.ComboBox){
 
 if(Ext.form.VTypes){
    Ext.apply(Ext.form.VTypes, {
-      emailText    : 'Toto pole musí byť e-mailová adresa vo formáte "user@domain.com"',
-      urlText      : 'Toto pole musí byť URL vo formáte "http:/'+'/www.domain.com"',
+      emailText    : 'Toto pole musí byť e-mailová adresa vo formáte "user@example.com"',
+      urlText      : 'Toto pole musí byť URL vo formáte "http:/'+'/www.example.com"',
       alphaText    : 'Toto pole može obsahovať iba písmená a znak _',
       alphanumText : 'Toto pole može obsahovať iba písmená, čísla a znak _'
    });

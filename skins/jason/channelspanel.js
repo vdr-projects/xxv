@@ -128,7 +128,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
         if(!this.menu){ // create context menu on first right click
             this.menu = new Ext.menu.Menu({
                 items: [{
-                     id:'p'
+                     itemId:'p'
                     ,iconCls:'select-channel-icon'
                     ,text:this.selectText
                     ,scope: this
@@ -137,7 +137,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
                     }
                     ,'-',
                     {
-                     id:'lst'
+                     itemId:'lst'
                     ,iconCls:'stream-icon'
                     ,text:this.webcastText
                     ,scope: this
@@ -145,7 +145,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
                     ,handler:function(){ this.onWebCastChannel(this.ctxNode.attributes.channel); }
                     },
                     {
-                     id:'sw'
+                     itemId:'sw'
                     ,iconCls:'switch-icon'
                     ,text:this.switchText
                     ,scope: this
@@ -154,7 +154,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
                     }
                     ,'-',
                     {
-                     id:'ced'
+                     itemId:'ced'
                     ,iconCls:'edit-icon'
                     ,text:this.editText
                     ,scope: this
@@ -162,7 +162,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
                     ,handler:function(){ this.EditItem(this.ctxNode.attributes.channel); }
                     },
                     {
-                     id:'cdl'
+                     itemId:'cdl'
                     ,iconCls:'delete-icon'
                     ,text:this.deleteText
                     ,scope: this
@@ -183,10 +183,10 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
 
             var items = this.menu.items;
             if(items) { items.eachKey(function(key, f) {
-                                      if(XXV.help.cmdAllowed(key)) f.enable();
-                          },items); }
-
-            this.menu.items.get('p').setDisabled(node.isSelected());
+                          if(XXV.help.cmdAllowed(f.itemId)) 
+                            f.enable();
+                          },items); 
+                      }
 
             this.menu.showAt(e.getXY());
         }
@@ -196,6 +196,11 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
         if(this.ctxNode){
             this.ctxNode.ui.removeClass('x-node-ctx');
             this.ctxNode = null;
+        }
+        if(this.menu) {
+          this.menu.destroy();
+          delete this.menu;
+          this.menu = null;
         }
     }
 

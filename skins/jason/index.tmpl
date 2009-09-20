@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="<?% charset %?>"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<?% verbose = 0 %?>
+<?% verbose = 1 %?>
 <?% compressed = 0 %?>
 <?% lang = locale.split('_') %?>
 <html xmlns="http://www.w3.org/1999/xhtml" <?% IF lang.1 %?>xml:lang="<?% lang.0 %?>" lang="<?% lang.0 %?>"<?% ELSE %?>xml:lang="en" lang="en"<?% END %?>>
@@ -54,7 +54,7 @@
   } @script;
   $stash->set(scripts => \@script);
   <?% END %?>
-<?% IF verbose != 0;scripts.1 = "ext-2.2.1/ext-all-debug.js";END %?>
+<?% IF verbose != 0;scripts.1 = "ext-3.0.0/ext-all-debug.js";END %?>
 <?% END %?>
 <?% FOREACH script = scripts %?>
 <script type="text/javascript" src="<?% script %?>"></script>

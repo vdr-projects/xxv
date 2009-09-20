@@ -107,6 +107,7 @@ Ext.xxv.NowGrid.prototype.szFollowing = "Folgend";
 Ext.xxv.NowGrid.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.NowGrid.prototype.szProgram = "Zeige Programm";
 Ext.xxv.NowGrid.prototype.szRecord = "Aufnehmen";
+Ext.xxv.NowGrid.prototype.szEditTimer = "Timer bearbeiten";
 Ext.xxv.NowGrid.prototype.szColPosition = "Position des Kanal";
 Ext.xxv.NowGrid.prototype.szColTitle = "Titel";
 Ext.xxv.NowGrid.prototype.szColChannel = "Kanal";
@@ -116,9 +117,6 @@ Ext.xxv.NowGrid.prototype.szColStop = "Ende";
 Ext.xxv.NowGrid.prototype.szLoadException = "Konnte keine Daten holen!\r\n{0}";
 Ext.xxv.NowGrid.prototype.szRecordSuccess = "Timer erfolgreich erstellt.\r\n{0}";
 Ext.xxv.NowGrid.prototype.szRecordFailure = "Konnte Timer nicht erstellen!\r\n{0}";
-
-Ext.xxv.NowPreview.prototype.szFindReRun = "Suche Wiederholung";
-Ext.xxv.NowPreview.prototype.szRecord = "Aufnehmen";
 
 /* program.js */
 Ext.xxv.programGrid.prototype.szTitle = "Programführer";
@@ -131,9 +129,6 @@ Ext.xxv.programGrid.prototype.szColStop = "Ende";
 Ext.xxv.programGrid.prototype.szColDayFormat = "l, d.m.Y";
 Ext.xxv.programGrid.prototype.szLoadException = "Konnte keine Programmdaten holen!\r\n{0}";
 
-Ext.xxv.programPreview.prototype.szFindReRun = "Suche Wiederholung";
-Ext.xxv.programPreview.prototype.szRecord = "Aufnehmen";
-
 /* search.js */
 Ext.xxv.searchGrid.prototype.szTitle = "Suche";
 Ext.xxv.searchGrid.prototype.szFindReRun = "Suche Wiederholung";
@@ -145,9 +140,6 @@ Ext.xxv.searchGrid.prototype.szColStart = "Beginn";
 Ext.xxv.searchGrid.prototype.szColStop = "Ende";
 Ext.xxv.searchGrid.prototype.szColDayFormat = "l, d.m.Y";
 Ext.xxv.searchGrid.prototype.szLoadException = "Konnte keine Wiederholung finden!\r\n{0}";
-
-Ext.xxv.searchPreview.prototype.szFindReRun = "Suche Wiederholung";
-Ext.xxv.searchPreview.prototype.szRecord = "Aufnehmen";
 
 /* recordings.js */
 Ext.xxv.recordingsDataView.prototype.szTitle = "Aufnahmen";
