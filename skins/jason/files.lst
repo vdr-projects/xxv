@@ -3,10 +3,10 @@ extjs/adapter/ext/ext-base.js \
 extjs/ext-all.js \
 fixes.js \
 ux/DDView.js \
-ux/multiselect.js \
-ux/tabclosemenu.js \
-ux/filter.js \
-ux/Ext.ux.SlideZone.js \
+ux/Multiselect.js \
+ux/TabCloseMenu.js \
+ux/Search.js \
+ux/SlideZone.js \
 common.js \
 reader.js \
 help.js \

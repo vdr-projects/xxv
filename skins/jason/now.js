@@ -58,7 +58,7 @@ Ext.xxv.NowGrid = function(viewer) {
       range.push([configuration.periods[i],configuration.periods[i]]);
     }
 
-    var timefield = new Ext.form.ComboBox({
+    this.timefield = new Ext.form.ComboBox({
                 id:'timefield'
                 ,width:75
                 ,store: new Ext.data.Store({
@@ -132,9 +132,13 @@ Ext.xxv.NowGrid = function(viewer) {
              pageSize: configuration.pageSize
             ,store: this.store
             ,displayInfo: true
-            ,items:['->', timefield ]
         })
     });
+
+    var tbPosition = 15
+    var tb = this.topToolbar;
+    tb.insert(tbPosition+0, '-');
+    tb.insert(tbPosition+1, this.timefield);
 
     this.store.on({
          'load' :          this.onLoad
@@ -175,18 +179,11 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
     }
     ,onBeforeLoad : function(  store, opt ) {
-      var tf = Ext.getCmp('timefield');
-      if(!tf) return;
 
-      if(this.getTopToolbar().displayEl) {
-          var size = tf.getSize();
-          this.getTopToolbar().displayEl.setRight(30+size.width);
-      }
       delete(this.store.baseParams['data']);
 
-
-      var time = tf.lastQuery;
-      if(!time || time == '') time = tf.getValue();
+      var time = this.timefield.lastQuery;
+      if(!time || time == '') time = this.timefield.getValue();
       if(!time || time == this.szPresent) {
         store.baseParams.cmd = 'n';
       } else if(time == this.szFollowing) {

@@ -5,7 +5,7 @@
  * @author    Ing. Jozef Sakalos
  * @copyright (c) 2008, by Ing. Jozef Sakalos
  * @date      17. January 2008
- * @version   $Id: Ext.ux.grid.Search.js 11 2008-02-22 17:13:52Z jozo $
+ * @version   $Id$
  *
  * @license Ext.ux.grid.Search is licensed under the terms of
  * the Open Source LGPL 3.0 license.  Commercial use is permitted to the extent
@@ -32,7 +32,7 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
     /**
      * @cfg {String} searchTipText Text to display as input tooltip. Set to '' for no tooltip
      */ 
-    searchTipText:'Type a text to search and press Enter'
+     searchTipText:'Type a text to search and press Enter'
     /**
      * @cfg {String} position Where to display the search controls. Valid values are top and bottom (defaults to bottom)
      * Corresponding toolbar has to exist at least with mimimum configuration tbar:[] for position:top or bbar:[]
@@ -42,7 +42,7 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
     /**
      * @cfg {Number} width Width of input field in pixels (defaults to 100)
      */
-    ,width:150
+    ,width:100
     /**
      * @cfg {String} xtype xtype is usually not used to instantiate this plugin but you have a chance to identify it
      */
@@ -52,22 +52,15 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
      */
     ,paramNames: {
          fields:'fields'
+        ,query:'query'
         ,all:'search'
         ,cmd:'search'
-        ,query:'query'
     }
     /**
-     * @cfg {String} shortcutKey Key to fucus the input field (defaults to r = Sea_r_ch). Empty string disables shortcut
+     * @cfg {int} position
+     * The starting position inside the toolbar
      */
-    ,shortcutKey:'r'
-    /**
-     * @cfg {String} shortcutModifier Modifier for shortcutKey. Valid values: alt, ctrl, shift (defaults to alt)
-     */
-    ,shortcutModifier:'alt'
-    /**
-     * @cfg {String} align 'left' or 'right' (defaults to 'right')
-     */
-    ,align:'right'
+    ,tbPosition: 15
     /**
      * @cfg {Number} minLength force user to type this many character before he can make a search
      */
@@ -86,19 +79,21 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
     // }}}
     // {{{
     /**
-     * private add plugin controls to <b>existing</b> toolbar and calls reconfigure
+     * private add plugin controls to <b>existing</b> toolbar
      */
     ,onRender:function() {
         var grid = this.grid;
-        var tb = 'owner' == this.position ? grid.ownerCt.topToolbar : grid.topToolbar;
+        var tb;
+        if('bottom' == this.position) {
+            tb = grid.bottomToolbar;
+        } else if ('owner' == this.position) {
+            tb = grid.ownerCt.topToolbar;
+        } else {
+            tb = grid.topToolbar;
+        }
 
-        // handle position
-        if('right' === this.align) {
-            tb.addFill();
-        }
-        else {
-            tb.addSeparator();
-        }
+        tb.insert(this.tbPosition, '-');
+        this.tbPosition++;
 
         // add input field (TwinTriggerField in fact)
         this.field = new Ext.form.TwinTriggerField({
@@ -128,26 +123,8 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
             map.stopEvent = true;
         }, this, {single:true});
 
-        tb.add(this.field);
+        tb.insert(this.tbPosition, this.field);
 
-        if(tb.displayEl) {
-            var size = this.field.getSize();
-            tb.displayEl.setRight(10+this.width);
-        }
-        // keyMap
-        if(this.shortcutKey && this.shortcutModifier) {
-            var shortcutEl = this.grid.getEl();
-            var shortcutCfg = [{
-                 key:this.shortcutKey
-                ,scope:this
-                ,stopEvent:true
-                ,fn:function() {
-                    this.field.focus();
-                }
-            }];
-            shortcutCfg[this.shortcutModifier] = true;
-            this.keymap = new Ext.KeyMap(shortcutEl, shortcutCfg);
-        }
     } // eo function onRender
     // }}}
     // {{{
@@ -172,6 +149,7 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
         var store = this.grid.store;
 
         // ask server to filter records
+
         // clear start (necessary if we have paging)
         if(store.lastOptions && store.lastOptions.params) {
             store.lastOptions.params[store.paramNames.start] = 0;
@@ -219,6 +197,7 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
     ,disable:function() {
         this.setDisabled(true);
     } // eo function disable
+    // }}}
 
 }); // eo extend
 

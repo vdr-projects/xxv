@@ -1,7 +1,7 @@
 /**
  * Class Ext.ux.SlideZone
  * @author Jared Gisin
- * @version $Id: Ext.ux.SlideZone.js 93 2007-12-12 04:41:40Z jaredgisin $
+ * @version $Id$
  * @license http://www.opensource.org/licenses/mit-license.php
  * 
  * TODO: make sure slider limits work when snap = 1 or snap < slider width/height

@@ -97,9 +97,9 @@ Ext.xxv.programGrid = function(viewer, record) {
             ,showGroupName: false
         })
         ,tbar:new Ext.PagingToolbar({
-            pageSize: configuration.pageSize,
-            store: this.store,
-            displayInfo: true
+             pageSize: configuration.pageSize
+            ,store: this.store
+            ,displayInfo: true
         })
         ,plugins:[this.filter]
     });
