@@ -1447,56 +1447,56 @@ function createRecordingsView(viewer,id) {
                             { id: 'recording-view-grid' });
 
     var tab = new Ext.xxv.Panel({
-      id: id,
-      iconCls:"recordings-icon",
-      closable:true,
-      border:false,
-      layout:'border',
-      stateful:true,
-      hideMode:'offsets',
-      items:[ viewer.gridRecordings,
-            {
-              id:'recording-bottom-preview',
-              layout:'fit',
-              items:XXV.BottomPreview ? 0 : viewer.gridRecordings.preview,
-              height: 250,
-              split: true,
-              border:false,
-              region:'south',
-              hidden:XXV.BottomPreview
+       id: id
+      ,iconCls:"recordings-icon"
+      ,closable:true
+      ,border:false
+      ,layout:'border'
+      ,stateful:true
+      ,hideMode:'offsets'
+      ,items:[ 
+            viewer.gridRecordings
+            ,{
+               id:'recording-bottom-preview'
+              ,layout:'fit'
+              ,items:XXV.BottomPreview ? 0 : viewer.gridRecordings.preview
+              ,height: 250
+              ,split: true
+              ,border:false
+              ,region:'south'
+              ,hidden:XXV.BottomPreview
             }, {
-              id:'recording-right-preview',
-              layout:'fit',
-              items:XXV.RightPreview ? 0 : viewer.gridRecordings.preview,
-              border:false,
-              region:'east',
-              width:350,
-              split: true,
-              hidden:XXV.RightPreview
-            }
-            ]
+               id:'recording-right-preview'
+              ,layout:'fit'
+              ,items:XXV.RightPreview ? 0 : viewer.gridRecordings.preview
+              ,border:false
+              ,region:'east'
+              ,width:350
+              ,split: true
+              ,hidden:XXV.RightPreview
+            }]
       ,tbar:new Ext.PagingToolbar({
         	   pageSize: viewer.gridRecordings.store.autoLoad.params.limit
         	  ,store: viewer.gridRecordings.store
 		        ,displayInfo: true
-              ,items: [
-			  {
+            ,items: [
+              {
                    id:'ru'
                   ,iconCls: 'upgrade-icon'
-            	  ,tooltip: viewer.gridRecordings.szUpgrade
+            	    ,tooltip: viewer.gridRecordings.szUpgrade
                   ,scope: viewer.gridRecordings
                   ,disabled:false
                   ,handler: function(){ this.UpgradeItem(); }
               },{
                    id:'rru'
                   ,iconCls: 'recover-icon'
-            	  ,tooltip: viewer.gridRecordings.szRecover
+            	    ,tooltip: viewer.gridRecordings.szRecover
                   ,scope: viewer.gridRecordings
                   ,disabled:false
                   ,handler: function(){ this.Recover(); }
-              }
-              ]})
-
+                }
+              ]}
+            )
     });
 
     viewer.add(tab);

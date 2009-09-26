@@ -37,24 +37,22 @@ Ext.xxv.Question = function(item,parentstore) {
     });
 
     Ext.xxv.Question.superclass.constructor.call(this, {
-        stateful: false,
-        title: item.title,
-        width: 600,
-        height:500,
-        minWidth: 300,
-        minHeight: 200,
-        layout: 'anchor',
-        plain:true,
-        //bodyStyle:'padding:5px;',
-        buttonAlign:'right',
-        buttons: [
-        {
+         stateful: false
+        ,title: item.title
+        ,width: 600
+        ,height:500
+        ,minWidth: 300
+        ,minHeight: 200
+        ,layout: 'anchor'
+        ,plain:true
+        //,bodyStyle:'padding:5px;'
+        ,buttonAlign:'right'
+        ,buttons: [{
              text: this.szClose
             ,handler: this.destroy
             ,scope: this
-        },
-        {
-            text: this.szApply
+        },{
+             text: this.szApply
             ,handler: this.onApply
             ,scope: this
         }]
