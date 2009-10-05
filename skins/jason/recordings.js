@@ -33,35 +33,101 @@ HMSToSeconds = function(s) {
 }
 
 /******************************************************************************/
-Ext.xxv.slide = function(config){
-    Ext.xxv.slide.superclass.constructor.call(this, config);
+Ext.xxv.slider = function(config){
+    Ext.xxv.slider.superclass.constructor.call(this, config);
     
     Ext.apply(this, config);
-        
-    this.addEvents({
-        'selectKeyword' : true
-    });
 };
 
-Ext.extend(Ext.xxv.slide, Ext.Component, {
+Ext.extend(Ext.xxv.slider, Ext.Component, {
 
-	baseCls : 'x-slide',
+    slider: null
 
-    setSize : Ext.emptyFn,
-    setWidth : Ext.emptyFn,
-    setHeight : Ext.emptyFn,
-    setPosition : Ext.emptyFn,
-    setPagePosition : Ext.emptyFn,
-    slider: null,
+    ,initComponent : function(){
+        Ext.xxv.slider.superclass.initComponent.call(this);
+	      this.addEvents({'MoveSlider' : true});
+    },
+
+    setvalue : function(marks, duration){
+      this.marks = marks;
+      this.duration = duration;
+      this.modified = 1;
+    },
+
+    render : function(ct, position){
+      if(!this.modified)
+        return;
+      this.modified = 0;
+      if(this.slider) {
+        //this.slider.remove();
+        ct.dom.innerHTML = '';
+	      delete this.slider;
+	      this.slider = null;
+
+        //this.slider.sliders.clear();
+        //this.slider.maxValue = this.duration;
+      } //else 
+      {
+		    this.slider = new Ext.ux.SlideZone(ct.id, {  
+			     type: 'horizontal'
+			    ,size: ct.getWidth()
+          ,sliderWidth: 16
+			    ,sliderHeight: 24
+			    ,minValue: 0
+			    ,maxValue: this.duration
+			    //,sliderSnap: 1
+			    ,allowSliderCrossing: true
+			    });
+			  this.ts = new Ext.ux.ThumbSlider({
+				   value: 0
+				  ,name: 'cutpoint_thumb'
+				  ,cls: 'x-slide-zone-bottom'
+				  ,allowMove: true
+			    });
+			  this.ts.on('drag',
+				  function() {
+					  var v = parseInt(this.ts.value * 1000);
+					  this.fireEvent('MoveSlider', this, new Date((minTime().getTime())+v), null, null);
+			  },this);
+		  }
+
+      if(this.marks && this.marks.length) {
+			  var cutpoint = this.marks.split(",");
+			  for(var i = 0, len = cutpoint.length; i < len; i += 2){
+				  var first = HMSToSeconds(cutpoint[i]);
+				  var second;
+				  if(i+1 < cutpoint.length) {
+					  second = HMSToSeconds(cutpoint[i+1]);
+				  } else {
+					  second = this.duration;
+				  }
+				  var rs = new Ext.ux.RangeSlider({
+					   value: [first,second]
+					  ,name: 'cutpoint_'+i
+					  ,cls: 'x-slide-zone-top'
+					  ,allowMove: false
+				  });
+				  this.slider.add(rs);	
+			  }
+		  }
+		  this.slider.add(this.ts);
+    }
+});
+
+Ext.reg('MarksSlider', Ext.xxv.slider);
+
+/******************************************************************************/
+Ext.xxv.RecHeader = function(config){
+    Ext.xxv.RecHeader.superclass.constructor.call(this, config);    Ext.apply(this, config);
+};
+
+Ext.extend(Ext.xxv.RecHeader, Ext.Component, {
 
     initComponent : function(){
-        Ext.xxv.slide.superclass.initComponent.call(this);
+        Ext.xxv.RecHeader.superclass.initComponent.call(this);
 
-	    this.addEvents({'selected' : true});
-        if (typeof(this.imageGap)=='undefined') { this.imageGap = 10 }
         this.tpl = new Ext.Template(
-            '<span id="preview-recordings-frame">',
-            '<div class="preview-header">',
+          '<div class="preview-header">',
             '<h3 class="preview-title">{title}</h3>',
             '<div class="preview-channel">',
               '<tpl if="channel != 0">',
@@ -73,38 +139,22 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
               '</tpl>',
             '</div>',
             '<h4 class="preview-shorttitle">{subtitle}&nbsp;</h4>',
-            '<div class="preview-date">{day:date} {start} - {stop}</div>',
-            '</div>',
-            '<div class="{cls}-wrap">',
-                '<div id="images-inner" class="{cls}-inner">',
-	                '<div class="{cls}-images-wrap">',
-	                    '<div class="{cls}-images"></div>',
-	                '</div>',
-	            '</div>',
-            '</div>',
-            '<div id="slider"><div id="slider-inner"></div></div>',
-            '<div class="preview-body">{content}</div>',
-            '</span>'
+            '<div class="preview-date">{day:date} {start} - {stop}</div>'
+          ,'</div>'
         );
         this.tpl.compile();  
-
-        this.tplimg = new Ext.Template('{day:date} - {start} ({period})');
-        this.tplimg.compile();  
-
     },
 
-    setvalue : function(data, first){
+    setvalue : function(data){
 
       this.param = {
-         data:      data
-        ,title:     data.fulltitle
+         title:     data.fulltitle
         ,subtitle:  ''
         ,channel:   data.channel
         ,day:       data.day
         ,duration:  data.duration
         ,start:     data.day.dateFormat('H:i')
         ,stop:      new Date(data.day.getTime() + (data.duration * 1000)).dateFormat('H:i')
-        ,content:   data.description.replace(/\r\n/g, '<br />')
         ,cutlength: data.cutlength == data.duration ? null : SecondsToHMS(data.cutlength)
         ,period:    SecondsToHMS(data.duration)
       };
@@ -117,244 +167,16 @@ Ext.extend(Ext.xxv.slide, Ext.Component, {
         this.param.subtitle = title.pop();
         this.param.title = title.join("~");
       }
-
-      if(first === true) {
-        var images = [];
-        if(!data.preview || data.preview == '') {
-          /*var day = new Date(data.day.getTime());
-          images.push(
-            {
-                 src:     (data.type == 'RADIO') ? 'pic/radio.png' : 'pic/movie.png'
-                ,day:     day
-                ,start:   day.dateFormat('H:i')
-                ,frame:   0
-                ,period:  SecondsToHMS(0)
-            }
-          );*/
-        } else {
-          var frames = data.preview.split(",");
-          Ext.each(frames, function(frame){ 
-            var url = "?cmd=ri&data="+data.id+"_"+frame;
-            var day = new Date(data.day.getTime() + (frame * 40));
-            images.push(
-              {
-                   src:     url
-                  ,day:     day
-                  ,start:   day.dateFormat('H:i')
-                  ,frame:   frame
-                  ,period:  SecondsToHMS((frame * 40)/1000)
-              }
-            );
-          },this);
-        }
-       this.images = images;
-      }
     },
-
     render : function(ct, position){
-
-        if(!this.param) return;
-        /** add preview images ************************************************/
-
-        var inner= Ext.get("images-inner");
-        if(!inner) {
-          this.param.cls = this.baseCls;
-          if(position){
-            this.el = this.tpl.insertBefore(position, this.param, true);
-          }else{
-            this.el = this.tpl.append(ct, this.param, true);
-          }
-          if(this.id){
-            this.el.dom.id = this.id;
-          }
-          
-          inner= Ext.get("images-inner");
-		      if(this.slider) {
-			      delete this.slider;
-			      this.slider = null;
-		      }
-		      if(this.cloudlist) {
-			      delete this.cloudlist;
-			      this.cloudlist = null;
-		      }
+      if(this.param) {
+          this.tpl.overwrite(ct, this.param);
         }
-        var imagesWrap = Ext.get(inner.dom.firstChild);
-        this.divImages = Ext.get(imagesWrap.dom.firstChild);
-
-        var size = inner.getSize();
-        this.width = size.width;
-        this.height = size.height;
-
-    		inner.setStyle({
-		    	height:(this.imageHeight + (2*this.wrapMarginY)) + 'px',
-		    	width:(this.width-this.wrapMarginX)+'px'
-		    });
-		
-		    var totalImageWidth=this.imageWidth+this.imageGap;
-		    var usableWidth=this.width-(this.wrapMarginX*2);
-		    var maxPicsOnce=Math.floor(usableWidth/totalImageWidth);
-		    var usedWidth=maxPicsOnce*totalImageWidth-this.imageGap;
-		    var offsetLeft=Math.floor((usableWidth-usedWidth)/2);
-		    this.pageSize=usedWidth+this.imageGap;
-		    this.maxPages=Math.round(this.images.length/maxPicsOnce+.04999);
-		    this.curPage=0;
-
-		    if (!Ext.isIE){
-			    offsetLeft+=this.wrapMarginX;
-		    }
-		
-		    imagesWrap.setStyle({
-			    position: 'absolute',
-			    clip:'rect(0,'+(usedWidth*1)+','+(this.imageHeight)+',0)',
-			    'margin-top':this.wrapMarginY+'px',
-			    width:this.width+'px',
-			    height:this.imageHeight+'px',
-			    'margin-left':offsetLeft+'px'
-		    });
-
-		    /*this.divImages.setStyle({
-			    position: 'absolute'
-		    });*/
-
-        Ext.each(this.images, function(image){            
-
-          if (typeof(image)=='string'){
-            image={src:image}
-          }
-          var qtip = this.tplimg.applyTemplate(image);
-
-          thisImage = this.divImages.createChild({tag:"img", src:image.src, 
-          'ext:qtip':qtip,
-           style:{
-           'margin-right': this.imageGap+'px',
-            width:  this.imageWidth+'px'
-    //      height: this.imageHeight+'px'            	
-           }
-          });
-
-          thisImage.on("click", function(e, ele){
-            if (!image.onSelected || !(image.onSelected.call(this, image, e, ele )===false)){
-              this.fireEvent('selected', this, new Date(minTime().getTime()+(image.frame * 40)), e, ele);
-
-              var slider = this.slider.getSlider('cutpoint_thumb');
-              slider.value = image.frame/25;
-              this.slider.initSliderPosition(slider);
-            }
-          },this);
-        },this);
-
-      /** add cutmark slider **************************************************/
-      if(this.slider) {
-        this.slider.sliders.clear();
-      } else {
-
-		    this.slider = new Ext.ux.SlideZone('slider-inner', {  
-			    type: 'horizontal',
-			    size: usableWidth-32,
-          sliderWidth: 16,
-			    sliderHeight: 24,
-			    maxValue: this.param.data.duration,
-			    minValue: 0,
-			    //sliderSnap: 1,
-			    allowSliderCrossing: true
-			    });
-			  this.ts = new Ext.ux.ThumbSlider({
-				   value: 0
-				  ,name: 'cutpoint_thumb'
-				  ,cls: 'x-slide-zone-bottom'
-				  ,allowMove: true
-			    });
-			  this.ts.on('drag',
-				  function() {
-					  var v = parseInt(this.ts.value * 1000);
-					  this.fireEvent('selected', this, new Date((minTime().getTime())+v), null, null);
-			  },this);
-		  }
-
-      if(this.param.data.marks && this.param.data.marks.length) {
-			  var cutpoint = this.param.data.marks.split(",");
-			  for(var i = 0, len = cutpoint.length; i < len; i += 2){
-				  var first = HMSToSeconds(cutpoint[i]);
-				  var second;
-				  if(i+1 < cutpoint.length) {
-					  second = HMSToSeconds(cutpoint[i+1]);
-				  } else {
-					  second = this.param.data.duration;
-				  }
-				  var rs = new Ext.ux.RangeSlider({
-					   value: [first,second]
-					  ,name: 'cutpoint_'+i
-					  ,cls: 'x-slide-zone-top'
-					  ,allowMove: false
-				  });
-				  this.slider.add(rs);	
-			  }
-		  }
-		  this.slider.add(this.ts);
-      /** add keywords tagcloud ***********************************************/
-      if(!this.cloudlist && this.param.data.keywords && this.param.data.keywords.length) {
-          var cont = Ext.get(ct.dom.lastChild);
-		      this.cloudlist = cont.createChild({tag: "ol", cls: "x-cloud-list"});
-      		for(var i = 0, len = this.param.data.keywords.length; i < len; i++){
-      			var child = this.cloudlist.createChild({
-                tag: "li", 
-                cls: "x-cloud-item "+this.getWeight(this.param.data.keywords[i][1]),
-                html: '<a href="#">'+this.param.data.keywords[i][0]+'</a>'
-                });
-			
-			      child.on('click', this.onSelectKeyWord, this);
-		      }
-      }
-    }
-    /**************************************************************************/
-    ,onSelectKeyWord : function(e, t){
-    
-        var item = t.parentNode;
-        var tag = item.firstChild.innerHTML;
-        
-        this.fireEvent('selectKeyword', tag);
-        
-        // Prevent the link href from being followed
-        Ext.EventObject.stopEvent(e);
-    }
-    /**************************************************************************/
-	  ,getWeight : function(weight){
-      var nmax = 100;
-      var nmin = 0;
-
-      var styles = new Array('smallest','smaller','small','medium','large','larger','largest');
-      var value = weight / (nmax - nmin) * 6;
-		  if(value >= 6.0)
-			  return styles[6];
-		  if(value <= 0.0)
-			  return styles[0];
-
-		  return styles[Math.round(value)];
-	  }
-    /**************************************************************************/
-    ,CanShift: function(direction) {
-  		if (!this.curPage){
-  			this.offsetLeft=this.divImages.getLeft();
-  		}
-  		var newPage=(direction=='right' ? this.curPage+1 : this.curPage-1 );
-      if (newPage<0 || newPage >= this.maxPages){
-		  	return -1;
-		  }
-      return newPage;
-    }
-
-    ,Shift: function(direction) {
-      var newPage = this.CanShift(direction);
-      if (newPage<0 || newPage >= this.maxPages){
-		  	return;
-		  }
-		  this.curPage=newPage;
-		  var newLocation=(this.pageSize*this.curPage)*-1+this.offsetLeft;
-		  this.divImages.shift({ x:newLocation, duration: this.duration || .7 });
     }
 });
 
-Ext.reg('slide', Ext.xxv.slide);
+Ext.reg('RecHeader', Ext.xxv.RecHeader);
+
 
 /******************************************************************************/
 
@@ -846,8 +668,11 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     },
 
     DetailsItem : function(record) {
-      if(record.data.priority 
-      || record.data.id == 'up') {
+      if(record.data.id == 'up') {
+        return;
+      }
+      if(record.data.priority) { //use cached data
+        this.preview.update(record);
         return;
       }
       var toDetails = '';
@@ -1276,7 +1101,7 @@ function createRecordingsView(viewer,id) {
                     }
                 }
     });
-
+    
     var preview = new Ext.Panel({
         id: 'preview-recordings',
         region: 'south',
@@ -1284,26 +1109,50 @@ function createRecordingsView(viewer,id) {
         autoScroll: true,
         stateful:true,
         timefield : timefield,
-        items: [
-             {
-              id: 'preview-recordings-frame',
-	            xtype:'slide',
-	            wrapMarginY:0,
-	            wrapMarginX:0,
-	            imageHeight:120, 
-	            imageWidth:160, 
-      		    autoWidth: true,
-              listeners:{
-                selected: function(slide, time, e, ele){
-                  this.ownerCt.timefield.setValue(time);
-                }
-   			        ,'selectKeyword': function(tag) {
-                  viewer.gridRecordings.doSelectKeyword(tag);
-                }          	
-              },
-	            images:[]
-	            }],
-
+        layout: {
+            type:'vbox'
+            ,padding:'0'
+            ,align:'stretch'
+            ,autoScroll: true
+        }
+        ,defaults:{margins:'0 0 0 0'}
+        ,items: [
+             { //header
+                   xtype:'container'
+                  ,height:     50
+                  ,items: [{                  
+                    autoWidth: true,
+                    xtype:'RecHeader'}
+                  ]
+             },{ //images
+                id:         'preview-recordings-images'
+               ,xtype:      'box'
+               ,height:     130
+               ,listeners:{ 'SelectImage': function(slide, time, e, ele){ viewer.gridRecordings.preview.timefield.setValue(time); } }
+             },{ //timeslide
+                 id:'preview-recordings-slide'
+                ,margins:'0 16 0 16'
+                ,height:  32
+                ,baseCls : 'x-slide'
+                ,items: [{                  
+                  xtype:'MarksSlider'
+                 ,duration:  100
+                 ,listeners:{ 'MoveSlider': function(slide, time, e, ele){ viewer.gridRecordings.preview.timefield.setValue(time); } }
+                }]
+             },{ //content
+               id:          'preview-recordings-frame'
+              ,cls:         'preview-body'
+	            ,xtype:       'box'
+              ,flex:        3
+             },{ // keywords
+                 xtype:'container'
+                ,height:  80
+                ,items: [{                  
+                   autoWidth: true
+                  ,xtype:'TagClouds'
+                  ,listeners:{ 'selectKeyword': function(tag) { viewer.gridRecordings.doSelectKeyword(tag); } }
+                }]
+             }],
         tbar: [
         {
              id:'s'
@@ -1356,52 +1205,18 @@ function createRecordingsView(viewer,id) {
             ,handler: function(){ this.gridRecordings.onPlay(this.gridRecordings.preview.record, this.gridRecordings.preview.timefield.getValue() );  }
         }
         , timefield
-        ,{
-             id:'recordings-shift-left'
-            ,iconCls: 'x-tbar-page-prev'
-            ,scope: viewer
-            ,disabled:false
-            ,handler: function() {
-              this.gridRecordings.preview.items.items[0].Shift('left'); 
-              this.gridRecordings.preview.canshift();
-            }
-        }
-        ,{
-             id:'recordings-shift-right'
-            ,iconCls: 'x-tbar-page-next'
-            ,scope: viewer
-            ,disabled:false
-            ,handler: function(){  
-              this.gridRecordings.preview.items.items[0].Shift('right');
-              this.gridRecordings.preview.canshift();
-            }
-        }
         ]
-	      ,canshift : function(){
-              var items = this.topToolbar.items;
-              if(items) { 
-                if(this.items.items[0].CanShift('right') != -1) {
-                  items.get('recordings-shift-right').enable();
-                } else { 
-                  items.get('recordings-shift-right').disable();
-                }
-                if(this.items.items[0].CanShift('left') != -1) {
-                  items.get('recordings-shift-left').enable();
-                } else { 
-                  items.get('recordings-shift-left').disable();
-                }
-              }
-        }
 	      ,content : function(record){
 
             if(record && this.record != record
                 && record.data.isrecording 
-                && this.body 
-                && this.ownerCt.isVisible()) {
-                  this.body.update('');
-                  this.items.items[0].setvalue(record.data,true);
-                  this.doLayout();
+                //&& this.body 
+                //&& this.ownerCt.isVisible()
+                ) {
                   this.record = record;
+                  //header    
+                  this.get(0).get(0).setvalue(record.data);
+
 
                   this.timefield.maxValue = new Date((this.timefield.minValue.getTime())+(record.data.duration * 1000));
                   this.timefield.setValue(this.timefield.minValue);
@@ -1409,9 +1224,21 @@ function createRecordingsView(viewer,id) {
                   // Enable all toolbar buttons
                   var items = this.topToolbar.items;
                   if(items) { 
-                    items.eachKey(function(key, f){if(XXV.help.cmdAllowed(key) || -1 == key.search(/shift/)) f.enable();},items); 
+                    items.eachKey(function(key, f)
+                      {
+                        if(key == 'timeline' 
+                           && (XXV.help.cmdAllowed('pre') || XXV.help.cmdAllowed('rpv'))) { 
+                          f.enable();                        
+                        } else if(XXV.help.cmdAllowed(key)) 
+                          f.enable();
+                      }
+                    ,items); 
                   }
-                  this.canshift();
+
+                  var content = Ext.get("preview-recordings-frame");
+                  content.dom.innerHTML = record.data.description.replace(/\r\n/g, '<br />');
+
+                  this.doLayout();
                 }
 	      } 
         ,update : function(record) {
@@ -1419,20 +1246,85 @@ function createRecordingsView(viewer,id) {
                 && record.data.isrecording 
                 && this.body 
                 && this.ownerCt.isVisible()) {
-                  this.body.update('');
-                  this.items.items[0].setvalue(record.data,false);
-                  this.doLayout();
                   this.record = record;
+
+                  this.get(0).get(0).setvalue(record.data);
+
+                  if(!this.tplimg) {
+                    this.tplimg = new Ext.Template('{day:date} - {start} ({period})');
+                    this.tplimg.compile();  
+                  }
+  
+                  var frames = record.data.preview.split(",");
+                  if(frames && frames.length > 0) {
+                    this.remove(1);
+                    var pic = new Array();
+                    var frames = record.data.preview.split(",");
+                    Ext.each(frames, function(frame){ 
+                      var u = "?cmd=ri&data="+record.data.id+"_"+frame;
+                      var d = new Date(record.data.day.getTime() + (frame * 40));
+                      var t = SecondsToHMS((frame * 40)/1000);
+                      var q = this.tplimg.applyTemplate({ 
+                                 day:     d
+                                ,start:   d.dateFormat('H:i')
+                                ,period:  t
+                              });
+                      pic.push({
+                             frame:   frame
+                            ,width:  160
+                            ,html: "<img width='160px' src='"+ u + "' 'ext:qtip='" + q + "'>"
+                        });
+                    },this);
+
+                    this.insert(1,new Ext.Container( {
+                                  id:         'preview-recordings-images'
+                                 ,height:     130
+                                 ,layoutConfig: {
+	                                    scrollButtonPosition:'split',
+	                                    marginScrollButtons: 1,
+                                      pagedScroll: false
+                                  }
+                                  ,layout: 'carousel'
+                                  ,items: pic
+                              }));
+
+                  }
+
+                  this.get(2).get(0).setvalue(record.data.marks,record.data.duration);
+                  // Keywords
+                  this.get(4).get(0).setvalue(record.data.keywords);
+                  var height = record.data.keywords && record.data.keywords.length ? 80 : 0;
+                  if(this.get(4).getHeight() != height) {
+                    this.get(4).suspendEvents(false);
+                    this.get(4).setHeight(height);
+                    this.get(4).resumeEvents();
+                  }
+                  this.doLayout();
+/*
+                  var root = Ext.getCmp('preview-recordings-images');
+                  var images = root.select('img');
+                  Ext.each(images, function(image){            
+                    this.get(1).on("click", function(e, ele){
+                      if (!image.onSelected || !(image.onSelected.call(this, image, e, ele )===false)){
+                        this.fireEvent('selected', this, new Date(minTime().getTime()+(image.frame * 40)), e, ele);
+
+                        var slider = this.get(2).get(0).getSlider('cutpoint_thumb');
+                        slider.value = pic.frame/25;
+                        this.get(2).get(0).slider.initSliderPosition(slider);
+                      }
+                    },this);
+                  });
+*/
             }
         }
         ,clear: function(){
             if(this) {
-              if(this.body)
-                this.body.update('');
+              //if(this.body)
+              //  this.body.update('');
               this.record = null;
               // Disable all toolbar buttons
               var items = this.topToolbar.items;
-              if(items) { 
+              if(items) {
                   items.eachKey(function(key, f){f.disable();},items); 
 
               }

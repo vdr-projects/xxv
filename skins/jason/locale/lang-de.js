@@ -182,6 +182,7 @@ Ext.xxv.timerGrid.prototype.szColDay = "Tag";
 Ext.xxv.timerGrid.prototype.szColChannel = "Kanal";
 Ext.xxv.timerGrid.prototype.szColStart = "Beginn";
 Ext.xxv.timerGrid.prototype.szColStop = "Ende";
+Ext.xxv.timerGrid.prototype.szColDuration = "Dauer";
 Ext.xxv.timerGrid.prototype.szSelChEmptyText = "Kanal wählen...";
 Ext.xxv.timerGrid.prototype.szColDayFormat = "l, d.m.Y";
 Ext.xxv.timerGrid.prototype.szLoadException = "Konnte keine Daten über Timer holen!\r\n{0}";

@@ -2,6 +2,7 @@ FILES = \
 extjs/adapter/ext/ext-base.js \
 extjs/ext-all.js \
 fixes.js \
+ux/Carousel.js \
 ux/DDView.js \
 ux/Multiselect.js \
 ux/TabCloseMenu.js \

@@ -229,6 +229,7 @@ border-bottom:1px solid #dadadb;
 }
 .preview .x-panel-body div.preview-body {
 padding:10px;
+overflow: auto;
 }
 
 .reading-menu .x-menu-item-checked {

@@ -108,7 +108,6 @@ Ext.xxv.timerGrid = function(viewer) {
            ,dataIndex: 'title'
            ,width: 250
            ,renderer: this.formatTitle
-           //,editor: new Ext.form.TextField({allowBlank: false})
         },
         this.activeColumn,
         this.vpsColumn,
@@ -118,18 +117,20 @@ Ext.xxv.timerGrid = function(viewer) {
            ,dataIndex: 'day'
            ,width: 50
            ,renderer: Ext.util.Format.dateRenderer(this.szColDayFormat)
-           //,editor: new Ext.form.DateField({ minValue:  Ext.util.Format.date(new Date()) })
            ,hidden: true
         },{
             header: this.szColStart
            ,dataIndex: 'start'
            ,width: 50
-           //,editor: new Ext.form.TimeField()
         },{
             header: this.szColStop
            ,dataIndex: 'stop'
            ,width: 50
-           //,editor: new Ext.form.TimeField()
+        },{
+            header: this.szColDuration
+           ,dataIndex: 'duration'
+           ,width: 50
+           ,renderer: this.formatDuration
         },{
             header: this.szHost
            ,dataIndex: 'host'
@@ -207,6 +208,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     ,szColChannel    : "Channel"
     ,szColStart      : "Start"
     ,szColStop       : "Stop"
+    ,szColDuration   : "Duration"
     ,szHost          : "Host"
     ,szColDayFormat  : "l, m/d/Y"
     ,szSelChEmptyText: "Select a channel..."
@@ -323,6 +325,9 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
               '<div class="topic{1}"><b>{0}</b></div>',
               title, style
               );
+    }
+    ,formatDuration: function(value, p, record) {
+        return new Date(minTime().getTime()+(value * 1000)).dateFormat('H:i');
     }
   /******************************************************************************/
    ,onToggleSuccess : function( response,options ) 

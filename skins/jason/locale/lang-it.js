@@ -182,6 +182,7 @@ Ext.xxv.timerGrid.prototype.szColDay = "Giorno";
 Ext.xxv.timerGrid.prototype.szColChannel = "Canale";
 Ext.xxv.timerGrid.prototype.szColStart = "Inizio";
 Ext.xxv.timerGrid.prototype.szColStop = "Fine";
+Ext.xxv.timerGrid.prototype.szColDuration = "Durata";
 Ext.xxv.timerGrid.prototype.szHost = "Nome sistema";
 Ext.xxv.timerGrid.prototype.szColDayFormat = "l, m/d/Y";
 Ext.xxv.timerGrid.prototype.szSelChEmptyText = "Seleziona un canale...";
