@@ -888,6 +888,27 @@ sub ChannelToPos {
     my $erg = $sth->fetchrow_hashref();
     return $erg ? $erg->{pos} : undef;
 }
+# ------------------
+sub HashToCID {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $hash = shift || return undef;
+    my $vid = shift;
+
+    if($vid) {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE id from CHANNELS where vid = ? AND hash = ?');
+      $sth->execute($vid,$hash)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{id} : undef;
+    } else {
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE id from CHANNELS where hash = ?');
+      $sth->execute($hash)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      my $erg = $sth->fetchrow_hashref();
+      return $erg ? $erg->{id} : undef;
+    }
+}
 
 ################################################################################
 # Try to find channel id by given position, name or channel id
@@ -897,7 +918,9 @@ sub ToCID {
   my $text = shift || return undef;
   my $vid = shift;
 
-  if($text =~ /^\d+$/ and (my $pch = $self->PosToChannel($text,$vid) )) {
+  if($text and $text =~ /^[0-9a-f]{32}$/i) {
+    return $self->HashToCID($text,$vid);
+  } elsif($text =~ /^\d+$/ and (my $pch = $self->PosToChannel($text,$vid) )) {
     return $pch;
   } elsif((my $nch = $self->NameToChannel($text,$vid) )) {
     return $nch;

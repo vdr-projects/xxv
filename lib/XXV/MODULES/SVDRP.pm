@@ -770,7 +770,7 @@ sub scommand {
     my $text = shift || return $console->err(gettext("No command defined! Please use scommand 'cmd'."));
     my $vdrid = shift;
 
-    my ($erg,$error) = $self->command($text);
+    my ($erg,$error) = $self->command($text,$vdrid);
 
     return 0
       if(!($erg) || $error);

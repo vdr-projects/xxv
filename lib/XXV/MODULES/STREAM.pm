@@ -309,22 +309,26 @@ sub playrecord {
     }
 
     return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid))
-      unless $rec->{Path};
+      unless $rec->{path};
 
-    my $path = $rec->{Path};
-    my @files = bsd_glob("$path/[0-9][0-9][0-9].vdr");
+    my @files;
+    if($rec->{filever} == 2) {
+      @files = glob(sprintf("%s/[0-9]*.ts",$rec->{path}));
+    } else {
+      @files = glob(sprintf("%s/[0-9]*.vdr",$rec->{path}));
+    }
 
     return $console->err(sprintf(gettext("Couldn't find recording: '%s'"), $recid))
       unless scalar(@files);
 
     if($start) {
-      my ($filenumber,$fileoffset) = $rmod->frametofile($path,$start);
+      my ($filenumber,$fileoffset) = $rmod->frametofile($rec->{path},$start,$rec->{filever});
       splice(@files, 0, $filenumber-1) if($filenumber && ($filenumber - 1) > 0);
       $offset = $fileoffset if($fileoffset && ($fileoffset - 1) > 0);
     }
 
     debug sprintf('Play recording "%s"%s',
-        $path,
+        $rec->{path},
         ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
         );
 

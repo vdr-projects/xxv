@@ -9,9 +9,10 @@ use File::Path;
 use File::Basename;
 use File::stat;
 use Linux::Inotify2;
-use Encode;
 
 $SIG{CHLD} = 'IGNORE';
+
+use constant INDEXTRUCTSIZE => 8;
 
 # This module method must exist for XXV
 # ------------------
@@ -281,9 +282,6 @@ sub new {
     # read the DB Handle
     $self->{dbh} = delete $attr{'-dbh'};
 
-    # define framerate PAL 25, NTSC 30
-    $self->{framerate} = Tools->FRAMESPERSECOND;
-
     # The Initprocess
     my $erg = $self->_init or return error('Problem to initialize modul!');
 
@@ -300,7 +298,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 32; # Must be increment if rows of table changed
+    my $version = 33; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($self->{dbh},'RECORDS',$version,1)) {
@@ -313,15 +311,17 @@ sub _init {
           eventid int unsigned NOT NULL,
           id int unsigned NOT NULL,
           hash varchar(32) NOT NULL,
-          Path text NOT NULL,
+          path text NOT NULL,
           track text NOT NULL,
           priority tinyint NOT NULL,
           lifetime tinyint NOT NULL,
           status set('new', 'cutted'),
-          FileSize int unsigned default '0', 
-          cutlength int unsigned default '0', 
-          Marks text,
-          Type enum('TV', 'RADIO', 'UNKNOWN') default 'TV',
+          size int unsigned default '0', 
+          cutlength int unsigned default '0',
+          filever int unsigned default '0', 
+          framerate int unsigned default '25', 
+          marks text,
+          type enum('TV', 'RADIO', 'UNKNOWN') default 'TV',
           preview text NOT NULL,
           aux text,
           addtime timestamp,
@@ -595,14 +595,12 @@ sub scandirectory {
     my $directory = shift;
     my $typ = shift;
 
-    #my $enc = find_encoding($self->{charset});
-
     my $files = (); # Hash with md5 and path to recording
     find(
             {
                 wanted => sub{
                     if(-r $File::Find::name) {
-                        if($File::Find::name =~ /\.$typ\/\d{3}.vdr$/sig) {  # Lookup for *.rec/001.vdr
+                        if($File::Find::name =~ /\.$typ\/(\d{3}.vdr)|(\d{5}.ts)$/sig) {  # Lookup for *.rec/001.vdr or *.rec/001.ts
                           my $filename = $File::Find::name;
 
                           my $path = dirname($filename);
@@ -610,22 +608,36 @@ sub scandirectory {
                           unless(exists $files->{$hash}) {
                             my $rec;
                             $rec->{path} = $path;
-                            # Splitt 2005-01-16.04:35.88.99
-                            my ($year, $month, $day, $hour, $minute, $priority, $lifetime)
-                               = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\./s;
-                            $rec->{year} = $year;
-                            $rec->{month} = $month;
-                            $rec->{day} = $day;
-                            $rec->{hour} = $hour;
-                            $rec->{minute} = $minute;
-                            $rec->{priority} = $priority;
-                            $rec->{lifetime} = $lifetime;
 
+                            if($filename =~ /\.vdr$/) {
+                              # Splitt 2005-01-16.04:35.88.99.rec
+                              my ($year, $month, $day, $hour, $minute, $priority, $lifetime)
+                                 = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\./s;
+                              $rec->{year} = int($year);
+                              $rec->{month} = int($month);
+                              $rec->{day} = int($day);
+                              $rec->{hour} = int($hour);
+                              $rec->{minute} = int($minute);
+                              $rec->{priority} = int($priority);
+                              $rec->{lifetime} = int($lifetime);
+                              $rec->{filever} = 1;
+                            } else {
+                              # Splitt 2009-10-24.19.30.10-0.rec
+                              my ($year, $month, $day, $hour, $minute, $channel, $counter)
+                                 = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\-(\d+)\./s;
+                              $rec->{year} = int($year);
+                              $rec->{month} = int($month);
+                              $rec->{day} = int($day);
+                              $rec->{hour} = int($hour);
+                              $rec->{minute} = int($minute);
+                              # $rec->{channel} = $channel;
+                              # $rec->{counter} = $counter;
+                              $rec->{filever} = 2;
+                            }
                             # convert path to title
                             my $title = dirname($path);
                             $title =~ s/^$directory//g;
                             $title =~ s/^\///g;
-#                           $rec->{title} = $enc->decode($self->converttitle($title));
                             $rec->{title} = $self->converttitle($title);
 
                             # add file
@@ -713,14 +725,14 @@ sub _readData {
 
         $self->{Capacity}->{$vid}->{Message} = sprintf(gettext("Used %s, total %s%s, free %s%s on '%s'"),$percent, dot1000($total), $totalUnit,  dot1000($free), $freeUnit, $hostname);
         $self->{Capacity}->{$vid}->{Free}    = $free;
-        $self->{Capacity}->{$vid}->{Duration} = 0;
-        $self->{Capacity}->{$vid}->{FileSize} = 0;
+        $self->{Capacity}->{$vid}->{duration} = 0;
+        $self->{Capacity}->{$vid}->{size} = 0;
     } else {
         error(sprintf("Couldn't get disc state from %s\n%s", $hostname, join("\n", @$disk)));
         $self->{Capacity}->{$vid}->{Message} = sprintf(gettext("Unknown disc capacity on '%s'!"),$hostname);
         $self->{Capacity}->{$vid}->{Free}     = 0;
-        $self->{Capacity}->{$vid}->{Duration} = 0;
-        $self->{Capacity}->{$vid}->{FileSize} = 0;
+        $self->{Capacity}->{$vid}->{duration} = 0;
+        $self->{Capacity}->{$vid}->{size} = 0;
     }
 
     # There none recordings present
@@ -755,10 +767,12 @@ sub _readData {
                         CONCAT_WS("~",e.title,e.subtitle) as title, 
                         CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as idx,
                         UNIX_TIMESTAMP(e.addtime) as addtime,
-                        r.Path as path,
-                        r.Type as type,
-                        r.FileSize,
-                        r.Marks as marks,
+                        r.path,
+                        r.type,
+                        r.size,
+                        r.filever,
+                        r.framerate,
+                        r.marks,
                         r.hash
                  from RECORDS as r,OLDEPG as e 
                  where e.vid = ? and r.eventid = e.eventid |;
@@ -801,12 +815,15 @@ sub _readData {
 
           # Update Duration and maybe preview images, if recordings added during timer run 
           if(($db_data->{$h}->{starttime} + $db_data->{$h}->{duration} + 7200) > $db_data->{$h}->{addtime}) {
-              my $duration = $self->_recordinglength($db_data->{$h}->{path});
+              my $duration = $self->_recordinglength($db_data->{$h}->{path},$db_data->{$h}->{filever},$db_data->{$h}->{framerate} );
               if($duration != $db_data->{$h}->{duration}) {
 
                   # Update duration at database entry
                   $db_data->{$h}->{duration} = $duration;
-                  $db_data->{$h}->{FileSize} = $self->_recordingsize($db_data->{$h}->{path}, ($duration * 8 * $self->{framerate}));
+                  $db_data->{$h}->{size} = $self->_recordingsize(
+                                                        $db_data->{$h}->{path},
+                                                        $db_data->{$h}->{filever},
+                                                        ($duration * INDEXTRUCTSIZE * $db_data->{$h}->{framerate}));
 
                   # set addtime only if called from EVENT::TIMER
                   # avoid generating preview image during user actions
@@ -828,8 +845,8 @@ sub _readData {
           }
           
           
-          $self->{Capacity}->{$vid}->{Duration} += $db_data->{$h}->{duration};
-          $self->{Capacity}->{$vid}->{FileSize} += $db_data->{$h}->{FileSize};
+          $self->{Capacity}->{$vid}->{duration} += $db_data->{$h}->{duration};
+          $self->{Capacity}->{$vid}->{size} += $db_data->{$h}->{size};
           
           delete $outdatedRecordings->{$h};
 
@@ -857,8 +874,8 @@ sub _readData {
 
           my $info = $self->analyze($vid,$files,$event);
           if(ref $info eq 'HASH') {
-              $self->{Capacity}->{$vid}->{Duration} += $info->{Duration};
-              $self->{Capacity}->{$vid}->{FileSize} += $info->{FileSize};
+              $self->{Capacity}->{$vid}->{duration} += $info->{duration};
+              $self->{Capacity}->{$vid}->{size} += $info->{size};
 
               if($self->insert($info)) {
                   delete $outdatedRecordings->{$h};
@@ -912,8 +929,8 @@ sub _readData {
 
     foreach my $vid (keys %{$self->{Capacity}}) {
       push(@$Message,$self->{Capacity}->{$vid}->{Message});
-      $totalDuration += $self->{Capacity}->{$vid}->{Duration};
-      $totalSpace += $self->{Capacity}->{$vid}->{FileSize};
+      $totalDuration += $self->{Capacity}->{$vid}->{duration};
+      $totalSpace += $self->{Capacity}->{$vid}->{size};
       $totalFree += $self->{Capacity}->{$vid}->{Free};
     }
 
@@ -1057,26 +1074,28 @@ sub insert {
     my $sth = $self->{dbh}->prepare(
     qq|
      REPLACE INTO RECORDS
-        (eventid, track, id, hash, Path, priority, lifetime, status, FileSize, cutlength, Marks, Type, preview, aux, addtime )
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
+        (eventid, track, id, hash, path, priority, lifetime, status, size, cutlength, framerate, filever, marks, type, preview, aux, addtime )
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
     |);
 
-    $attr->{Marks} = ""
-        if(not $attr->{Marks});
+    $attr->{marks} = ""
+        if(not $attr->{marks});
 
     return $sth->execute(
         $attr->{eventid},
         $attr->{track},
         $attr->{id},
         $attr->{hash},
-        $attr->{Path},
+        $attr->{path},
         $attr->{priority},
         $attr->{lifetime},
         $attr->{status},
-        $attr->{FileSize},
+        $attr->{size},
         $attr->{cutlength},
-        $attr->{Marks},
-        $attr->{Type},
+        $attr->{framerate},
+        $attr->{filever},
+        $attr->{marks},
+        $attr->{type},
         $attr->{preview},
         $attr->{aux}
     );
@@ -1124,8 +1143,8 @@ sub _updateFileSize {
     my $self = shift || return error('No object defined!');
     my $attr = shift || return error ('No data to replace!');
 
-    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET FileSize=?, addtime=NOW() where hash=?');
-    return $sth->execute($attr->{FileSize},$attr->{hash});
+    my $sth = $self->{dbh}->prepare('UPDATE RECORDS SET size=?, addtime=NOW() where hash=?');
+    return $sth->execute($attr->{size},$attr->{hash});
 }
 
 # ------------------
@@ -1134,22 +1153,22 @@ sub analyze {
     my $self = shift || return error('No object defined!');
     my $vid = shift; # ID of Video disk recorder
     my $files = shift; # Hash with md5 and path to recording
-    my $recattr = shift;
+    my $vdrdata = shift;
 
-    lg sprintf('Analyze recording "%s"', $recattr->{title} );
+    lg sprintf('Analyze recording "%s"', $vdrdata->{title} );
 
-    my $info = $self->videoInfo($files,$recattr->{title}, $recattr->{starttime});
+    my $info = $self->videoInfo($files,$vdrdata->{title}, $vdrdata->{starttime});
     unless($info && ref $info eq 'HASH') {
-      error sprintf("Couldn't find recording '%s' with id : '%s' !",$recattr->{title}, $recattr->{id});
+      error sprintf("Couldn't find recording '%s' with id : '%s' !",$vdrdata->{title}, $vdrdata->{id});
       return 0;
     }
 
-    my $event = $self->SearchEpgId( $vid, $recattr->{starttime}, $info->{duration}, $recattr->{title}, $info->{channel} );
+    my $event = $self->SearchEpgId( $vid, $vdrdata->{starttime}, $info->{duration}, $vdrdata->{title}, $info->{channel} );
     if($event) {
         my $id = $event->{eventid};
         $event->{addtime} = time;
         $event->{duration} = int($info->{duration});
-        $event->{starttime} = $recattr->{starttime};
+        $event->{starttime} = $vdrdata->{starttime};
         $event = $self->_updateEvent($event);
         unless($event) {
           return 0;
@@ -1158,17 +1177,17 @@ sub analyze {
         # Sollte kein Event gefunden werden so muss dieser in OLDEPG mit
         # den vorhandenen Daten (lstr nummer) eingetragen werden und eine PseudoEventId (min(eventid)-1)
         # erfunden werden ;)
-        my @t = split('~', $recattr->{title});
-        my $title = $recattr->{title};
+        my @t = split('~', $vdrdata->{title});
+        my $title = $vdrdata->{title};
         my $subtitle;
         if(scalar @t > 1) { # Splitt genre~title | subtitle
             $subtitle = delete $t[-1];
             $title = join('~',@t);
         }
 
-        $event = $self->createOldEventId($vid, $recattr->{id}, $recattr->{starttime}, $info->{duration}, $title, $subtitle, $info);
+        $event = $self->createOldEventId($vid, $vdrdata->{id}, $vdrdata->{starttime}, $info->{duration}, $title, $subtitle, $info);
         unless($event) {
-          error sprintf("Couldn't create event!: '%s' !",$recattr->{id});
+          error sprintf("Couldn't create event!: '%s' !",$vdrdata->{id});
           return 0;
         }
     }
@@ -1179,23 +1198,25 @@ sub analyze {
 
     my $ret = {
         hash => $info->{hash},
-        title => $recattr->{title},
-        track => $recattr->{track},
-        id => $recattr->{id},
-        Duration => $info->{duration},
-        Start => $recattr->{starttime},
-        Path  => $info->{path},
+        title => $vdrdata->{title},
+        track => $vdrdata->{track},
+        id => $vdrdata->{id},
+        duration => $info->{duration},
+        Start => $vdrdata->{starttime},
+        path  => $info->{path},
         priority  => $info->{priority},
         lifetime  => $info->{lifetime},
         eventid => $event->{eventid},
-        Type  => $info->{type} || 'UNKNOWN',
-        status => $recattr->{status},
-        FileSize => $info->{FileSize},
+        type  => $info->{type} || 'UNKNOWN',
+        status => $vdrdata->{status},
+        size => $info->{size},
         cutlength => $info->{cutlength},
+        framerate => $info->{framerate},
+        filever => $info->{filever},
         aux => $info->{aux},
         keywords => $info->{keywords}
     };
-    $ret->{Marks} = join(',', @{$info->{marks}})
+    $ret->{marks} = join(',', @{$info->{marks}})
         if(ref $info->{marks} eq 'ARRAY');
     $ret->{preview} = join(',', @{$info->{preview}})
         if(ref $info->{preview} eq 'ARRAY');
@@ -1226,19 +1247,22 @@ sub videoInfo {
            && $rec->{hour} == $hour
            && $rec->{minute} == $minute) {
 
-              my $info = $self->readinfo($rec->{path});    
+              my $info = $self->readinfo($rec->{path},$rec->{filever});    
 
               $info->{hash} = $hash;
               $info->{path} = $rec->{path};
-              $info->{priority} = $rec->{priority};
-              $info->{lifetime} = $rec->{lifetime};
-              $info->{duration} = $self->_recordinglength($rec->{path});
-              $info->{FileSize} = $self->_recordingCapacity($rec->{files},
-                                   ($info->{duration} * 8 * $self->{framerate}));
+              $info->{filever} = $rec->{filever};
+              if($rec->{filever} != 2) {
+                $info->{priority} = $rec->{priority};
+                $info->{lifetime} = $rec->{lifetime};
+              }
+              $info->{duration} = $self->_recordinglength($rec->{path}, $rec->{filever}, $info->{framerate});
+              $info->{size} = $self->_recordingCapacity($rec->{files},
+                                 ($info->{duration} * INDEXTRUCTSIZE * $info->{framerate}));
 
-              my $marks = $self->_readmarks($rec->{path});
+              my $marks = $self->_readmarks($rec->{path}, $rec->{filever});
               map { $info->{$_} = $marks->{$_}; } keys %{$marks}; 
-              $info->{cutlength} = $self->_calcmarks($info->{marks} , $info->{duration});
+              $info->{cutlength} = $self->_calcmarks($info->{marks} , $info->{duration}, $info->{framerate});
 
               delete $files->{$hash}; # remove from hash, avoid double lookup
               return $info;
@@ -1254,10 +1278,11 @@ sub videoInfo {
 sub _readmarks {
     my $self     = shift || return error('No object defined!');
     my $path    = shift || return error ('No recording path defined!');
+    my $filever    = shift;
 
     my $status;
     # Schnittmarken ermitteln
-    my $marks = sprintf("%s/marks.vdr", $path);
+    my $marks = $self->_marksfile($path, $filever);
     if(-r $marks) {
         my $data = load_file($marks)
             or error sprintf("Couldn't read file '%s'",$marks);
@@ -1273,11 +1298,26 @@ sub _readmarks {
     return $status;
 }
 
+sub _marksfile {
+    my $self     = shift || return error('No object defined!');
+    my $path    = shift || return error ('No recording path defined!');
+    my $filever    = shift;
+
+    my $f;
+    if($filever == 2) {
+      $f = "marks";
+    } else {
+      $f = "marks.vdr";
+    }
+
+    return sprintf("%s/%s", $path, $f);
+}
 
 sub _calcmarks {
     my $self = shift;
     my $marks = shift;
     my $duration = shift;
+    my $framerate = shift;
 
     unless ($marks) {
       return $duration;
@@ -1286,31 +1326,47 @@ sub _calcmarks {
     my $frames = 0;
     for (my $i = 0; $i < (scalar(@$marks)); $i += 2) {
         my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i];
-        my $startframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
+        my $startframe = ($h * 3600 + $m * 60 + $s)* ($framerate) + $f;
 
         if ($marks->[$i+1]) {
             my ($h,$m,$s,$f) = split /[:.]/,$marks->[$i + 1];
-            my $endframe = ($h * 3600 + $m * 60 + $s)* ($self->{framerate}) + $f;
+            my $endframe = ($h * 3600 + $m * 60 + $s)* ($framerate) + $f;
             $frames += $endframe - $startframe;
         } else {
-            $frames += ($duration * ($self->{framerate})) - $startframe;
+            $frames += ($duration * ($framerate)) - $startframe;
             last;
         }
     }
-    return $frames / $self->{framerate};
+    return $frames / $framerate;
 }
 
+sub _infofile {
+    my $self     = shift || return error('No object defined!');
+    my $path    = shift || return error ('No recording path defined!');
+    my $filever    = shift;
+
+    my $f;
+    if($filever == 2) {
+      $f = "info";
+    } else {
+      $f = "info.vdr";
+    }
+    return sprintf("%s/%s", $path, $f);
+}
 #-------------------------------------------------------------------------------
 # get information about recording from info.vdr
 sub readinfo {
     my $self     = shift || return error('No object defined!');
     my $path    = shift || return error ('No recording path defined!');
+    my $filever    = shift;
 
     my $info;
     $info->{type} = 'UNKNOWN'; #TV / RADIO
+    # define framerate PAL 25, NTSC 30
+    $info->{framerate} = Tools->FRAMESPERSECOND;
 
     # get description
-    my $file = sprintf("%s/info.vdr", $path);
+    my $file = $self->_infofile($path,$filever);
     if(-r $file) {
         my $text = load_file($file);
         if($text) {
@@ -1334,6 +1390,15 @@ sub readinfo {
               }
               elsif($zeile =~ /^V\s+(.+)$/s) {
                   $info->{vpstime} = $1;
+              }
+              elsif($zeile =~ /^F\s+(.+)$/s) {
+                  $info->{framerate} = int($1);
+              }
+              elsif($zeile =~ /^L\s+(.+)$/s) {
+                  $info->{lifetime} = int($1);
+              }
+              elsif($zeile =~ /^P\s+(.+)$/s) {
+                  $info->{priority} = int($1);
               }
               elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
                   $info->{video} = $1;
@@ -1366,7 +1431,7 @@ sub saveinfo {
     my $path    = shift || return error ('No recording path defined!');
     my $info    = shift || return error ('No information defined!');
 
-    my $out;
+    my $out = "";
     foreach my $h (keys %{$info}) {
       $info->{$h} =~ s/\r\n/\|/g;            # pipe used from vdr as linebreak
       $info->{$h} =~ s/\n/\|/g;              # pipe used from vdr as linebreak
@@ -1374,95 +1439,54 @@ sub saveinfo {
       $info->{$h} =~ s/\s+$//;               # no trailing white space
     }
 
-    my $file = sprintf("%s/info.vdr", $path);              
-    my $text = ( -r $file ? load_file($file) : '');
-    foreach my $zeile (split(/[\r\n]/, $text)) {
-        $zeile =~ s/^\s+//;
-        $zeile =~ s/\s+$//;
-        if($zeile =~ /^T\s+(.+)/s) {
-          if(defined $info->{title} && $info->{title}) {
-            $out .= "T ".  $info->{title} . "\n";
-            undef $info->{title};
-          }
-        } 
-        elsif($zeile =~ /^S\s+(.+)/s) {
-          if(defined $info->{subtitle} && $info->{subtitle}) {
-            $out .= "S ".  $info->{subtitle} . "\n";
-            undef $info->{subtitle};
-          }
-        } 
-        elsif($zeile =~ /^D\s+(.+)/s) {
-          if(defined $info->{description} && $info->{description}) {
-            $out .= "D ".  $info->{description} . "\n";
-            undef $info->{description};
-          }
-        } 
-        elsif($zeile =~ /^C\s+(\S+)/s) {
-          if(defined $info->{channel} && $info->{channel}) {
-            $out .= "C ".  $info->{channel} . "\n" if($info->{channel});
-            undef $info->{channel};
-          }
-        }
-        elsif($zeile =~ /^V\s+(\S+)/s) {
-          if(defined $info->{vpstime} && $info->{vpstime}) {
-            $out .= "V ".  $info->{vpstime} . "\n" if($info->{vpstime});
-            undef $info->{vpstime};
-          }
-        }
-        elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
-          if(defined $info->{video} && $info->{video}) {
-            $out .= "X 1 ".  $info->{video} . "\n" if($info->{video});
-            undef $info->{video};
-          }
-        }
-        elsif($zeile =~ /^X\s+2\s+(.+)$/s) {
-          if(defined $info->{audio} && $info->{audio}) {
-            foreach my $line (split(/\|/, $info->{audio})) {
-              $line =~ s/^\s+//;
-              $line =~ s/\s+$//;
-              next unless($line);
-              $out .= "X 2 ". $line  . "\n";
-            }
-            undef $info->{audio};
-          }
-        }
-        elsif($zeile =~ /^@\s+(.+)/s) {
-          if(defined $info->{aux} && $info->{aux}) {
-            $out .= "@ ".  $info->{aux} . "\n" if($info->{aux});
-            undef $info->{aux};
-          }
-        } else {
-          $out .= $zeile . "\n" if($zeile);
-        }
+    my $file = $self->_infofile($path,$info->{filever});
+    my $status = $self->readinfo($path,$info->{filever});
+    foreach my $h (keys %{$info}) {
+      $info->{$h} =~ s/\r\n/\|/g;            # pipe used from vdr as linebreak
+      $info->{$h} =~ s/\n/\|/g;              # pipe used from vdr as linebreak
+      $info->{$h} =~ s/^\s+//;               # no leading white space
+      $info->{$h} =~ s/\s+$//;               # no trailing white space
+      $status->{$h} = $info->{$h};
     }
 
-    if(defined $info->{title} && $info->{title}) {
-      $out .= "T ".  $info->{title} . "\n";
+    if(defined $status->{title} && $status->{title}) {
+      $out .= "T ".  $status->{title} . "\n";
     }
-    if(defined $info->{subtitle} && $info->{subtitle}) {
-      $out .= "S ".  $info->{subtitle} . "\n";
+    if(defined $status->{subtitle} && $status->{subtitle}) {
+      $out .= "S ".  $status->{subtitle} . "\n";
     }
-    if(defined $info->{channel} && $info->{channel}) {
-      $out .= "C ".  $info->{channel} . "\n" if($info->{channel});
+    if(defined $status->{channel} && $status->{channel}) {
+      $out .= "C ".  $status->{channel} . "\n";
     }
-    if(defined $info->{description} && $info->{description}) {
-      $out .= "D ".  $info->{description} . "\n";
+    if(defined $status->{description} && $status->{description}) {
+      $out .= "D ".  $status->{description} . "\n";
     }
-    if(defined $info->{vpstime} && $info->{vpstime}) {
-      $out .= "V ".  $info->{vpstime} . "\n" if($info->{vpstime});
+    if(defined $status->{vpstime} && $status->{vpstime}) {
+      $out .= "V ".  $status->{vpstime} . "\n";
     }
-    if(defined $info->{video} && $info->{video}) {
-      $out .= "X 1 ".  $info->{video} . "\n" if($info->{video});
+    if(defined $status->{video} && $status->{video}) {
+      $out .= "X 1 ".  $status->{video} . "\n";
     }
-    if(defined $info->{audio} && $info->{audio}) {
-      foreach my $line (split(/\|/, $info->{audio})) {
+    if(defined $status->{audio} && $status->{audio}) {
+      foreach my $line (split(/\|/, $status->{audio})) {
         $line =~ s/^\s+//;               
         $line =~ s/\s+$//;               
         $out .= "X 2 ". $line  . "\n" if($line);
       }
     }
-    if(defined $info->{aux} && $info->{aux}) {
-      $out .= "@ ".  $info->{aux} . "\n" if($info->{aux});
+    if(defined $status->{aux} && $status->{aux}) {
+      $out .= "@ ".  $status->{aux} . "\n";
+    }
+    if($info->{filever} == 2) {
+      if(defined $status->{framerate} && $status->{framerate}) {
+        $out .= "F ".  $status->{framerate} . "\n";
+      }
+      if(defined $status->{lifetime} && $status->{lifetime}) {
+        $out .= "L ".  $status->{lifetime} . "\n";
+      }
+      if(defined $status->{priority} && $status->{priority}) {
+        $out .= "P ".  $status->{priority} . "\n";
+      }
     }
 
     return save_file($file, $out);
@@ -1503,9 +1527,8 @@ sub videoPreview {
     }
 
     # Videodir
-    my $vdir = $info->{path};
-    if(! -d $vdir ) {
-        error sprintf("Missing path ! %s",$!);
+    if(! -d $info->{path} ) {
+        error sprintf("Missing path '%s'! %s",$info->{path}, $!);
         return 0;
     }
 
@@ -1559,16 +1582,16 @@ sub videoPreview {
 
         my $m = ref $info->{marks} eq 'ARRAY' ? scalar(@{$info->{marks}}) : 0;
         if($m > 1 && $info->{duration}) {
-            my $total = $info->{duration} * $self->{framerate};
+            my $total = $info->{duration} * $info->{framerate};
             my $limit = $count * 4;
             my $x = 2;
             my $y = 1;
             while (scalar @frames < $count && $x < $limit) {
                 my $f = int($total / $x * $y); # 1/2, 1/3, 2/3, 1/4, 2/4, 3/4, 1/5, 2/5, 3/5 ...
                 for (my $n = 0;$n < $m; $n += 2 ) {
-                    my $fin = $self->_mark2frames(@{$info->{marks}}[$n]);
+                    my $fin = $self->_mark2frames(@{$info->{marks}}[$n],$info->{framerate});
                     my $fout = $total;
-                    $fout = $self->_mark2frames(@{$info->{marks}}[$n+1]) if($n+1 < $m);
+                    $fout = $self->_mark2frames(@{$info->{marks}}[$n+1],$info->{framerate}) if($n+1 < $m);
 
                     if ($f >= $fin && $f <= $fout 
                         && 0 == (grep {$f == $_;} @frames) 
@@ -1582,24 +1605,34 @@ sub videoPreview {
             }
         }
 
-        my $s = int($startseconds * $self->{framerate});
+        my $s = int($startseconds * $info->{framerate});
         while (scalar @frames < $count) {
             push(@frames, $s);
-            $s += int( $stepseconds * $self->{framerate} );
+            $s += int( $stepseconds * $info->{framerate} );
         }
     } else {
-        @files = glob("$vdir/[0-9][0-9][0-9].vdr");
+        if($info->{filever} == 2) {
+          @files = glob(sprintf("%s/[0-9]*.ts",$info->{path}));
+        } else {
+          @files = glob(sprintf("%s/[0-9]*.vdr",$info->{path}));
+        }
         foreach (@files) { $_ = qquote($_); }
     }
 
     my $scalex = $self->{xsize} || 180;
     my $mversions = {
       'MPlayer1.0pre5' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg -jpeg outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
-                              $self->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
+                              $self->{previewbinary}, qquote($outdir), 
+                              $startseconds / 5, $stepseconds / 5, $scalex, 
+                              $count, join(' ',@files), qquote($log)),
       'MPlayer1.0pre6' => sprintf("%s -noautosub -noconsolecontrols -nosound -nolirc -nojoystick -quiet -vo jpeg:outdir=%s -ni -ss %d -sstep %d -vf scale -zoom -xy %d -frames %d %s >> %s 2>&1",
-                              $self->{previewbinary}, qquote($outdir), $startseconds / 5, $stepseconds / 5, $scalex, $count, join(' ',@files), qquote($log)),
+                              $self->{previewbinary}, qquote($outdir), 
+                              $startseconds / 5, $stepseconds / 5, $scalex, 
+                              $count, join(' ',@files), qquote($log)),
       'vdr2jpeg'       => sprintf("%s -r %s -f %s -x %d -o %s >> %s 2>&1",
-                              $self->{previewbinary}, qquote($vdir), join(' -f ', @frames), $scalex, qquote($outdir), qquote($log)),
+                              $self->{previewbinary}, qquote($info->{path}), 
+                              join(' -f ', @frames), $scalex, qquote($outdir), 
+                              qquote($log)),
     };
     return {
       command    => $mversions->{$self->{previewcommand}},
@@ -1612,8 +1645,10 @@ sub videoPreview {
 sub _mark2frames{
    my $self = shift;
    my $mark = shift;
+   my $framerate = shift;
+
    my($h, $m, $s, $f) = split /[:.]/, $mark;
-   my $frame = (3600 * $h + 60 * $m + $s) * $self->{framerate} + $f ;
+   my $frame = (3600 * $h + 60 * $m + $s) * $framerate + $f ;
    return $frame;
 };
 
@@ -1724,8 +1759,8 @@ sub display {
 SELECT SQL_CACHE 
     r.hash as RecordId,
     r.eventid,
-    e.Duration,
-    r.Marks,
+    e.duration as Duration,
+    r.marks as Marks,
     r.priority,
     r.lifetime,
     UNIX_TIMESTAMP(e.starttime) as StartTime,
@@ -1734,7 +1769,7 @@ SELECT SQL_CACHE
     e.subtitle as SubTitle,
     e.description as Description,
     r.status as New,
-    r.Type as Type,
+    r.type as Type,
     (SELECT Name
       FROM CHANNELS as c
       WHERE e.channel_id = c.Id
@@ -1789,7 +1824,7 @@ sub play {
     my $id = shift || return con_err($console,gettext("No recording defined for playback! Please use rplay 'rid'."));
     my $params  = shift;
 
-    my $sql = qq|SELECT SQL_CACHE vid, id, hash, duration 
+    my $sql = qq|SELECT SQL_CACHE vid, id, hash, duration, framerate 
     FROM RECORDS as r, OLDEPG as e 
     WHERE e.eventid = r.eventid and hash = ?|;
     my $sth = $self->{dbh}->prepare($sql);
@@ -1805,7 +1840,7 @@ sub play {
       $start = &text2frame($params->{start});
     }
     if($start) {
-      if($start < 0 or ($start / $self->{framerate}) >= ($rec->{duration})) {
+      if($start < 0 or ($start / $rec->{framerate}) >= ($rec->{duration})) {
         $start = 'begin';
       } else {
         $start = &frame2hms($start);
@@ -1912,7 +1947,7 @@ SELECT SQL_CACHE
     SUM(e.duration) as \'$f{'Duration'}\',
     UNIX_TIMESTAMP(e.starttime) as \'$f{'starttime'}\',
     SUM(FIND_IN_SET('new',status)) as __New,
-    r.Type as __Type,
+    r.type as __Type,
     COUNT(*) as __Group,
     SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) as __fulltitle,
     IF(COUNT(*)>1,0,1) as __IsRecording,
@@ -2054,7 +2089,7 @@ SELECT SQL_CACHE
     e.duration as \'$f{'Duration'}\',
     UNIX_TIMESTAMP(e.starttime) as \'$f{'starttime'}\',
     FIND_IN_SET('new',r.status) as __New,
-    r.Type as __Type,
+    r.type as __Type,
     0 as __Group,
     CONCAT_WS('~',e.title,e.subtitle) as __fulltitle,
     1 as __IsRecording,
@@ -2296,9 +2331,10 @@ sub redit {
 SELECT SQL_CACHE
     e.vid,
     CONCAT_WS('~',e.title,e.subtitle) as title,
-    e.eventid as EventId,
-    r.Path,
-    r.lifetime
+    e.eventid,
+    r.path,
+    r.lifetime,
+    r.filever
 FROM
     RECORDS as r,
     OLDEPG as e
@@ -2314,9 +2350,9 @@ WHERE
         }
     }
 
-    my $status = $self->readinfo($rec->{Path});
+    my $status = $self->readinfo($rec->{path},$rec->{filever});
 
-    my $marksfile = sprintf('%s/%s', $rec->{Path}, 'marks.vdr');
+    my $marksfile = $self->_marksfile($rec->{path},$rec->{filever});
     my $marks = (-r $marksfile ? load_file($marksfile) : '');
 
     $rec->{title} =~s#~+#~#g;
@@ -2433,9 +2469,9 @@ WHERE
 
             $info->{aux} = $self->{keywords}->mergexml($info->{aux},'keywords',$info->{keywords});
 
-            $self->saveinfo($rec->{Path},$info)
-               or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),$rec->{Path} . '/info.vdr',$!));
-
+            $self->saveinfo($rec->{path},$info)
+               or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),
+                         $self->_infofile($rec->{path},$rec->{filever}),$!));
             $ChangeRecordingData = 1 if($info->{aux} ne $status->{aux});
             $dropEPGEntry = 1;
         }
@@ -2449,24 +2485,24 @@ WHERE
 
         if($data->{lifetime} ne $rec->{lifetime}) {
 
-            my @options = split('\.', $rec->{Path});
+            my @options = split('\.', $rec->{path});
 
             $options[-2] = sprintf("%02d",$data->{lifetime})
                 if($data->{lifetime} ne $rec->{lifetime});
 
             my $newPath = join('.', @options);
 
-            move($rec->{Path}, $newPath)
+            move($rec->{path}, $newPath)
                  or return con_err($console,sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$newPath,$!));
 
-            $rec->{Path} = $newPath;
+            $rec->{path} = $newPath;
             $ChangeRecordingData = 1;
         }
 
         if($data->{title} ne $rec->{title}) {
 
             # Rename auf der Platte
-            my $newPath = sprintf('%s/%s/%s', $videodirectory, $self->translate($data->{title}),basename($rec->{Path}));
+            my $newPath = sprintf('%s/%s/%s', $videodirectory, $self->translate($data->{title}),basename($rec->{path}));
 
             my $parentnew = dirname($newPath);
             unless( -d $parentnew) {
@@ -2474,10 +2510,10 @@ WHERE
                     or return con_err($console,sprintf(gettext("Recording: '%s', couldn't mkpath: '%s' : %s"),$rec->{title},$parentnew,$!));
             }
 
-            move($rec->{Path},$newPath)
+            move($rec->{path},$newPath)
                     or return con_err($console,sprintf(gettext("Recording: '%s', couldn't move to '%s' : %s"),$rec->{title},$data->{title},$!));
 
-            my $parentold = dirname($rec->{Path});
+            my $parentold = dirname($rec->{path});
             if($videodirectory ne $parentold
                 and -d $parentold
                 and is_empty_dir($parentold)) {
@@ -2487,7 +2523,7 @@ WHERE
 
             $ChangeRecordingData = 1;
             $dropEPGEntry = 1;
-            $rec->{Path} = $newPath;
+            $rec->{path} = $newPath;
         }
 
 
@@ -2530,7 +2566,7 @@ WHERE
           con_msg($console,gettext("Recording was'nt changed!"));
         }
  
-        $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',md5_hex($rec->{Path})), wait => 1})
+        $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',md5_hex($rec->{path})), wait => 1})
             if(ref $console and $console->typ eq 'HTML');
     }
 
@@ -2629,7 +2665,7 @@ SELECT SQL_CACHE
     r.eventid as __EventId,
     e.title,
     e.subtitle,
-    FROM_UNIXTIME(e.Duration,'%h:%i:%s') as Duration,
+    FROM_UNIXTIME(e.duration,'%h:%i:%s') as Duration,
     e.starttime as __RecordStart
 FROM
     RECORDS as r,
@@ -2674,11 +2710,11 @@ sub IdToPath {
     my $self = shift || return error('No object defined!');
     my $id = shift || return undef;
 
-    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE Path from RECORDS where hash = ?');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE path from RECORDS where hash = ?');
     $sth->execute($id)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
-    return $erg ? $erg->{Path} : undef;
+    return $erg ? $erg->{path} : undef;
 }
 
 # ------------------
@@ -2778,19 +2814,30 @@ sub _recordinglength {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $path = shift || return error ('Missing path from recording!' );
+    my $filever = shift;
+    my $framerate = shift;
 
-    my $f = sprintf("%s/index.vdr", $path);
-    my $r = sprintf("%s/001.vdr", $path);
+    my $f;
+    my $c;
+    if($filever == 2) {
+      $f = "index";
+      $c = "00001.ts";
+    } else {
+      $f = "index.vdr";
+      $c = "001.vdr";
+    }
+    my $index = sprintf("%s/%s", $path, $f);
+    my $video = sprintf("%s/%s", $path, $c);
 
-    my $fst = stat($f);
-    my $rst = stat($r);
+    my $fst = stat($index);
+    my $rst = stat($video);
     # Pseudo Recording (DIR)
     return 0 unless($fst and $rst);
 
     if($fst->mode & 00400) { # mode & S_IRUSR
-        return int(($fst->size / 8) / $self->{framerate});
+        return int(($fst->size / 8) / $framerate);
     } else {
-        error sprintf("Couldn't read : '%s'", $f);
+        error sprintf("Couldn't read : '%s'", $index);
     }
     return 0;
 }
@@ -2802,9 +2849,15 @@ sub _recordingsize {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $path = shift || return error('Missing path from recording!');
+    my $filever = shift;
     my $size = shift || 0; # Filesize offset e.g. from index.vdr
 
-    my @files = glob("$path/[0-9][0-9][0-9].vdr");
+    my @files;
+    if($filever == 2) {
+      @files = glob(sprintf("%s/[0-9]*.ts",$path));
+    } else {
+      @files = glob(sprintf("%s/[0-9]*.vdr",$path));
+    }
     return $self->_recordingCapacity(\@files,$size);
 }
 
@@ -3003,39 +3056,52 @@ sub frametofile {
     my $self = shift || return error('No object defined!');
     my $path = shift || return error ('Missing path from recording!' );
     my $frame = int (shift);
+    my $filever = shift;
 
-    use constant FRAMESTRUCTSIZE => 8;
-
-    my $f = sprintf("%s/index.vdr", $path);
-    unless(open FH,$f) {
-      error(sprintf("Can't open file '%s': %s",$f,$!));
+    my $f;
+    if($filever == 2) {
+      $f = "index";
+    } else {
+      $f = "index.vdr";
+    }
+    my $file = sprintf("%s/%s", $path, $f);
+    unless(open FH,$file) {
+      error(sprintf("Can't open file '%s': %s",$file,$!));
       return (undef,undef);
     }
     binmode FH;
 
-    my $offset = FRAMESTRUCTSIZE * $frame;
+    my $offset = INDEXTRUCTSIZE * $frame;
     if($offset != sysseek(FH,$offset,0)) { #SEEK_SET
-      error(sprintf("Can't seek file '%s': %s",$f,$!));
+      error(sprintf("Can't seek file '%s': %s",$file,$!));
       close FH;
       return (undef,undef);
     }
 
     do {
       my $buffer;
-      my $bytesread = sysread (FH, $buffer, FRAMESTRUCTSIZE);
-      if($bytesread != FRAMESTRUCTSIZE) {
-        error(sprintf("Can't read file '%s': %s",$f,$!));
+      my $bytesread = sysread (FH, $buffer, INDEXTRUCTSIZE);
+      if($bytesread != INDEXTRUCTSIZE) {
+        error(sprintf("Can't read file '%s': %s",$file,$!));
         return (undef,undef);
       }
-      my ($c, $t, $n, $r) = unpack ("I C C S", $buffer);
-      if($t == 1) { # I-Frame
-        close FH;
-        return ($n,$c); # Filenumber, Offset from file begin
-      }  
-
-      $offset -= FRAMESTRUCTSIZE;
-      if($offset != sysseek(FH,-(FRAMESTRUCTSIZE*2), 1)) { #SEEK_CUR
-        error(sprintf("Can't seek file '%s': %s",$f,$!));
+      if($filever == 2) {
+        my ($q, $n) = unpack ("Q S", $buffer); # 40, 7, 1, 16
+        if(($q & 1) == 1) { # I-Frame
+          my $c = $q >> 8; 
+          close FH;
+          return ($n,$c); # Filenumber, Offset from file begin
+        }
+      } else {
+        my ($c, $t, $n, $r) = unpack ("I C C S", $buffer);
+        if($t == 1) { # I-Frame
+          close FH;
+          return ($n,$c); # Filenumber, Offset from file begin
+        }  
+      }
+      $offset -= INDEXTRUCTSIZE;
+      if($offset != sysseek(FH,-(INDEXTRUCTSIZE*2), 1)) { #SEEK_CUR
+        error(sprintf("Can't seek file '%s': %s",$file,$!));
         close FH;
         return (undef,undef);
       }

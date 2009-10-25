@@ -324,20 +324,42 @@ sub usage {
         my $modCfg = $mods->{$modName}->{MOD};
 
         my $name = $modCfg->{Name};
-        error(sprintf("Missing real modul name %s",$modName)) unless($name);
-        push(@realModName, $name) if($name);
+				unless($name) {
+	        error(sprintf("Missing real name from modul %s",$modName));
+					next;
+				}
 
         next if($modulename and uc($modulename) ne $name);
+        push(@realModName, $name);
+
+				my $addcmd = undef;
         foreach my $cmdName (sort keys %{$modCfg->{Commands}}) {
+
+						next if($modCfg->{Commands}->{$cmdName}->{hidden});
+
+						my ($ccmdobj, $ccmdname, $cshorterr, $cerror) = $u->checkCommand($console, $cmdName,"1");
+						next unless($ccmdobj);
+
             push(@$ret,
                 [
                     $modCfg->{Commands}->{$cmdName}->{short},
                     $cmdName,
-                    (split('::', $modName))[-1],
-                    $modCfg->{Commands}->{$cmdName}->{description},
+                    $name,
+                    $modCfg->{Commands}->{$cmdName}->{description}
                 ]
-            ) if(! $modCfg->{Commands}->{$cmdName}->{hidden} and ($u->{active} ne 'y') || $u->allowCommand($modCfg, $cmdName, $user, "1"));
+            );
+					  $addcmd = 'ok';
         }
+				unless($addcmd) {
+            push(@$ret,
+                [
+                    undef,
+                    undef,
+                    $name,
+                    gettext("None active commands")
+                ]
+            );
+				}
     }
     my $info = {
       rows => scalar @$ret

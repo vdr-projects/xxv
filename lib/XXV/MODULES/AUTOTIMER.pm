@@ -1436,14 +1436,14 @@ sub _timerexistsfuzzy {
                 channel = ?
                 and ? between (UNIX_TIMESTAMP(starttime) - ?) AND (UNIX_TIMESTAMP(starttime) + ?)
                 and ? between (UNIX_TIMESTAMP(stoptime)  - ?) AND (UNIX_TIMESTAMP(stoptime) + ?)
-                and file = ?
+                and file like ?
                 and aux like ?";
 
     my $sth = $obj->{dbh}->prepare($sql);
     $sth->execute($eventdata->{channel},
                   $eventdata->{starttime},$prev,$prev,
                   $eventdata->{stoptime},$after,$after,
-                  $eventdata->{file},
+                  $eventdata->{file}."%",
                   "%".$eventdata->{aux})
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
@@ -1551,7 +1551,7 @@ sub _placeholder {
 
     my %at_details;
     $at_details{'title'}            = $data->{title};
-    $at_details{'subtitle'}         = $data->{subtitle};
+    $at_details{'subtitle'}         = $data->{subtitle} ? $data->{subtitle} : "";
     $at_details{'date'}             = $data->{day};
     $at_details{'regie'}            = $1 if $data->{description} =~ m/\|Director: (.*?)\|/;
     $at_details{'category'}         = $1 if $data->{description} =~ m/\|Category: (.*?)\|/;

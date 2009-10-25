@@ -828,7 +828,8 @@ sub checkCommand {
     foreach my $modName (keys %{$mods}) {
         my $modCfg = $mods->{$modName}->{MOD};
         foreach my $cmdName (sort keys %{$modCfg->{Commands}}) {
-            if(lc($ucmd) eq $cmdName or (exists $modCfg->{Commands}->{$cmdName}->{short} and lc($ucmd) eq $modCfg->{Commands}->{$cmdName}->{short})) {
+            if(lc($ucmd) eq $cmdName or (exists $modCfg->{Commands}->{$cmdName}->{short} 
+					 			and lc($ucmd) eq $modCfg->{Commands}->{$cmdName}->{short})) {
                 $ok++;
                 $cmdobj = $modCfg->{Commands}->{$cmdName};
                 $cmdname = $cmdName;
