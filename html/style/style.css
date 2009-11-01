@@ -66,27 +66,6 @@ select  {
     width : 205px;
 }
 
-
-/* VTX */
-p.vtx{
- font-size:16px;
- font-family:monospace;
- white-space:nowrap;
-}
-
-img.vtx{
- position:absolute;
- z-index: 1;
- width:  10px;
- height: 19px;
-}
-
-/* VTX Hyperlinks */
-a.vtx:link, a.vtx:visited, a.vtx:hover, a.vtx:active{
- text-decoration:none;
- color:#00FF00;
-}
-
 .footer {
  font-size:0.6em;
 }

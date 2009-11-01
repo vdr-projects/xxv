@@ -185,7 +185,7 @@ sub parseTemplateFile {
     my $output;
     my $vars = {
         cgi     => $self->{cgi},
-        call    => $name,
+        call    => ((exists $self->{call}) ? $self->{call} : $call),
         data    => $data,
         type    => ref $data,
         info    => $self->browser,

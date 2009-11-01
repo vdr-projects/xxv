@@ -161,6 +161,16 @@ sub _init {
 
     $self->{updated} = [];
 
+    main::after(sub{
+        my $wait = 3;
+        while($wait >= 0 && ! $self->state(undef, undef, undef)) {
+          debug(sprintf("Wait for primary connection (%d)", $wait));
+          sleep(10);
+          $wait --;
+        }
+        return 1;
+    }, "SVDRP: check primary connection ...", 1);
+
     return 1;
 }
 
@@ -478,7 +488,7 @@ sub enum_onlinehosts {
       return undef unless($self->_gethost());
       # check online state
       foreach my $vid (keys %{$self->{Cache}}) {
-        $self->command('chan',$vid);
+        $self->command('CHAN',$vid);
       }
     }
 
@@ -749,11 +759,11 @@ sub command {
 sub state {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $console = shift || return;
-    my $config = shift || return error('No config defined!');
+    my $console = shift;
+    my $config = shift;
     my $vdrid = shift;
 
-    my ($erg,$error) = $self->command('stat disk', $vdrid);
+    my ($erg,$error) = $self->command('CHAN', $vdrid);
     $console->msg($erg, $error)
         if(ref $console);
     return 1 

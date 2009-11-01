@@ -42,27 +42,16 @@ sub module {
         },
         Commands => {
             vtxpage => {
-                description => gettext("Display the teletext page 'pagenumber'"),
+                description => gettext("Display the teletext page"),
                 short       => 'vt',
                 callback    => sub{ $self->page(@_) },
             },
-            vtxchannel => {
-                description => gettext("Channel for teletext actions 'cid'"),
-                short       => 'vc',
-                callback    => sub{ $self->channel(@_) },
-            },
             vtxsearch => {
-                description => gettext("Search for text inside teletext pages 'text'"),
+                description => gettext("Search for text inside teletext pages"),
                 short       => 'vs',
                 callback    => sub{ $self->search(@_) },
-            },
-            vtximage => {
-                hidden      => 'yes',
-                short       => 'vi',
-                callback    => sub{ $self->image(@_) },
-                binary      => 'cache'
-            },
-        },
+            }
+        }
     };
     return $args;
 }
@@ -105,246 +94,151 @@ sub new {
 
 
 ################################################################################
-# Find first usable channel
-sub findfirst {
-  	my $self = shift || return error('No object defined!');
-    my $console = shift || return error('No console defined!');
-    my $config = shift || return error('No config defined!');
-
-    my $basedir = $self->{dir};
-    unless($basedir and -d $basedir) {
-      $console->err(gettext("None channel selected, missing base directory!"));
-      return undef;
-    }
-
-	my $mod = main::getModule ('CHANNELS');
-	my $channels =[];
-
-	my $cache = $self->{cache} ||'packed';
-	if ($cache ne 'packed') {
-		foreach my $ch (@{$mod->ChannelArray ('Name')}) {
-			if (-d $basedir.'/'.$ch->[1]) {
-				return $self->channel ($console,$ch->[1]);
-			}
-		}
-   } else {
-        foreach my $ch (@{$mod->ChannelArray ('Id')}) {
-            if (-d $basedir.'/'.$ch->[0]) {
-                return $self->channel ($console,$ch->[1]);
-            }
-        }
-    }
-   $console->err(gettext("None channel selected, empty base directory!"));
-}
-
-################################################################################
 # Callback "Channel choice"
-sub channel {
+sub queryindex {
     my $self = shift || return error('No object defined!');
-    my $console = shift || return error('No console defined!');
-    my $config = shift || return error('No config defined!');
     my $channel = shift;
-
+    lg sprintf("Query index %s",$channel);
     my $basedir = $self->{dir};
-    my $cache = $self->{cache} || 'packed';
+    my $chandir = $channel;
 
-    unless($basedir and -d $basedir) {
-      $console->err(gettext("None channel selected, missing base directory!"));
-      return undef;
+    if ($self->{cache} eq 'legacy') {
+        my $modC = main::getModule ('CHANNELS');
+        $chandir = $modC->ChannelToPos($channel);
     }
+    my $INDEX = [];
 
-    unless($channel) {
-      return $self->findfirst ($console, $config);
-    }
-
-    my $mod = main::getModule ('CHANNELS');
-
-    my $chandir = "";
-    my $channelname = "";
-
-    # Get ChannelID and channel's Name
-    foreach my $ch (@{$mod->ChannelArray ('Name, Id')}) {
-        if ($ch->[2] == $channel) {
-            $channelname = $ch->[0];
-            if ($cache eq 'packed') {
-                $chandir = $ch->[1];
-            } else {
-                $chandir = $channel;
-            }
-            last;
-        }
-    }
-
-
-    if ($channelname ne ""
-        and $chandir ne ""
+    if ($chandir ne ""
         and -d "$basedir/$chandir")  {
+        $self->{$channel}->{directory} = $chandir;
 
-        $self->{CHANNEL}= $channel;
-        $self->{CHANNELDIR}= $chandir;
-        {
-            $self->{INDEX} = [];
-            my @index;
-            if ($cache eq 'packed') {
-                find(
-                    sub{
-                       if($File::Find::name =~ /\d{3}s.vtx$/sig) {
-                            push(@index,GetPackedToc($File::Find::name));
-                        }
-                    },"$basedir/$chandir");
-            } else {
-                find(
-                    sub{
-                        if($File::Find::name =~ /\d{3}_\d{2}.vtx$/sig) {
-                            my ($page, $subpage)
-                                = $File::Find::name =~ /^.*(\d{3})_(\d{2}).*/si;
-                            if($page and $subpage) {
-                                my $found = 0;
-                                foreach my $p (@index) {
-                                    if($p->[0] == $page) {
-                                        $found = 1;
-                                        push(@{$p->[1]},$subpage)
-                                            if($subpage != 0);
-                                        last;
-                                    }
-                                }
-                                if ($found == 0) {
-                                    push(@index,[$page, [$subpage] ]);
+        my @index;
+        if ($self->{cache} eq 'packed') {
+            find(
+                sub{
+                   if($File::Find::name =~ /\d{3}s.vtx$/sig) {
+                        push(@index,GetPackedToc($File::Find::name));
+                    }
+                },"$basedir/$chandir");
+        } elsif ($self->{cache} eq 'legacy') {
+            find(
+                sub{
+                    if($File::Find::name =~ /\d{3}_\d{2}.vtx$/sig) {
+                        my ($page, $subpage)
+                            = $File::Find::name =~ /^.*(\d{3})_(\d{2}).*/si;
+                        if($page and $subpage) {
+                            my $found = 0;
+                            foreach my $p (@index) {
+                                if($p->[0] == $page) {
+                                    $found = 1;
+                                    push(@{$p->[1]},hex($subpage))
+                                        if($subpage != 0);
+                                    last;
                                 }
                             }
+                            if ($found == 0) {
+                                push(@index,[hex($page), [$subpage] ]);
+                            }
                         }
-                    },"$basedir/$chandir");
-                }
-                if (scalar @index == 0) {
-                    $self->pagedump($console,sprintf(gettext("No data found for \'%s\'!"),$channelname),"");
-                    return;
-            }
-            # Seitenindex sortieren
-            @{$self->{INDEX}} = sort { $a->[0] <=> $b->[0] } @index;
-            # Subseitenindex sortieren
-            foreach my $p (@{$self->{INDEX}}) {
-                if (scalar @{$p->[1]} > 1) {
-                    my @tmp = sort { $a <=> $b } @{$p->[1]};
-                    @{$p->[1]} = @tmp;
-                }
+                    }
+                },"$basedir/$chandir");
+        }
+        if (scalar @index == 0) {
+            return undef;
+        }
+        # Seitenindex sortieren
+        @$INDEX = sort { $a->[0] <=> $b->[0] } @index;
+        # Subseitenindex sortieren
+        foreach my $p (@$INDEX) {
+            if (scalar @{$p->[1]} > 1) {
+                my @tmp = sort { $a <=> $b } @{$p->[1]};
+                @{$p->[1]} = @tmp;
             }
         }
-
+    }
 # Dump PageIndex
-#           foreach my $p (@{$self->{INDEX}}) {
-#               my $dump = "Pages $p->[0]";
-#               foreach my $s (@{$p->[1]}) {
-#                  $dump .= ", $s";
-#               }
-#               warn($dump);
-#      }
-
-        $console->message(sprintf(gettext("Channel \'%s\' selected."),$channelname))
-            if ($console->{TYP} ne 'HTML') ;
-    } else {
-        $self->pagedump($console,sprintf(gettext("No data found for \'%s\'!"),$channelname),"");
-        return;
-    }
-    my $fpage = @{$self->{INDEX}}[0];# First Page on Index
-    return $self->page ($console,sprintf ("%03d_%02d", $fpage->[0],$fpage->[1]->[0]));
+    #foreach my $p (@$INDEX) {
+    #   my $dump = "Pages $p->[0]";
+    #   foreach my $s (@{$p->[1]}) {
+    #      $dump .= ", $s";
+    #   }
+    #   warn($dump);
+    #}
+    return $INDEX;
 }
 
-################################################################################
-# Callback "Teletextpage choice"
-sub page {
+sub queryChannels {
     my $self = shift || return error('No object defined!');
-    my $console = shift || return error('No console defined!');
-    my $config = shift || return error('No config defined!');
-    my $page = shift || "";
-    my $channel = $self->{CHANNEL} || return $self->findfirst ($console, $config);
-    my $basedir = $self->{dir} || return error('No base directory defined!');
-    my $chandir  = $self->{CHANNELDIR} || return error('No channel defined!');
-    my $cache = $self->{cache} || 'packed';
-
-    my @pp = split ('_', $page);
-    if (scalar @pp == 0) {
-       # First Page on Index
-       my $fpage = @{$self->{INDEX}}[0];
-       $pp[0] = sprintf("%3d",$fpage->[0]);
-       $pp[1] = sprintf("%2d",$fpage->[1]->[0]);
-    }
-    elsif (scalar @pp == 1) {
-        # First Subpage on Index
-        $pp[1] = "00";
-        foreach my $fpage (@{$self->{INDEX}}) {
-            if($fpage->[0] == $pp[0]) {
-                $pp[1] = sprintf("%2d",$fpage->[1]->[0]);
-                last;
-            }
-        }
-    }
-    my $bHTML = ($console->{TYP} ne 'HTML')?0:1;
-    my $result = $self->realpage($console, $pp[0], $pp[1],$bHTML);
-
-    return 0 if($result eq "");
-    return $self->pagedump($console,$result,$chandir);
-}
-
-################################################################################
-# Generate Message
-sub pagedump {
-    my $self = shift || return error('No object defined!');
-    my $console = shift || return error('No console defined!');
-    my $result = shift;
-    my $chandir = shift;
-
-    if ($console->{TYP} ne 'HTML') {
-        return $console->message ($result);
-    } else  {
-
+    if(!(defined $self->{CHANNELS}) 
+        || !defined($self->{CHANNELSLastUpdate}) 
+        || $self->{CHANNELSLastUpdate} < (time() - 300)) 
+      {
         my $charray =[];
-        my $chsel = $self->{CHANNELDIR};
-        my $cache = $self->{cache};
-        my $basedir = $self->{dir};
-        my $mod = main::getModule ('CHANNELS');
 
-        my @chan = (@{$mod->ChannelArray ('Name, Id')});
-        if ($cache ne 'packed') {
+        my $basedir = $self->{dir};
+        my $modC = main::getModule ('CHANNELS');
+        my @chan = (@{$modC->ChannelArray ('Name, Id')});
+        if ($self->{cache} eq 'legacy') {
             foreach my $ch (@chan) {
                 push (@$charray, [$ch->[0], $ch->[2]])
                     if (-d $basedir.'/'.$ch->[2]) ; # Lookup /vtx/25/
             }
-        } else {
+        } elsif ($self->{cache} eq 'packed') {
             foreach my $ch (@chan){
                 if (-d $basedir.'/'.$ch->[1])  { # Lookup /vtx/S19.2E-1-1101-28108/
-                    push (@$charray, [$ch->[0], $ch->[2]]);
-                    $chsel = $ch->[2]
-                        if ($ch->[1] eq $chandir) ;
+                    push (@$charray, [$ch->[0], $ch->[1]]);
                 }
             }
         }
-
-        my @lines = $self->InsertPageLink($result);
-        $self->NavigatePages();
-        my $tmpldata =
-        {
-          channel => $chsel,
-          channels => $charray,
-          page => $self->{mainpage},
-          subpage => $self->{subpage},
-          toppage => $self->{toppage},
-          page_prev => $self->{page_prev},
-          page_next => $self->{page_next},
-          subpage_prev => $self->{subpage_prev},
-          subpage_next => $self->{subpage_next}
-        };
-
-        $console->{dontparsedData} = 1;
-        return $console->vtx(\@lines, $tmpldata);
+        $self->{CHANNELS} = $charray;
+        $self->{CHANNELSLastUpdate} = time();
     }
-    return 1;
+    return $self->{CHANNELS};
+}
+
+sub firstChannel {
+    my $self = shift || return error('No object defined!');
+    $self->queryChannels();
+    if($self->{CHANNELS}) {
+      return $self->{CHANNELS}->[0]->[1];
+    }
+    return undef;
+}
+
+################################################################################
+# Format page
+sub formatPage {
+    my $self = shift || return error('No object defined!');
+    my $result = shift;
+    my $channel = shift;
+    my $page = shift;
+    my $subpage = shift || 0;
+    my $mtime = shift || 0;
+
+    my $id = sprintf('%03d%02d',$page,$subpage);
+    my $navPages = $self->NavigatePages($channel, $page, $subpage);
+    my $lines = $self->InsertPageLink($result, $channel, $page);
+
+    return [
+         $id
+        ,$page
+        ,$subpage
+        ,$channel
+        ,$navPages->{page_prev}
+        ,$navPages->{page_next}
+        ,$mtime
+        ,join('',@$lines)
+    ];
 }
 
 ################################################################################
 # Insert for HTML Pages, Link for other Pages
 sub InsertPageLink {
+
   my $self = shift;
   my $result = shift;
+  my $channel = shift;
+  my $page = shift;
 
   my @lines;
 
@@ -366,7 +260,7 @@ sub InsertPageLink {
   }
   if($index && scalar @$index) {
     foreach my $x (@$index) {
-      foreach my $p (@{$self->{INDEX}}) {
+      foreach my $p (@{$self->{$channel}->{INDEX}}) {
         if($x eq $p->[0]) {
           push(@$pagelist,$x);
           last;
@@ -374,28 +268,29 @@ sub InsertPageLink {
       }
     }
   }
-  # Replace XXX => <a href="?cmd=vt&amp;data=XXX">XXX</a>
-  my $ua = "<a class='vtx' href='?cmd=vt&amp;data=";
-  my $ub = "'>";
-  my $uc = "</a>";
+  my $a;
+  # Replace XXX => <a href="?cmd=vt&amp;...
+  $a = "<a class='vtx' href='?cmd=vt&amp;channel=" . $channel . "&amp;page=";
+  my $b = "'>";
+  my $c = "</a>";
 
   foreach my $line (split('\n',$result)) {
     my $out = "";
     if($pagelist) {
       my $laenge=length($line);
-      for (my $c=0; $c < $laenge; ) {
-        my $token=substr($line, $c, 5);
+      for (my $n=0; $n < $laenge; ) {
+        my $token=substr($line, $n, 5);
         my ($page1) = $token =~ /\D([1-8]\d{2})\D/s;
         if($page1) {
             chop($token) if(length($token) > 4);
-            if(grep {$_->[0] == $page1;} @$pagelist) {
-              $token =~ s/$page1/$ua.$page1.$ub.$page1.$uc/eg;
+            if(grep {$_ == hex($page1);} @$pagelist) {
+              $token =~ s/$page1/$a.$page1.$b.$page1.$c/eg;
             }
             $out .= $token;
-            $c += 4;
+            $n += 4;
         } else {
-            $out .= substr($line, $c, 1);
-            $c++;
+            $out .= substr($line, $n, 1);
+            $n++;
         }
       }
     } else {
@@ -414,87 +309,88 @@ sub InsertPageLink {
 # Find next and prior Pages, used one HTML View
 sub NavigatePages {
     my $self = shift;
+    my $channel = shift;
+    my $page = shift;
+    my $subpage = shift;
+
+    my $result = ();
 
     my $mFound = 0;
-    my $sFound = 0;
-    $self->{toppage} = 0;
-    $self->{page_prev} = 0;
-    $self->{page_next} = 0;
-    $self->{subpage_prev} = 0;
-    $self->{subpage_next} = 0;
 
-    $self->{toppage} = $self->{INDEX}->[0][0] if ($self->{INDEX} && scalar ($self->{INDEX}));
+    $result->{page_prev} = 0;
+    $result->{page_next} = 0;
 
-# Outer Mainpages-Loop##########################################################
-    foreach my $p (@{$self->{INDEX}}) {
+    foreach my $p (@{$self->{$channel}->{INDEX}}) {
        if($mFound == 1) {
-            $self->{page_next} = $p->[0];
+            $result->{page_next} = sprintf("%3X",$p->[0]);
             last;
        }
-       if($p->[0] && $p->[0] == $self->{mainpage}) {
+       if($p->[0] && $p->[0] == hex($page)) {
             $mFound = 1;
-            if ($p->[1] && scalar @{$p->[1]} > 1) {
-# Inner Subpages-Loop###########################################################
-                foreach my $s (@{$p->[1]}) {
-                   if($sFound == 1) {
-                        $self->{subpage_next} = sprintf ("%03d_%02d", $self->{mainpage},$s);
-                        last;
-                   }
-                   if($s == $self->{subpage}) {
-                        $sFound = 1;
-                   }
-                   if($sFound == 0) {
-                       $self->{subpage_prev} = sprintf ("%03d_%02d", $self->{mainpage},$s);
-                   }
-                }
-                if($sFound == 0) {
-                    $self->{subpage_prev} = 0;
-                }
-# Inner Subpages-Loop###########################################################
-            }
        }
        if($mFound == 0) {
-           $self->{page_prev} = $p->[0];
+           $result->{page_prev} = sprintf("%3X",$p->[0]);
        }
     }
     if($mFound == 0) {
-        $self->{page_prev} = 0;
+        $result->{page_prev} = 0;
     }
-# Outer Mainpages-Loop##########################################################
+    return $result;
+}
+
+################################################################################
+# HighLight searched text
+sub HighLight {
+    my $self = shift;
+    my $result = shift;
+    my $search = shift;
+    my $lines;
+
+    my $a = "<font style=\"color:black;background-color:lime;\">";
+    my $b = "</font>";
+
+    foreach my $line (split('\n',$result)) {
+      foreach my $token (split(/[\-\ \\]/,$search)) {
+				if ($line !~ /\<[a-z0-9\" =\/:;&\?]*($token)[a-z0-9\" =\/:;&\?]*\>/i) { 
+	        $line =~ s/($token)/\x01$1\x02/ig;
+				}
+      }
+      $line =~ s/\x01/$a/ig;
+      $line =~ s/\x02/$b/ig;
+      $lines .= $line;
+    }
+    return $lines;
 }
 
 ################################################################################
 # Our internal real page deliverer
 sub realpage {
   my $self    = shift || return error('No object defined!');
-  my $console = shift || return error('No console defined!');
+  my $channel= shift || return error('No channel defined!');
   my $mainpage= shift || return error('No page defined!');
-  my $subpage = shift || return error('No sub page defined!');
+  my $subpage = shift || 0;
   my $bHTML = shift;
 
-  my $basedir = $self->{dir} || return error('No base directory defined!');
-  my $chandir  = $self->{CHANNELDIR} || return error('No channel defined!');
-  my $cache = $self->{cache} || 'packed';
 ################################################################################
 # get filename
   my $filename;
-  if ($cache eq 'packed') {
+  if ($self->{cache} eq 'packed') {
     # Build name /vtx/S19.2E-1-1101-28108/100s.vtx
-    my $group = (int ($mainpage / 10)) *10;
-    $filename = sprintf ("%s/%s/%03ds.vtx", $basedir, $chandir, $group);
+    my $group = (int ($mainpage / 16)) * 16;
+    $filename = sprintf ("%s/%s/%03Xs.vtx", $self->{dir}, $self->{$channel}->{directory}, $group);
   } else {
     # Build name /vtx/15/100_01.vtx
-    $filename = sprintf ("%s/%s/%03d_%02d.vtx", $basedir, $chandir, $mainpage, $subpage);
+    $filename = sprintf ("%s/%s/%03X_%02X.vtx", $self->{dir}, $self->{$channel}->{directory}, $mainpage, $subpage);
   }
 ################################################################################
 # Now open and read this file
   my $fh = FileHandle->new;
   if(!$fh->open($filename)) {
-      $self->pagedump($console,gettext("Couldn't find page!"),"");
-      return "";
+      error sprintf("Couldn't find page! (%s)", $filename);
+      return undef;
   }
 
-  my $result = $self->readpage($console, $fh, $mainpage, $subpage, $bHTML);
+  my $result = $self->readpage($fh, $mainpage, $subpage, $bHTML);
   $fh->close();
   return $result;
 }
@@ -1068,12 +964,12 @@ sub translate {
             $result .= $h;
             if ($graph == 1 || $c == 0x5f) #Block 0x5f = 0x7f - 0x20
             {
-                my $pre = "<img class=\"vtx\" src=\"?cmd=vi&data=";
+                my $pre = "<span class=\"vtgfx ";
                 my $color = $colors[$fg];
-                my $post = "\" alt=\"\" title=\"\" />&nbsp;";
-                # set <img class="vtx" class="vtx" src="?cmd=vi&data=black21" alt="" title="">
+                my $post = "\"/>&nbsp;</span>";
+                # set <span class="vtgfx white20"/>&nbsp;</span>
                 # vtx-image are locate inside skin folder
-                $result =~ s/(image)\-(.+)/$pre.$color.$2.$post/eg;
+                $result =~ s/image\-(.+)/$pre.$color.$1.$post/eg;
             }
         }
         return $result;
@@ -1097,15 +993,13 @@ sub endline {
 # Read page which open from filehandle
 sub readpage {
     my $self=shift;
-    my $console=shift;
     my $fh=shift;
     my $mainpage=shift;
     my $subpage=shift;
     my $bHTML = shift;
-    my $cache = $self->{cache} || 'packed';
 
 # Seek inside packed file
-    if ($cache eq 'packed') {
+    if ($self->{cache} eq 'packed') {
         # Parse TOC
         #
         # 8x[MAIN,SUB a 2x4byte],
@@ -1117,48 +1011,41 @@ sub readpage {
         my $notfound = 1;
         while($notfound == 1) {
             if($fh->read($tocbuf, 4*2*8) ne 64) {
-                $self->pagedump($console,gettext("Couldn't read page!"),"");
-                return "";
+                error sprintf("Couldn't read toc of page! (%d/%d)",$mainpage,$subpage);
+                return undef;
             }
             my @toc = unpack( "i*", $tocbuf);
             my $n = 0;
             for (;$n < 8 and $notfound == 1; ++$n ) {
-                my $mpage = int(sprintf ("%X",@toc[$n*2]));
-                my $spage = int(sprintf ("%X",@toc[($n*2)+1]));
+                my $mpage = int(@toc[$n*2]);
+                my $spage = int(@toc[($n*2)+1]);
                 # Check for last toc entry 0/0
                 if($mpage == 0 and $spage == 0) {
-                    $self->pagedump($console,gettext("Couldn't find page!"),"");
-                    return "";
+                    error sprintf("Couldn't find page! (%d/%d)",$mainpage,$subpage);
+                    return undef;
                 }
                 # Look for toc entry same wanted page
                 if($mpage == $mainpage) {
                     if(($spage == $subpage )
                       or ($subpage <= 1 and $spage <= 1))  {
-
-                    $self->{mainpage} = $mpage;
-                    $self->{subpage} = $spage;
-
-                    $notfound = 0;
+                      $notfound = 0;
                     }
                 }
             }
             --$n if($notfound == 0);
             # Skip unwanted Pages
             if(0 == $fh->seek((972*$n), 1)) {
-                $self->pagedump($console,gettext("Couldn't read page!"),"");
-                return "";
+                error sprintf("Couldn't seek page! (%d/%d)",$mainpage,$subpage);
+                return undef;
             }
         }
-    } else {
-        $self->{mainpage} = $mainpage;
-        $self->{subpage} = $subpage;
     }
 
 # Read page now
     my $packed;
     if($fh->read($packed, 972) ne 972) {
-        $self->pagedump($console,gettext("Couldn't read page!"),"");
-        return "";
+        error sprintf("Couldn't read page! (%d/%d)",$mainpage,$subpage);
+        return undef;
     }
     my $result = "";
     $result .= "<p class=\"vtx\">\n" if($bHTML);
@@ -1323,13 +1210,13 @@ sub GetPackedToc {
             my @toc = unpack( "i*", $tocbuf);
             my $n = 0;
             for (;$n < 8; ++$n ) {
-                my $m = (sprintf ("%X",@toc[$n*2]));
+                my $m = (@toc[$n*2]);
 
                 next # Skip nonregular pages like 80F
                     if($m =~ /\D/sig);
 
                 my $mpage = int($m);
-                my $spage = int(sprintf ("%X",@toc[($n*2)+1]));
+                my $spage = int(@toc[($n*2)+1]);
 
                 # Check for last toc entry 0/0
                 if($mpage == 0 and $spage == 0) {
@@ -1362,22 +1249,74 @@ sub GetPackedToc {
 }
 
 ################################################################################
-# HighLight searched text
-sub HighLight {
+# Callback "Teletextpage choice"
+sub page {
+    my $self = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
+    my $data = shift || "";
 
-    my $self = shift;
-    my $result = shift;
-    my $search = shift;
-    my $lines;
 
-    my $ua = "<font style=\"color:black;background-color:lime;\">";
-    my $ub = "</font>";
+    my $channel;
+    my $modC = main::getModule ('CHANNELS');
+    $channel = $console->{cgi} && defined $console->{cgi}->param('channel') ? $modC->ToCID($console->{cgi}->param('channel')) : undef;
+    my $page = $console->{cgi} && defined $console->{cgi}->param('page') ? $console->{cgi}->param('page') : undef;
+    #my $subpage = $console->{cgi} && defined $console->{cgi}->param('subpage') ? $console->{cgi}->param('subpage') : undef;
 
-    foreach my $line (split('\n',$result)) {
-        $line =~ s/$search/$ua$1$ub/ig;
-        $lines .= $line;
+    unless($channel) {
+        $channel = $self->firstChannel();
     }
-    return $lines;
+    unless($channel) {
+        con_err($console,gettext("No channel defined!"));
+        return;
+    }
+
+    if(!(defined $self->{$channel}) 
+        || !defined($self->{$channel}->{INDEX}) 
+        || !scalar @{$self->{$channel}->{INDEX}}
+        || $self->{$channel}->{updated} < (time() - 300)) {
+      $self->{$channel}->{INDEX} = $self->queryindex($channel);
+      $self->{$channel}->{updated} = time();
+    }
+    unless($self->{$channel}->{INDEX} and scalar @{$self->{$channel}->{INDEX}}) {
+      con_err($console,sprintf(gettext("No data found for \'%s\'!"),$channel));
+      return;
+    }
+
+    if (!$page) {
+       # First Page on Index
+       $page    = sprintf("%3X",@{$self->{$channel}->{INDEX}}[0]->[0]);
+    }
+
+    my $sum;
+    my $bHTML = ($console->typ eq 'HTML' || $console->typ eq 'AJAX')?1:0;
+
+    foreach my $fpage (@{$self->{$channel}->{INDEX}}) {
+        if($fpage->[0] == hex($page)) {
+            foreach my $subpage (@{$fpage->[1]}) {
+              my $result = $self->realpage($channel, hex($page), hex($subpage) ,$bHTML);
+              if($result) {
+                my $row = $self->formatPage($result,$channel, $page, $subpage, 0);
+                push(@$sum, $row);
+              }
+            }
+            last;
+        }
+    }
+
+    unless($sum and scalar @$sum) {
+      con_err($console,gettext("Couldn't find page!"));
+      return;
+    }
+
+    my $info = {
+      rows => scalar @$sum
+    };
+    unless($console->typ eq 'AJAX') {
+      $console->{dontparsedData} = 1;
+      $info->{channels} = $self->queryChannels();
+    }
+    $console->table($sum, $info);
 }
 
 ################################################################################
@@ -1388,32 +1327,42 @@ sub search {
     my $config = shift || return error('No config defined!');
     my $search = shift;
 
-    my $channel = $self->{CHANNEL};
-    my $chandir  = $self->{CHANNELDIR};
-    if($channel eq "" or $chandir eq "") {
-        $self->pagedump($console,gettext("No channel defined!"),"");
+    my $channel;
+    my $modC = main::getModule ('CHANNELS');
+    $channel = $console->{cgi} && defined $console->{cgi}->param('channel') ? $modC->ToCID($console->{cgi}->param('channel')) : undef;
+
+    unless($channel) {
+        $console->setCall('message');
+        con_err($console,gettext("No channel defined!"));
+        return;
     }
 
     chomp($search);
     unless($search) {
-        $self->pagedump($console,gettext("No data to search given!"),$chandir);
+        con_err($console,gettext("No data to search given!"));
+        return;
     }
 
-    my $oldpage = $self->{mainpage};
-    my $oldsubpage = $self->{subpage};
+    if(!(defined $self->{$channel}) 
+        || !defined($self->{$channel}->{INDEX}) 
+        || !scalar @{$self->{$channel}->{INDEX}}
+        || $self->{$channel}->{updated} < (time() - 300)) {
+      $self->{$channel}->{INDEX} = $self->queryindex($channel);
+      $self->{$channel}->{updated} = time();
+    }
+    unless($self->{$channel}->{INDEX} and scalar @{$self->{$channel}->{INDEX}}) {
+      con_err($console,sprintf(gettext("No data found for \'%s\'!"),$channel));
+      return;
+    }
 
     my @foundlist;
     my $searchlimit = 25;
-    foreach my $p (@{$self->{INDEX}}) {
+    foreach my $p (@{$self->{$channel}->{INDEX}}) {
         foreach my $s (@{$p->[1]}) {
-            my $mp = sprintf("%3d",$p->[0]);
-            my $sp = sprintf("%2d",$s);
-
-            my $lookup = $self->realpage($console, $mp, $sp, 0);
-
+            my $lookup = $self->realpage($channel, $p->[0], $s ,0);
             my @found = grep(/$search/,$lookup);
             if(scalar @found > 0) {
-                push(@foundlist,[$mp, $sp]);
+                push(@foundlist,[sprintf("%3X",$p->[0]),sprintf("%02X",$s)]);
                 $searchlimit--;
                 last if($searchlimit <= 0);
             }
@@ -1422,191 +1371,40 @@ sub search {
     }
 
     if(scalar @foundlist < 1) {
-        $self->{mainpage} = $oldpage;
-        $self->{subpage} = $oldsubpage;
-        $self->pagedump($console,sprintf(gettext("No page with \'%s\' found!"),$search),$chandir);
+        con_err($console,sprintf(gettext("No page with \'%s\' found!"),$search));
         return 0;
     }
 
-    my $bHTML = ($console->{TYP} ne 'HTML')?0:1;
+    my $sum;
+    my $bHTML = ($console->typ eq 'HTML' || $console->typ eq 'AJAX')?1:0;
+    my $result;
     foreach my $pp (@foundlist) {
-
-            $self->{mainpage} = $pp->[0];
-            $self->{subpage} = $pp->[1];
-
-            my $result = $self->realpage($console, $pp->[0], $pp->[1],$bHTML);
-
-            if($bHTML) {
-              $result = $self->HighLight($result,$search);
-            }
-
-            $self->pagedump($console,$result,$chandir)
-              if($result ne "");
+      if($bHTML) {
+        $result = $self->HighLight($self->realpage($channel, hex($pp->[0]), hex($pp->[1]) ,$bHTML),$search);
+      } else {
+        $result = $self->realpage($channel, hex($pp->[0]), hex($pp->[1]) ,$bHTML);
+      }
+      if($result) {
+        my $row = $self->formatPage($result,$channel, $pp->[0], $pp->[1], 0);
+        push(@$sum, $row);
+      }
     }
+
+    unless($sum and scalar @$sum) {
+      con_err($console,gettext("Couldn't find page!"));
+      return;
+    }
+
+    my $info = {
+      rows => scalar @$sum
+    };
+    unless($console->typ eq 'AJAX') {
+      $console->{dontparsedData} = 1;
+      $info->{channels} = $self->queryChannels();
+    }
+    $console->setCall('vtxpage');
+    $console->table($sum, $info);
+
     return 1;
 }
-
-# ------------------
-sub image {
-# ------------------
-    my $obj = shift || return error('No object defined!');
-    my $console = shift || return error('No console defined!');
-    my $config = shift || return error('No config defined!');
-    my $data = shift;
-
-    return $console->err(gettext("Sorry, get image is'nt supported"))
-      if ($console->{TYP} ne 'HTML');
-
-    # data like black3F
-    $data =~ s/[^a-z0-9A-F]//g; # Remove unwantet character
-
-    # data lookup failed
-    return $console->status404('NULL','Wrong image parameter') 
-      unless($data);
-
-    # Split data
-    my $color = $data;
-    $color =~ s/[^a-z]//g; 
-    my $char  = $data;
-    $char =~ s/[^0-9A-F]//g; 
-
-    # Get data
-    my $binary = $obj->_imagebinarydata($color,$char);
-
-    # data lookup failed
-    return $console->status404(sprintf('%s.gif',$data),'Wrong image parameter') 
-      unless($binary);
-
-    # output data
-    my %args = ();
-    my $typ = "image/gif";
-
-    my $size = length($binary);
-    # header only if caching
-    $args{'ETag'} = sprintf('%s%s-%x',$color, $char, $size);
-    return $console->statusmsg(304,undef,undef,$typ)
-        if($console->{browser}->{'Match'}
-            && $args{'ETag'} eq $obj->{browser}->{'Match'});
-
-    $console->{nopack} = 1;
-    $args{'attachment'} = sprintf('%s%s.gif',$color, $char);
-    $args{'Content-Length'} = $size;
-    $args{'Last-Modified'} = "Sun, 16 Dec 2007 13:40:53 GMT";
-    $console->out( $binary, $typ, %args );
-}
-
-
-# ------------------
-# Build selected image from 2x6 vtx font
-# in color, char | out binary data
-sub _imagebinarydata {
-# ------------------
-  my $obj = shift || return error('No object defined!');
-  my $color = shift || return error('No color defined!');
-  my $char = shift || return error('No char defined!');
-
-  # File header
-  my $data = '47494638396108000C00F0';
-
-  # Color table
-  my $col = {
-    'black'   => '0100000000FFFFFF',
-    'blue'    => '00000000FF0000FF',
-    'cyan'    => '000000FFFF00FFFF',
-    'green'   => '0000008000008000',
-    'magenta' => '0000FF00FFFF00FF',
-    'red'     => '0000FF0000FF0000',
-    'white'   => '0000FFFFFFFFFFFF',
-    'yellow'  => '0000FFFF00FFFF00'
-  };
-
-  if($char eq '20') {
-    $data .= '0000FFFFFFFFFFFF';
-  } else {
-    return undef unless(exists $col->{$color});
-    $data .=  $col->{$color};
-  }
-  
-  $data .= '21F904';
-  if($char eq '7F') {
-    $data .= '000A0000';
-  } else {
-    $data .= '010A0001';
-  }
-  $data .= '002C0000000008000C00000';
-
-  # Pixel data
-  my $pixel = {
-    '20' => '2088C8FA9CBED0F632A003B',
-    '21' => '20D84111987CABA0E9CB4DA8BB32D003B',
-    '22' => '20E8C030987CABA0E64B4DA8BB36605003B',
-    '23' => '20C848FA98BE10FA39CB4DA5A00003B',
-    '24' => '20D8C8FA98BE0D05E7413B28B5901003B',
-    '25' => '21184111987CABA0E7C4E56332DDCBC7B5800003B',
-    '26' => '2118C030987CABA0E84CF496B28DBBCFB5D00003B',
-    '27' => '20E848FA9CBE1811E3C32CA8BB3BE05003B',
-    '28' => '20D8C8FA9CBE0801E3C323E86732A003B',
-    '29' => '21184111987CABA0E84CF496BE89DBC7B5800003B',
-    '2A' => '2118C030987CABA0E7C4E56336D62BCFB6F14003B',
-    '2B' => '20F848FA98BE1D15E74139E87B3DEBB00003B',
-    '2C' => '20C8C8FA98BE00FA39C90D99B0A003B',
-    '2D' => '21084111987CABA0E64B4DA6BA0DEBCA702003B',
-    '2E' => '20F8C030987CABA0E9CB45ACAB2DEDC14003B',
-    '2F' => '20C848FA9CBED1DA29CB4DA5900003B',
-    '30' => '20D8C8FA9CBED0D2240729E4A252A003B',
-    '31' => '21184111987CABA0E9CB45AFA9CD406E65400003B',
-    '32' => '2118C030987CABA0E64B4DA6BA6743B3D6E14003B',
-    '33' => '20E848FA98BE10FA39CB03DEB70D005003B',
-    '34' => '20F8C8FA98BE0D05E74139E670DAEFC14003B',
-    '35' => '21384111987CABA0E7C4E56336DA25B477C354901003B',
-    '36' => '2138C030987CABA0E84CF496BE84D95EF98614101003B',
-    '37' => '210848FA9CBE1811E3C323EEBF03495BE02003B',
-    '38' => '2108C8FA9CBE0801E3C32CA675D9EA69E02003B',
-    '39' => '21384111987CABA0E84CF496B28BBA9761E654A01003B',
-    '3A' => '2138C030987CABA0E7C4E56332D4C94EB885D4101003B',
-    '3B' => '20F848FA98BE1D15E7413AE670DAEB500003B',
-    '3C' => '20E8C8FA98BE00FA39CB43DEB304005003B',
-    '3D' => '21184111987CABA0E64B4DA5BA7743B3D5500003B',
-    '3E' => '2118C030987CABA0E9CB4DA1B0D7C4E765300003B',
-    '3F' => '20D848FA9CBED6F820C68D263EB2C003B',
-    '60' => '20D8C8FA9CBED6F800468D263EB2C003B',
-    '61' => '21184111987CABA0E9CB4DA1B0D7C4E765300003B',
-    '62' => '2118C030987CABA0E64B4DA5BA7743B3D5500003B',
-    '63' => '20E848FA98BE10FA39CB43DEB704005003B',
-    '64' => '20F8C8FA98BE0D05E7413AE670DAEB500003B',
-    '65' => '21384111987CABA0E7C4E56332D4C94EB885D4001003B',
-    '66' => '2138C030987CABA0E84CF496B28BBA9761E654A01003B',
-    '67' => '210848FA9CBE1811E3C32CA675D9EA69E02003B',
-    '68' => '2108C8FA9CBE0801E3C323EEBF03495BE02003B',
-    '69' => '21384111987CABA0E84CF496BE84D95EF98614001003B',
-    '6A' => '2138C030987CABA0E7C4E56336DA25B477C354901003B',
-    '6B' => '20F848FA98BE1D15E74139E670DAEFC14003B',
-    '6C' => '20E8C8FA98BE00FA39CB03DEB30D005003B',
-    '6D' => '21184111987CABA0E64B4DA6BA6743B3D6E14003B',
-    '6E' => '2118C030987CABA0E9CB45AFA9CD406E65400003B',
-    '6F' => '20D848FA9CBED1D6240729E4A252A003B',
-    '70' => '20C8C8FA9CBED0DA29CB4DA5900003B',
-    '71' => '20F84111987CABA0E9CB45ACAB2DEDC14003B',
-    '72' => '2108C030987CABA0E64B4DA6BA0DEBCA702003B',
-    '73' => '20C848FA98BE10FA39C90D99B0A003B',
-    '74' => '20F8C8FA98BE0D05E74139E87B3DEBB00003B',
-    '75' => '21184111987CABA0E7C4E56336D62BCFB6F14003B',
-    '76' => '2118C030987CABA0E84CF496BE89DBC7B5800003B',
-    '77' => '20D848FA9CBE1811E3C323E86732A003B',
-    '78' => '20E8C8FA9CBE0801E3C32CA8BB3BE05003B',
-    '79' => '21184111987CABA0E84CF496B28DBBCFB5D00003B',
-    '7A' => '2118C030987CABA0E7C4E56332DDCBC7B5800003B',
-    '7B' => '20D848FA98BE1D15E7413B28B5901003B',
-    '7C' => '20C8C8FA98BE00FA39CB4DA5A00003B',
-    '7D' => '20E84111987CABA0E64B4DA8BB36605003B',
-    '7E' => '20D8C030987CABA0E9CB4DA8BB32D003B',
-    '7F' => '208848FA9CBED0F632A003B',
-  };
-
-  return undef unless(exists $pixel->{$char});
-  $data .= $pixel->{$char};
-
-  return pack("H*",$data);
-}
-
 1;
