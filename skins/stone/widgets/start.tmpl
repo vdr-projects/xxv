@@ -7,6 +7,9 @@
 <head>
     <link rel="stylesheet" type="text/css" href="style.css" media="all" />
     <link rel="stylesheet" type="text/css" href="print.css" media="print" />
+<?% IF call == 'vtxpage' %?>
+    <link rel="stylesheet" type="text/css" href="vtxgfx.css" media="all" />
+<?% END %?>
     <link rel="shortcut icon" href="favicon.ico" />
     <title><?% IF param.title.defined;param.title;ELSE %?>XXV<?% END %?></title>
     <meta name="generator" content="XXV System - Version: <?% version %?>" />

@@ -325,6 +325,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
                 }
             }
         }
+        return null;
     },
 
     getNextOnRight: function() {
@@ -337,6 +338,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
                 }
             }
         }
+        return null;
     },
 
 /**
@@ -444,6 +446,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
         } else {
             return (dir == -1) ? pos - this.scrollIncrement : pos + this.scrollIncrement;
         }
+        return 0;
     },
 
     // private

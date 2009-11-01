@@ -26,6 +26,7 @@ autotimers.js \
 recordings.js \
 chronicle.js \
 music.js \
+teletext.js \
 users.js \
 vdr.js \
 menus.js  \

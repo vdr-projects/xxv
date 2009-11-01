@@ -276,3 +276,47 @@ Ext.override(Ext.layout.HBoxLayout, {
         }, this);
     }
 });
+
+/* http://www.extjs.com/forum/showthread.php?t=73615 */
+Ext.override(Ext.menu.Menu, {
+    show: function(el, pos, parentMenu) {
+        if (this.floating) {
+            this.parentMenu = parentMenu;
+            if (!this.el) {
+                this.render();
+                this.doLayout(false, true);
+            }
+            //if(this.fireEvent('beforeshow', this) !== false){
+            this.showAt(this.el.getAlignToXY(el, pos || this.defaultAlign, this.defaultOffsets), parentMenu, false);
+            //}
+        } else {
+            Ext.menu.Menu.superclass.show.call(this);
+        }
+    },
+    showAt: function(xy, parentMenu, _e) {
+        if (this.fireEvent('beforeshow', this) !== false) {
+            this.parentMenu = parentMenu;
+            if (!this.el) {
+                this.render();
+            }
+            if (_e !== false) {
+                xy = this.el.adjustForConstraints(xy);
+            }
+            this.el.setXY(xy);
+            if (this.enableScrolling) {
+                this.constrainScroll(xy[1]);
+            }
+            this.el.show();
+            Ext.menu.Menu.superclass.onShow.call(this);
+            if (Ext.isIE) {
+                this.layout.doAutoSize();
+                if (!Ext.isIE8) {
+                    this.el.repaint();
+                }
+            }
+            this.hidden = false;
+            this.focus();
+            this.fireEvent("show", this);
+        }
+    }
+});

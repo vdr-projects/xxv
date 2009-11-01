@@ -17,7 +17,7 @@
       <?% IF allow( 'al' ) %?>       <a accesskey="a" href="?cmd=al"><?% gettext("Autotimer") %?></a> &middot; <?% END %?>
       <?% IF allow( 'tl' ) %?>       <a accesskey="t" href="?cmd=tl"><?% gettext("Timers") %?></a> &middot; <?% END %?>
       <?% IF allow( 'rl' ) %?>       <a accesskey="r" href="?cmd=rl"><?% gettext("Recordings") %?></a> &middot; <?% END %?>
-      <?% IF allow( 'vc' ) %?>       <a accesskey="v" href="?cmd=vc"><?% gettext("Teletext") %?></a> &middot; <?% END %?>
+      <?% IF allow( 'vt' ) %?>       <a accesskey="v" href="?cmd=vt"><?% gettext("Teletext") %?></a> &middot; <?% END %?>
       <?% IF allow( 'ml' ) %?>       <a accesskey="m" href="?cmd=ml"><?% gettext("Music") %?></a> &middot; <?% END %?>
       <?% IF allow( 'mll' ) %?>      <a accesskey="l" href="?cmd=mll"><?% gettext("Media list") %?></a> &middot; <?% END %?>
       <?% IF allow( 'r' ) %?>        <a accesskey="f" href="javascript:popupcmd('r',640,450,0)"><?% gettext("Remote") %?></a> &middot; <?% END %?>

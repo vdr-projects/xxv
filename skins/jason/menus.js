@@ -33,44 +33,57 @@ Ext.xxv.MainSearchField = Ext.extend(Ext.form.TwinTriggerField, {
     }*/
 });
 
+Ext.xxv.Menu = Ext.extend(Ext.menu.Menu, {
+    initComponent : function(){
+  		Ext.xxv.Menu.superclass.initComponent.call(this);
+      this.on('beforerender', function(menu) {
+    		menu.items.eachKey(function(key, f) { 
+                        if(f.cmd && XXV.help.cmdAllowed(f.cmd)) 
+                          f.enable();
+                        },menu.items); 
+      } , this);
+    }
+});
+
 Ext.xxv.MainMenu = function(/*config*/){
 
     var selTheme = this.initTheme();
 
     XXV.configMenu = new Ext.menu.Menu();
-    var setupMenu = new Ext.menu.Menu(
-    {
-      items:[
-        {
+    var setupMenu = new Ext.xxv.Menu({
+      defaults: {
+        disabled:true
+       ,handler: function(b,e) { XXV.tab.openTab(b.cmd); }
+      }
+      ,items:[{
 	          text:this.szOwnSettings
            ,iconCls: 'setup-icon'
-           ,disabled: false
            ,handler: XXV.help.Settings
            ,scope:XXV.help
+           ,cmd: 'up'
         },{
 	          text:this.szGlobalSettings
            ,iconCls: 'setup-icon'
            ,menu: XXV.configMenu
+           ,cmd: 'ce'
         },'-',{
            text: Ext.xxv.movetimersGrid.prototype.szTitle
-          ,handler: function() { XXV.tab.openTab('mtl'); }
           ,iconCls:"movetimers-icon"
+          ,cmd: 'mtl'
         },{   
            text: Ext.xxv.vdrGrid.prototype.szTitle
-          ,handler: function() { XXV.tab.openTab('vl'); }
           ,iconCls:"vdr-icon"
+          ,cmd: 'vl'
         },{   
            text: Ext.xxv.usersGrid.prototype.szTitle
-          ,handler: function() { XXV.tab.openTab('ul'); }
           ,iconCls:"users-icon"
+          ,cmd: 'ul'
         }
        ]
     });
 
-    var systemMenu = new Ext.menu.Menu(
-    {
-      items:[
-        {
+    var systemMenu = new Ext.menu.Menu({
+      items:[{
 	          text:this.szMenuItemSetup
            ,iconCls: 'setup-icon'
            ,menu: setupMenu
@@ -83,61 +96,63 @@ Ext.xxv.MainMenu = function(/*config*/){
        ]
     });
 
-
-
-    var ProgrammingMenu = new Ext.menu.Menu(
-    {
-      items:[
-        {
+    var ProgrammingMenu = new Ext.xxv.Menu({
+      defaults: {
+        disabled:true
+       ,handler: function(b,e) { XXV.tab.openTab(b.cmd); }
+      }
+      ,items:[{
            text: Ext.xxv.autotimerGrid.prototype.szTitle 
-          ,handler: function() { XXV.tab.openTab('al'); }
           ,iconCls:"autotimer-icon"
+          ,cmd: 'al'
         }, 
         {
            text: Ext.xxv.timerGrid.prototype.szTitle
-          ,handler: function() { XXV.tab.openTab('tl'); }
           ,iconCls:"timer-icon"
+          ,cmd: 'tl'
         }
        ]
     });
     
-    var MediaMenu = new Ext.menu.Menu(
-    {
-      items:[
-        {
+    var MediaMenu = new Ext.xxv.Menu({
+      defaults: {
+        disabled:true
+       ,handler: function(b,e) { XXV.tab.openTab(b.cmd); }
+      }
+      ,items:[{
            text: Ext.xxv.recordingsDataView.prototype.szTitle
-          ,handler: function() { XXV.tab.openTab('rl'); }
           ,iconCls:"recordings-icon"
-        }
-        ,{
+          ,cmd: 'rl'
+        },{
            text: Ext.xxv.chronicleGrid.prototype.szTitle
-          ,handler: function() { XXV.tab.openTab('chrl'); }
           ,iconCls:"chronicle-icon"
+          ,cmd: 'chrl'
         },{
           text: Ext.xxv.musicGrid.prototype.szTitle
-          ,handler: function() { XXV.tab.openTab('ml'); }
           ,iconCls:"music-icon"
+          ,cmd: 'ml'
         }/*,{
           text: Ext.xxv.mediaDataView.prototype.szTitle, 
-          handler: function() { XXV.tab.openTab('mll'); },
           iconCls:"media-icon",
-          disabled:true
+					,cmd: 'mll'
         }*/
        ]
     });
 
-    var RemoteMenu = new Ext.menu.Menu(
-    {
-      items:[
-        {
+    var RemoteMenu = new Ext.xxv.Menu({
+      defaults: {
+        disabled:true
+      }
+      ,items:[{
           text: Ext.xxv.RemoteWindow.prototype.szTitle
           ,handler: function() { Ext.xxv.RemoteWindowOpen(); }
           ,iconCls:"remote-icon"
-        }
-        ,{
+          ,cmd: 'r'
+        },{
           text: Ext.xxv.MonitorWindow.prototype.szTitle
           ,handler: function() { Ext.xxv.MonitorWindowOpen(); }
           ,iconCls:"monitor-icon"
+          ,cmd: 'r'
         }
        ]
     });
@@ -157,26 +172,26 @@ Ext.xxv.MainMenu = function(/*config*/){
       id:"MainMenu",
       region:"north",
       height:26, 
-      items:[
-          { text:this.szMenuXXV,
+      items:[{ 
+            text:this.szMenuXXV,
             menu:systemMenu,      
             iconCls:"xxv-icon" 
-          },
-          { text:this.szMenuProgramming, 
+          },{ 
+            text:this.szMenuProgramming, 
             menu:ProgrammingMenu, 
             iconCls:"edit-icon" 
-          },
-          { text:this.szMenuMedia,       
+          },{
+            text:this.szMenuMedia,       
             menu:MediaMenu,       
             iconCls:"media-icon"  
-          },
-          { text:this.szMenuRemote,       
+          },{ 
+            text:this.szMenuRemote,       
             menu:RemoteMenu,       
             iconCls:"remote-icon"  
-          },
-          {   text:this.szMenuView,
-              iconCls: 'view-icon',
-              menu:{
+          },{
+            text:this.szMenuView,
+            iconCls: 'view-icon',
+            menu:{
                   items: [
                             {
                               text: this.szSelectTheme,
@@ -300,8 +315,8 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
 /******************************************************************************/
     ,Logout: function(){
         Ext.MessageBox.show({
-                   title: 'Logout'
-                   ,msg: 'Please wait...'
+                   title: this.szMenuItemLogout
+                   ,msg: Ext.form.BasicForm.prototype.waitTitle
                    ,width:240
                    ,closable:false
                });

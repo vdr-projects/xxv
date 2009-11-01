@@ -152,7 +152,7 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
         var d = record.data;
         var Woerter = d.title.split("~");
         var title = Woerter[0];
-        return this.openSearch(title);
+        this.openSearch(title);
     }
     ,Record : function(record){
         if(!record || !record.data) return;
@@ -162,7 +162,17 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
         if(!id) return;
         this.gridNow.RecordID(id);
     }
-
+    ,openTeleText : function(name, data){
+          var id = 'vt';
+          var tab;
+          if(!(tab = this.getItem(id))){
+            tab = createTeleTextView(this,id,name,data);
+          } else {
+            //tab.LoadTitle();
+            this.pageTeleText.reload(name, data);
+          }
+          this.setActiveTab(tab);
+    }
     ,openTab : function(id){
         var tab;
         if(!(tab = this.getItem(id))){

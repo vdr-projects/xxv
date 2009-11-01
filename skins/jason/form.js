@@ -11,7 +11,7 @@ Ext.xxv.Question = function(item,parentstore) {
 
     if(XXV.help.cmdDisabled(item.cmd)) {
         new Ext.xxv.MessageBox().msgFailure(this.szCommandDeny, item.cmd);
-        return 0;
+        return;
     }
 
     this.parentstore = parentstore;
@@ -75,7 +75,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
     ,szComboEmpty : "Select ..."
  
     ,onLoadException :  function( scope, o, arg, e) {
-      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onLoad : function(r,options,success){
 

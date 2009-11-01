@@ -5,6 +5,11 @@
 <?% lang = locale.split('_') %?>
 <html xmlns="http://www.w3.org/1999/xhtml" <?% IF lang.1 %?>xml:lang="<?% lang.0 %?>" lang="<?% lang.0 %?>"<?% ELSE %?>xml:lang="en" lang="en"<?% END %?>>
 <head>
+    <link rel="stylesheet" type="text/css" href="style.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="print.css" media="print" />
+<?% IF call == 'vtxpage' %?>
+    <link rel="stylesheet" type="text/css" href="vtxgfx.css" media="all" />
+<?% END %?>
     <title><?% IF param.title.defined;param.title;ELSE %?>XXV<?% END %?></title>
     <meta name="generator" content="XXV System - Version: <?% version %?>" />
     <meta http-equiv="content-type" content="text/html; charset=<?% charset %?>" />
@@ -13,8 +18,6 @@
     <meta http-equiv="pragma" content="no-cache" />
     <meta name="robots" content="noindex,noarchive,nofollow" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="style.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="print.css" media="print" />
     <script language="JavaScript" type="text/javascript" src="tooltip.js"></script>
     <script language="JavaScript" type="text/javascript" src="global.js"></script>
 <?% IF allow("request") %?>

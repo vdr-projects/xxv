@@ -43,7 +43,7 @@ Ext.ux.TabCloseMenu = function(){
         tabs.items.each(function(){
             if(this != item && this.closable){
                 disableOthers = false;
-                return false;
+                return;
             }
         });
         items.get(tabs.id + '-close-others').setDisabled(disableOthers);

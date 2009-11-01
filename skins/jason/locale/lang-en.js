@@ -55,6 +55,8 @@ Ext.xxv.channelsPanel.prototype.webcastTTText = "Web cast";
 Ext.xxv.channelsPanel.prototype.webcastText = "Live web cast this channel";
 Ext.xxv.channelsPanel.prototype.switchTTText: "Switch";
 Ext.xxv.channelsPanel.prototype.switchText = "Switch to this channel";
+Ext.xxv.channelsPanel.prototype.teleTextText = "Teletext pages";
+Ext.xxv.channelsPanel.prototype.teleTextTTText = "Show teletext pages from this channel";
 Ext.xxv.channelsPanel.prototype.editTTText = "Edit";
 Ext.xxv.channelsPanel.prototype.editText = "Edit this channel";
 Ext.xxv.channelsPanel.prototype.deleteText = "Delete this channel";
@@ -250,6 +252,11 @@ Ext.xxv.musicGrid.prototype.szColYear = "Year";
 Ext.xxv.musicGrid.prototype.szColGenre = "Genre";
 Ext.xxv.musicGrid.prototype.szColComment = "Comment";
 Ext.xxv.musicGrid.prototype.szLoadException = "Couldn't get title from music list!\r\n{0}";
+
+/* teletext */
+Ext.xxv.TeleTextView.prototype.szTitle = "Teletext";
+Ext.xxv.TeleTextView.prototype.szToolTip = "Display teletext pages";
+Ext.xxv.TeleTextView.prototype.szLoadException = "Couldn't get teletext pages!\r\n{0}";
 
 /* monitor.js */
 Ext.xxv.MonitorWindow.prototype.szTitle = "Monitor";

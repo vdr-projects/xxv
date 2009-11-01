@@ -55,6 +55,8 @@ Ext.xxv.channelsPanel.prototype.webcastTTText = "Live TV";
 Ext.xxv.channelsPanel.prototype.webcastText = "Diesen Kanal als Live TV streamen";
 Ext.xxv.channelsPanel.prototype.switchTTText = "Umschalten";
 Ext.xxv.channelsPanel.prototype.switchText = "Auf diesen Kanal umschalten";
+Ext.xxv.channelsPanel.prototype.teleTextText = "Videotext";
+Ext.xxv.channelsPanel.prototype.teleTextTTText = "Zeigt den Videotext dieses Kanals";
 Ext.xxv.channelsPanel.prototype.editTTText = "Bearbeiten";
 Ext.xxv.channelsPanel.prototype.editText = "Diesen Kanal bearbeiten";
 Ext.xxv.channelsPanel.prototype.deleteText = "Diesen Kanal löschen";
@@ -249,6 +251,11 @@ Ext.xxv.musicGrid.prototype.szColGenre = "Genre";
 Ext.xxv.musicGrid.prototype.szColComment = "Kommentar";
 Ext.xxv.musicGrid.prototype.szLoadException = "Konnte keine Titel der Musikliste holen!\r\n{0}";
 
+/* teletext */
+Ext.xxv.TeleTextView.prototype.szTitle = "Videotext";
+Ext.xxv.TeleTextView.prototype.szToolTip = "Zeigt Videotextseiten";
+Ext.xxv.TeleTextView.prototype.szLoadException = "Konnte keine Seite des Videotext holen!\r\n{0}";
+
 /* monitor.js */
 Ext.xxv.MonitorWindow.prototype.szTitle = "Monitorbild";
 Ext.xxv.MonitorWindow.prototype.szAspect = "Wiederherstellen des korrekten Seitenverhältnis";
@@ -270,4 +277,5 @@ Ext.ux.Multiselect.prototype.maxLengthText = "Maximal sind {0} Einträge erlaubt
 
 /* ux/filter.js */
 Ext.ux.grid.Search.prototype.searchTipText = "Bitte geben Sie einen Text für die Suche ein";
+
 

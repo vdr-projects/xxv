@@ -110,7 +110,7 @@ Ext.extend(Ext.xxv.movetimersGrid,  Ext.grid.EditorGridPanel, {
     ,stateful:  true
 
     ,onLoadException :  function( scope, o, arg, e) {
-      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onLoad : function( store, records, opt ) {
       this.getSelectionModel().selectFirstRow();

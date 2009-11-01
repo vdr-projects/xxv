@@ -37,16 +37,6 @@ Ext.extend(Ext.xxv.help, Ext.util.Observable, {
   onLoad : function(store, records, options) {
 
     if(!this.cmdDisabled('ce')) {
-      // HTTPD are not visible on cmd=help
-      XXV.configMenu.add(new Ext.menu.Item(
-      { 
-         text: 'HTTPD'
-        ,disabled:false
-        ,handler: this.Configure
-        ,scope:this
-      }));
-      XXV.configMenu.add('-');
-
       var lastModule;
       for(var i = 0, len = store.getCount(); i < len; i++){
         var record = store.getAt(i);

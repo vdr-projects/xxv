@@ -176,7 +176,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szRecordFailure : "Couldn't create timer!\r\n{0}"
 
     ,onLoadException :  function( scope, o, arg, e) {
-      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onBeforeLoad : function(  store, opt ) {
 

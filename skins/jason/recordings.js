@@ -363,31 +363,31 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
     this.store = store;
     var tpl = new Ext.XTemplate(
     '<tpl for=".">',
-        '<div class="thumb-wrap" id="{id}">',
+      '<div class="thumb-wrap" id="{id}">',
 		    '<div class="thumb">',
         '<tpl if="isrecording == 0">',
             '<img src="pic/folder.png"<tpl if="group != 0"> ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}"</tpl>/>',
         '</tpl>',
         '<tpl if="isrecording != 0">',
-        '<tpl if="this.isRadio(type)">',
-            '<img src="pic/radio.png" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
+          '<tpl if="this.isRadio(type)">',
+              '<img src="pic/radio.png" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
+          '</tpl>',
+          '<tpl if="this.isRadio(type) == false">',
+              '<tpl if="frame == -1">',
+                  '<img src="pic/movie.png" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
+              '</tpl>',
+              '<tpl if="frame != -1">',
+                  '<img src="?cmd=ri&data={id}_{frame}" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
+              '</tpl>',
+          '</tpl>',
         '</tpl>',
-        '<tpl if="this.isRadio(type) == false">',
-            '<tpl if="frame == -1">',
-                '<img src="pic/movie.png" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
-            '</tpl>',
-            '<tpl if="frame != -1">',
-                '<img src="?cmd=ri&data={id}_{frame}" ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}" />',
-            '</tpl>',
+        '<tpl if="unviewed != 0">',
+            '<div class="unviewed"></div>',
         '</tpl>',
-        '</tpl>',
-            '<tpl if="unviewed != 0">',
-                '<div class="unviewed"></div>',
-            '</tpl>',
-        '</div>',
-		    '<span class="x-editable">{shortName}</span></div>',
-        '</tpl>',
-        '<div class="x-clear"></div>', {
+      '</div>',
+      '<span class="x-editable">{shortName}</span></div>',
+    '</tpl>',
+    '<div class="x-clear"></div>', {
          isRadio: function(name){
              return name == 'RADIO';
          }
@@ -524,7 +524,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,szFolderTip2     : "There are {0} recordings<br />Have {1} new recordings<br />Total time {2}"
 
     ,onLoadException :  function( scope, o, arg, e) {
-	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
+	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onBeforeLoad :  function( scope, params ) {
       if(this.DetailsTransaction) 
@@ -687,12 +687,12 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
             if(toDetails.length) {
               toDetails += ',';
             }
-            var record = this.store.getById(selNode[i].id);
-            if(record.data.isrecording == 0) {
+            var r = this.store.getById(selNode[i].id);
+            if(r.data.isrecording == 0) {
               //toDetails += 'all:';
               continue;
             }
-            toDetails += record.data.id;
+            toDetails += r.data.id;
           }
         }
       }
@@ -778,7 +778,6 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
               var enable = XXV.help.cmdAllowed(f.itemId);
               if(enable) {
                 switch(f.itemId) {
-                  case 's':   enable = (record.data.isrecording == 0) ? false : true; break;
                   case 're':  enable = (record.data.isrecording == 0) ? false : true; break;
                   case 'rcu': enable = (record.data.isrecording == 0) ? false : true; break;
                   case 'rpv': enable = (record.data.isrecording == 0) ? false : true; break;
@@ -849,12 +848,12 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
             if(toCut.length) {
               toCut += ',';
             }
-            var record = this.store.getById(selNode[i].id);
-            if(record.data.isrecording == 0) {
+            var r = this.store.getById(selNode[i].id);
+            if(r.data.isrecording == 0) {
               //toCut += 'all:';
               continue;
             }
-            toCut += record.data.id;
+            toCut += r.data.id;
           }
         }
       }
@@ -936,11 +935,11 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
             if(todelete.length) {
               todelete += ',';
             }
-            var record = this.store.getById(selNode[i].id);
-            if(record.data.isrecording == 0) {
+            var r = this.store.getById(selNode[i].id);
+            if(r.data.isrecording == 0) {
               todelete += 'all:';
             }
-            todelete += record.data.id;
+            todelete += r.data.id;
           }
         } 
       }

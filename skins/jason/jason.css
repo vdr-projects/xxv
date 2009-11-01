@@ -89,6 +89,7 @@ display:none;
 .select-channel-icon {  background-image:url(pic/channel-select.png) !important; }
 .stream-icon {          background-image:url(pic/web-playback.png) !important; }
 .switch-icon {          background-image:url(pic/remote-playback.png) !important; }
+.teletext-icon {        background-image:url(pic/menu.png) !important;  }
 .xxv-icon {             background-image:url(pic/xxv.png) !important;  }
 .program-icon {         background-image:url(pic/channel.png) !important; }
 .media-icon {           background-image:url(pic/video.png) !important;  }
@@ -479,3 +480,60 @@ color:red;
 .x-form-check-group .x-panel-body {background-color: transparent;}
 .x-form-check-wrap { height:auto; }
 
+/* teletext */
+#vt .x-panel-body{
+background: white;
+}
+#vt .thumb{
+background: #dddddd;
+padding: 3px;
+}
+
+#vt .thumb-wrap{
+float: left;
+margin: 4px;
+margin-right: 0;
+padding: 5px;
+}
+
+#vt .x-view-over{
+border:1px solid #dddddd;
+background: #efefef url(extjs/resources/images/default/grid/row-over.gif) repeat-x left top;
+padding: 4px;
+}
+
+#vt .x-view-selected{
+background: #eff5fb no-repeat right bottom;
+border:1px solid #99bbe8;
+padding: 4px;
+}
+
+#vt .x-view-selected .thumb{
+background:transparent;
+}
+
+#vt p.vtx {
+font-size:16px;
+line-height:18px;
+font-family:monospace;
+white-space:nowrap;
+}
+
+#vt img.vtx {
+position:absolute;
+z-index:1;
+width:10px;
+height:16px;
+}
+
+#vt a.vtx:link,a.vtx:visited,a.vtx:hover,a.vtx:active {
+text-decoration:none;
+}
+
+#vt a.vtx:link,a.vtx:visited {
+color:#0F0;
+}
+
+#vt a.vtx:hover,a.vtx:active {
+color:#FF0;
+}

@@ -88,14 +88,16 @@ Ext.xxv.channelsPanel = function() {
             if(node){
                 var record = this.store.getById(node.attributes.channel);
                 var top = Ext.getCmp('main-tabs');
-                top.openProgram(record.data);
+                switch(top.getActiveTab().id) {
+                  case 'vt': top.openTeleText(node.attributes.text, node.attributes.channel); break;
+                  default: top.openProgram(record.data); break;
+                }
 
                 var items = this.topToolbar.items;
                 if(items) { items.eachKey(function(key, f) {
-                                          if(XXV.help.cmdAllowed(key)) f.enable();
-                              },items); }
+                            if(XXV.help.cmdAllowed(key)) f.enable();
+                },items); }
             }
-            //this.getTopToolbar().items.get('delete').setDisabled(!node);
         },
         scope:this
     });
@@ -114,6 +116,8 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
     ,webcastText : "Live web cast this channel"
     ,switchTTText: "Switch"
     ,switchText  : "Switch to this channel"
+    ,teleTextText: "Teletext pages"
+    ,teleTextTTText: "Show teletext pages from this channel"
     ,editTTText  : "Edit"
     ,editText    : "Edit this channel"
     ,deleteText  : "Delete this channel"
@@ -133,7 +137,11 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
                     ,text:this.selectText
                     ,scope: this
                     ,disabled: true
-                    ,handler:function(){ this.ctxNode.select(); }
+                    ,handler:function(){ 
+                        var record = this.store.getById(this.ctxNode.attributes.channel);
+                        var top = Ext.getCmp('main-tabs');
+                        top.openProgram(record.data);
+                      }
                     }
                     ,'-',
                     {
@@ -143,14 +151,23 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
                     ,scope: this
                     ,disabled: true
                     ,handler:function(){ this.onWebCastChannel(this.ctxNode.attributes.channel); }
-                    },
-                    {
+                    },{
                      itemId:'sw'
                     ,iconCls:'switch-icon'
                     ,text:this.switchText
                     ,scope: this
                     ,disabled: true
                     ,handler:function(){ this.onSwitchChannel(this.ctxNode.attributes.channel); }
+                    },{
+                     itemId:'vt'
+                    ,iconCls:'teletext-icon'
+                    ,text:this.teleTextText
+                    ,scope: this
+                    ,disabled: true
+                    ,handler:function(){ 
+                        var top = Ext.getCmp('main-tabs');
+                        top.openTeleText(this.ctxNode.attributes.text, this.ctxNode.attributes.channel);
+                      }
                     }
                     ,'-',
                     {
@@ -211,7 +228,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
                 exists.select();
                 exists.ui.highlight();
             }
-            return;
+            return null;
         }
         Ext.apply(attrs, {
             iconCls: 'channel-icon',
@@ -243,7 +260,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
     }
 /******************************************************************************/
     ,onLoadException :  function( scope, o, arg, e) {
-      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onLoad : function( store, records, opt ) {
 

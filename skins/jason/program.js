@@ -129,7 +129,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     ,stateful:  true
 
     ,onLoadException :  function( scope, o, arg, e) {
-      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e);
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onBeforeLoad : function(  store, opt ) {
       this.preview.clear();

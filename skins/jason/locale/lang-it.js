@@ -55,6 +55,8 @@ Ext.xxv.channelsPanel.prototype.webcastTTText = "Trasmissione web";
 Ext.xxv.channelsPanel.prototype.webcastText = "Trasmissione web dal vivo di questo canale";
 Ext.xxv.channelsPanel.prototype.switchTTText: "Cambia";
 Ext.xxv.channelsPanel.prototype.switchText = "Cambia su questo canale";
+/*NEED TO TRANSLATE*/ Ext.xxv.channelsPanel.prototype.teleTextText = "Teletext pages";
+/*NEED TO TRANSLATE*/ Ext.xxv.channelsPanel.prototype.teleTextTTText = "Show teletext pages from this channel";
 Ext.xxv.channelsPanel.prototype.editTTText = "Modifica";
 Ext.xxv.channelsPanel.prototype.editText = "Modifica questo canale";
 Ext.xxv.channelsPanel.prototype.deleteText = "Elimina questo canale";
@@ -250,6 +252,11 @@ Ext.xxv.musicGrid.prototype.szColYear = "Anno";
 Ext.xxv.musicGrid.prototype.szColGenre = "Genere";
 Ext.xxv.musicGrid.prototype.szColComment = "Commento";
 Ext.xxv.musicGrid.prototype.szLoadException = "Impossibile recuperare titoli elenco musicale!\r\n{0}";
+
+/* teletext */
+/*NEED TO TRANSLATE*/ Ext.xxv.TeleTextView.prototype.szTitle = "Teletext";
+/*NEED TO TRANSLATE*/ Ext.xxv.TeleTextView.prototype.szToolTip = "Display teletext pages";
+/*NEED TO TRANSLATE*/ Ext.xxv.TeleTextView.prototype.szLoadException = "Couldn't get teletext pages!\r\n{0}";
 
 /* monitor.js */
 Ext.xxv.MonitorWindow.prototype.szTitle = "Schermo";

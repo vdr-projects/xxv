@@ -275,31 +275,6 @@ width:165px;
 width:170px;
 }
 
-p.vtx {
-font-size:12px;
-font-family:monospace;
-white-space:nowrap;
-}
-
-img.vtx {
-position:absolute;
-z-index:1;
-width:7px;
-height:15px;
-}
-
-a.vtx:link,a.vtx:visited,a.vtx:hover,a.vtx:active {
-text-decoration:none;
-}
-
-a.vtx:link,a.vtx:visited {
-color:#0F0;
-}
-
-a.vtx:hover,a.vtx:active {
-color:#FF0;
-}
-
 img.progressleft {
 background:#4080ff;
 border-color:#000;

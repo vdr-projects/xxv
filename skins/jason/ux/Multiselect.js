@@ -230,6 +230,7 @@ Ext.ux.Multiselect = Ext.extend(Ext.form.Field,  {
     onViewBeforeClick: function(vw, index, node, e) {
         this.preClickSelections = this.view.getSelectedIndexes();
         if (this.disabled) {return false;}
+        return true;
     },
 
     // private

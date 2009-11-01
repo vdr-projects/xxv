@@ -14,9 +14,10 @@
 Ext.ux.SlideZone = function(id, config) {
 	if(id) {
 		Ext.apply(this, config); 
-		this.init(id, config || {}); 
+		this.init(id, config || {});
+    return this;
 	} else {
-		return false;
+		return null;
 	}
 } 
 
@@ -128,6 +129,7 @@ Ext.extend(Ext.ux.SlideZone, Ext.BoxComponent, {
 				}
 				break;
 		}
+    return null;
 	},
 
 
@@ -366,37 +368,32 @@ Ext.extend(Ext.ux.Slider, Ext.BoxComponent, {
 		switch(this.type) {
 			case 'horizontal':
 				return [this.el.getX()];
-				break;
 				
 			case 'vertical':
 				return [this.el.getY()];
-				break;
 				
 			case 'area':
 				return this.el.getXY();
-				break;
 		}
+    return null;
 	},
 	
 	getBR: function() {
 		switch(this.type) {
 			case 'horizontal':
 				return [this.el.getRight()];
-				break;
 				
 			case 'vertical':
 				return [this.el.getBottom()];
-				break;
 				
 			case 'area':
 				return [this.el.getRight(), this.el.getBottom()];
-				break;
 		}
-		
+    return null;
 	},
 	
 	setPosition: function(position) {
-		var l = position.length;
+		var i,l = position.length;
 		for (i=0; i<l; i++) {
 			position[i] = parseInt(position[i]);
 		}
@@ -419,7 +416,7 @@ Ext.extend(Ext.ux.Slider, Ext.BoxComponent, {
 	
 	setConstraint: function(low, high, snap) {
     if(this.allowMove) {
-		  var l = low.length;
+		  var i,l = low.length;
 		  for (i=0; i<l; i++) {
 			  low[i] = parseInt(low[i] = low[i] < 0 ? 0 : low[i]);
 			  high[i] = parseInt(high[i] = high[i] < 0 ? 0 : high[i]);				

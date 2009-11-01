@@ -19,6 +19,9 @@ Ext.extend(Ext.xxv.jsonReader, Ext.data.DataReader, {
         }
         var o = eval('('+r.responseText+')');
         if(!o || !o.data || typeof(o.data) != 'object') {
+            if(o && o.data && typeof(o.data) == 'string') {
+              throw {message: o.data};
+            }
             throw {message: "XXVReader.read: Json object not found"};
         }
         return this.readRecords(o.data,o.param);

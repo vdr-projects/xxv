@@ -579,6 +579,7 @@ Ext.extend(Ext.ux.DDView, Ext.DataView, {
                 }
             }
         }
+        return true;
     },
 
     // private
@@ -586,7 +587,7 @@ Ext.extend(Ext.ux.DDView, Ext.DataView, {
         // The DragZone's mousedown->getDragData already handled selection
         if (this.ignoreNextClick) {
             delete this.ignoreNextClick;
-            return;
+            return false;
         }
 
         if(this.fireEvent("beforeclick", this, index, item, e) === false){
