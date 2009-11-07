@@ -15,8 +15,9 @@ sub module {
         Name => 'USER',
         Prereq => {
             'Net::IP::Match::Regexp qw( create_iprange_regexp match_ip )'
-                => 'Efficiently match IPv4 addresses against IPv4 ranges via regexp ',
-            'Data::COW' => 'clone deep data structures copy-on-write'
+                => 'Efficiently match IPv4 addresses against IPv4 ranges via regexp '
+            ,'Data::COW' => 'clone deep data structures copy-on-write'
+            ,'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm'
         },
         Description =>
 gettext("This module manages the User administration.
@@ -99,46 +100,15 @@ or the same parameter is set for each function."),
                 callback    => sub{ $self->list(@_) },
                 Level       => 'admin',
             },
+            login => {
+                hidden      => 'yes',
+                short       => 'login',
+                callback    => sub{ $self->login(@_) },
+            },
             logout => {
                 description => gettext("Log out from current session."),
                 short       => 'exit',
-                callback    => sub{
-                    my $console = shift || return error('No console defined!');
-                    my $config = shift || return error('No config defined!');
-
-                    if($self->{active} eq 'y') {
-                        $console->message(gettext("Session closed."));
-                        $console->redirect({url => '?', parent => 'top', wait => 2})
-                            if($console->typ eq 'HTML');
-
-                        my $ConsoleMod;
-                        my $delayed = 0;
-                        if($console->typ eq 'HTML' || $console->typ eq 'AJAX') {
-                          $ConsoleMod = main::getModule('HTTPD');
-                          $delayed = 1;
-                        } elsif ($console->typ eq 'WML') {
-                          $ConsoleMod = main::getModule('WAPD');
-                          $delayed = 1;
-                        } elsif ($console->typ eq 'CONSOLE') {
-                          $ConsoleMod = main::getModule('TELNET');
-                        };
-  
-                        if($delayed) {
-                          # Close session delayed, give browser my time load depends files like style.css
-                          Event->timer(
-                              after => 1,
-                              prio => 6,  # -1 very hard ... 6 very low
-                              cb => sub{
-                                  $self->_logout($console,$config);
-                                  $ConsoleMod->{LOGOUT} = 1 if($ConsoleMod);
-                              },
-                          );
-                        } else  {
-                          $self->_logout($console,$config);
-                          $ConsoleMod->{LOGOUT} = 1 if($ConsoleMod);
-                        }
-                    }
-                },
+                callback    => sub{ $self->logout(@_) },
             },
         },
     };
@@ -219,6 +189,19 @@ sub _init {
         ) COMMENT = '$version'
     |);
 
+    $self->{dbh}->do(qq|
+      CREATE TABLE IF NOT EXISTS SESSION (
+          id int unsigned auto_increment NOT NULL,
+          sid varchar(32) NOT NULL,
+          uid int unsigned NOT NULL,
+          source varchar(16) NOT NULL default '',
+          expires datetime NOT NULL default '0000-00-00 00:00:00',
+          PRIMARY KEY (id),
+          UNIQUE KEY (sid) 
+        ) COMMENT = '$version'
+    |);
+
+
     # The Table is empty? Make a default User ...
     unless($self->{dbh}->selectrow_arrayref('SELECT SQL_CACHE count(*) from USER')->[0]) {
         $self->_insert({
@@ -227,6 +210,24 @@ sub _init {
             Level => 'admin',
         });
     }
+
+    # Repair later Data ...
+    main::after(sub{
+
+        # Remove old data
+        $self->{dbh}->do('delete from SESSION');
+
+        # Remove expires session every one hour
+        Event->timer(
+            interval => 60 * 60,
+            prio => 6,  # -1 very hard ... 6 very low
+            cb => sub{
+                lg sprintf('Remove expires session.');
+                $self->deleteSession();
+            },
+        );
+        return 1;
+    }, "USER: Remove expires session ...");
 }
 
 
@@ -651,10 +652,117 @@ from
 }
 
 # ------------------
+# Name:  login
+# Descr: login an existing User
+# Usage: my $ok = $self->login($console, $id, [$data]);
+# ------------------
+sub login {
+    my $self = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
+    my $id      = shift || 0;
+    my $data    = shift || 0;
+    
+    $console->setCall('nothing');
+    if(exists $console->{USER}->{Level}) {
+      $console->err(gettext('You are already authorized to use this system!'));
+      return;
+    } else {
+      my $questions = [
+          'name' => {
+              msg   => gettext("Name of user account"),
+              req   => gettext('This is required!'),
+              def   => '',
+          },
+          'password' => {
+              typ   => 'password',
+              msg   => gettext("Password for this account"),
+              req   => gettext('This is required!'),
+              def   => ''
+          }
+      ];
+
+      # Ask Questions
+      $data = $console->question(gettext('Authorization required'), $questions, $data);
+    }
+    if(ref $data eq 'HASH') {
+        debug sprintf('Account with name "%s" try login',
+            $data->{name}
+        );
+
+        my $ip = getip($console->{handle});
+        my $user = $self->_checkUser($data->{name}, $data->{password}, $ip);
+        
+        unless($user) {
+          if($console->typ eq 'HTML') {
+            $console->statusmsg(403,gettext('You are not authorized to use this system!')
+                                ,gettext("Forbidden"));
+          } else {
+            $console->err(gettext('You are not authorized to use this system!'));
+          }
+          return;
+        }
+
+        if(my $level = $self->getLevel($user->{Level})) {
+            $user->{value} = $level if($level);
+        }
+
+        $console->{USER} = $user;
+        if($console->typ eq 'HTML') {
+          my $start = $user->{config}->{'HTTPD'}->{StartPage};
+          $console->statusmsg(301,$start ? sprintf('?cmd=%s',$start):'?cmd=n');
+        } else {
+          $console->message(gettext('Welcome to xxv!'));
+        }
+    }
+    return 1;
+}
+# ------------------
 # Name:  logout
 # Descr: The routine for logout the user, this will clean the user temp files.
 # Usage: my $ok = $self->logout();
 # ------------------
+sub logout {
+    my $self = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
+
+    if($self->{active} eq 'y') {
+        $console->{USER}->{sid} = '';
+
+        $console->message(gettext("Session closed."));
+        $console->redirect({url => '?', parent => 'top', wait => 2})
+            if($console->typ eq 'HTML');
+
+        my $ConsoleMod;
+        my $delayed = 0;
+        if($console->typ eq 'HTML' || $console->typ eq 'AJAX') {
+          $ConsoleMod = main::getModule('HTTPD');
+          $delayed = 1;
+        } elsif ($console->typ eq 'WML') {
+          $ConsoleMod = main::getModule('WAPD');
+          $delayed = 1;
+        } elsif ($console->typ eq 'CONSOLE') {
+          $ConsoleMod = main::getModule('TELNET');
+        };
+
+        if($delayed) {
+          # Close session delayed, give browser my time load depends files like style.css
+          Event->timer(
+              after => 1,
+              prio => 6,  # -1 very hard ... 6 very low
+              cb => sub{
+                  $self->_logout($console,$config);
+                  $ConsoleMod->{LOGOUT} = 1 if($ConsoleMod);
+              },
+          );
+        } else  {
+          $self->_logout($console,$config);
+          $ConsoleMod->{LOGOUT} = 1 if($ConsoleMod);
+        }
+    }
+}
+
 sub _logout {
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
@@ -664,6 +772,8 @@ sub _logout {
         $console->{USER}->{Name} ? sprintf(" by user %s", $console->{USER}->{Name}) : "" 
         );
 
+    $self->_closeSession($console->{USER}->{Id});
+
     main::toCleanUp($console->{USER}->{Name});
     return 1;
 }
@@ -672,9 +782,7 @@ sub _logout {
 sub _checkIp {
 # ------------------
     my $self = shift || return error('No object defined!');
-    my $handle = shift || return;
-
-    my $ip = getip($handle);
+    my $ip = shift || return;
 
     if($self->{withAuth}) {
         my $regexp = create_iprange_regexp(split(/\s*,\s*/, $self->{withAuth}));
@@ -702,38 +810,32 @@ sub _checkIp {
 sub check {
     my $self = shift || return error('No object defined!');
     my $handle = shift || return;
+    my $sid = shift;
+
+    my $ip = getip($handle);
 
     my $user;
     if($self->{active} ne 'y' 
-        or $self->_checkIp($handle)) {
+        or $self->_checkIp($ip)) {
         $user->{Name} = 'su'; # we are Superuser
         $user->{Level} = 'admin';
         #$user->{MaxLifeTime} = 0; #0 - disabled
         #$user->{MaxPriority} = 0; #0 - disabled
         $user->{config} = main::getModule('CONFIG')->{config};
     } else {
-        my $name = shift || return;
-        my $password = shift || return;
-
-        # check User
-        my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE * from USER where Name = ? and Password = md5( ? )');
-        $sth->execute($name, $password)
-            or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-        $user = $sth->fetchrow_hashref();
-
-        return undef 
-          unless($user);
-
-        $user->{config} = make_cow_ref(main::getModule('CONFIG')->{config});
-
-        # Set the user settings from user
-        $self->applySettings($user->{UserPrefs}, $user->{config})
-          if($user->{UserPrefs});
-
-        # Set the user settings from admin
-        $self->applySettings($user->{Prefs}, $user->{config})
-          if($user->{Prefs});
+        if(defined $sid) {
+          $user = $self->_checkSession($sid,$ip);
+        }
+        unless($user) {
+          my $name = shift || return;
+          my $password = shift || return;
+          
+          $user = $self->_checkUser($name, $password, $ip);
+        }
     }
+
+    return undef 
+      unless($user);
 
     if(my $level = $self->getLevel($user->{Level})) {
         $user->{value} = $level if($level);
@@ -742,6 +844,110 @@ sub check {
     return $user;
 }
 
+sub _checkUser {
+    my $self = shift || return error('No object defined!');
+    my $name = shift;
+    my $password = shift;
+    my $ip = shift;
+
+    my $user;
+    # check User
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE USER.Id as Id,Name,Level,Prefs,UserPrefs,Deny,MaxLifeTime,MaxPriority from USER where Name = ? and Password = md5( ? )');
+    $sth->execute($name, $password)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    $user = $sth->fetchrow_hashref();
+
+    return undef 
+      unless($user);
+
+    $user->{sid} = $self->_createSession($user->{Id},$ip);
+
+    $user->{config} = make_cow_ref(main::getModule('CONFIG')->{config});
+
+    # Set the user settings from user
+    $self->applySettings($user->{UserPrefs}, $user->{config})
+      if($user->{UserPrefs});
+
+    # Set the user settings from admin
+    $self->applySettings($user->{Prefs}, $user->{config})
+      if($user->{Prefs});
+
+    return $user;
+}
+
+sub _createSession {
+    my $self = shift || return error('No object defined!');
+    my $uid = shift;
+    my $ip = shift;
+
+    $self->_closeSession($uid);
+
+    for(my $c = 3; $c >= 1; $c--) {
+      my $random =  int( rand(4294967296) ); 
+      my $sessionID = md5_hex( $ip . $random . time());
+      my $sth = $self->{dbh}->prepare('INSERT INTO SESSION VALUES (0,?,?,?,TIMESTAMPADD(HOUR,4,NOW()))');
+      if($sth->execute( $sessionID, $uid, $ip )) {
+        return $sessionID;
+      }
+    }
+    return undef;
+}
+
+sub _updateSession {
+    my $self = shift || return error('No object defined!');
+    my $sid = shift;
+
+    my $sth = $self->{dbh}->prepare('UPDATE SESSION SET expires=TIMESTAMPADD(HOUR,4,NOW()) where sid=(?)');
+    $sth->execute( $sid );
+}
+
+sub _deleteSession {
+    my $self = shift || return error('No object defined!');
+
+    my $sth = $self->{dbh}->prepare('DELETE FROM SESSION where expires < NOW()');
+    $sth->execute( );
+}
+
+sub _closeSession {
+    my $self = shift || return error('No object defined!');
+    my $uid = shift;
+
+    my $sth = $self->{dbh}->prepare('DELETE FROM SESSION where uid = (?)');
+    $sth->execute($uid);
+}
+
+sub _checkSession {
+    my $self = shift || return error('No object defined!');
+    my $sid = shift;
+    my $ip = shift;
+
+    chomp($sid);
+  	$sid =~ s/(\r|\n)//g;
+
+    my $user;
+    # check User
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE SQL_CACHE USER.Id as Id,Name,Level,Prefs,UserPrefs,Deny,MaxLifeTime,MaxPriority,sid from USER,SESSION where USER.Id = SESSION.uid and SESSION.sid = ( ? ) and SESSION.source = ( ? ) and SESSION.expires > NOW()');
+    $sth->execute($sid, $ip)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    $user = $sth->fetchrow_hashref();
+
+    return undef 
+      unless($user);
+
+    $self->_updateSession($user->{sid});
+
+    $user->{config} = make_cow_ref(main::getModule('CONFIG')->{config});
+
+    # Set the user settings from user
+    $self->applySettings($user->{UserPrefs}, $user->{config})
+      if($user->{UserPrefs});
+
+    # Set the user settings from admin
+    $self->applySettings($user->{Prefs}, $user->{config})
+      if($user->{Prefs});
+
+    return $user;
+}
 # ------------------
 sub applySettings {
 # ------------------
@@ -835,7 +1041,9 @@ sub checkCommand {
                 $cmdname = $cmdName;
                 $cmdModule = $modCfg->{Name};
                 # Check on active Modul
-                if(exists $mods->{$modName}->{active} and $console->{USER}->{config}->{$modCfg->{Name}}->{active} eq 'n') {
+                if(exists $mods->{$modName}->{active} 
+                    and exists $console->{USER}->{config}->{$modCfg->{Name}}->{active}
+                    and $console->{USER}->{config}->{$modCfg->{Name}}->{active} eq 'n') {
                     $err = sprintf(gettext("Sorry, but the module %s is inactive! Enable it with %s:Preferences:active = y"),
                         $cmdModule, $cmdModule);
                     $shorterr = 'noactive';

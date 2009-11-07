@@ -195,6 +195,7 @@ sub parseTemplateFile {
         verbose => $self->{debug},
         user    => $self->{USER}->{Name},
         charset => $self->{charset},
+        skin    => $self->{SkinName},
         # query the current locale
         locale  => main::getGeneralConfig->{Language},
         allow   => sub{
@@ -386,6 +387,13 @@ sub header {
       $arg->{'Pragma'} = 'no-cache' unless(defined $arg->{'Pragma'});
     }
 
+    if($self->{USER} && $self->{USER}->{sid}) { 
+      $arg->{'cookie'} = $self->{cgi}->cookie({
+        "name" => "sid",
+        "value" => $self->{USER}->{sid},
+        "expires" => "+4h"});
+    }
+
     $self->{header} = 200;
     return $self->{cgi}->header(
         -type   =>  $typ,
@@ -432,6 +440,13 @@ sub statusmsg {
 
         my $arg = {};
 
+        if($self->{USER} && $self->{USER}->{sid}) { 
+          $arg->{'cookie'} = $self->{cgi}->cookie({
+            "name" => "sid",
+            "value" => $self->{USER}->{sid},
+            "expires" => "+4h"});
+        }
+
         $arg->{'Location'} = $msg
             if($state == 301);
 
@@ -465,7 +480,14 @@ sub login {
     my $self = shift || return error('No object defined!');
     my $msg = shift || '';
 
-    $self->statusmsg(401,$msg,gettext("Authorization required"));
+    if(-e sprintf('%s/login.tmpl', $self->{Skin})) {
+      $self->{nopack} = 1;
+      $self->{call} = 'login';
+      my $params = {};
+      $self->out( $self->parseTemplateFile("index", {}, $params, $self->{call}));
+    } else {
+      $self->statusmsg(401,$msg,gettext("Authorization required"));
+    }
 }
 
 # ------------------
@@ -1031,6 +1053,7 @@ sub setSkin {
     my $self = shift || return error('No object defined!');
     my $name = shift || return error ('No skin defined!');
 
+    $self->{SkinName} = $name;
     $self->{Skin} = sprintf('%s/%s', $self->{htmdir}, $name);
     return $self->{Skin};
 }

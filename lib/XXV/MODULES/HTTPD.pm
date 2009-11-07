@@ -45,8 +45,9 @@ sub module {
             'IO::Socket::INET'  => 'Object interface for AF_INET domain sockets ',
             'MIME::Base64'      => 'Encoding and decoding of base64 strings',
             'CGI qw/:push -nph -no_xhtml -compile/'
-                                => 'Simple Common Gateway Interface Class',
-            'Compress::Zlib'    => 'Interface to zlib compression library. ',
+                                => 'Simple Common Gateway Interface Class'
+            ,'CGI::Cookie'      => 'Interface to Netscape Cookies'
+            ,'Compress::Zlib'   => 'Interface to zlib compression library'
         },
         Description => gettext('This module is a multisession HTTPD server.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -269,9 +270,26 @@ sub communicator {
     unless(ref $userMod) {
       $self->ModulNotLoaded($console,'USER');
     } else {
-      $console->{USER} = $userMod->check($handle, $data->{username}, $data->{password});
+      $console->{USER} = $userMod->check($handle, $data->{sid}, $data->{username}, $data->{password});
       unless(exists $console->{USER}->{Level}) {
-        $console->login(gettext('You are not authorized to use this system!'));
+        # Allow default graphics and styles at login
+        if(my $typ = $mime->{lc((split('\.', $data->{Request}))[-1])}) {
+            # Send multimedia files (this must registered in $mime!)
+            my $request = $data->{Request};
+            $request =~ s/\.\.\///g;
+            $request =~ s/\/\.\.//g;
+            $request =~ s/\/+/\//g;
+            if($request !~ /tempimages\//) {
+               $console->datei($htmlRootDir . $request, $typ);
+            }
+        } else {
+          if($cgi->param('cmd') 
+             and $cgi->param('cmd') eq 'login') {
+            $self->handleInput($console, $cgi);
+          } else {
+            $console->login(gettext('You are not authorized to use this system!'));
+          }
+        }
       } else {
         $console->setCall('nothing');
         my $config = $console->{USER}->{config}->{'HTTPD'};
@@ -388,7 +406,13 @@ sub parseRequest {
     		} elsif($line =~ /If-None-Match: (\S+)/i) {
     			$data->{Match} = $1;
     		} elsif($line =~ /Cookie: (\S+)=(\S+)/i) {
-    			$data->{$1} = $2;
+          my %cookies =  CGI::Cookie->parse($line);
+          foreach (keys %cookies) {
+            if(exists $cookies{$_}->{value} 
+              and scalar($cookies{$_}->{value})) {
+                $data->{$_} = $cookies{$_}->{value}[0];
+            } 
+          }
     		} elsif($line =~ /Content-Type: (\S+)/i) {
     			$data->{ContentType} = $1;
     		} elsif($line =~ /Content-Length: (\S+)/i) {

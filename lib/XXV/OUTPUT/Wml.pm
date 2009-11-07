@@ -201,6 +201,13 @@ sub header {
     my $typ = shift || return error ('No Type!' );
     my $arg = shift || {};
 
+    if($self->{USER} && $self->{USER}->{sid}) { 
+      $arg->{'cookie'} = $self->{cgi}->cookie({
+        "name" => "sid",
+        "value" => $self->{USER}->{sid},
+        "expires" => "+4h"});
+    }
+
     $self->{header} = 200;
     return $self->{cgi}->header(
         -type   =>  $typ,

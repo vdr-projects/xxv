@@ -238,6 +238,13 @@ sub header {
     $arg->{'Cache-Control'} = 'no-cache, must-revalidate' if(!defined $arg->{'Cache-Control'});
     $arg->{'Pragma'} = 'no-cache' if(!defined $arg->{'Pragma'});
 
+    if($self->{USER} && $self->{USER}->{sid}) { 
+      $arg->{'cookie'} = $self->{cgi}->cookie({
+        "name" => "sid",
+        "value" => $self->{USER}->{sid},
+        "expires" => "+4h"});
+    }
+
     $self->{header} = 200;
     return $self->{cgi}->header(
         -type   =>  $typ,
