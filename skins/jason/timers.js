@@ -509,7 +509,7 @@ Ext.xxv.timerPreview = function(viewer) {
         region: 'south',
         cls:'preview',
         autoScroll: true,
-        stateful:true,
+        stateful:false,
         tbar: [ 
        {
              id:'s'

@@ -92,7 +92,7 @@ Ext.xxv.RemoteWindow = function() {
                  { scale: 'medium', scope: this, width: 32, iconCls: 'remote-backward-icon', handler: function() { this.onRemote('FastRew'); } }
                 ,{ xtype: 'spacer', width: 6 }
                 ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-record-icon', handler: function() { this.onRemote('Record'); } }
-                ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-playback-icon', handler: function() { this.onRemote('Playback'); } }
+                ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-playback-icon', handler: function() { this.onRemote('Play'); } }
                 ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-pause-icon', handler: function() { this.onRemote('Pause'); } }
                 ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-stop-icon', handler: function() { this.onRemote('Stop'); } }
                 ,{ xtype: 'spacer', width: 6 }

@@ -241,7 +241,7 @@ Ext.xxv.programPreview = function(viewer) {
         region: 'south',
         cls:'preview',
         autoScroll: true,
-        stateful:true,
+        stateful:false,
         tbar: [ {
             id:'s',
             tooltip: Ext.xxv.NowGrid.prototype.szFindReRun,

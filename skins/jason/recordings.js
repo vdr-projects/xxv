@@ -1106,7 +1106,7 @@ function createRecordingsView(viewer,id) {
         region: 'south',
         cls:'preview',
         autoScroll: true,
-        stateful:true,
+        stateful:false,
         timefield : timefield,
         layout: {
             type:'vbox'

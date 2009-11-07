@@ -5,7 +5,7 @@
 <?% lang = locale.split('_') %?>
 <html xmlns="http://www.w3.org/1999/xhtml" <?% IF lang.1 %?>xml:lang="<?% lang.0 %?>" lang="<?% lang.0 %?>"<?% ELSE %?>xml:lang="en" lang="en"<?% END %?>>
 <head>
-    <link rel="stylesheet" type="text/css" href="style.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="style-<?% skin %?>.css" media="all" />
     <link rel="stylesheet" type="text/css" href="print.css" media="print" />
 <?% IF call == 'vtxpage' %?>
     <link rel="stylesheet" type="text/css" href="vtxgfx.css" media="all" />
