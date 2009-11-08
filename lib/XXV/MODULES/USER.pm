@@ -215,7 +215,7 @@ sub _init {
     main::after(sub{
 
         # Remove old data
-        $self->{dbh}->do('delete from SESSION');
+        $self->_deleteSession();
 
         # Remove expires session every one hour
         Event->timer(
@@ -223,7 +223,7 @@ sub _init {
             prio => 6,  # -1 very hard ... 6 very low
             cb => sub{
                 lg sprintf('Remove expires session.');
-                $self->deleteSession();
+                $self->_deleteSession();
             },
         );
         return 1;

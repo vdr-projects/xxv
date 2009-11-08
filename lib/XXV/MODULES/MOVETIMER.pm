@@ -384,6 +384,8 @@ sub movetimeredit {
 
     my $modC = main::getModule('CHANNELS');
 
+    my $vlist = $self->{svdrp}->enum_onlinehosts();
+
     my $rule;
     if($id and not ref $data) {
         my $sth = $self->{dbh}->prepare("select * from MOVETIMER where id = ?");
@@ -393,10 +395,14 @@ sub movetimeredit {
 
     } elsif (ref $data eq 'HASH') {
         $rule = $data;
+        if(scalar @$vlist <= 1) {
+          $data->{sourcevid} = $self->{svdrp}->primary_hosts();
+          $data->{destinationvid} = $self->{svdrp}->primary_hosts();
+        }
     }
 
     my $con = $console->typ eq "CONSOLE";
-    my $vlist = $self->{svdrp}->enum_onlinehosts();
+
 
     my $questions = [
         'id' => {
@@ -420,8 +426,8 @@ sub movetimeredit {
                 return undef, gettext("This is required!")
                   unless($value);
 
-                my $ch = $modC->ToCID($value,$rule->{sourcevid});
-                return undef, sprintf(gettext("Channel '%s' does not exist on video disk recorder %s!"),$value, $self->{svdrp}->hostname($rule->{sourcevid}))
+                my $ch = $modC->ToCID($value,$data->{sourcevid});
+                return undef, sprintf(gettext("Channel '%s' does not exist on video disk recorder %s!"),$value, $self->{svdrp}->hostname($data->{sourcevid}))
                   unless($ch);
                 return $ch;                
             },
@@ -443,8 +449,8 @@ sub movetimeredit {
                 return undef, gettext("This is required!")
                   unless($value);
 
-                my $ch = $modC->ToCID($value,$rule->{destinationvid});
-                return undef, sprintf(gettext("Channel '%s' does not exist on video disk recorder %s!"),$value, $self->{svdrp}->hostname($rule->{destinationvid}))
+                my $ch = $modC->ToCID($value,$data->{destinationvid});
+                return undef, sprintf(gettext("Channel '%s' does not exist on video disk recorder %s!"),$value, $self->{svdrp}->hostname($data->{destinationvid}))
                   unless($ch);
                 return $ch;                
             },
