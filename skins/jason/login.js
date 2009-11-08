@@ -1,3 +1,12 @@
+/*
+ * jason - Javascript based skin for xxv
+ * Copyright(c) 2009, anbr
+ * 
+ * http://xxv.berlios.de/
+ *
+ * $Id$
+ */
+
 Ext.LoginPanel = function() {
 
     Ext.LoginPanel.superclass.constructor.call(this, {
