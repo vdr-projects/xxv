@@ -319,7 +319,8 @@ sub login {
     my $self = shift || return error('No object defined!');
     my $msg = shift || '';
 
-    $self->statusmsg(401,$msg,gettext("Authorization required"));
+    # Send 403 insteed 401, deny all ajax logins
+    $self->statusmsg(403,$msg,gettext("Authorization required"));
 }
 
 # ------------------
@@ -448,7 +449,6 @@ sub msg {
     my $data = shift || 0;
     my $err  = shift || 0;
 
-    my $state = $err ? 'error' : 'success';
     my $msg;
     if(ref $data eq 'ARRAY') {
       $msg = join("\r\n",@{$data});
@@ -456,9 +456,8 @@ sub msg {
       $msg = $data;
     }
 
-    $self->out( $msg, { state => $state }, 'msg' );
-
-    #$self->{call} = '';
+    $self->{output}->{success} = $err ? \0 : \1;
+    $self->out( $msg, 0, 'msg' );
 }
 
 # ------------------

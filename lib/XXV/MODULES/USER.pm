@@ -875,12 +875,14 @@ sub _checkUser {
     return $user;
 }
 
+# Create new session 
 sub _createSession {
     my $self = shift || return error('No object defined!');
     my $uid = shift;
     my $ip = shift;
 
-    $self->_closeSession($uid);
+    #Close all session with same uid
+    #$self->_closeSession($uid);
 
     for(my $c = 3; $c >= 1; $c--) {
       my $random =  int( rand(4294967296) ); 
@@ -893,6 +895,7 @@ sub _createSession {
     return undef;
 }
 
+# Update timestamp of expires sessions
 sub _updateSession {
     my $self = shift || return error('No object defined!');
     my $sid = shift;
@@ -901,6 +904,7 @@ sub _updateSession {
     $sth->execute( $sid );
 }
 
+# Delete expires sessions
 sub _deleteSession {
     my $self = shift || return error('No object defined!');
 
@@ -908,6 +912,7 @@ sub _deleteSession {
     $sth->execute( );
 }
 
+# Close all session with same uid
 sub _closeSession {
     my $self = shift || return error('No object defined!');
     my $uid = shift;
@@ -916,6 +921,7 @@ sub _closeSession {
     $sth->execute($uid);
 }
 
+# Check exits session by sid and ip
 sub _checkSession {
     my $self = shift || return error('No object defined!');
     my $sid = shift;

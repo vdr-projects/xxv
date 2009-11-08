@@ -405,8 +405,8 @@ sub parseRequest {
     			$data->{accept_gzip} = 1;
     		} elsif($line =~ /If-None-Match: (\S+)/i) {
     			$data->{Match} = $1;
-    		} elsif($line =~ /Cookie: (\S+)=(\S+)/i) {
-          my %cookies =  CGI::Cookie->parse($line);
+    		} elsif($line =~ /Cookie: (.*)/i) {
+          my %cookies =  CGI::Cookie->parse($1);
           foreach (keys %cookies) {
             if(exists $cookies{$_}->{value} 
               and scalar($cookies{$_}->{value})) {
