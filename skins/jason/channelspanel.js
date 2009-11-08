@@ -296,7 +296,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
       if(!o || !o.data || typeof(o.data) != 'string') {
         throw {message: "Ajax.read: Json message not found"};
       }
-      if(o.param && o.param.state && o.param.state == 'success') {
+      if(o.success) {
           new Ext.xxv.MessageBox().msgSuccess(this.szSwitchSuccess, o.data);
       }else {
           new Ext.xxv.MessageBox().msgFailure(this.szSwitchFailure, o.data);
@@ -341,7 +341,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
       if(!o || !o.data || typeof(o.data) != 'string') {
         throw {message: "Ajax.read: Json message not found"};
       }
-      if(o.param && o.param.state && o.param.state == 'success') {
+      if(o.success) {
           this.root.removeChild(options.node);
           var record = this.store.getById(options.id);
           if(record) {

@@ -131,7 +131,7 @@ Ext.extend(Ext.xxv.RemoteWindow, Ext.Window, {
       if(!o || !o.data || typeof(o.data) != 'string') {
         throw {message: "Ajax.read: Json message not found"};
       }
-      if(o.param && o.param.state && o.param.state == 'success') {
+      if(o.success) {
           //new Ext.xxv.MessageBox().msgSuccess(this.szRemoteSuccess, o.data);
       }else {
           new Ext.xxv.MessageBox().msgFailure(this.szRemoteFailure, o.data);

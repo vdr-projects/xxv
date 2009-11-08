@@ -316,7 +316,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
         this.el.unmask();
         var o = eval("("+response.responseText+")");
         if(o && o.data && typeof(o.data) == 'string' 
-             && o.param && o.param.state && o.param.state == 'success') {
+             && o.success) {
             new Ext.xxv.MessageBox().msgSuccess(this.szSuccess, o.data);
             this.hide();
             if(this.parentstore)

@@ -814,7 +814,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         var o = eval("("+response.responseText+")");
 
         if(o && o.data && typeof(o.data) == 'string' 
-             && o.param && o.param.state && o.param.state == 'success') {
+             && o.success) {
 
             new Ext.xxv.MessageBox().msgSuccess(this.szCutSuccess, o.data);
 
@@ -876,7 +876,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         var o = eval("("+response.responseText+")");
 
         if(o && o.data && typeof(o.data) == 'string' 
-             && o.param && o.param.state && o.param.state == 'success') {
+             && o.success) {
 
             new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
 
@@ -963,7 +963,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(!o || !o.data || typeof(o.data) != 'string') {
         throw {message: "Ajax.read: Json message not found"};
       }
-      if(o.param && o.param.state && o.param.state == 'success') {
+      if(o.success) {
           new Ext.xxv.MessageBox().msgSuccess(this.szPlayBackSuccess, o.data);
       }else {
           new Ext.xxv.MessageBox().msgFailure(this.szPlayBackFailure, o.data);
@@ -1032,7 +1032,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         var o = eval("("+response.responseText+")");
 
         if(o && o.data && typeof(o.data) == 'string' 
-             && o.param && o.param.state && o.param.state == 'success') {
+             && o.success) {
 
             new Ext.xxv.MessageBox().msgSuccess(this.szUpgradeSuccess, o.data);
         		this.reload();

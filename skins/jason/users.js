@@ -181,7 +181,7 @@ Ext.extend(Ext.xxv.usersGrid,  Ext.grid.EditorGridPanel, {
         var o = eval("("+response.responseText+")");
 
         if(o && o.data && typeof(o.data) == 'string' 
-             && o.param && o.param.state && o.param.state == 'success') {
+             && o.success) {
             new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
 
             var gsm = this.getSelectionModel();

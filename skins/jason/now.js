@@ -335,7 +335,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         if(!o || !o.data || typeof(o.data) != 'string') {
           throw {message: "Ajax.read: Json message not found"};
         }
-        if(o.param && o.param.state && o.param.state == 'success') {
+        if(o.success) {
             new Ext.xxv.MessageBox().msgSuccess(this.szRecordSuccess, o.data);
             //this.timerstore.reload();
         }else {
