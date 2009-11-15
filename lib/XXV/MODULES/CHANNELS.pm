@@ -84,7 +84,6 @@ sub module {
                 description => gettext("List channels from database 'cname'"),
                 short       => 'cl',
                 callback    => sub{ $self->list(@_) },
-                Level       => 'user',
             },
             cnew => {
                 description => gettext("Create new channel"),

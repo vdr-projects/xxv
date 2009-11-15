@@ -117,6 +117,10 @@ sub start {
     defined(my $child = fork()) or die "Couldn't fork: $!";
     if($child == 0) {
         $obj->{dbh}->{InactiveDestroy} = 1;
+        my $modM = main::getModule('MUSIC');
+        if($modM->{mdbh}) {
+          $modM->{mdbh}->{InactiveDestroy} = 1;
+        }
         # create a new browser
         my $count = 0;
         foreach my $args (@{$obj->{jobs}->{$rname}}) {

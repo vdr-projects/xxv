@@ -407,6 +407,8 @@ sub _autotimerLookup {
     my $now = time;
     # Get Timersmodule
     my $modT = main::getModule('TIMERS');
+    $modT->_readData();
+
     foreach my $id (sort keys %$att) {
         my $a = $att->{$id};
 

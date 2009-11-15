@@ -968,6 +968,10 @@ sub _readData {
         } elsif ($child > 0) {
 
         } elsif ($child == 0) {
+            my $modM = main::getModule('MUSIC');
+            if($modM->{mdbh}) {
+              $modM->{mdbh}->{InactiveDestroy} = 1;
+            }
             $self->{dbh}->{InactiveDestroy} = 1;
             my $dbh = $self->{dbh}->clone();
             error(sprintf("Couldn't clone database handle : %s",$!)) unless($dbh);

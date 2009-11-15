@@ -194,6 +194,7 @@ sub parseTemplateFile {
         debug   => 0, # Avoid losing encoding like utf8
         verbose => $self->{debug},
         user    => $self->{USER}->{Name},
+        sid     => $self->{USER}->{sid},
         charset => $self->{charset},
         skin    => $self->{SkinName},
         # query the current locale
@@ -747,6 +748,10 @@ sub _stream {
     }
     elsif ($child == 0) {
       $self->{dbh}->{InactiveDestroy} = 1;
+      my $modM = main::getModule('MUSIC');
+      if($modM->{mdbh}) {
+        $modM->{mdbh}->{InactiveDestroy} = 1;
+      }
       eval 
       { 
         local $SIG{'__DIE__'};
@@ -825,6 +830,10 @@ sub proxy {
     }
     elsif ($child == 0) {
       $self->{dbh}->{InactiveDestroy} = 1;
+      my $modM = main::getModule('MUSIC');
+      if($modM->{mdbh}) {
+        $modM->{mdbh}->{InactiveDestroy} = 1;
+      }
       eval { 
         local $SIG{'__DIE__'};
         lg(sprintf("Send request %s",$request));

@@ -614,7 +614,9 @@ sub list {
 		  };
 
 	    my $t;
-		  if($typ eq 'genre') {
+		  if($typ eq 'all') {
+
+		  } elsif($typ eq 'genre') {
 		      $t = ($self->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
 
 					# caching genres
@@ -632,7 +634,9 @@ sub list {
 		      $t = ($self->{mdbh} ? 'tracks.'.$translate->{$typ} : uc($typ));
 		  }
 
-			if($typ eq 'genre' && $self->{mdbh}) {
+			if($typ eq 'all') {
+        $search = '1';
+			} elsif($typ eq 'genre' && $self->{mdbh}) {
         $search = sprintf("%s LIKE ?", $t);  #?%
         push(@{$term},$text.'%');
 	    } else {
@@ -861,6 +865,9 @@ sub stream {
     if($child == 0) {
         $self->{SOCK}->close;
         $self->{dbh}->{InactiveDestroy} = 1;
+        if($self->{mdbh}) {
+          $self->{mdbh}->{InactiveDestroy} = 1;
+        }
 
         foreach my $file (@uniqu) {
 

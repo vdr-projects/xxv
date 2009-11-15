@@ -31,7 +31,8 @@ my $mime = {
     mpeg => ["video/x-mpeg",            'nopack','attachment'],
     mov  => ["video/quicktime",         'nopack','attachment'],
     wmv  => ["video/x-ms-wmv",          'nopack','attachment'],
-    flv  => ["video/x-flv",             'nopack','attachment']
+    flv  => ["video/x-flv",             'nopack','attachment'],
+    swf  => ["application/x-shockwave-flash", 'nopack','attachment']
 };
 
 # This module method must exist for XXV

@@ -1469,8 +1469,7 @@ SELECT SQL_CACHE t.id, t.vid, t.pos, t.flags, t.channel, t.priority, t.lifetime,
         ABS(UNIX_TIMESTAMP(t.stoptime)-(UNIX_TIMESTAMP(t.eventstarttime) + t.eventduration)) as lag
 
         FROM TIMERS as t, EPG as e 
-        WHERE (flags & 1) 
-        AND e.eventid > 0 
+        WHERE e.eventid > 0 
         AND t.eventid = e.eventid
         AND (
                    (((t.flags & 4) = 0) AND e.starttime != t.eventstarttime) 
