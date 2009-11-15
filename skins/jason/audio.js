@@ -4,7 +4,7 @@
  * 
  * http://xxv.berlios.de/
  *
- * $Id: audio.js 1391 2009-01-18 17:51:15Z anbr $
+ * $Id$
  */
 
 Ext.xxv.AudioWindow = function(item) {
