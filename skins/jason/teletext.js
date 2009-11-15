@@ -276,7 +276,6 @@ function createTeleTextView(viewer,id,name, channel) {
       ,border:false
       ,layout:'border'
       ,stateful:true
-      ,hideMode:'offsets'
       ,items:[ viewer.pageTeleText ]
       ,tbar:new Ext.Toolbar({
         items: [

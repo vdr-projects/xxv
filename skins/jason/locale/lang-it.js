@@ -238,10 +238,17 @@ Ext.xxv.vdrGrid.prototype.szLoadException = "Impossibile recuperare dati su Vide
 Ext.xxv.vdrGrid.prototype.szDeleteSuccess = "Eliminazione Video Disk Recorder riuscita.\r\n{0}";
 Ext.xxv.vdrGrid.prototype.szDeleteFailure = "Impossibile eliminare Video Disk Recorder!\r\n{0}";
 
+/* audio.js */
+/*NEED TO TRANSLATE*/ Ext.xxv.AudioWindow.prototype.szTitle = "Musica riproduci";
+
 /* music.js */
 Ext.xxv.musicGrid.prototype.szTitle = "Musica";
 Ext.xxv.musicGrid.prototype.szToolTip = "Mostra elenco titoli musicali";
-Ext.xxv.musicGrid.prototype.szFindTitle = "Cerca titolo";
+/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindTitle = "Search tracks with same title";
+/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindArtist = "Search tracks by same artist";
+/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindAlbum = "Search tracks from same album";
+/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindGenre = "Search tracks by same genre";
+Ext.xxv.musicGrid.prototype.szFindYear = "Search tracks from same year";
 Ext.xxv.musicGrid.prototype.szPlaying = "Riproduci";
 Ext.xxv.musicGrid.prototype.szColAlbum	 = "Album";
 Ext.xxv.musicGrid.prototype.szColArtist = "Artista";

@@ -403,7 +403,6 @@ function createAutoTimerView(viewer,id) {
       border:false,
       layout:'border',
       stateful:true,
-      hideMode:'offsets',
       items:[
             viewer.gridAutoTimer
             ]

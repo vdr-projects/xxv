@@ -477,7 +477,6 @@ function createNowView(viewer,id) {
             stateful:true,
             iconCls: 'channel-icon',
             layout:'border',
-            hideMode:'offsets',
             items:[
                 viewer.gridNow,
             {

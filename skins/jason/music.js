@@ -11,7 +11,7 @@ Ext.xxv.musicStore = function() {
 
     // create the data store
     return new Ext.data.GroupingStore({
-             baseParams:{cmd:'ml'}
+             baseParams:{cmd:'ml',data:'all:1'}
             ,autoLoad:{params:{start:0, limit:configuration.pageSize}}
             ,reader: new Ext.xxv.jsonReader({
                     fields: [
@@ -87,7 +87,17 @@ Ext.xxv.musicGrid = function(viewer) {
 
     var cm = new Ext.grid.ColumnModel(this.columns);
     cm.defaultSortable = true;
-
+    this.filter = new Ext.ux.grid.Search({
+               position:'top'
+              ,shortcutKey:null
+              ,paramNames: {
+                      fields:'cmd'
+                      ,all:'ml'
+                      ,defdata:'all:1'
+                      ,cmd:'ms'
+                      ,query:'data'
+                  }
+          });
     Ext.xxv.musicGrid.superclass.constructor.call(this, {
          region: 'center'
         ,id: 'music-view-grid'
@@ -116,16 +126,7 @@ Ext.xxv.musicGrid = function(viewer) {
                   ,handler: function(){ this.EditItem(null); }
               }
               ]*/})
-        ,plugins:[new Ext.ux.grid.Search({
-             position:'top'
-            ,shortcutKey:null
-            ,paramNames: {
-                    fields:'cmd'
-                    ,all:'ml'
-                    ,cmd:'ms'
-                    ,query:'data'
-                }
-        })]
+        ,plugins:[this.filter]
     });
 
     this.store.on({
@@ -135,14 +136,18 @@ Ext.xxv.musicGrid = function(viewer) {
     });
 
     this.on('rowcontextmenu', this.onContextClick, this);
-    //this.on('rowdblclick', this.onEditItem, this);
+    this.on('rowdblclick', this.onDblClick, this);
 };
 
 Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
 
      szTitle         : "Music"
     ,szToolTip       : "Display list of music title"
-    ,szFindTitle     : "Search title"
+    ,szFindTitle     : "Search tracks with same title"
+    ,szFindArtist    : "Search tracks by same artist"
+    ,szFindAlbum     : "Search tracks from same album"
+    ,szFindGenre     : "Search tracks by same genre"
+    ,szFindYear      : "Search tracks from same year"
     ,szPlaying       : "Playing"
     ,szColAlbum	     : "Album"
     ,szColArtist     : "Artist"
@@ -152,7 +157,7 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     ,szColYear       : "Year"
     ,szColGenre      : "Genre"
     ,szColComment    : "Comment"
-    ,szLoadException : "Couldn't get title from music list!\r\n{0}"
+    ,szLoadException : "Couldn't get tracks from music list!\r\n{0}"
  
     ,stateful:  true
 
@@ -167,21 +172,39 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
         if(!this.menu){ // create context menu on first right click
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
-                items: [/*{
-                     itemId:'s'
-                    ,text:  this.szFindTitle
-                    ,iconCls: 'find-icon'
-                    ,scope:this
-                    ,disabled: true
-                    ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
-                   },*/{
-                     itemId:'m3'
+                items: [{
+                     itemId:'mg'
                     ,text:  this.szPlaying
                     ,iconCls: 'playing-music-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.PlayingItem(this.ctxRecord); }
-                  }
+                  },'-',{
+                     text:  this.szFindTitle                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: false
+                    ,handler: function(){ this.reload('title', this.ctxRecord.data.title);}
+                   },{
+                     text:  this.szFindArtist                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: false
+                    ,handler: function(){ this.reload('artist', this.ctxRecord.data.artist);}
+                   },{
+                     text:  this.szFindAlbum                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: false
+                    ,handler: function(){ this.reload('album', this.ctxRecord.data.album);}
+                   }/*,{
+                     text:  this.szFindGenre                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: false
+                    ,handler: function(){ this.reload('genre', this.ctxRecord.data.genre);}
+                   }*/,{
+                     text:  this.szFindYear                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: false
+                    ,handler: function(){ this.reload('year', this.ctxRecord.data.year);}
+                   }
                 ]
             });
             this.menu.on('hide', this.onContextHide, this);
@@ -197,7 +220,7 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
 
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) {
-                      if(XXV.help.cmdAllowed(f.itemId)) 
+                      if(f.disabled && XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
                       },items); 
                   }
@@ -223,10 +246,31 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
               value
               );
     }
+    ,reload : function(topic, value) {
+        var f = this.filter.field.getValue();
+        if(f && f != '') {
+          this.filter.field.setValue('');
+        }
+        this.store.baseParams = {
+             cmd: 'ml'
+            ,data: topic + ':' + value
+        };
+        this.store.title = value;
+        this.store.load({params:{start:0, limit:configuration.pageSize}});
+    }
   /******************************************************************************/
+    ,onDblClick : function(grid, index, e) {
+      //if(e) e.stopEvent();
+      if(this.ctxRow){
+          Ext.fly(this.ctxRow).removeClass('x-node-ctx');
+          this.ctxRow = null;
+      }
+      var record = this.store.getAt(index);
+      this.PlayingItem(record);
+    }
     ,PlayingItem : function( record ) {
       this.stopEditing();
-      this.loadMask.show(); 
+      //this.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
       var sel = gsm.getSelections()
@@ -234,24 +278,28 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
        gsm.selectRecords([record]);
        sel.push(record);
       }
-      var todel = "";
+      var toplay = new Array();
+      var totitle = new Array();
+      var toartist = new Array();
+
       for(var i = 0, len = sel.length; i < len; i++){
-        if(i != 0)
-   	      todel += ',';
-	      todel += sel[i].data.id;
+	      toplay.push(XXV.help.cmdHTML('mg',{data:sel[i].data.id}));
+	      totitle.push(sel[i].data.title);
+	      toartist.push(sel[i].data.artist);
       }
 
 			var item = {
-			   url  : XXV.help.cmdHTML('m3',{data:todel})
-			  ,title: sel[0].data.title
+			   url  : toplay
+			  ,title: totitle 
+			  ,artist: toartist
 			};
 
-			if(!this.viewer.streamwin){
-			  this.viewer.streamwin = new Ext.xxv.StreamWindow(item);
+			if(!this.viewer.audiowin){
+			  this.viewer.audiowin = new Ext.xxv.AudioWindow(item);
 			} else {
-			  this.viewer.streamwin.show(item);
+			  this.viewer.audiowin.show(item);
 			}
-      this.loadMask.hide(); 
+      //this.loadMask.hide(); 
     }
 });
 
@@ -266,7 +314,6 @@ function createMusicView(viewer,id) {
       border:false,
       layout:'border',
       stateful:true,
-      hideMode:'offsets',
       items:[ viewer.musicGrid ]
     });
 

@@ -167,6 +167,9 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
             store.baseParams[this.paramNames.query] = val;
         } else {
             store.baseParams[this.paramNames.fields] = this.paramNames.all;
+            if(this.paramNames.defdata) {
+                store.baseParams[this.paramNames.query] = this.paramNames.defdata;
+            }
         }
 
         // reload store

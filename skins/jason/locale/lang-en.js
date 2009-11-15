@@ -238,10 +238,17 @@ Ext.xxv.vdrGrid.prototype.szLoadException = "Couldn't get data about video disk 
 Ext.xxv.vdrGrid.prototype.szDeleteSuccess = "Video disk recorder deleted successful.\r\n{0}";
 Ext.xxv.vdrGrid.prototype.szDeleteFailure = "Couldn't delete video disk recorder!\r\n{0}";
 
+/* audio.js */
+Ext.xxv.AudioWindow.prototype.szTitle = "Music playback";
+
 /* music.js */
 Ext.xxv.musicGrid.prototype.szTitle = "Music";
 Ext.xxv.musicGrid.prototype.szToolTip = "Display list of music title";
-Ext.xxv.musicGrid.prototype.szFindTitle = "Search title";
+Ext.xxv.musicGrid.prototype.szFindTitle = "Search tracks with same title";
+Ext.xxv.musicGrid.prototype.szFindArtist = "Search tracks by same artist";
+Ext.xxv.musicGrid.prototype.szFindAlbum = "Search tracks from same album";
+Ext.xxv.musicGrid.prototype.szFindGenre = "Search tracks by same genre";
+Ext.xxv.musicGrid.prototype.szFindYear = "Search tracks from same year";
 Ext.xxv.musicGrid.prototype.szPlaying = "Playing";
 Ext.xxv.musicGrid.prototype.szColAlbum	 = "Album";
 Ext.xxv.musicGrid.prototype.szColArtist = "Artist";
@@ -251,7 +258,7 @@ Ext.xxv.musicGrid.prototype.szColTrack = "Track";
 Ext.xxv.musicGrid.prototype.szColYear = "Year";
 Ext.xxv.musicGrid.prototype.szColGenre = "Genre";
 Ext.xxv.musicGrid.prototype.szColComment = "Comment";
-Ext.xxv.musicGrid.prototype.szLoadException = "Couldn't get title from music list!\r\n{0}";
+Ext.xxv.musicGrid.prototype.szLoadException = "Couldn't get tracks from music list!\r\n{0}";
 
 /* teletext */
 Ext.xxv.TeleTextView.prototype.szTitle = "Teletext";

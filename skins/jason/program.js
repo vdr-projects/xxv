@@ -305,7 +305,6 @@ function createProgramView(viewer,id, record) {
             iconCls: 'channel-icon',
             layout:'border',
             stateful:true,
-            hideMode:'offsets',
             closable:true,
             items:[
                 viewer.gridProgram,

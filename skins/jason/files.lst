@@ -8,12 +8,14 @@ ux/Multiselect.js \
 ux/TabCloseMenu.js \
 ux/Search.js \
 ux/SlideZone.js \
+audio-player/audio-player.js \
 common.js \
 reader.js \
 help.js \
 form.js \
 channelspanel.js \
 stream.js \
+audio.js \
 monitor.js \
 remote.js \
 channels.js \

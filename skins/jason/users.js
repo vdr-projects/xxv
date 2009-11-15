@@ -288,7 +288,6 @@ function createUsersView(viewer,id) {
       border:false,
       layout:'border',
       stateful:true,
-      hideMode:'offsets',
       items:[
             viewer.gridusers
             ]

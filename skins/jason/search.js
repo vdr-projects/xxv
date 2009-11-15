@@ -293,7 +293,6 @@ function createSearchView(viewer,id,lookup) {
       border:false,
       layout:'border',
       stateful:true,
-      hideMode:'offsets',
       items:[
             viewer.gridSearch,
             {
