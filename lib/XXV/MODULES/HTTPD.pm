@@ -32,7 +32,7 @@ my $mime = {
     mov  => ["video/quicktime",         'nopack','attachment'],
     wmv  => ["video/x-ms-wmv",          'nopack','attachment'],
     flv  => ["video/x-flv",             'nopack','attachment'],
-    swf  => ["application/x-shockwave-flash", 'nopack','attachment']
+    swf  => ["application/x-shockwave-flash", 'nopack','']
 };
 
 # This module method must exist for XXV
