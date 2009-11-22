@@ -276,12 +276,11 @@ function ttp_make_direct_visable(title, description, x, y){
       || Math.abs(y - ttp_y) > 15) {
         clearTimeout(ttp_timer);
         ttp_inside = 0;
-        return false;
+    } else {
+      ttp_x_start = ttp_x;
+      ttp_y_start = ttp_y;
+      ttp_make_visable(title,description,'description');
     }
-
-    ttp_x_start = ttp_x;
-    ttp_y_start = ttp_y;
-    ttp_make_visable(title,description,'description');
 }
 
 function ttp(self, title, description, offset_x){
