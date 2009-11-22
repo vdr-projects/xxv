@@ -238,6 +238,7 @@ Ext.xxv.vdrGrid.prototype.szDeleteFailure = "Konnte Video Disk Rekorder nicht l√
 
 /* audio.js */
 Ext.xxv.AudioWindow.prototype.szTitle = "Musikwiedergabe";
+Ext.xxv.AudioWindow.prototype.szNeedFlash = "Es wird ein aktueller Flash Player ben√∂tigt, damit die Musikwiedergabe funktioniert";
 
 /* music.js */
 Ext.xxv.musicGrid.prototype.szTitle = "Musik";

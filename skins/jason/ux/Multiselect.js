@@ -144,8 +144,8 @@ Ext.ux.Multiselect = Ext.extend(Ext.form.Field,  {
         var fs = new Ext.form.FieldSet({
             renderTo:this.el,
             title:this.legend,
-            height:this.height,
-            width:this.width,
+            height:this.height-16,
+            width:this.width-16,
             style:"padding:0;",
             tbar:this.tbar
         });

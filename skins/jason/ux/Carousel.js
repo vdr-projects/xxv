@@ -264,7 +264,8 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
             this.scrollRight.setHeight(this.scroller.getHeight());
         }
 
-		this.setItemsEdges();
+        if(!this.strip) return;
+    		this.setItemsEdges();
 
 //      If width increase has introduced spare space to the right, close it up.
         var r = this.getMaxScrollPos();

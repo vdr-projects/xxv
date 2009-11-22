@@ -179,7 +179,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             }
 		        config.valueField        = 'value';
 		        config.displayField      = 'display';
-		        config.width             = '100% -5';
+		        config.width             = '100%';
             if(len == 1) {
               config.hideLabel         = true;
               config.height            = 430; 
@@ -187,7 +187,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
                 this.title             = config.fieldLabel;
               }
             } else {
-  		        config.height            = 90;
+  		        config.height            = 120;
             }
 		        config.minLength         = 0;
 		        config.maxLength         = r[i].data.choices.length;

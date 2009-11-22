@@ -11,7 +11,7 @@ Ext.xxv.AudioWindow = function(item) {
 
     var width = 320;
     var height = 29;
-    var marginHeight = 30;
+    var marginHeight = 32;
     var marginWidth = 16;
 
     AudioPlayer.setup("audio-player/player.swf", { 
@@ -35,11 +35,9 @@ Ext.xxv.AudioWindow = function(item) {
         ,maximizable: false
         ,stateful: true
         ,items: [{
-          // id:'audio-player'
-           region: 'center'
-          ,width: width
+           width: width
           ,height: height
-          ,html: "<div id='audio-player'></div>"
+          ,html: "<div id='audio-player'><p>" + this.szNeedFlash +"</p></div>"
         }]
     });
     this.on('beforeshow', this.onBeforeShow, this);
@@ -47,7 +45,8 @@ Ext.xxv.AudioWindow = function(item) {
 }
 
 Ext.extend(Ext.xxv.AudioWindow, Ext.Window, {
-    szTitle: "Music playback"
+     szTitle: "Music playback"
+    ,szNeedFlash: "You need to get the latest Flash Player to hear music with this player"
     ,onBeforeShow : function(){
         if(!this.embed){
           for(var i = 0, len = this.item.url.length; i < len; i++){

@@ -56,7 +56,7 @@
   } @script;
   $stash->set(scripts => \@script);
   <?% END %?>
-<?% IF verbose != 0;scripts.1 = "ext-3.0.0/ext-all-debug.js";END %?>
+<?% IF verbose != 0;scripts.1 = "ext-3.0.3/ext-all-debug.js";END %?>
 <?% END %?>
 <?% FOREACH script = scripts %?>
 <script type="text/javascript" src="<?% script %?>"></script>

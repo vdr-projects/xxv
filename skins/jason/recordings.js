@@ -9,7 +9,7 @@
 /******************************************************************************/
 
 minTime = function() {
-	return Date.parseDate(Ext.form.TimeField.prototype.initDate, 
+  return Date.parseDate(Ext.form.TimeField.prototype.initDate, 
                         Ext.form.TimeField.prototype.initDateFormat).clearTime();
 }
 
@@ -1088,6 +1088,7 @@ function createRecordingsView(viewer,id) {
                 ,width: 100
                 ,format: 'H:i:s'
                 ,value: '00:00:00'
+                ,minValue: minTime()
                 ,increment:5
                 ,listeners: {
                   'expand': function(combo){
