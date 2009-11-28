@@ -111,7 +111,7 @@ Ext.xxv.programGrid = function(viewer, record) {
         ,scope:this
     });
     this.on('rowcontextmenu', this.onContextClick, this);
-    this.getSelectionModel().on('rowselect', this.preview.select, this.preview, {buffer:50});
+    this.getSelectionModel().on('rowselect', this.select, this, {buffer:50});
 };
 
 Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
@@ -202,8 +202,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     }
 
     ,reload : function(data) {
-        var f = this.filter.field.getValue();
-        if(f && f != '') {
+        if(this.filter.field.isValid()) {
           this.filter.field.setValue('');
         }
         this.store.baseParams = {
@@ -230,8 +229,11 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     }
     ,EditTimer : function(record) {
         this.viewer.gridNow.EditTimer(record, this.store);
-    } 
-
+    }
+    ,select : function(sm, index, record){
+      this.preview.select(sm, index, record, 
+        this.filter.getValue());
+    }
 });
 
 Ext.xxv.programPreview = function(viewer) {
@@ -271,9 +273,11 @@ Ext.xxv.programPreview = function(viewer) {
 
 Ext.extend(Ext.xxv.programPreview, Ext.Panel, {
 
-   select : function(sm, index, record){
+   select : function(sm, index, record, lookup){
     if(this.body)
       XXV.getTemplate().overwrite(this.body, record.data);
+    if(lookup)
+      highlightText(this.body.dom,lookup,'x-highlight',1);
 
     // Enable all toolbar buttons
     var items = this.topToolbar.items;

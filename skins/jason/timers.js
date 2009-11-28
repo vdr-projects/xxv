@@ -140,6 +140,16 @@ Ext.xxv.timerGrid = function(viewer) {
     ];
     var cm = new Ext.grid.ColumnModel(this.columns);
     cm.defaultSortable = false;
+    this.filter = new Ext.ux.grid.Search({
+             position:'top'
+            ,shortcutKey:null
+            ,paramNames: {
+                    fields:'cmd'
+                    ,all:'tl'
+                    ,cmd:'ts'
+                    ,query:'data'
+                }
+        });
 
     Ext.xxv.timerGrid.superclass.constructor.call(this, {
          region: 'center'
@@ -170,16 +180,7 @@ Ext.xxv.timerGrid = function(viewer) {
                   ,handler: function(){ this.EditItem(null); }
               }
               ]})
-        ,plugins:[new Ext.ux.grid.Search({
-             position:'top'
-            ,shortcutKey:null
-            ,paramNames: {
-                    fields:'cmd'
-                    ,all:'tl'
-                    ,cmd:'ts'
-                    ,query:'data'
-                }
-        })]
+        ,plugins:[this.filter]
     });
 
     this.store.on({
@@ -190,7 +191,7 @@ Ext.xxv.timerGrid = function(viewer) {
     });
     this.on('rowcontextmenu', this.onContextClick, this);
     this.on('rowdblclick', this.onEditItem, this);
-    this.getSelectionModel().on('rowselect', this.preview.select, this.preview, {buffer:50});
+    this.getSelectionModel().on('rowselect', this.select, this, {buffer:50});
 };
 
 Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
@@ -500,6 +501,10 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       var record = this.store.getAt(index);
       this.EditItem(record);
     }
+    ,select : function(sm, index, record){
+      this.preview.select(sm, index, record, 
+        this.filter.getValue());
+    }
 });
 
 Ext.xxv.timerPreview = function(viewer) {
@@ -542,9 +547,11 @@ Ext.extend(Ext.xxv.timerPreview, Ext.Panel, {
    szFindReRun : "Find rerun"
   ,szEdit   : "Edit"
   ,szDelete : "Delete"
-  ,select : function(sm, index, record){
+  ,select : function(sm, index, record, lookup){
     if(this.body)
       XXV.getTemplate().overwrite(this.body, record.data);
+    if(lookup)
+      highlightText(this.body.dom,lookup,'x-highlight',1);
 
     // Enable all toolbar buttons
     var items = this.topToolbar.items;

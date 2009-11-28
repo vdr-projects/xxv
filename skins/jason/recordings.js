@@ -145,7 +145,7 @@ Ext.extend(Ext.xxv.RecHeader, Ext.Component, {
         this.tpl.compile();  
     },
 
-    setvalue : function(data){
+    setvalue : function(data, lookupdata){
 
       this.param = {
          title:     data.fulltitle
@@ -157,6 +157,7 @@ Ext.extend(Ext.xxv.RecHeader, Ext.Component, {
         ,stop:      new Date(data.day.getTime() + (data.duration * 1000)).dateFormat('H:i')
         ,cutlength: data.cutlength == data.duration ? null : SecondsToHMS(data.cutlength)
         ,period:    SecondsToHMS(data.duration)
+        ,lookup:    lookupdata
       };
 
       var title = data.title.split("~");
@@ -171,6 +172,8 @@ Ext.extend(Ext.xxv.RecHeader, Ext.Component, {
     render : function(ct, position){
       if(this.param) {
           this.tpl.overwrite(ct, this.param);
+          if(this.param.lookup)
+            highlightText(ct.dom,this.param.lookup,'x-highlight',1);
         }
     }
 });
@@ -414,7 +417,6 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
                     ,multiSelect: true
                     ,overClass:'x-view-over'
                     ,itemSelector:'div.thumb-wrap'
-                    ,loadMask:true
                     ,prepareData: function(data){
                       if(data.id != 'up' && this.store.baseParams.data && this.store.baseParams.cmd == 'rl') {
 
@@ -594,8 +596,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                 delete(this.store.baseParams['data']);
                 this.store.baseParams.cmd = 'rl';
                 if(record.id == 'up') {
-                  var f = this.filter.field.getValue();
-                  if(f && f != '') {
+                  if(this.filter.field.isValid()) {
                     this.filter.field.setValue('');
                   }
                   var Woerter = data.split("~");
@@ -625,7 +626,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         }
     },
 	  showDetails : function(record){
-        this.preview.content(record);
+        this.preview.content(record,this.filter.getValue());
         this.DetailsItem(record);
 	  }, 
 /******************************************************************************/
@@ -650,7 +651,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
               this.store.data.items[iSel].data.keywords = o.data.keywords;
 
               var record = this.store.getById(RecordingsID[j]);
-              this.preview.update(record);
+              this.preview.update(record,this.filter.getValue());
             }
 
         } else {
@@ -672,7 +673,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         return;
       }
       if(record.data.priority) { //use cached data
-        this.preview.update(record);
+        this.preview.update(record,this.filter.getValue());
         return;
       }
       var toDetails = '';
@@ -1206,7 +1207,7 @@ function createRecordingsView(viewer,id) {
         }
         , timefield
         ]
-	      ,content : function(record){
+	      ,content : function(record,lookup){
 
             if(record && this.record != record
                 && record.data.isrecording 
@@ -1215,8 +1216,7 @@ function createRecordingsView(viewer,id) {
                 ) {
                   this.record = record;
                   //header    
-                  this.get(0).get(0).setvalue(record.data);
-
+                  this.get(0).get(0).setvalue(record.data,lookup);
 
                   this.timefield.maxValue = new Date((this.timefield.minValue.getTime())+(record.data.duration * 1000));
                   this.timefield.setValue(this.timefield.minValue);
@@ -1235,20 +1235,21 @@ function createRecordingsView(viewer,id) {
                     ,items); 
                   }
 
-                  var content = Ext.get("preview-recordings-frame");
-                  content.dom.innerHTML = record.data.description.replace(/\r\n/g, '<br />');
-
+                  var content = Ext.getDom("preview-recordings-frame");
+                  content.innerHTML = record.data.description.replace(/\r\n/g, '<br />');
+                  if(lookup)
+                    highlightText(content,lookup,'x-highlight',1);
                   this.doLayout();
                 }
 	      } 
-        ,update : function(record) {
+        ,update : function(record,lookup) {
             if(record
                 && record.data.isrecording 
                 && this.body 
                 && this.ownerCt.isVisible()) {
                   this.record = record;
 
-                  this.get(0).get(0).setvalue(record.data);
+                  this.get(0).get(0).setvalue(record.data,lookup);
 
                   if(!this.tplimg) {
                     this.tplimg = new Ext.Template('{day:date} - {start} ({period})');

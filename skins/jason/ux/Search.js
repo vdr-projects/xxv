@@ -200,6 +200,13 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
     ,disable:function() {
         this.setDisabled(true);
     } // eo function disable
+
+    /**
+     * get value of search field
+     */
+    ,getValue:function() {
+        return this.field.isValid() ? this.field.getValue() : null
+    } // eo function disable
     // }}}
 
 }); // eo extend

@@ -69,7 +69,7 @@ Ext.xxv.TeleTextView = function(viewer, store, config) {
                     ,singleSelect: true
                     ,overClass:'x-view-over'
                     ,itemSelector:'div.thumb-wrap'
-                    ,loadMask:true
+                    ,loadMask:null
                     ,listeners: {
    			              'beforeselect'   : {fn:function(view){ return view.store.getRange().length > 0; } }
 			                ,'selectionchange': {fn:this.doClick, scope:this, buffer:100}
@@ -95,11 +95,16 @@ Ext.extend(Ext.xxv.TeleTextView,  Ext.DataView, {
     ,szLoadException : "Couldn't get teletext pages!\r\n{0}"
 
     ,onLoadException :  function( scope, o, arg, e) {
+      this.loadMask.hide();
 	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
       var tb = this.ownerCt.getTopToolbar();
       tb.get('teletext-refresh').enable();
     }
     ,onBeforeLoad :  function( scope, params ) {
+      if(!this.loadMask)
+        this.loadMask = new Ext.LoadMask(this.viewer.id, {msg: Ext.LoadMask.prototype.msg, msgCls:'x-mask-loading'});
+      if(this.filter.getValue())
+        this.loadMask.show();
       if(this.DetailsTransaction) 
         Ext.Ajax.abort(this.DetailsTransaction);
 
@@ -114,7 +119,6 @@ Ext.extend(Ext.xxv.TeleTextView,  Ext.DataView, {
       tb.get('teletext-refresh').disable();
     }
     ,onLoad :  function( store, records, opt ) {
-
       // replace all anchor to pages with callback
       if(this.el && this.el.dom) {
         var elem = this.el.dom.getElementsByTagName('a');
@@ -147,6 +151,7 @@ Ext.extend(Ext.xxv.TeleTextView,  Ext.DataView, {
       tb.get('teletext-next').setDisabled(data.next == 0);
       //tb.get('teletext-last').setDisabled(true);
       tb.get('teletext-refresh').enable();
+      this.loadMask.hide();
     }
 	  ,doClick : function(){
 	      var selNode = this.getSelectedNodes();
