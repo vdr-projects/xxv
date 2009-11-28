@@ -56,6 +56,11 @@ background-image:url(pic/vtxgfx.gif);
 background-repeat:no-repeat;
 }
 
+.vtx-mark{
+	background:repeat-x bottom;
+	background-image:url(extjs/resources/images/default/grid/invalid_line.gif);
+}
+
 .white20{ background-position:0	0;}
 .white21{ background-position:0	-18px;}
 .white22{ background-position:0	-36px;}

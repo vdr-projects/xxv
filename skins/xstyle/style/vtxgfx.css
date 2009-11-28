@@ -24,6 +24,11 @@ background-image:url(../images/vtxgfx.gif);
 background-repeat:no-repeat;
 }
 
+.vtx-mark{
+  color:black;
+  background-color:lime
+}
+
 .white20	{	background-position:	0px	0px	;}
 .white21	{	background-position:	0px	-16px	;}
 .white22	{	background-position:	0px	-32px	;}
