@@ -482,3 +482,8 @@ color:red;
 
 div#audio-player { text-align:center; }
 object#audio-player { display:inline; }
+
+.x-highlight{
+	background:repeat-x bottom;
+	background-image:url(extjs/resources/images/default/grid/invalid_line.gif);
+}

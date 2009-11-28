@@ -101,7 +101,7 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
         ,scope:this
     });
     this.on('rowcontextmenu', this.onContextClick, this);
-    this.getSelectionModel().on('rowselect', this.preview.select, this.preview, {buffer:50});
+    this.getSelectionModel().on('rowselect', this.select, this, {buffer:50});
 };
 
 Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
@@ -217,7 +217,10 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
     }
     ,EditTimer : function(record) {
         this.viewer.gridNow.EditTimer(record, this.store);
-    } 
+    }
+    ,select : function(sm, index, record){
+      this.preview.select(sm, index, record,this.store.baseParams.data);
+    }
 });
 
 Ext.xxv.searchPreview = function(viewer) {
@@ -255,10 +258,10 @@ Ext.xxv.searchPreview = function(viewer) {
     });
 };
 Ext.extend(Ext.xxv.searchPreview, Ext.Panel, {
-  select : function(sm, index, record){
+  select : function(sm, index, record, lookup){
     if(this.body)
       XXV.getTemplate().overwrite(this.body, record.data);
-
+      highlightText(this.body.dom,lookup,'x-highlight',1);
     // Enable all toolbar buttons
     var items = this.topToolbar.items;
     var items = this.topToolbar.items;
@@ -280,6 +283,48 @@ Ext.extend(Ext.xxv.searchPreview, Ext.Panel, {
       }
    }
 });
+
+function highlightText(node, regex, cls, deep) {
+      if (typeof(regex) == 'string') {
+          regex = new RegExp(regex, "ig");
+      } else if (!regex.global) {
+          throw "RegExp to highlight must use the global qualifier";
+      }
+
+      var value, df, m, l, start = 0, highlightSpan;
+      if ((node.nodeType == 3) && (value = node.data.trim())) {
+
+  //      Loop through creating a document DocumentFragment containing text nodes interspersed with
+  //      <span class={cls}> elements wrapping the matched text.
+          while (m = regex.exec(value)) {
+              if (!df) {
+                  df = document.createDocumentFragment();
+              }
+              if (l = m.index - start) {
+                  df.appendChild(document.createTextNode(value.substr(start, l)));
+              }
+              highlightSpan = document.createElement('span');
+              highlightSpan.className = cls;
+              highlightSpan.appendChild(document.createTextNode(m[0]));
+              df.appendChild(highlightSpan);
+              start = m.index + m[0].length;
+          }
+
+  //      If there is a resulting DocumentFragment, replace the original text node with the fragment
+          if (df) {
+              if (l = value.length - start) {
+                  df.appendChild(document.createTextNode(value.substr(start, l)));
+              }
+              node.parentNode.replaceChild(df, node);
+          }
+      }else{
+          if(deep){
+              Ext.each(node.childNodes, function(child){
+                highlightText(child, regex, cls, deep);
+              }); 
+          }
+      }
+  };
 
 function createSearchView(viewer,id,lookup) {
 
