@@ -159,9 +159,9 @@ sub new {
         interval => $self->{interval},
         prio => 6,  # -1 very hard ... 6 very low
         cb => sub{
-            $self->remember();
+            $self->remember() if($self->{active} eq 'y');
         },
-    ) if($self->{active} eq 'y');
+    );
 
     $self->{LastWarning} = 0;
 

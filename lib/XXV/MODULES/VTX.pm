@@ -346,8 +346,8 @@ sub HighLight {
     my $search = shift;
     my $lines;
 
-    my $a = "<font style=\"color:black;background-color:lime;\">";
-    my $b = "</font>";
+    my $a = "<span class=\"vtx-mark\">";
+    my $b = "</span>";
 
     foreach my $line (split('\n',$result)) {
       foreach my $token (split(/[\-\ \\]/,$search)) {
