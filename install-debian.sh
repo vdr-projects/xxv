@@ -35,6 +35,7 @@ apt-get install \
   libdate-manip-perl \
   libdbd-mysql-perl \
   libdbi-perl \
+	libfont-ttf-perl \
   libmd5-perl \
   libdigest-hmac-perl \
   libevent-perl \

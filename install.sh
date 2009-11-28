@@ -134,6 +134,7 @@ perlModules()
 	checkPerlModule Digest::HMAC_MD5
 	checkPerlModule Encode
 	checkPerlModule Event
+	checkPerlModule Font::TTF::Font
 	checkPerlModule GD
 	checkPerlModule Getopt::Long
 	checkPerlModule HTML::TextToHTML

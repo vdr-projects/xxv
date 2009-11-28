@@ -4,8 +4,6 @@ use strict;
 use Tools;
 use Socket;
 use Sys::Hostname;
-use File::Basename;
-use File::Find;
 
 # This module method must exist for XXV
 # ------------------
@@ -15,7 +13,7 @@ sub module {
     my $args = {
         Name => 'STATUS',
         Prereq => {
-            # 'Perl::Module' => 'Description',
+            'Font::TTF::Font' => 'String table for a TTF font'
         },
         Description => gettext('This module analyzes your system and displays the result.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -56,7 +54,7 @@ sub module {
                 description => gettext('TrueType font to draw overlay text'),
                 default     => 'Vera.ttf',
                 type        => 'list',
-                choices     => $obj->findttf,
+                choices     => Tools::findttf($obj->{paths}->{FONTPATH})
             },
             graphic => {
                 description => gettext('Show collected data as diagram?'),
@@ -758,28 +756,6 @@ sub videoMounts {
     $ret = $mounts unless(scalar @$ret);
 
     return $ret;
-}
-
-# ------------------
-sub findttf
-# ------------------
-{
-    my $obj = shift || return error('No object defined!');
-    my $found;
-    find({ wanted => sub{
-                if($File::Find::name =~ /\.ttf$/sig) {
-                    my $l = basename($File::Find::name);
-                    push(@{$found},[$l,$l]);
-                }
-           },
-           follow => 1,
-           follow_skip => 2,
-        },
-        $obj->{paths}->{FONTPATH}
-    );
-    error "Couldn't find useful font at : $obj->{paths}->{FONTPATH}"
-        if(scalar $found == 0);
-    return $found;
 }
 
 # ------------------

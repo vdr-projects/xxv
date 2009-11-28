@@ -2,8 +2,6 @@ package XXV::MODULES::GRAB;
 use strict;
 
 use Tools;
-use File::Basename;
-use File::Find;
 
 # This module method must exist for XXV
 # ------------------
@@ -13,9 +11,10 @@ sub module {
     my $args = {
         Name => 'GRAB',
         Prereq => {
-            'GD'        => 'image manipulation routines',
-            'Template'  => 'Front-end module to the Template Toolkit ',
-            'MIME::Base64'  => 'Encoding and decoding of base64 strings'
+            'GD'        => 'image manipulation routines'
+            ,'Template'  => 'Front-end module to the Template Toolkit '
+            ,'MIME::Base64' => 'Encoding and decoding of base64 strings'
+            ,'Font::TTF::Font' => 'String table for a TTF font'
         },
         Description => gettext('This module grab a picture from video output.'),
         Version => (split(/ /, '$Revision$'))[1],
@@ -78,7 +77,7 @@ sub module {
                 description => gettext('TrueType font to draw overlay text'),
                 default     => 'VeraIt.ttf',
                 type        => 'list',
-                choices     => $self->findttf,
+                choices     => Tools::findttf($self->{paths}->{FONTPATH})
             },
             imgfontsize => {
                 description => gettext('Font size to draw image text (only for ttf font!).'),
@@ -365,28 +364,6 @@ sub _noise_rect {
     }
 
     return;
-}
-
-# ------------------
-sub findttf
-# ------------------
-{
-    my $self = shift || return error('No object defined!');
-    my $found;
-    find({ wanted => sub{
-                if($File::Find::name =~ /\.ttf$/sig) {
-                    my $l = basename($File::Find::name);
-                    push(@{$found},[$l,$l]);
-                }
-           },
-           follow => 1,
-           follow_skip => 2,
-        },
-        $self->{paths}->{FONTPATH}
-    );
-    error "Couldn't find useful font at : ", $self->{paths}->{FONTPATH}
-        if(scalar $found == 0);
-    return $found;
 }
 
 1;

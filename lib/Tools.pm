@@ -13,6 +13,8 @@ $Data::Dumper::Indent = 1;
 #$Data::Dumper::Maxdepth = 2;
 
 use IO::File;
+use File::Basename;
+use File::Find;
 use Socket;
 use Time::HiRes qw( gettimeofday );
 use POSIX qw(strftime);
@@ -34,7 +36,7 @@ use constant FRAMESPERSECOND => 25;
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
  &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url
  &con_err &con_msg &text2frame &frame2hms &gettext &setcharset &resolv_symlink
- &connectDB
+ &connectDB &findttf
 );
 
 
@@ -837,6 +839,39 @@ sub connectDB {
     }
 
     return $dbh;
+}
+
+# ------------------
+# Find usable fonts for graphical outputs
+sub findttf
+{
+  my $directory = shift || return error('No fonts directory defined!');
+  my $found;
+  my $font;
+  eval 'use Font::TTF::Font';
+  unless($@)  {
+    $font = 1;
+  }
+  find({ wanted => sub{
+        if($File::Find::name =~ /\.ttf$/sig) {
+          my $f = basename($File::Find::name);
+          my $fontname = $f;
+          if($font) {
+            $fontname = Font::TTF::Font->open($f) || $f;
+            $fontname = $fontname->{name} || $f if ref $fontname;
+            $fontname = $fontname->read->find_name(4) || $f if ref $fontname;
+          }
+          push(@{$found},[$fontname,$f]);
+        }
+      },
+    follow => 1,
+    follow_skip => 2,
+    },
+  $directory
+  );
+  error "Couldn't find useful font at : $directory"
+    if(scalar $found == 0);
+  return $found;
 }
 
 1;
