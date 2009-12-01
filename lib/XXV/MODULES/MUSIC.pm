@@ -96,6 +96,16 @@ sub module {
                 default     => 'mugglei',
                 type        => 'file',
             },
+            AmazonToken => {
+                description => gettext('Access Key ID to gathering cover images (a 20-character, alphanumeric sequence). Please sign up at http://aws.amazon.com'),
+                default     => '',
+                type        => 'string',
+            },
+            AmazonSecretKey => {
+                description => gettext('Secret Access Key to gathering cover images (a 40-character sequence). Please sign up at http://aws.amazon.com'),
+                default     => '',
+                type        => 'string',
+            },
         },
         Commands => {
             mrefresh => {
@@ -210,10 +220,6 @@ sub _init {
 
     return 1
       if($self->{active} eq 'n');
-
-    $self->{Amazon} = Net::Amazon->new(
-        token       => '1CCSPM94SQW5RNWY6682',
-    );
 
     #create an instance to find all files below /usr/local/mp3
     $self->{ICE} = MP3::Icecast->new();
@@ -1044,7 +1050,15 @@ sub getcovers {
 
     my $dbh = ($self->{mdbh} ? $self->{mdbh} : $self->{dbh});
 
-    return error('No valid Amazon token exists. Please sign up at http://amazon.com/soap!')
+    return $console->error(gettext('No Amazon Web Service (AWS) access key identifiers token exists. Please sign up at http://aws.amazon.com .'))
+        unless($self->{AmazonToken} && $self->{AmazonSecretKey});
+
+    $self->{Amazon} = Net::Amazon->new(
+        token       => $self->{AmazonToken}
+       ,secret_key  => $self->{AmazonSecretKey}
+    ) unless($self->{Amazon});
+
+    return error('No valid Amazon token exists. Please sign up at http://aws.amazon.com')
         unless($self->{Amazon});
 
     debug sprintf('Call getcovers%s',
