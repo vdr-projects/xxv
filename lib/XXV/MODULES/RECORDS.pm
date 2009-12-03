@@ -651,6 +651,7 @@ sub scandirectory {
                         }
                     }
                 },
+                follow_skip => 2,
                 follow_fast => 1
             },
         $directory
