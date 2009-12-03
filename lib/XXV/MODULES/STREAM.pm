@@ -2,9 +2,6 @@ package XXV::MODULES::STREAM;
 use strict;
 
 use Tools;
-use File::Basename;
-use File::Find;
-use File::Path;
 use File::stat;
 use File::Glob ':glob';
 

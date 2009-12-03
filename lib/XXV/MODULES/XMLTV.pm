@@ -2,7 +2,6 @@ package XXV::MODULES::XMLTV;
 
 use strict;
 use File::Find;
-use File::Basename;
 use Tools;
 use Encode;
 
@@ -753,16 +752,14 @@ sub findfiles
     my $self = shift || return error('No object defined!');
     my @files;
     find({ wanted => sub{
-              if(-r $File::Find::name) {
-                 if($File::Find::name =~ /\.xml$/sig   # Lookup for *.xml
-                   or $File::Find::name =~ /\.tpl$/sig) {  # Lookup for *.tpl
-                    my $l = basename($File::Find::name);
-                    push(@files,[$l,$l]);
-                   }
+               if($File::Find::name =~ /\.xml$/sig   # Lookup for *.xml
+                 or $File::Find::name =~ /\.tpl$/sig) {  # Lookup for *.tpl
+                  my $l = $_; # keep name of file without path
+                  if(-r $File::Find::name) {
+                    push(@files,[$_,$_]);
+                  }
               }
-           },
-           follow => 1,
-           follow_skip => 2,
+           }
         },
         $self->{paths}->{XMLTV}
     );

@@ -2,7 +2,6 @@ package XXV::MODULES::HTTPD;
 
 use XXV::OUTPUT::Html;
 use XXV::OUTPUT::Ajax;
-use File::Basename;
 use File::Find;
 
 use Tools;
@@ -549,14 +548,14 @@ sub findskins
     my $max_depth = $self->{paths}->{HTMLDIR} =~ tr[/][];
 
     find({ wanted => sub {
+              my $l = $_;
               my $depth = $File::Find::dir =~ tr[/][];
 
               if(-d $File::Find::name
                     and ( $depth <= $max_depth )
-                    and ( -e $File::Find::name.'/index.tmpl'
-                      or  -e $File::Find::name.'/index.html')
+                    and ( -r $File::Find::name.'/index.tmpl'
+                      or  -r $File::Find::name.'/index.html')
               ) {
-                    my $l = basename($File::Find::name);
                     push(@skins,[$l,$l]);
                 }
            },

@@ -854,18 +854,16 @@ sub findttf
   }
   find({ wanted => sub{
         if($File::Find::name =~ /\.ttf$/sig) {
-          my $f = basename($File::Find::name);
+          my $f = $_; # keep name of file without path
           my $fontname = $f;
           if($font) {
-            $fontname = Font::TTF::Font->open($f) || $f;
+            $fontname = Font::TTF::Font->open($File::Find::name) || $f;
             $fontname = $fontname->{name} || $f if ref $fontname;
             $fontname = $fontname->read->find_name(4) || $f if ref $fontname;
           }
           push(@{$found},[$fontname,$f]);
         }
-      },
-    follow => 1,
-    follow_skip => 2,
+      }
     },
   $directory
   );

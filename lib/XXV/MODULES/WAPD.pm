@@ -1,7 +1,6 @@
 package XXV::MODULES::WAPD;
 
 use XXV::OUTPUT::Wml;
-use File::Basename;
 use File::Find;
 use Tools;
 
@@ -442,11 +441,19 @@ sub findskins
 # ------------------
 {
     my $self = shift || return error('No object defined!');
-    my $found;
-    find({ wanted => sub{
-                if(-d $File::Find::name and -e $File::Find::name.'/wapd.tmpl' ) {
-                    my $l = basename($File::Find::name);
-                    push(@{$found},[$l,$l]);
+    my @skins;
+
+    my $max_depth = $self->{paths}->{HTMLDIR} =~ tr[/][];
+
+    find({ wanted => sub {
+              my $l = $_;
+              my $depth = $File::Find::dir =~ tr[/][];
+
+              if(-d $File::Find::name
+                    and ( $depth <= $max_depth )
+                    and ( -r $File::Find::name.'/wapd.tmpl')
+              ) {
+                    push(@skins,[$l,$l]);
                 }
            },
            follow => 1,
@@ -454,9 +461,10 @@ sub findskins
         },
         $self->{paths}->{HTMLDIR}
     );
-    error "Couldn't find useful WML Skin at : $self->{paths}->{HTMLDIR}"
-        if(scalar $found == 0);
-    return $found;
+    error "Couldn't find useable WML Skin at : $self->{paths}->{HTMLDIR}"
+        unless(scalar @skins);
+    @skins = sort { lc($a->[0]) cmp lc($b->[0]) } @skins;
+    return \@skins;
 }
 
 1;

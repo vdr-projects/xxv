@@ -599,11 +599,10 @@ sub scandirectory {
     find(
             {
                 wanted => sub{
-                    if(-r $File::Find::name) {
-                        if($File::Find::name =~ /\.$typ\/(\d{3}.vdr)|(\d{5}.ts)$/sig) {  # Lookup for *.rec/001.vdr or *.rec/001.ts
+                    if($File::Find::name =~ /\.$typ\/(\d{3}.vdr)|(\d{5}.ts)$/sig) {  # Lookup for *.rec/001.vdr or *.rec/001.ts
+                      if(-r $File::Find::name) {
                           my $filename = $File::Find::name;
-
-                          my $path = dirname($filename);
+                          my $path = $File::Find::dir;
                           my $hash = md5_hex($path);
                           unless(exists $files->{$hash}) {
                             my $rec;
@@ -645,17 +644,14 @@ sub scandirectory {
                             $files->{$hash} = $rec;
 
                           } else {
-
                             push(@{$files->{$hash}->{files}},$filename);
-
                           }
+                        } else {
+                            lg "Permissions deny, couldn't read : $File::Find::name";
                         }
-                    } else {
-                        lg "Permissions deny, couldn't read : $File::Find::name";
                     }
                 },
-                follow => 1,
-                follow_skip => 2,
+                follow_fast => 1
             },
         $directory
     );

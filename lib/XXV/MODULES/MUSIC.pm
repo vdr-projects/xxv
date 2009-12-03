@@ -230,15 +230,16 @@ sub _init {
 #   $self->{ICE}->add_directory($self->{path});
     find( {
       wanted => sub{
-        if(-r $File::Find::name) {
-          $self->{ICE}->add_file($File::Find::name)
-            if($File::Find::name =~ /\.mp3$/sig);  # Lookup for *.mp3
-          } else {
-            lg "Permissions deny, couldn't read : $File::Find::name";
+          if($File::Find::name =~ /\.mp3$/sig) {  # Lookup for *.mp3
+            if(-r $File::Find::name) {
+              $self->{ICE}->add_file($File::Find::name)
+            } else {
+              lg "Permissions deny, couldn't read : $File::Find::name";
+            }
           }
         },
         follow => 1,
-        follow_skip => 2,
+        follow_skip => 2
         },
       $self->{path}
     );
@@ -1254,15 +1255,16 @@ sub _findcover {
       find(
               {
                   wanted => sub{
+                    if($File::Find::name =~ /\.jpg$|\.jpeg$|\.gif$|\.png/sig) {  # Lookup for images
                       if(-r $File::Find::name) {
                           push(@images,$File::Find::name)
-                              if($File::Find::name =~ /\.jpg$|\.jpeg$|\.gif$|\.png/sig);  # Lookup for images
                       } else {
                           lg "Permissions deny, couldn't read : $File::Find::name";
                       }
+                    }
                   },
                   follow => 1,
-                  follow_skip => 2,
+                  follow_skip => 2
               },
           $directory
       );
