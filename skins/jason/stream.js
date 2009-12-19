@@ -119,7 +119,7 @@ Ext.extend(Ext.xxv.StreamWindow, Ext.Window, {
 });
 
 
-Ext.xxv.createStream = function(item,window) {
+Ext.xxv.createStream = function(item,widget) {
     item.width = configuration.streamWidth;
     item.height = configuration.streamHeight;
     if(Ext.state.Manager.getProvider()) {
@@ -136,9 +136,9 @@ Ext.xxv.createStream = function(item,window) {
         window.open(item.url, '_blank', "width=" + item.width + ",height="+ item.height);
         return null;
     }
-    if(!window){
+    if(!widget){
       return new Ext.xxv.StreamWindow(item);
     } else {
-      window.show(item);
+      widget.show(item);
     }
 };
