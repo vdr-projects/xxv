@@ -154,7 +154,7 @@ Ext.xxv.timerGrid = function(viewer) {
     Ext.xxv.timerGrid.superclass.constructor.call(this, {
          region: 'center'
         ,id: 'timer-view-grid'
-        ,loadMask: true
+        ,loadMask: false
         ,plugins:[this.activeColumn,this.vpsColumn,this.ChannelsCombo]
         ,clicksToEdit:1
         ,autoExpandColumn:'expand'
@@ -220,18 +220,23 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     ,szToggleFailure : "Couldn't toggle timer!\r\n{0}"
 
     ,stateful:  true
-
+    ,dataDirty: false
     ,onLoadException :  function( scope, o, arg, e) {
+      this.dataDirty = false;
       new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onBeforeLoad : function(  store, opt ) {
       this.preview.clear();
     }
     ,onLoad : function( store, records, opt ) {
+      this.dataDirty = false;
       this.getSelectionModel().selectFirstRow();
       this.ownerCt.SetPanelTitle(this.szTitle);
     }
-
+    ,refreshPanel : function(panel){
+      if(this.dataDirty)
+        this.store.reload();
+    }
     ,onContextClick : function(grid, index, e){
         if(!this.menu){ // create context menu on first right click
             this.menu = new Ext.menu.Menu({
@@ -333,7 +338,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
   /******************************************************************************/
    ,onToggleSuccess : function( response,options ) 
     { 
-        this.loadMask.hide(); 
+        this.viewer.loadMask.hide(); 
 
         var o = eval("("+response.responseText+")");
 
@@ -372,13 +377,13 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
 
     ,onToggleFailure : function( response,options ) 
     { 
-        this.loadMask.hide();
+        this.viewer.loadMask.hide();
         new Ext.xxv.MessageBox().msgFailure(this.szToggleFailure, response.statusText);
     }
 
     ,ToggleItem : function( record ) {
       this.stopEditing();
-      this.loadMask.show(); 
+      this.viewer.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
       var sel = gsm.getSelections()
@@ -404,7 +409,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
   /******************************************************************************/
     ,onDeleteSuccess : function( response,options ) 
     { 
-        this.loadMask.hide(); 
+        this.viewer.loadMask.hide(); 
 
         var o = eval("("+response.responseText+")");
 
@@ -437,13 +442,13 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
 
     ,onDeleteFailure : function( response,options ) 
     { 
-        this.loadMask.hide();
+        this.viewer.loadMask.hide();
         new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
     }
 
     ,DeleteItem : function( record ) {
       this.stopEditing();
-      this.loadMask.show(); 
+      this.viewer.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
       var sel = gsm.getSelections()
@@ -606,7 +611,11 @@ function createTimerView(viewer,id) {
               hidden:XXV.RightPreview
             }
             ]
-
+      ,listeners: { 
+            activate: function(p){
+                viewer.gridTimer.refreshPanel(p); 
+           }
+        }
     });
 
     viewer.add(tab);

@@ -85,7 +85,7 @@ Ext.xxv.programGrid = function(viewer, record) {
     Ext.xxv.programGrid.superclass.constructor.call(this, {
         region: 'center'
         ,id: 'program-grid'
-        ,loadMask: true
+        ,loadMask: false
         ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({

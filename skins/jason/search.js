@@ -78,7 +78,7 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
     Ext.xxv.searchGrid.superclass.constructor.call(this, {
         region: 'center',
         id: 'search-grid',
-        loadMask: true,
+        loadMask: false,
         sm: new Ext.grid.RowSelectionModel({
             singleSelect:false
         }),

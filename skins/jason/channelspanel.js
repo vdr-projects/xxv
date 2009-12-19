@@ -378,10 +378,6 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
     };
 
     var viewer = Ext.getCmp('main-tabs');
-    if(!viewer.streamwin){
-      viewer.streamwin = new Ext.xxv.StreamWindow(item);
-    } else {
-      viewer.streamwin.show(item);
-    }
+    viewer.streamwin = Ext.xxv.createStream(item,viewer.streamwin);
   }
 });

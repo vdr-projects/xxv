@@ -109,9 +109,48 @@ Ext.xxv.musicGrid = function(viewer) {
             singleSelect:false
         })
         ,view: new Ext.grid.GroupingView({
-            enableGroupingMenu:false,
-            showGroupName: false
+            enableGroupingMenu:false
+            ,showGroupName: false
+            //,groupTextTpl: '{text} <img class="coverimage" src="?cmd=mi&data={[values.rs[0].data["id"]]}" />'
         })
+        /*,listeners: {
+          mouseover: function(e, t) {
+             var rowIndex = this.getView().findRowIndex(t); 
+             if(rowIndex === false)return;
+             var colIndex = this.getView().findCellIndex(t); 
+             if(colIndex === false)return;
+           
+              var row = this.getStore().getAt(rowIndex)
+              var id = row.data.id;
+              if(this.CoverTransaction) 
+                Ext.Ajax.abort(this.CoverTransaction);
+              this.DetailsTransaction = Ext.Ajax.request({
+                    scope: this
+                   ,method: 'HEAD'
+                   ,url: XXV.help.cmdHTML('mi',{data:row.data.id})
+                   ,timeout: 15000
+                   ,success: this.onCoverSuccess
+                   ,failure: this.onCoverFailure
+                   ,params:{ data: row.data.id }
+                });
+                if(this.CoverTT) {
+                  this.CoverTT.destroy();
+                  delete this.CoverTT;
+                }
+                this.CoverTT = new Ext.ToolTip({
+                 target: e.target,
+                 title: 'Cover',
+                 autoHide: false,
+                 closable: true,
+                 showDelay:1000,
+                 hideDelay:0,
+                 autoHeight:true,
+                 hidden:true,
+                 width:210,
+                 html: '<img class="coverimage" src="?cmd=mi&data='+row.data.id +'" />',
+                });
+          }
+        }*/
         ,tbar:new Ext.PagingToolbar({
               pageSize: this.store.autoLoad.params.limit
               ,store: this.store
@@ -300,6 +339,14 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
 			  this.viewer.audiowin.show(item);
 			}
       //this.loadMask.hide(); 
+    }
+    /******************************************************************************/
+    ,onCoverSuccess : function( response,options ) 
+    { 
+      this.CoverTT.show();
+    }
+    ,onCoverFailure : function( response,options ) 
+    { 
     }
 });
 

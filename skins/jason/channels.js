@@ -14,25 +14,13 @@ Ext.xxv.storeChannels = function() {
                         fields: [
                                   {name: 'id', type: 'string'},
                                   {name: 'name', type: 'string'},
-                                  {name: 'frequency', type: 'int'},
-                                  {name: 'parameter', type: 'string'},
-                                  {name: 'source', type: 'string'},
-                                  {name: 'srate', type: 'string'},
-                                  {name: 'vpid', type: 'string'},
-                                  {name: 'apid', type: 'string'},
-                                  {name: 'tpid', type: 'string'},
-                                  {name: 'ca', type: 'string'},
-                                  {name: 'sid', type: 'string'},
-                                  {name: 'nid', type: 'string'},
-                                  {name: 'tid', type: 'string'},
-                                  {name: 'rid', type: 'string'},
                                   {name: 'group', type: 'string'},
                                   {name: 'position', type: 'int'},
                                   {name: 'grpname', type: 'string'}
                                 ]
                     }),
             proxy : new Ext.data.HttpProxy({
-                url: XXV.help.cmdAJAX('cl')
+                url: XXV.help.cmdAJAX('cl',{compact:1})
                ,method: 'GET'
             })
 //          sortInfo:{field:'position', direction:'ASC'}
@@ -51,10 +39,6 @@ Ext.xxv.ChannelsCombo = function(config){
 
 Ext.xxv.ChannelsCombo.prototype ={
     init : function(grid){
-/*      this.grid = grid;
-        this.grid.on('render', function(){
-            var view = this.grid.getView();
-        }, this);*/
     },
     renderer: function(value, p, record) {
 

@@ -128,21 +128,33 @@ Ext.extend(Ext.xxv.RecHeader, Ext.Component, {
 
         this.tpl = new Ext.Template(
           '<div class="preview-header">',
-            '<h3 class="preview-title">{title}</h3>',
-            '<div class="preview-channel">',
-              '<tpl if="channel != 0">',
-                '<b>{channel}</b> - ',
-              '</tpl>',
-              '{period}',
-              '<tpl if="cutlength != 0">',
-                ' ({cutlength})',
-              '</tpl>',
+            '<div class="preview-topic">',
+              '<h3 class="preview-title">{title}</h3>',
+              '<h4 class="preview-shorttitle">{subtitle:this.formatSubtitle}</h4>',
             '</div>',
-            '<h4 class="preview-shorttitle">{subtitle}&nbsp;</h4>',
-            '<div class="preview-date">{day:date} {start} - {stop}</div>'
-          ,'</div>'
+            '{channel:this.formatChannel}',
+            '<div class="preview-date">{day:date} {start} - {stop} {period}{cutlength:this.formatCutlength}',
+            '</div>',
+           '</div>'
+          ,{
+             compiled: true
+			    	,formatSubtitle : function(t) {
+              if(t && t != '')
+			    		    return '&nbsp;-&nbsp;' + t;
+              return '&nbsp;';
+			    	}
+			    	,formatChannel : function(t) {
+              if(t && t != '')
+			    		    return '<div class="preview-channel"><b>' + t + '</b>&nbsp;</div>';
+              return '';
+			    	}
+			    	,formatCutlength : function(t) {
+              if(t && t != '')
+			    		    return '&nbsp;(' + t + ')';
+              return '';
+			    	}
+          }
         );
-        this.tpl.compile();  
     },
 
     setvalue : function(data, lookupdata){
@@ -811,7 +823,8 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 /******************************************************************************/
     onCutSuccess : function( response,options ) 
     { 
-        this.el.unmask();
+        this.viewer.loadMask.hide();
+
         var o = eval("("+response.responseText+")");
 
         if(o && o.data && typeof(o.data) == 'string' 
@@ -830,7 +843,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 
     onCutFailure : function( response,options ) 
     { 
-        this.el.unmask();
+        this.viewer.loadMask.hide();
 
         new Ext.xxv.MessageBox().msgFailure(this.szCutFailure, response.statusText);
     },
@@ -859,7 +872,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         }
       }
       if(toCut.length) {
-        this.el.mask(Ext.LoadMask.prototype.msg, 'x-mask-loading');
+        this.viewer.loadMask.show();
         Ext.Ajax.request({
             scope: this
            ,url: XXV.help.cmdAJAX('rcu')
@@ -873,7 +886,8 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 /******************************************************************************/
     onDeleteSuccess : function( response,options ) 
     { 
-        this.el.unmask();
+        this.viewer.loadMask.hide();
+
         var o = eval("("+response.responseText+")");
 
         if(o && o.data && typeof(o.data) == 'string' 
@@ -917,7 +931,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 
     onDeleteFailure : function( response,options ) 
     { 
-        this.el.unmask();
+        this.viewer.loadMask.hide();
 
         new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
     },
@@ -945,7 +959,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         } 
       }
       if(todelete.length) {
-        this.el.mask(Ext.LoadMask.prototype.msg, 'x-mask-loading');
+        this.viewer.loadMask.show();
         Ext.Ajax.request({
             scope: this
            ,url: XXV.help.cmdAJAX('rr')
@@ -993,12 +1007,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
        url  : XXV.help.cmdHTML('pre',{data:record.data.id,'__player':'1','__start':begin})
       ,title: record.data.fulltitle
     };
-
-    if(!this.viewer.streamwin){
-      this.viewer.streamwin = new Ext.xxv.StreamWindow(item);
-    } else {
-      this.viewer.streamwin.show(item);
-    }
+    this.viewer.streamwin = Ext.xxv.createStream(item,this.viewer.streamwin);
   }
   /******************************************************************************/
     ,EditItem : function( record ) {

@@ -21,14 +21,20 @@ Ext.xxv.tabPanel = function(){
         ,tabWidth:150
         ,minTabWidth: 100
         ,enableTabScroll: true
+        ,loadMask: null
+        //,defaults: {hideMode: 'offsets'}
         ,plugins: [ new Ext.ux.TabCloseMenu() ]
         ,items: [ tab ]
     });
-
+    this.on('render', this.initPanel, this);
 };
 
 Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
 
+    initPanel : function(){
+      if(!this.loadMask)
+        this.loadMask = new Ext.LoadMask(this.id, {msg: Ext.LoadMask.prototype.msg, msgCls:'x-mask-loading'});
+    },
     initPreview : function(){
       XXV.BottomPreview = false;
       XXV.RightPreview = true;

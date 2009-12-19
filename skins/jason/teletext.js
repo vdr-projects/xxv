@@ -95,16 +95,14 @@ Ext.extend(Ext.xxv.TeleTextView,  Ext.DataView, {
     ,szLoadException : "Couldn't get teletext pages!\r\n{0}"
 
     ,onLoadException :  function( scope, o, arg, e) {
-      this.loadMask.hide();
+      this.viewer.loadMask.hide();
 	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
       var tb = this.ownerCt.getTopToolbar();
       tb.get('teletext-refresh').enable();
     }
     ,onBeforeLoad :  function( scope, params ) {
-      if(!this.loadMask)
-        this.loadMask = new Ext.LoadMask(this.viewer.id, {msg: Ext.LoadMask.prototype.msg, msgCls:'x-mask-loading'});
       if(this.filter.getValue())
-        this.loadMask.show();
+        this.viewer.loadMask.show();
       if(this.DetailsTransaction) 
         Ext.Ajax.abort(this.DetailsTransaction);
 
@@ -151,7 +149,7 @@ Ext.extend(Ext.xxv.TeleTextView,  Ext.DataView, {
       tb.get('teletext-next').setDisabled(data.next == 0);
       //tb.get('teletext-last').setDisabled(true);
       tb.get('teletext-refresh').enable();
-      this.loadMask.hide();
+      this.viewer.loadMask.hide();
     }
 	  ,doClick : function(){
 	      var selNode = this.getSelectedNodes();

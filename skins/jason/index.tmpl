@@ -19,6 +19,7 @@
         ,monitorHeight : <?% getModule('GRAB').ysize %?>
         ,streamWidth : <?% getModule('STREAM').width %?>
         ,streamHeight : <?% getModule('STREAM').height %?>
+        ,streamWidget : "<?% getModule('STREAM').widget %?>"
         ,pageSize : 100
       };
     </script>
@@ -74,8 +75,10 @@
 <?% # Template used for EPG Items %?>
 <div id="preview-tpl" style="display:none;">
   <div class="preview-header">
-      <h3 class="preview-title">{content:this.getTitle}</h3><div class="preview-channel">{content:this.getChannel}</div>
-      <h4 class="preview-shorttitle">{content:this.getSubtitle}</h4><div class="preview-date">{day:date} {start} - {stop}</div>
+      <div class="preview-topic">
+        <h3 class="preview-title">{content:this.getTitle}</h3><h4 class="preview-shorttitle">{content:this.getSubtitle}</h4>
+      </div>
+      <div class="preview-channel">{content:this.getChannel}</div><div class="preview-date">{day:date} {start} - {stop}</div>
   </div>
   <div class="preview-body">{content:this.getBody}</div>
 </div>

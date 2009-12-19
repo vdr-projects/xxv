@@ -7,7 +7,7 @@
  * $Id$
  */
 
-Ext.xxv.StreamWindow = function(item) {
+Ext.xxv.StreamWindow = function(item,width,height) {
 
     var tpl = new Ext.XTemplate(
         '<object id="player_obj" width="{width}" height="{height}"',
@@ -30,17 +30,6 @@ Ext.xxv.StreamWindow = function(item) {
     );
 
 
-    var width = configuration.streamWidth;
-    var height = configuration.streamHeight;
-    if(Ext.state.Manager.getProvider()) {
-        var streamwin = Ext.state.Manager.get('stream-win');
-        if(streamwin && streamwin.width && streamwin.width >= 160 && streamwin.width <= 4096) {
-          width = streamwin.width;
-        }
-        if(streamwin && streamwin.height && streamwin.height >= 120 && streamwin.height <= 2048) {
-          height = streamwin.height;
-        }
-    }
     var marginHeight = 33;
     var marginWidth = 16;
     var t = this.szTitle;
@@ -128,3 +117,28 @@ Ext.extend(Ext.xxv.StreamWindow, Ext.Window, {
         Ext.xxv.StreamWindow.superclass.show.apply(this, arguments);
     }
 });
+
+
+Ext.xxv.createStream = function(item,streamwin) {
+    var width = configuration.streamWidth;
+    var height = configuration.streamHeight;
+    if(Ext.state.Manager.getProvider()) {
+        var streamwin = Ext.state.Manager.get('stream-win');
+        if(streamwin && streamwin.width && streamwin.width >= 160 && streamwin.width <= 4096) {
+          width = streamwin.width;
+        }
+        if(streamwin && streamwin.height && streamwin.height >= 120 && streamwin.height <= 2048) {
+          height = streamwin.height;
+        }
+    }
+    if(configuration.streamWidget 
+        && configuration.streamWidget == 'external') {
+        window.open(item.url, '_blank', "width=" + width + ",height="+ height);
+        return false;
+    }
+    if(!streamwin){
+      return new Ext.xxv.StreamWindow(item,width,height);
+    } else {
+      streamwin.show(item);
+    }
+};

@@ -45,8 +45,6 @@ Ext.xxv.NowGrid = function(viewer) {
     this.viewer = viewer;
     this.preview = new Ext.xxv.NowPreview(viewer);
 
-    //this.timerstore = new Ext.xxv.timerStore();
-
     // create the data store
     this.store = new Ext.xxv.NowStore();
     this.store.setDefaultSort('rang', "ASC");
@@ -117,7 +115,7 @@ Ext.xxv.NowGrid = function(viewer) {
     Ext.xxv.NowGrid.superclass.constructor.call(this, {
         region: 'center'
         ,id: 'now-grid'
-        ,loadMask: true
+        ,loadMask: false
         ,autoExpandColumn:'expand'
         ,cm: cm
         ,sm: new Ext.grid.RowSelectionModel({
@@ -146,10 +144,6 @@ Ext.xxv.NowGrid = function(viewer) {
         ,'loadexception' : this.onLoadException
         ,scope:this
     });
-    //this.timerstore.on({
-    //     'loadexception' : this.onLoadException
-    //    ,scope:this
-    //});
 
     this.on('rowcontextmenu', this.onContextClick, this);
     this.getSelectionModel().on('rowselect', this.preview.select, this.preview, {buffer:50});
@@ -329,7 +323,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
 /******************************************************************************/
     ,onRecordSuccess : function( response,options ) 
     { 
-        this.loadMask.hide();
+        this.viewer.loadMask.hide();
         var json = response.responseText;
         var o = eval("("+json+")");
         if(!o || !o.data || typeof(o.data) != 'string') {
@@ -337,27 +331,32 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         }
         if(o.success) {
             new Ext.xxv.MessageBox().msgSuccess(this.szRecordSuccess, o.data);
-            //this.timerstore.reload();
-        }else {
+            this.updateTimer();
+        } else {
             new Ext.xxv.MessageBox().msgFailure(this.szRecordFailure, o.data);
         }
     }
     ,onRecordFailure : function( response,options ) 
     { 
-        this.loadMask.hide();
+        this.viewer.loadMask.hide();
         new Ext.xxv.MessageBox().msgFailure(this.szRecordFailure, response.statusText);
     }
     ,Record : function(record) {
         this.RecordID(record.data.id);
     }
     ,RecordID : function(id) {
-        this.loadMask.show();
+        this.viewer.loadMask.show();
         Ext.Ajax.request({
               scope: this
              ,url: XXV.help.cmdAJAX('tn',{ data: id, '__fast':'1' })
              ,success: this.onRecordSuccess
              ,failure: this.onRecordFailure
           });
+    }
+    ,updateTimer : function() {
+      if(this.viewer.gridTimer) {
+        this.viewer.gridTimer.dataDirty = true;
+      }
     }
     ,EditTimer : function(record,store) {
       var item;
@@ -381,12 +380,6 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       }
       this.viewer.formwin = new Ext.xxv.Question(item,store);
     }
-    //,TimerPresent : function(eventid) {
-    //    var records = this.timerstore.query('eventid',eventid,false,false);
-    //    if(!records || records.getCount() <= 0) 
-    //      return 0;
-    //    return records.get(0);
-    //}
     ,formatTitle: function(value, p, record) {
 
 	      var style = "";

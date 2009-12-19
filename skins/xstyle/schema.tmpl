@@ -52,104 +52,16 @@ sec_height = 0.1;
 
 <style>
 /* Schema */
-#channel
-{
-    margin: 3px;
-    position: relative;
-    float:left;
-}
 #channelcontainer
 {
     height: <?% Duration * sec_height %?>px;
-    width: 200px;
-    border: 1px solid #999;
-    position: relative;
-    background:#FFF url(style/tr_bck.gif) repeat-x;
-    overflow: hidden;
 }
-
-#channeltitle, #channeltitle a
-{
-    font-weight:bold;
-    font-size:1.1em;
-    background-color:blue;
-    color:white;
-    padding: 3px;
-
-}
-
-#eventbox
-{
-    margin: 1px;
-    border: 1px solid #999;
-    position: relative;
-    overflow: hidden;
-    background:#FFF url(style/foot_bck.gif) repeat-x;
-}
-
-#eventbox_time
-{
-    margin:3px;
-    font-size:0.8em;
-    float: left;
-    background:#eee;
-    height:98%;
-}
-
-#eventbox_title
-{
-    font-weight:bold;
-    font-size:1.1em;
-    margin: 3px;
-}
-
-#eventbox_title_link
-{
-    font-size:0.7em;
-    margin: 2px;
-}
-
-#eventbox_subtitle
-{
-    font-weight:bold;
-    font-style:italic;
-    font-size:0.8em;
-    margin: 3px;
-}
-
-#eventbox_text
-{
-    font-style:italic;
-    font-size:0.8em;
-    margin: 3px;
-}
-
-#eventbox_bild
-{
-    margin: 3px;
-}
-#eventbox_bild img {
-    margin: 0px;
-    padding: 0px;
-    width : 140px;
-    height : 105px;
-    display : inline;
-}
-
 <?% ttm = date.now - param.zeitvon;
     ttm = ttm * sec_height;
 %?>
 #timemarker
 {
-    margin: 1px;
-    border-top: 1px dashed #F00;
-    position: absolute;
     top: <?% ttm | format('%d') %?>px;
-    width:100%;
-    font-size:0.6em;
-    text-align: right;
-    color:#F00;
-    z-index:99;
 }
 </style>
 <table width='<?% (data.keys.size * 210) %?>'><td>

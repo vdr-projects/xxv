@@ -76,6 +76,66 @@ margin:3px;
 display:none;
 }
 
+/*
+.xxv-icon {
+width:16px;
+height:16px;
+background-image:url(pic/xxv-icon.png) !important;
+background-repeat:no-repeat;
+}
+
+.xxv-icon-xxv { background-position:0 0;}
+.xxv-icon-record { background-position:-16px 0;}
+.xxv-icon-backward { background-position:-32px 0;}
+.xxv-icon-forward { background-position:-48px 0;}
+.xxv-icon-pause { background-position:-64px 0;}
+.xxv-icon-playback { background-position:-72px 0;}
+.xxv-icon-stream { background-position:-88px 0;}
+
+.xxv-icon-remote-blue{ background-position:0	-16px;}
+.xxv-icon-remote-green{ background-position:-16px	-16px;}
+.xxv-icon-remote-red{ background-position:-32px	-16px;}
+.xxv-icon-remote-yellow{ background-position:-48px	-16px;}
+.xxv-icon-remote-play { background-position:-64px	-16px;}
+.xxv-icon-remote{ background-position:-72px	-16px;}
+.xxv-icon-channel{ background-position:-88px	-16px;}
+
+.xxv-icon-preview { background-position:0 -32px;}
+.xxv-icon-preview-bottom { background-position:-16px -32px;}
+.xxv-icon-preview-right { background-position:-32px -32px;}
+.xxv-icon-remote-menu { background-position:-48px -32px;}
+.xxv-icon-monitor { background-position:-64px -32px;}
+.xxv-icon-recordings { background-position:-72px -32px;}
+.xxv-icon-remote-back { background-position:-88px -32px;}
+
+.xxv-icon-movetimer { background-position:0 -32px;}
+.xxv-icon-chronicle { background-position:-16px -32px;}
+.xxv-icon-edit { background-position:-32px -32px;}
+.xxv-icon-setup { background-position:-48px -32px;}
+.xxv-icon-upgrade { background-position:-64px -32px;}
+.xxv-icon-users { background-position:-72px -32px;}
+.xxv-icon-vdr { background-position:-88px -32px;}
+.xxv-icon-logout { background-position:-104px -32px;}
+
+.xxv-icon-autotimer { background-position:0 -48px;}
+.xxv-icon-find { background-position:-16px -48px;}
+.xxv-icon-timer { background-position:-32px -48px;}
+.xxv-icon-timer-toggle { background-position:-48px -48px;}
+.xxv-icon-new { background-position:-64px -48px;}
+.xxv-icon-unviewed { background-position:-72px -48px;}
+.xxv-icon-cut { background-position:-88px -48px;}
+.xxv-icon-recover { background-position:-104px -48px;}
+.xxv-icon-delete { background-position:-120px -48px;}
+
+.xxv-icon-playing-music { background-position:0 -64px;}
+.xxv-icon-music { background-position:-16px -64px;}
+.xxv-icon-remote-loud { background-position:-32px -64px;}
+.xxv-icon-remote-quiet { background-position:-48px -64px;}
+.xxv-icon-remote-up { background-position:-64px -64px;}
+.xxv-icon-remote-down { background-position:-72px -64px;}
+.xxv-icon-remote-left { background-position:-88px -64px;}
+.xxv-icon-remote-right { background-position:-104px -64px;}
+*/
 
 .refresh-icon {         background-image:url(pic/refresh.png) !important; }
 .autotimer-icon {       background-image:url(pic/autotimer.png) !important; }
@@ -183,6 +243,13 @@ list-style-type:disc !important;
 margin-left:18px;
 }
 
+.preview .x-panel-body .preview-topic {
+overflow:hidden;
+clear:left;
+white-space:nowrap;
+height:1.2em;
+}
+
 .preview .x-panel-body h3.preview-title {
 text-align:left;
 font-weight:bold;
@@ -197,8 +264,7 @@ text-align:left;
 font-weight:bold;
 color:#555;
 font-size:1.0em;
-clear:left;
-float:left;
+/*clear:left;*/
 }
 
 .preview .x-panel-body div.preview-date {
@@ -212,9 +278,9 @@ width:100%;
 .preview .x-panel-body div.preview-channel {
 font-weight:normal;
 color:#555;
-text-align:right;
+text-align:left;
 font-size:1.0em;
-width:100%;
+float:left;
 }
 
 .preview .x-panel-body {
@@ -486,4 +552,10 @@ object#audio-player { display:inline; }
 .x-highlight{
 	background:repeat-x bottom;
 	background-image:url(extjs/resources/images/default/grid/invalid_line.gif);
+}
+
+.coverimage {
+  text-align:right;
+  height:200px;
+  width:200px;
 }

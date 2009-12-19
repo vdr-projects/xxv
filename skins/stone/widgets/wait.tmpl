@@ -3,16 +3,12 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 <head>
+    <link rel="stylesheet" type="text/css" href="style-<?% skin %?>.css" media="all" />
     <title>XXV</title>
     <meta http-equiv="content-type" content="text/html; charset=<?% charset %?>" />
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta name="robots" content="noindex,noarchive,nofollow" />
-<style type="text/css">
-<!--
-    <?% INCLUDE style.css %?>
--->
-</style>
 </head>
 <?% IF info.http_useragent.match('.*MSIE.*') && !info.http_useragent.match('.*Opera.*');
     global.imagetyp = "gif";

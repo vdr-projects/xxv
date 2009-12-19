@@ -41,11 +41,11 @@ Ext.onReady(function(){
                         if(!subtitle) {
                           var Woerter = all.title.split("~");
                           if(Woerter.length > 1) {
-                            return Woerter.pop();
+                            return '&nbsp;-&nbsp;' + Woerter.pop();
                           }
                           return '&nbsp;';
                         }
-                        return subtitle;
+                        return '&nbsp;-&nbsp;' + subtitle;
         }
         ,getChannel : function(v, all){
                         var channel = v || all.channel;
