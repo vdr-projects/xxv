@@ -45,8 +45,8 @@ Ext.xxv.StreamWindow = function(item,width,height) {
         ,minHeight: 120
         ,marginWidth: marginWidth
         ,marginHeight: marginHeight
-        ,width: width
-        ,height: height
+        ,width: item.width
+        ,height: item.height
         ,resizable: true
         ,plain: true
         ,modal: false
@@ -59,11 +59,11 @@ Ext.xxv.StreamWindow = function(item,width,height) {
         ,items: [{
            id: 'video'
           ,region: 'center'
-          ,width: width - marginWidth
-          ,height: height - marginHeight
+          ,width: item.width - marginWidth
+          ,height: item.height - marginHeight
           ,html: tpl.apply({
-                width : width - marginWidth,
-                height : height - marginHeight,
+                width : item.width - marginWidth,
+                height : item.height - marginHeight,
                 url: item.url
               })
         }]
@@ -119,26 +119,26 @@ Ext.extend(Ext.xxv.StreamWindow, Ext.Window, {
 });
 
 
-Ext.xxv.createStream = function(item,streamwin) {
-    var width = configuration.streamWidth;
-    var height = configuration.streamHeight;
+Ext.xxv.createStream = function(item,window) {
+    item.width = configuration.streamWidth;
+    item.height = configuration.streamHeight;
     if(Ext.state.Manager.getProvider()) {
         var streamwin = Ext.state.Manager.get('stream-win');
         if(streamwin && streamwin.width && streamwin.width >= 160 && streamwin.width <= 4096) {
-          width = streamwin.width;
+          item.width = streamwin.width;
         }
         if(streamwin && streamwin.height && streamwin.height >= 120 && streamwin.height <= 2048) {
-          height = streamwin.height;
+          item.height = streamwin.height;
         }
     }
     if(configuration.streamWidget 
         && configuration.streamWidget == 'external') {
-        window.open(item.url, '_blank', "width=" + width + ",height="+ height);
-        return false;
+        window.open(item.url, '_blank', "width=" + item.width + ",height="+ item.height);
+        return null;
     }
-    if(!streamwin){
-      return new Ext.xxv.StreamWindow(item,width,height);
+    if(!window){
+      return new Ext.xxv.StreamWindow(item);
     } else {
-      streamwin.show(item);
+      window.show(item);
     }
 };
