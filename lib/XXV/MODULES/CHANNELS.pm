@@ -615,7 +615,32 @@ sub list {
         'pos' => gettext('Position'),
     );
 
-    my $sql = qq|
+    my $sql;
+    if($console->{cgi} && $console->{cgi}->param('compact')) {
+      $sql = qq|
+      SELECT SQL_CACHE 
+          c.hash as \'$f{'id'}\',
+          c.name as \'$f{'name'}\',
+          c.grp as \'$f{'grp'}\',
+          c.pos as \'$f{'pos'}\',
+          cg.name as __GrpName,
+          ( SELECT 
+              r.host
+              FROM RECORDER as r
+              WHERE r.id = c.vid
+              LIMIT 1) as __host
+      from
+          CHANNELS as c,
+          CHANNELGROUPS as cg
+      WHERE
+          c.name LIKE ?
+          AND c.grp = cg.id
+          AND c.vid = cg.vid
+      ORDER BY
+          c.vid, 
+      |;
+    } else {
+      $sql = qq|
 SELECT SQL_CACHE 
     c.hash as \'$f{'id'}\',
     c.name as \'$f{'name'}\',
@@ -649,6 +674,7 @@ WHERE
 ORDER BY
     c.vid, 
 |;
+    }
 
     my $sortby = "c.pos";
     if(exists $params->{sortby}) {
@@ -697,7 +723,6 @@ ORDER BY
         rows => $rows
     });
 }
-
 
 # ------------------
 sub NameToChannel {

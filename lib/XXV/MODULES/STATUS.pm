@@ -9,7 +9,7 @@ use Sys::Hostname;
 # ------------------
 sub module {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $args = {
         Name => 'STATUS',
         Prereq => {
@@ -54,7 +54,7 @@ sub module {
                 description => gettext('TrueType font to draw overlay text'),
                 default     => 'Vera.ttf',
                 type        => 'list',
-                choices     => Tools::findttf($obj->{paths}->{FONTPATH})
+                choices     => Tools::findttf($self->{paths}->{FONTPATH})
             },
             graphic => {
                 description => gettext('Show collected data as diagram?'),
@@ -76,45 +76,45 @@ sub module {
                     my $config = shift || return error('No config defined!');
 
                     $console->setCall('vitals');
-                    $obj->vitals($console,$config);
+                    $self->vitals($console,$config);
 
                     $console->setCall('filesys');
-                    $obj->filesys($console,$config);
+                    $self->filesys($console,$config);
 
                     $console->setCall('memory');
-                    $obj->memory($console,$config);
+                    $self->memory($console,$config);
 
                     $console->setCall('network');
-                    $obj->network($console,$config);
+                    $self->network($console,$config);
 
                     $console->setCall('hardware');
-                    $obj->hardware($console,$config);
+                    $self->hardware($console,$config);
                 },
             },
             vitals => {
                 description => gettext('Display the vitals informations'),
                 short       => 'sv',
-                callback    => sub{ $obj->vitals(@_) },
+                callback    => sub{ $self->vitals(@_) },
             },
             network => {
                 description => gettext('Displays network information'),
                 short       => 'sn',
-                callback    => sub{ $obj->network(@_) },
+                callback    => sub{ $self->network(@_) },
             },
             hardware => {
                 description => gettext('Displays hardware information'),
                 short       => 'sh',
-                callback    => sub{ $obj->hardware(@_) },
+                callback    => sub{ $self->hardware(@_) },
             },
             memory => {
                 description => gettext('Displays memory information'),
                 short       => 'sm',
-                callback    => sub{ $obj->memory(@_) },
+                callback    => sub{ $self->memory(@_) },
             },
             filesys => {
                 description => gettext('Display the file system informations'),
                 short       => 'sf',
-                callback    => sub{ $obj->filesys(@_) },
+                callback    => sub{ $self->filesys(@_) },
             },
         },
     };
@@ -171,26 +171,26 @@ sub new {
 # ------------------
 sub remember {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
 
-    my $longsteps = int(($obj->{history} * 60 * 60) / $obj->{interval});
+    my $longsteps = int(($self->{history} * 60 * 60) / $self->{interval});
 
-    $obj->watchDog($obj->mounts(undef,'rawdata'));
+    $self->watchDog($self->mounts(undef,'rawdata'));
 
     my $data = {
         timestamp  => time,
-        load        => $obj->load('clear'),
-        util        => $obj->util('clear'),
-        users       => $obj->users('clear'),
-        usage       => $obj->mounts('clear'),
-        memory      => $obj->meminfo('clear'),
-        network     => $obj->netDevs('clear'),
+        load        => $self->load('clear'),
+        util        => $self->util('clear'),
+        users       => $self->users('clear'),
+        usage       => $self->mounts('clear'),
+        memory      => $self->_memory('clear'),
+        network     => $self->_network('clear'),
 
     };
-    push(@{$obj->{rememberstack}}, $data);
+    push(@{$self->{rememberstack}}, $data);
 
-    if(scalar @{$obj->{rememberstack}} >= $longsteps) {
-        shift @{$obj->{rememberstack}};
+    if(scalar @{$self->{rememberstack}} >= $longsteps) {
+        shift @{$self->{rememberstack}};
     }
 }
 
@@ -198,59 +198,89 @@ sub remember {
 # ------------------
 sub vitals {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
 
     my $output = {
-        name    => $obj->name(),
-        IP      => $obj->IP(),
-        kernel  => $obj->kernel(),
-        uptime  => $obj->uptime(),
-        users   => $obj->users(),
-        load    => $obj->load(),
-        util    => $obj->util(),
+        name    => $self->name(),
+        IP      => $self->IP(),
+        kernel  => $self->kernel(),
+        uptime  => $self->uptime(),
+        users   => $self->users(),
+        load    => $self->load(),
+        util    => $self->util(),
     };
 
     my $param = {
         headingText => gettext('Vitals'),
-        stack => $obj->{rememberstack},
-        history => $obj->{history} * 60 * 60,
-        interval => $obj->{interval},
-        font => sprintf("%s/%s",$obj->{paths}->{FONTPATH},$obj->{font}),
+        stack => $self->{rememberstack},
+        history => $self->{history} * 60 * 60,
+        interval => $self->{interval},
     };
+    $param->{font} = sprintf("%s/%s",$self->{paths}->{FONTPATH},$self->{font})
+      if($console->typ eq 'HTML');
     return $console->table($output,$param);
 }
 
 # ------------------
 sub network {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
 
-    my $interfaces = $obj->netDevs();
+    my $ret = [];
+    push(@$ret,
+      [
+        gettext("Interface"),
+        gettext("RxBytes"),
+        gettext("RxPackets"),
+        gettext("TxBytes"),
+        gettext("TxPackets"),
+        gettext("Time")
+      ])
+    if($console->typ ne 'AJAX');
+
+    my $raw = ($console->typ eq 'AJAX' or $console->typ eq 'HTML') ? 1 : 0;
+    if($raw) {
+      foreach(@{$self->{rememberstack}}) {
+        my $t = $_->{timestamp};
+        foreach(@{$_->{network}}) {
+        my @v = [ @{$_} ];
+        $v[0]->[5] = $t;
+        push(@$ret, @v);
+        }
+      }
+    }
+
+    my $t = time;
+    my $n = $self->_network($raw);
+    foreach(@{$n}) {
+    my @v = [ @{$_} ];
+      $v[0]->[5] = $t;
+      push(@$ret, @v);
+    }
+
     my $param = {
         headingText => gettext('Network'),
-        stack => $obj->{rememberstack},
-        history => $obj->{history} * 60 * 60,
-        interval => $obj->{interval},
-        font => sprintf("%s/%s",$obj->{paths}->{FONTPATH},$obj->{font}),
     };
-    return $console->table($interfaces,$param);
+    $param->{font} = sprintf("%s/%s",$self->{paths}->{FONTPATH},$self->{font})
+      if($console->typ eq 'HTML');
+    return $console->table($ret,$param);
 }
 
 # ------------------
 sub hardware {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
 
-    my ($number, $model, $speed, $cache, $bogomips) = $obj->CPU();
-    my $pci = $obj->pci();
-    my $ide = $obj->ide();
-    my $scsi = $obj->scsi();
+    my ($number, $model, $speed, $cache, $bogomips) = $self->CPU();
+    my $pci = $self->pci();
+    my $ide = $self->ide();
+    my $scsi = $self->scsi();
 
     my $output = {
         Processors  => $number,
@@ -271,35 +301,60 @@ sub hardware {
 # ------------------
 sub memory {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
 
-    my $ret = $obj->meminfo(undef,$console->typ eq 'HTML');
+    my $ret = [];
+    push(@$ret,
+      [
+        gettext("Total memory"),
+        gettext("Free memory"),
+        gettext("Active used memory"),
+        gettext("Inactive memory"),
+        gettext("Cached pages"),
+        gettext("Swap cache"),
+        gettext("Time")
+      ])
+    if($console->typ ne 'AJAX');
+
+    my $raw = ($console->typ eq 'AJAX' or $console->typ eq 'HTML') ? 1 : 0;
+    if($raw) {
+      foreach(@{$self->{rememberstack}}) {
+        my @v = $_->{memory};
+        $v[0]->[6] = $_->{timestamp};
+        push(@$ret, @v);
+      }
+    }
+    my @n = $self->_memory(undef,$raw);
+    $n[0]->[6] = time;
+    push(@$ret,@n);
+
     my $param = {
         headingText => gettext('Memory'),
-        stack => $obj->{rememberstack},
-        history => $obj->{history} * 60 * 60,
-        interval => $obj->{interval},
-        font => sprintf("%s/%s",$obj->{paths}->{FONTPATH},$obj->{font}),
     };
+    $param->{font} = sprintf("%s/%s",$self->{paths}->{FONTPATH},$self->{font})
+      if($console->typ eq 'HTML');
+
     return $console->table($ret,$param);
 }
 
 # ------------------
 sub filesys {
 # ------------------
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
 
-    my $ret = $obj->mounts(undef,$obj->{graphic} eq 'y' && $console->typ eq 'HTML');
+    my $ret = $self->mounts(undef,$self->{graphic} eq 'y' && $console->typ eq 'HTML');
     my $param = {
         headingText => gettext('Filesystems'),
         usage => $ret,
-        font => sprintf("%s/%s",$obj->{paths}->{FONTPATH},$obj->{font}),
-        graphic => ($obj->{graphic} eq 'y' ? 1 : 0),
+        graphic => ($self->{graphic} eq 'y' ? 1 : 0),
     };
+    $param->{font} = sprintf("%s/%s",$self->{paths}->{FONTPATH},$self->{font})
+      if($console->typ eq 'HTML');
+
     return $console->table($ret,$param);
 }
 
@@ -308,27 +363,9 @@ sub filesys {
 #                           Helper Functions
 #############################################################################
 
-
-# Takes Celcius temperatures and converts to Farenheit
-
-sub tempConvert {
-    my $obj = shift || return error('No object defined!');
-    my $celcius = $_[0];
-
-    my $result = (( $celcius * 9) / 5 ) + 32;
-
-    $result = sprintf("%.1f", $result);
-
-    $result .= "&#176 F";
-
-    return $result;
-
-}
-
 # Get the system's name
-
 sub name {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my $result = hostname();
     return $result;
@@ -338,9 +375,9 @@ sub name {
 # Get the system's IP address
 
 sub IP {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    my $result = inet_ntoa(scalar(gethostbyname($obj->name())) || scalar(gethostbyname('localhost')));
+    my $result = inet_ntoa(scalar(gethostbyname($self->name())) || scalar(gethostbyname('localhost')));
     return $result;
 
 }
@@ -348,7 +385,7 @@ sub IP {
 # Get the system's kernel version
 
 sub kernel {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my $result = load_file("/proc/sys/kernel/osrelease");
     $result =~ s/\n//sig;
@@ -359,7 +396,7 @@ sub kernel {
 # Get the system's uptime
 
 sub uptime {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my $buffer = load_file('/proc/uptime');
 
@@ -419,25 +456,12 @@ sub uptime {
 }
 
 # Get information on network devices in the system
-sub netDevs {
-    my $obj = shift || return error('No object defined!');
+sub _network {
+    my $self = shift || return error('No object defined!');
     my $clr = shift || 0;
     my $buffer = load_file('/proc/net/dev');
 
-    my $interfaces = [
-      [
-        gettext("Interface"),
-        gettext("RxBytes"),
-        gettext("RxPackets"),
-        gettext("RxErrs"),
-        gettext("RxDrop"),
-        gettext("TxBytes"),
-        gettext("TxPackets"),
-        gettext("TxErrs"),
-        gettext("TxDrop")
-      ]
-    ];
-    $interfaces = [] if($clr);
+    my $interfaces = [];
 
     foreach my $line (split(/\n/, $buffer)) {
         my @data = split(/[:|\s]+/, $line);
@@ -446,19 +470,20 @@ sub netDevs {
             $data[2] = convert($data[2]);
             $data[10] = convert($data[10]);
         }
-        push(@$interfaces, [@data[1..5], @data[10..13]]);
+        push(@$interfaces, [@data[1..3], @data[10..11]]);
     }
 
     return $interfaces;
 }
 
 # Get the current memory info
-sub meminfo {
-    my $obj = shift || return error('No object defined!');
+sub _memory {
+    my $self = shift || return error('No object defined!');
     my $clr = shift || 0;
     my $rawdata = shift || 0;
+    my @ret;
 
-    my $ret = {};
+    my $mem = {};
     my $buffer = load_file "/proc/meminfo";
     foreach my $zeile (split('\n', $buffer)) {
         next unless($zeile =~ /kB/);
@@ -468,15 +493,16 @@ sub meminfo {
         $value = convert($value * 1024)
             unless($clr || $rawdata);
 
-        $ret->{$name} = $value;
+        $mem->{$name} = $value;
     }
-    return $ret;
+    push(@ret,$mem->{MemTotal},$mem->{MemFree},$mem->{Active},$mem->{Inactive},$mem->{Cached},$mem->{SwapCached});
+    return \@ret;
 }
 
 # Get current cpu info
 
 sub CPU {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my $buffer = load_file('/proc/cpuinfo');
 
@@ -511,7 +537,7 @@ sub CPU {
 # Get CPU usage info and return a percentage
 
 sub util {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     open(STAT, "/proc/stat") or return error "Couldn't open /proc/stat\n";
     my $buffer = <STAT>;
@@ -551,10 +577,10 @@ sub util {
 # Get the number of current users logged in
 
 sub users {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
-    my $result = `$obj->{whoBinary}`
-        or return error "Couldn't execute $obj->{whoBinary}\n";
+    my $result = `$self->{whoBinary}`
+        or return error "Couldn't execute $self->{whoBinary}\n";
     my $lines = ($result =~ tr/\n//);
     return $lines;
 
@@ -563,7 +589,7 @@ sub users {
 # Get the list of PCI devices
 
 sub pci {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     return 0
       if(! -r "/proc/pci");
@@ -581,7 +607,7 @@ sub pci {
 # Get the list of IDE devices
 
 sub ide {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my @ideModelList;
     my @ideCapacityList;
@@ -624,7 +650,7 @@ sub ide {
 # Get the list of SCSI devices
 
 sub scsi {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
 
     my $ret = [[qw/Device Vendor Model Type/]];
     my $file = "/proc/scsi/scsi";
@@ -684,15 +710,16 @@ sub scsi {
 # Get the current load averages
 
 sub load {
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $clr = shift || 0;
 
     my $buffer = load_file("/proc/loadavg");
     my @list = split(' ', $buffer);
-    my $c = 5;
-    my $ret;
 
     return \@list if($clr);
+
+    my $c = 5;
+    my $ret;
 
     foreach my $entry (@list[0..2]) {
         $ret .= sprintf("%s last %d min\n", $entry, $c);
@@ -705,12 +732,12 @@ sub load {
 
 # Get the status of currently mounted filesystems
 sub mounts{
-    my $obj = shift || return error('No object defined!');
+    my $self = shift || return error('No object defined!');
     my $clr = shift || 0;
     my $rawdata = shift || 0;
 
-    my $df = `$obj->{dfBinary} -TP -x cdfs -x iso9660 -x udf`
-        or return error "Couldn't execute $obj->{dfBinary} $!\n";
+    my $df = `$self->{dfBinary} -TP -x cdfs -x iso9660 -x udf`
+        or return error "Couldn't execute $self->{dfBinary} $!\n";
     my $ret = [
       [
         gettext("Filesystem"),
@@ -742,9 +769,9 @@ sub mounts{
 # ------------------
 sub videoMounts {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $videodir = shift || return error('No video path defined!');
-    my $mounts = $obj->mounts;
+    my $mounts = $self->mounts;
 
     my $ret = [];
 
@@ -761,15 +788,15 @@ sub videoMounts {
 # ------------------
 sub watchDog {
 # ------------------
-    my $obj = shift  || return error('No object defined!');
+    my $self = shift  || return error('No object defined!');
     my $mou = shift  || return error('No data defined!');
 
     # Not all 15 seconds a panic message ;)
-    return if($obj->{LastWarning}+900 > time);
+    return if($self->{LastWarning}+900 > time);
 
     foreach my $m (@$mou) {
         next unless($m->[0] =~ /^\//);
-        if($obj->{warnlevel} && $m->[5] >= $obj->{warnlevel} ) {
+        if($self->{warnlevel} && $m->[5] >= $self->{warnlevel} ) {
             my $rm = main::getModule('EVENTS');
             $rm->news(
                 sprintf(gettext("PANIC! Only %s%% space left on device %s"),(100 - $m->[5]),$m->[0]),
@@ -778,7 +805,7 @@ sub watchDog {
                 undef,
                 'important'
             );
-            $obj->{LastWarning} = time;
+            $self->{LastWarning} = time;
         }
     }
 }

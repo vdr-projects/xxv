@@ -507,7 +507,7 @@ sub init_locale {
 
     return ($charset,$useutf8);
 }
-
+my $LOG_FAILED = undef;
 # ------------------
 sub init_logging {
 # ------------------
@@ -534,8 +534,13 @@ sub init_logging {
         my $mode = '>>';
         #$mode .= ':utf8' if($Tools::CHARSET && $Tools::CHARSET eq 'UTF-8');
 
-        my $fh = IO::File->new($loggerfile,$mode) 
-          or return print(sprintf("Couldn't write %s : %s!",$loggerfile,$!));
+        my $fh = IO::File->new($loggerfile,$mode);
+        unless ($fh) {
+          return if($LOG_FAILED);# log only once, if failed
+          $LOG_FAILED = 1;
+          return print(sprintf("Couldn't write %s : %s!",$loggerfile,$!));
+        }
+        $LOG_FAILED = undef;
 #       binmode $fh, ":encoding(utf8)" if($Tools::CHARSET eq 'UTF-8');
         print $fh sprintf("%d (%d) [%s] %s\n",++$loggercnt, $errcode, $tt, $msg);
         $fh->close;

@@ -355,9 +355,9 @@ sub playrecord {
         || $URL =~ /^[a-z]\:[\/|\\]/sig);  # Samba x:/xxx/yyy => x:\xxx\yyy
 
 
-        if($fstat) {
+        if($fstat && $rec->{size}) {
           # estimate duration of file in seconds ( filesize * totaltime / totalsize )
-          my $duration = CORE::int($fstat->size * $rec->{duration} / ($rec->{FileSize} * 1024 * 1024));
+          my $duration = CORE::int($fstat->size * $rec->{duration} / ($rec->{size} * 1024 * 1024));
           # add duration and title as extended infomations
           $data .= "#EXTINF:". $duration ."," . $rec->{title};
           $data .= "~" . $rec->{subtitle} if($rec->{subtitle});
