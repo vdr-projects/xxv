@@ -7,7 +7,7 @@
  * $Id$
  */
 
-Ext.xxv.StreamWindow = function(item,width,height) {
+Ext.xxv.StreamWindow = function(item) {
 
     var tpl = new Ext.XTemplate(
         '<object id="player_obj" width="{width}" height="{height}"',
