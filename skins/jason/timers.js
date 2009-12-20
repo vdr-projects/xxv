@@ -507,8 +507,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       this.EditItem(record);
     }
     ,select : function(sm, index, record){
-      this.preview.select(sm, index, record, 
-        this.filter.getValue());
+      this.preview.select(record, this.filter.getValue());
     }
 });
 
@@ -552,7 +551,7 @@ Ext.extend(Ext.xxv.timerPreview, Ext.Panel, {
    szFindReRun : "Find rerun"
   ,szEdit   : "Edit"
   ,szDelete : "Delete"
-  ,select : function(sm, index, record, lookup){
+  ,select : function(record, lookup){
     if(this.body)
       XXV.getTemplate().overwrite(this.body, record.data);
     if(lookup)

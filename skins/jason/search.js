@@ -219,7 +219,7 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
         this.viewer.gridNow.EditTimer(record, this.store);
     }
     ,select : function(sm, index, record){
-      this.preview.select(sm, index, record,this.store.baseParams.data);
+      this.preview.select(record,this.store.baseParams.data);
     }
 });
 
@@ -258,9 +258,10 @@ Ext.xxv.searchPreview = function(viewer) {
     });
 };
 Ext.extend(Ext.xxv.searchPreview, Ext.Panel, {
-  select : function(sm, index, record, lookup){
+  select : function(record, lookup){
     if(this.body)
       XXV.getTemplate().overwrite(this.body, record.data);
+    if(lookup)
       highlightText(this.body.dom,lookup,'x-highlight',1);
     // Enable all toolbar buttons
     var items = this.topToolbar.items;

@@ -193,8 +193,6 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       for (var i = 0; i < l; i++) {
         records[i].data.rang = i;
       }
-      this.getSelectionModel().selectFirstRow();
-
       if(store.baseParams.data
         && store.baseParams.cmd != 'nx'
         && store.reader.meta 
@@ -206,6 +204,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         this.ownerCt.SetPanelTitle(this.szFollowing + " - " + new Date().dateFormat('H:i'));
       else
         this.ownerCt.SetPanelTitle(this.szPresent + " - " + new Date().dateFormat('H:i'));
+      this.getSelectionModel().selectFirstRow();
     }
     ,onSpecialkey : function(f, e) {
       if(e.getKey() == e.ENTER){

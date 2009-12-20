@@ -88,19 +88,17 @@ Ext.xxv.autotimerGrid.prototype.szUpgradeSuccess = "Ricerca eventi desiderati ri
 Ext.xxv.autotimerGrid.prototype.szUpgradeFailure = "Impossibile cercare eventi desiderati!\r\n{0}";
 
 /* chronicle.js */
-Ext.xxv.chronicleGrid.prototype.szTitle = "Cronologia";
-Ext.xxv.chronicleGrid.prototype.szToolTip = "Mostra registrazioni in ordine cronologico";
-Ext.xxv.chronicleGrid.prototype.szFindReRun = "Cerca repliche";
-Ext.xxv.chronicleGrid.prototype.szDelete = "Elimina";
-Ext.xxv.chronicleGrid.prototype.szColTitle = "Titolo";
-Ext.xxv.chronicleGrid.prototype.szColDay = "Giorno";
-Ext.xxv.chronicleGrid.prototype.szColChannel = "Canale";
-Ext.xxv.chronicleGrid.prototype.szColStart = "Inizio";
-Ext.xxv.chronicleGrid.prototype.szColStop = "Fine";
-Ext.xxv.chronicleGrid.prototype.szColDayFormat = "l, m/d/Y";
-Ext.xxv.chronicleGrid.prototype.szLoadException = "Impossibile recuperare dati della cronologia!\r\n{0}";
-Ext.xxv.chronicleGrid.prototype.szDeleteSuccess = "Eliminazione dati cronologia riuscita.\r\n{0}";
-Ext.xxv.chronicleGrid.prototype.szDeleteFailure = "Impossibile eliminare dati della cronologia!\r\n{0}";
+Ext.xxv.ChronicleGrid.prototype.szTitle = "Cronologia";
+Ext.xxv.ChronicleGrid.prototype.szToolTip = "Mostra registrazioni in ordine cronologico";
+Ext.xxv.ChronicleGrid.prototype.szColTitle = "Titolo";
+Ext.xxv.ChronicleGrid.prototype.szColDay = "Giorno";
+Ext.xxv.ChronicleGrid.prototype.szColChannel = "Canale";
+Ext.xxv.ChronicleGrid.prototype.szColStart = "Inizio";
+Ext.xxv.ChronicleGrid.prototype.szColStop = "Fine";
+Ext.xxv.ChronicleGrid.prototype.szColDayFormat = "l, m/d/Y";
+Ext.xxv.ChronicleGrid.prototype.szLoadException = "Impossibile recuperare dati della cronologia!\r\n{0}";
+Ext.xxv.ChronicleGrid.prototype.szDeleteSuccess = "Eliminazione dati cronologia riuscita.\r\n{0}";
+Ext.xxv.ChronicleGrid.prototype.szDeleteFailure = "Impossibile eliminare dati della cronologia!\r\n{0}";
 
 /* now.js */
 Ext.xxv.NowGrid.prototype.szTitle = "Guida programmi";

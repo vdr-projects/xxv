@@ -17,10 +17,11 @@ Ext.xxv.chronicleStore = function() {
                     fields: [
                       {name: 'id', type: 'int'},
                       {name: 'title', type: 'string'},
-                      {name: 'channels', type: 'string'},
+                      {name: 'channel', type: 'string'},
                       {name: 'day', type:'date', dateFormat:'timestamp'},
                       {name: 'start', type: 'string'},
-                      {name: 'stop', type: 'string'}
+                      {name: 'stop', type: 'string'},
+                      {name: 'description', type: 'string'}
                     ]
                 })
             ,proxy : new Ext.data.HttpProxy({
@@ -31,8 +32,9 @@ Ext.xxv.chronicleStore = function() {
     });
 };
 
-Ext.xxv.chronicleGrid = function(viewer, channels) {
+Ext.xxv.ChronicleGrid = function(viewer) {
     this.viewer = viewer;
+    this.preview = new Ext.xxv.ChroniclePreview(viewer);
 
     // create the data store
     this.store = new Ext.xxv.chronicleStore();
@@ -47,7 +49,7 @@ Ext.xxv.chronicleGrid = function(viewer, channels) {
            ,renderer: this.formatTitle
         },
         {           header: this.szColChannel
-           ,dataIndex: 'channels'
+           ,dataIndex: 'channel'
            ,width: 130
         },{
            header: this.szColDay
@@ -67,8 +69,17 @@ Ext.xxv.chronicleGrid = function(viewer, channels) {
 
     var cm = new Ext.grid.ColumnModel(this.columns);
     cm.defaultSortable = true;
-
-    Ext.xxv.chronicleGrid.superclass.constructor.call(this, {
+    this.filter = new Ext.ux.grid.Search({
+             position:'top'
+            ,shortcutKey:null
+            ,paramNames: {
+                  fields:'cmd'
+                  ,all:'chrl'
+                  ,cmd:'chrs'
+                  ,query:'data'
+              }
+        });
+    Ext.xxv.ChronicleGrid.superclass.constructor.call(this, {
          region: 'center'
         ,id: 'chronicle-view-grid'
         ,loadMask: true
@@ -82,33 +93,25 @@ Ext.xxv.chronicleGrid = function(viewer, channels) {
               pageSize: this.store.autoLoad.params.limit,
               store: this.store,
               displayInfo: true })
-        ,plugins:[new Ext.ux.grid.Search({
-             position:'top'
-            ,shortcutKey:null
-            ,paramNames: {
-                    fields:'cmd'
-                    ,all:'chrl'
-                    ,cmd:'chrs'
-                    ,query:'data'
-                }
-        })]
+        ,plugins:[this.filter]
     });
 
     this.store.on({
          'load' : this.onLoad
+        ,'beforeload'    : this.onBeforeLoad
         ,'loadexception' : this.onLoadException
         ,scope:this
     });
 
     this.on('rowcontextmenu', this.onContextClick, this);
+    this.getSelectionModel().on('rowselect', this.select, this, {buffer:50});
     this.on('rowdblclick', this.onEditItem, this);
 };
 
-Ext.extend(Ext.xxv.chronicleGrid,  Ext.grid.EditorGridPanel, {
+Ext.extend(Ext.xxv.ChronicleGrid,  Ext.grid.EditorGridPanel, {
 
      szTitle         : "Chronicle"
     ,szToolTip       : "Display recordings in chronological order"
-    ,szFindReRun     : "Find rerun"
     ,szDelete        : "Delete"
     ,szColTitle      : "Title"
     ,szColDay        : "Day"
@@ -125,9 +128,12 @@ Ext.extend(Ext.xxv.chronicleGrid,  Ext.grid.EditorGridPanel, {
     ,onLoadException :  function( scope, o, arg, e) {
       new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
+    ,onBeforeLoad : function(  store, opt ) {
+      this.preview.clear();
+    }
     ,onLoad : function( store, records, opt ) {
-      this.getSelectionModel().selectFirstRow();
       this.ownerCt.SetPanelTitle(this.szTitle);
+      this.getSelectionModel().selectFirstRow();
     }
     ,onContextClick : function(grid, index, e){
         if(!this.menu){ // create context menu on first right click
@@ -135,14 +141,14 @@ Ext.extend(Ext.xxv.chronicleGrid,  Ext.grid.EditorGridPanel, {
                 id:'grid-ctx',
                 items: [{
                      itemId:'s'
-                    ,text:  this.szFindReRun
+                    ,text:  Ext.xxv.timerGrid.prototype.szFindReRun
                     ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
                    },{
                      itemId:'chrd'
-                    ,text:  this.szDelete
+                    ,text:  Ext.xxv.timerGrid.prototype.szDelete
                     ,iconCls: 'delete-icon'
                     ,scope:this
                     ,disabled: true
@@ -222,13 +228,10 @@ Ext.extend(Ext.xxv.chronicleGrid,  Ext.grid.EditorGridPanel, {
             new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, msg);
         }
     }
-
-    ,onDeleteFailure : function( response,options ) 
-    { 
+    ,onDeleteFailure : function( response,options ) { 
         this.loadMask.hide(); 
         new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
     }
-
     ,DeleteItem : function( record ) {
       this.stopEditing();
       this.loadMask.show(); 
@@ -254,11 +257,58 @@ Ext.extend(Ext.xxv.chronicleGrid,  Ext.grid.EditorGridPanel, {
          ,params:{ data: todel }
       });
     }
+    ,select : function(sm, index, record){
+      this.preview.select(record, this.filter.getValue());
+    }
+});
+
+Ext.xxv.ChroniclePreview = function(viewer) {
+    this.viewer = viewer;
+    Ext.xxv.ChroniclePreview.superclass.constructor.call(this, {
+        id: 'chronicle-preview',
+        region: 'south',
+        cls:'preview',
+        autoScroll: true,
+        stateful:true,
+        tbar: [ {
+            id:'s',
+            tooltip: Ext.xxv.timerGrid.prototype.szFindReRun,
+            iconCls: 'find-icon',
+            disabled:true,
+            scope: viewer,
+            handler: function(){ this.searchTab(this.gridChronicle.getSelectionModel().getSelected()); }
+        } ]
+    });
+};
+
+Ext.extend(Ext.xxv.ChroniclePreview, Ext.Panel, {
+  select : function(record, lookup){
+    if(this.body)
+      XXV.getTemplate().overwrite(this.body, record.data);
+    if(lookup)
+      highlightText(this.body.dom,lookup,'x-highlight',1);
+    // Enable all toolbar buttons
+    var items = this.topToolbar.items;
+    if(items) { 
+        items.eachKey(function(key, f) {
+                  if(XXV.help.cmdAllowed(key)) f.enable();
+          },items); 
+      }
+  }
+  ,clear: function(){
+      if(this) {
+        if(this.body)
+           this.body.update('');
+        // Disable all items
+        var items = this.topToolbar.items;
+        if(items) { items.eachKey(function(key, f){f.disable();},items); }
+      }
+   }
 });
 
 function createChronicleView(viewer,id) {
 
-    viewer.chronicleGrid = new Ext.xxv.chronicleGrid(viewer, viewer.storeChannels);
+    viewer.gridChronicle = new Ext.xxv.ChronicleGrid(viewer);
   
     tab = new Ext.xxv.Panel({
       id: id,
@@ -267,7 +317,27 @@ function createChronicleView(viewer,id) {
       border:false,
       layout:'border',
       stateful:true,
-      items:[ viewer.chronicleGrid ]
+      items:[ viewer.gridChronicle
+             ,{
+                id:'chronicle-bottom-preview',
+                layout:'fit',
+                items:XXV.BottomPreview ? 0 : viewer.gridChronicle.preview,
+                height: 250,
+                split: true,
+                border:false,
+                region:'south',
+                hidden:XXV.BottomPreview
+            }, {
+                id:'chronicle-right-preview',
+                layout:'fit',
+                items:XXV.RightPreview ? 0 : viewer.gridChronicle.preview,
+                border:false,
+                region:'east',
+                width:350,
+                split: true,
+                hidden:XXV.RightPreview
+            }
+          ]
     });
 
 

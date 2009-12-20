@@ -231,8 +231,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
         this.viewer.gridNow.EditTimer(record, this.store);
     }
     ,select : function(sm, index, record){
-      this.preview.select(sm, index, record, 
-        this.filter.getValue());
+      this.preview.select(record, this.filter.getValue());
     }
 });
 
@@ -273,7 +272,7 @@ Ext.xxv.programPreview = function(viewer) {
 
 Ext.extend(Ext.xxv.programPreview, Ext.Panel, {
 
-   select : function(sm, index, record, lookup){
+   select : function(record, lookup){
     if(this.body)
       XXV.getTemplate().overwrite(this.body, record.data);
     if(lookup)

@@ -124,7 +124,7 @@ Ext.xxv.MainMenu = function(/*config*/){
           ,iconCls:"recordings-icon"
           ,cmd: 'rl'
         },{
-           text: Ext.xxv.chronicleGrid.prototype.szTitle
+           text: Ext.xxv.ChronicleGrid.prototype.szTitle
           ,iconCls:"chronicle-icon"
           ,cmd: 'chrl'
         },{

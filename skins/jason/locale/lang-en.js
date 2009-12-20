@@ -88,19 +88,17 @@ Ext.xxv.autotimerGrid.prototype.szUpgradeSuccess = "Lookup for wanted events suc
 Ext.xxv.autotimerGrid.prototype.szUpgradeFailure = "Couldn't lookup for wanted events!\r\n{0}";
 
 /* chronicle.js */
-Ext.xxv.chronicleGrid.prototype.szTitle = "Chronicle";
-Ext.xxv.chronicleGrid.prototype.szToolTip = "Display recordings in chronological order";
-Ext.xxv.chronicleGrid.prototype.szFindReRun = "Find rerun";
-Ext.xxv.chronicleGrid.prototype.szDelete = "Delete";
-Ext.xxv.chronicleGrid.prototype.szColTitle = "Title";
-Ext.xxv.chronicleGrid.prototype.szColDay = "Day";
-Ext.xxv.chronicleGrid.prototype.szColChannel = "Channel";
-Ext.xxv.chronicleGrid.prototype.szColStart = "Start";
-Ext.xxv.chronicleGrid.prototype.szColStop = "Stop";
-Ext.xxv.chronicleGrid.prototype.szColDayFormat = "l, m/d/Y";
-Ext.xxv.chronicleGrid.prototype.szLoadException = "Couldn't get data from chronicle!\r\n{0}";
-Ext.xxv.chronicleGrid.prototype.szDeleteSuccess = "Data from chronicle deleted successful.\r\n{0}";
-Ext.xxv.chronicleGrid.prototype.szDeleteFailure = "Couldn't delete data from chronicle!\r\n{0}";
+Ext.xxv.ChronicleGrid.prototype.szTitle = "Chronicle";
+Ext.xxv.ChronicleGrid.prototype.szToolTip = "Display recordings in chronological order";
+Ext.xxv.ChronicleGrid.prototype.szColTitle = "Title";
+Ext.xxv.ChronicleGrid.prototype.szColDay = "Day";
+Ext.xxv.ChronicleGrid.prototype.szColChannel = "Channel";
+Ext.xxv.ChronicleGrid.prototype.szColStart = "Start";
+Ext.xxv.ChronicleGrid.prototype.szColStop = "Stop";
+Ext.xxv.ChronicleGrid.prototype.szColDayFormat = "l, m/d/Y";
+Ext.xxv.ChronicleGrid.prototype.szLoadException = "Couldn't get data from chronicle!\r\n{0}";
+Ext.xxv.ChronicleGrid.prototype.szDeleteSuccess = "Data from chronicle deleted successful.\r\n{0}";
+Ext.xxv.ChronicleGrid.prototype.szDeleteFailure = "Couldn't delete data from chronicle!\r\n{0}";
 
 /* now.js */
 Ext.xxv.NowGrid.prototype.szTitle = "Program guide";

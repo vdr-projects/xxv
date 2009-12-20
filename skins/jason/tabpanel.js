@@ -63,7 +63,7 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
             return;
         }
         if(pressed){
-            var pages = ['now','program','timer','search','recording'];
+            var pages = ['now','program','timer','search','recording','chronicle'];
             for(var i = 0, len = pages.length; i < len; i++){
                 var page = pages[i];
                 var right = Ext.getCmp(page + '-right-preview');
@@ -80,6 +80,8 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
                     preview  = this.gridSearch.preview;
                   } else if(page == 'recording') {
                     preview  = this.gridRecordings.preview;
+                  } else if(page == 'chronicle') {
+                    preview  = this.gridChronicle.preview;
                   } else {
                     continue;
                   }
