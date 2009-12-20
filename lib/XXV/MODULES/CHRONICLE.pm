@@ -115,12 +115,13 @@ sub _init {
       $self->{dbh}->do(qq|
         CREATE TABLE IF NOT EXISTS CHRONICLE (
             id int unsigned auto_increment not NULL,
-            hash varchar(16) NOT NULL default '',
+            hash varchar(32) NOT NULL default '',
             title text NOT NULL default '',
-            channel_id varchar(100) NOT NULL default '',
+            channel_id varchar(32) default '',
             starttime datetime NOT NULL default '0000-00-00 00:00:00',
             duration int NOT NULL default '0',
-            PRIMARY KEY  (id),
+            description text,
+            PRIMARY KEY (id),
             UNIQUE KEY (hash) 
           ) COMMENT = '$version'
       |);
@@ -148,11 +149,12 @@ sub _insertData {
     my $sql = qq|
 INSERT IGNORE INTO CHRONICLE 
   SELECT SQL_CACHE  
-    0, PASSWORD(CONCAT(e.channel_id,e.starttime,title)),
-    REPLACE(IF(Length(e.subtitle)<=0, IF(left(e.title,1) = '%',right(e.title,length(e.title)-1),e.title), CONCAT_WS('~',e.title,e.subtitle)),'~%','~') as title,
+    0, MD5(CONCAT(e.channel_id,FLOOR(UNIX_TIMESTAMP(e.starttime) / 900),REPLACE(IF(ISNULL(e.subtitle) OR Length(e.subtitle)<=0, IF(left(e.title,1) = "%",SUBSTR(e.title FROM 2),e.title), CONCAT_WS("~",e.title,e.subtitle)),"~%","~"))),
+    REPLACE(IF(ISNULL(e.subtitle) OR Length(e.subtitle)<=0, IF(left(e.title,1) = "%",SUBSTR(e.title FROM 2),e.title), CONCAT_WS("~",e.title,e.subtitle)),"~%","~") as title,
     IF(e.channel_id <> "<undef>",e.channel_id , NULL),
     e.starttime,
-    e.duration
+    e.duration,
+    e.description
   FROM OLDEPG as e,RECORDS as r
   WHERE r.eventid = e.eventid
 |;
@@ -190,7 +192,8 @@ SELECT SQL_CACHE
   UNIX_TIMESTAMP(starttime) as \'$f{'day'}\',
   DATE_FORMAT(starttime, '%H:%i') as \'$f{'start'}\',
   DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration), '%H:%i') as \'$f{'stop'}\'
-FROM CHRONICLE WHERE id > 0
+ ,description as _description
+FROM CHRONICLE
 ORDER BY starttime
 |;
 
@@ -249,7 +252,7 @@ sub search {
     my $text  = shift || return $console->err(gettext("No 'string' to search defined! Please use chrsearch 'text'."));
     my $params = shift;
 
-    my $query = buildsearch("title",$text);
+    my $query = buildsearch("title,description",$text);
 
     my %f = (
         'id' => gettext('Service'),
@@ -271,6 +274,7 @@ SELECT SQL_CACHE
   UNIX_TIMESTAMP(starttime) as \'$f{'day'}\',
   DATE_FORMAT(starttime, '%H:%i') as \'$f{'start'}\',
   DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration), '%H:%i') as \'$f{'stop'}\'
+ ,description as _description
 FROM CHRONICLE
 |;
     $sql .= sprintf("WHERE %s ORDER BY starttime",$query->{query});

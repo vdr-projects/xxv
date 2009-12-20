@@ -18,7 +18,7 @@
 
 # Increment the version number each time the database changes!
 #
-actualVersion=31
+actualVersion=32
 
 # Specify tables to export before and import after update
 #

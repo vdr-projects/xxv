@@ -56,7 +56,7 @@ sub dump_duplicates {
     or die "Couldn't execute dump statement: " . $sth->errstr;
 
   while (@data = $sth->fetchrow_array()) {
-    print sprintf("%3d: %20s   %s\n",$data[0],$data[2],$data[1]);
+    print sprintf("%3d: %20s   %s\n",$data[0],$data[2] || '',$data[1]);
   }
 
   if ($sth->rows == 0) {
