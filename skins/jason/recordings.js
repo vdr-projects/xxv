@@ -1264,11 +1264,11 @@ function createRecordingsView(viewer,id) {
                     this.tplimg = new Ext.Template('{day:date} - {start} ({period})');
                     this.tplimg.compile();  
                   }
+
+                  this.remove(1);
+                  var pic = new Array();
   
-                  var frames = record.data.preview.split(",");
-                  if(frames && frames.length > 0) {
-                    this.remove(1);
-                    var pic = new Array();
+                  if(record.data.preview && record.data.preview.length > 0) {
                     var frames = record.data.preview.split(",");
                     Ext.each(frames, function(frame){ 
                       var u = "?cmd=ri&data="+record.data.id+"_"+frame;
@@ -1285,20 +1285,31 @@ function createRecordingsView(viewer,id) {
                             ,html: "<img width='160px' src='"+ u + "' 'ext:qtip='" + q + "'>"
                         });
                     },this);
+                  } else if(record.data.type == 'RADIO'){
+                      pic.push({
+                             frame:   0
+                            ,width:  160
+                            ,html: "<img width='160px' src='pic/radio.png'>"
+                        });
+                  } else {
+                      pic.push({
+                             frame:   0
+                            ,width:  160
+                            ,html: "<img width='160px' src='pic/movie.png'>"
+                        });
+                  } 
+                  this.insert(1,new Ext.Container( {
+                                id:         'preview-recordings-images'
+                               ,height:     130
+                               ,layoutConfig: {
+                                    scrollButtonPosition:'split',
+                                    marginScrollButtons: 1,
+                                    pagedScroll: false
+                                }
+                                ,layout: 'carousel'
+                                ,items: pic
+                            }));
 
-                    this.insert(1,new Ext.Container( {
-                                  id:         'preview-recordings-images'
-                                 ,height:     130
-                                 ,layoutConfig: {
-	                                    scrollButtonPosition:'split',
-	                                    marginScrollButtons: 1,
-                                      pagedScroll: false
-                                  }
-                                  ,layout: 'carousel'
-                                  ,items: pic
-                              }));
-
-                  }
 
                   this.get(2).get(0).setvalue(record.data.marks,record.data.duration);
                   // Keywords
