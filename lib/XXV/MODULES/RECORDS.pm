@@ -500,7 +500,9 @@ sub _notify_updatefile {
       $e->w->cancel;
   }
 
-  lg sprintf "On recorder %d notify events for %s received event: %x", $vid, $e->fullname, $e->mask;
+  lg sprintf("New recordings, on recorder '%s' notify events for %s received event: %x", 
+            $self->{svdrp}->hostname($vid),
+            $e->fullname, $e->mask);
 
   if((time - $self->{lastupdate}) > 3  # Only if last update prior 3 seconds (avoid callback chill)
      && $self->_readData()) {
@@ -1186,7 +1188,7 @@ sub analyze {
             $title = join('~',@t);
         }
 
-        $event = $self->createOldEventId($vid, $vdrdata->{id}, $vdrdata->{starttime}, $info->{duration}, $title, $subtitle, $info);
+        $event = $self->createOldEventId($vid, $vdrdata->{id}, $vdrdata->{starttime}, $title, $subtitle, $info);
         unless($event) {
           error sprintf("Couldn't create event!: '%s' !",$vdrdata->{id});
           return 0;
@@ -1698,7 +1700,6 @@ sub createOldEventId {
     my $vid = shift; # ID of Video disk recorder
     my $id = shift || return error('No eventid defined!');
     my $start = shift || return error('No start time defined!');
-    my $duration = shift || 0;
     my $title = shift || return error('No title defined!');
     my $subtitle = shift;
     my $info = shift;
@@ -1708,7 +1709,7 @@ sub createOldEventId {
         subtitle => $subtitle,
         description => $info->{description} || "",
         channel => $info->{channel} || "<undef>",
-        duration => $duration,
+        duration => $info->{duration},
         starttime => $start,
         vpstime => $info->{vpstime} || 0,
         video => $info->{video} || "",
