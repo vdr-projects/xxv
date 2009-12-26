@@ -468,8 +468,8 @@ sub getDBVersion {
       my ($ver) = (`$cmd -v`)[-1] =~ /\'(\d+)\'/;
       $DBVERSION = $ver;
     } else {
-      $DBVERSION = 31;
-      debug sprintf("File '%s' missed!, use database layout %d", $cmd, $DBVERSION);
+      $DBVERSION = 32;
+      error sprintf("File '%s' missed!, use database layout %d", $cmd, $DBVERSION);
     }
     return $DBVERSION;
 }
