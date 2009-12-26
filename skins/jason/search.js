@@ -157,6 +157,13 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.EditTimer(this.ctxRecord); }
+                    },{
+                     itemId:'td'
+                    ,text: this.viewer.gridNow.szDeleteTimer
+                    ,iconCls: 'timer-delete-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function() { this.DeleteTimer(this.ctxRecord); }
                     }
                 ]
             });
@@ -175,7 +182,8 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) { 
                       if(f.itemId == 'tn') { if(timerid) f.hide(); else f.show(); }
-                      if(f.itemId == 'te') { if(timerid) f.show(); else f.hide(); }
+                      else if(f.itemId == 'te') { if(timerid) f.show(); else f.hide(); }
+                      else if(f.itemId == 'td') { if(timerid) f.show(); else f.hide(); }
                       if(XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
                       },items); 
@@ -218,6 +226,24 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
     ,EditTimer : function(record) {
         this.viewer.gridNow.EditTimer(record, this.store);
     }
+    ,DeleteTimer : function(record) {
+        var gsm = this.getSelectionModel();
+        var sel = gsm.getSelections()
+        if(sel.length <= 0) {
+         gsm.selectRecords([record]);
+         sel.push(record);
+        }
+        var items = "";
+        for(var i = 0, len = sel.length; i < len; i++){
+          if(i != 0)
+     	      items += ',';
+          if(sel[i].data.timerid == 0) {
+            continue;
+          }
+	        items += sel[i].data.timerid;
+        }
+        this.viewer.gridNow.DeleteTimerId(items, this.store);
+    }
     ,select : function(sm, index, record){
       this.preview.select(record,this.store.baseParams.data);
     }
@@ -240,19 +266,28 @@ Ext.xxv.searchPreview = function(viewer) {
             handler: function(){ this.searchTab(this.gridSearch.getSelectionModel().getSelected()); }
         } ,{
             id:'tn',
-            tooltip: Ext.xxv.NowGrid.prototype.szRecord,
+            tooltip: this.viewer.gridNow.szRecord,
             iconCls: 'record-icon',
             disabled:true,
             scope: viewer,
             handler: function(){ this.Record(this.gridSearch.getSelectionModel().getSelected()); }
         },{
             id:'te',
-            tooltip: Ext.xxv.NowGrid.prototype.szEditTimer,
+            tooltip: this.viewer.gridNow.szEditTimer,
             iconCls: 'timer-edit-icon',
             disabled:true,
             scope: viewer,
             handler: function(){
               this.gridSearch.EditTimer(this.gridSearch.getSelectionModel().getSelected()); 
+            }
+        },{
+            id:'td',
+            tooltip: this.viewer.gridNow.szDeleteTimer,
+            iconCls: 'timer-delete-icon',
+            disabled:true,
+            scope: viewer,
+            handler: function(){
+              this.gridSearch.DeleteTimer(this.gridSearch.getSelectionModel().getSelected()); 
             }
         } ]
     });
@@ -268,8 +303,9 @@ Ext.extend(Ext.xxv.searchPreview, Ext.Panel, {
     var items = this.topToolbar.items;
     if(items) { 
         items.eachKey(function(key, f) {
-                  if(f.id == 'tn') { if(record.data.timerid) f.hide(); else f.show(); }
-                  if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
+                  if(f.id == 'tn')      { if(record.data.timerid) f.hide(); else f.show(); }
+                  else if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
+                  else if(f.id == 'td') { if(record.data.timerid) f.show(); else f.hide(); }
                   if(XXV.help.cmdAllowed(key)) f.enable();
           },items); 
       }

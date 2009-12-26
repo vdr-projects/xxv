@@ -258,7 +258,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
                    },{
                      itemId:'td'
                     ,text: this.szDelete
-                    ,iconCls: 'delete-icon'
+                    ,iconCls: 'timer-delete-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.DeleteItem(this.ctxRecord); }
@@ -364,8 +364,8 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
               else
                     record.data.running = 0;
               record.data.collision = x[3];
+              record.commit();
             }
-            this.view.refresh();
         } else {
             var msg = '';
             if(o && o.data && typeof(o.data) == 'string') {
@@ -538,7 +538,7 @@ Ext.xxv.timerPreview = function(viewer) {
         }
         ,{
              id:'td'
-            ,iconCls: 'delete-icon'
+            ,iconCls: 'timer-delete-icon'
             ,tooltip: this.szDelete
             ,scope: viewer
             ,disabled:true

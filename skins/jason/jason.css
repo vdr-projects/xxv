@@ -126,6 +126,7 @@ background-repeat:no-repeat;
 .xxv-icon-cut { background-position:-88px -48px;}
 .xxv-icon-recover { background-position:-104px -48px;}
 .xxv-icon-delete { background-position:-120px -48px;}
+.xxv-timer-icon-delete { background-position:-120px -48px;}
 
 .xxv-icon-playing-music { background-position:0 -64px;}
 .xxv-icon-music { background-position:-16px -64px;}
@@ -156,6 +157,7 @@ background-repeat:no-repeat;
 .logout-icon {          background-image:url(pic/logout.png) !important; }
 .audio-icon {           background-image:url(pic/audio.png) !important;  }
 .delete-icon {          background-image:url(pic/delete.png) !important; }
+.timer-delete-icon {    background-image:url(pic/delete.png) !important; }
 .play-icon {            background-image:url(pic/remote-playback.png) !important;  }
 .record-icon {          background-image:url(pic/record.png) !important;  }
 .recover-icon {         background-image:url(pic/recover.png) !important;  }

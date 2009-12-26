@@ -159,6 +159,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szProgram       : "Show program"
     ,szRecord        : "Record"
     ,szEditTimer     : "Edit timer"
+    ,szDeleteTimer   : "Delete timer"
     ,szColPosition   : "Channel position"
     ,szColTitle      : "Title"
     ,szColChannel    : "Channel"
@@ -168,6 +169,8 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szLoadException : "Couldn't get data!\r\n{0}"
     ,szRecordSuccess : "Successful created timer.\r\n{0}"
     ,szRecordFailure : "Couldn't create timer!\r\n{0}"
+    ,szDeleteSuccess : "Timer deleted successful.\r\n{0}"
+    ,szDeleteFailure : "Couldn't delete timer!\r\n{0}"
 
     ,onLoadException :  function( scope, o, arg, e) {
       new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
@@ -256,6 +259,13 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.EditTimer(this.ctxRecord, this.store); }
+                    },{
+                     itemId:'td'
+                    ,text: this.szDeleteTimer
+                    ,iconCls: 'timer-delete-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function() { this.DeleteTimer(this.ctxRecord, this.store); }
                     },'-',{
                      itemId:'lst'
                     ,iconCls:'stream-icon'
@@ -295,7 +305,8 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                           return;
                       }
                       if(f.itemId == 'tn') { if(timerid) f.hide(); else f.show(); }
-                      if(f.itemId == 'te') { if(timerid) f.show(); else f.hide(); }
+                      else if(f.itemId == 'te') { if(timerid) f.show(); else f.hide(); }
+                      else if(f.itemId == 'td') { if(timerid) f.show(); else f.hide(); }
                       if(XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
                       },items); 
@@ -379,6 +390,76 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       }
       this.viewer.formwin = new Ext.xxv.Question(item,store);
     }
+    /******************************************************************************/
+    ,onDeleteSuccess : function( response,options ) 
+    { 
+        this.viewer.loadMask.hide(); 
+
+        var o = eval("("+response.responseText+")");
+
+        if(o && o.data && typeof(o.data) == 'string' 
+             && o.success) {
+            new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
+    
+      	    var items = options.params.data.split(",");
+            for (var j = 0, jlen = options.store.getCount(); j < jlen; j++) {
+              var record = options.store.getAt(j);
+              for(var i = 0, len = items.length; i < len; i++){
+                if(!record || record.data.timerid != items[i]) {
+                  continue;
+                }
+                record.data.timerid = 0;
+                record.commit();
+              }
+            }
+            this.updateTimer();
+        } else {
+            var msg = '';
+            if(o && o.data && typeof(o.data) == 'string') {
+              msg = o.data;
+            }
+            new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, msg);
+        }
+    }
+    ,onDeleteFailure : function( response,options ) 
+    { 
+        this.viewer.loadMask.hide();
+        new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
+    }
+    ,DeleteTimer : function(record) {
+        var gsm = this.getSelectionModel();
+        var sel = gsm.getSelections()
+        if(sel.length <= 0) {
+         gsm.selectRecords([record]);
+         sel.push(record);
+        }
+        var items = "";
+        for(var i = 0, len = sel.length; i < len; i++){
+          if(i != 0)
+     	      items += ',';
+          if(sel[i].data.timerid == 0) {
+            continue;
+          }
+	        items += sel[i].data.timerid;
+        }
+        this.DeleteTimerId(items, this.store);
+    }
+    ,DeleteTimerId : function( items,store ) {
+      if(items.length <= 0)
+        return;
+      this.viewer.loadMask.show(); 
+
+      Ext.Ajax.request({
+          scope: this
+         ,url: XXV.help.cmdAJAX('td')
+         ,timeout: 15000
+         ,success: this.onDeleteSuccess
+         ,failure: this.onDeleteFailure
+         ,store:   store
+         ,params:{ data: items }
+      });
+    }
+
     ,formatTitle: function(value, p, record) {
 
 	      var style = "";
@@ -430,6 +511,15 @@ Ext.xxv.NowPreview = function(viewer) {
             handler: function(){
               this.gridNow.EditTimer(this.gridNow.getSelectionModel().getSelected()); 
             }
+        },{
+            id:'td',
+            tooltip: Ext.xxv.NowGrid.prototype.szDeleteTimer,
+            iconCls: 'timer-delete-icon',
+            disabled:true,
+            scope: viewer,
+            handler: function(){
+              this.gridNow.DeleteTimer(this.gridNow.getSelectionModel().getSelected()); 
+            }
         } ]
     });
 };
@@ -443,8 +533,9 @@ Ext.extend(Ext.xxv.NowPreview, Ext.Panel, {
     var items = this.topToolbar.items;
     if(items) { 
         items.eachKey(function(key, f) {
-                  if(f.id == 'tn') { if(record.data.timerid) f.hide(); else f.show(); }
-                  if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
+                  if(f.id == 'tn')      { if(record.data.timerid) f.hide(); else f.show(); }
+                  else if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
+                  else if(f.id == 'td') { if(record.data.timerid) f.show(); else f.hide(); }
                   if(XXV.help.cmdAllowed(key)) f.enable();
           },items); 
       }

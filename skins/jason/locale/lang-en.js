@@ -108,6 +108,7 @@ Ext.xxv.NowGrid.prototype.szFindReRun = "Find rerun";
 Ext.xxv.NowGrid.prototype.szProgram = "Show program";
 Ext.xxv.NowGrid.prototype.szRecord = "Record";
 Ext.xxv.NowGrid.prototype.szEditTimer = "Edit timer";
+Ext.xxv.NowGrid.prototype.szDeleteTimer = "Delete timer";
 Ext.xxv.NowGrid.prototype.szColPosition = "Channel position";
 Ext.xxv.NowGrid.prototype.szColTitle = "Title";
 Ext.xxv.NowGrid.prototype.szColChannel = "Channel";
