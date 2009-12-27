@@ -1,5 +1,62 @@
+1.5
+--------------------------------------------------------------------------------
 
+Core changes:
+* Allow form based login using cookies/sessions (REQUEST #004763)
+* Support new filestructure (since VDR-1.7.3) (REQUEST #15540)
 * Add italian translation (Thanks to Diego Pierotto)
+* Changed database layout version 32
+
+  AUTOTIMER:
+* adjust timer himself, before create new autotimer
+* make timer search more tolerant
+
+  CHRONICALE:
+* store epg description 
+
+  CHANNELS:
+* allow query a compact list ( by cmd=clist&compact=1 )
+* allow clist for guest users
+
+  CONFIG:
+* command help, don't show disabled commands
+
+  HTTPD: 
+* allow skins with swf files
+* html/xstyle: footer updated
+* xstyle: css fix correct z-index on schema for timemarker
+* ajax: change message response to a shorter response {data:msg,success=true}
+* Support form based login using cookies/sessions (REQUEST #004763)
+
+  MUSIC: 
+* get cover deny startup - make Amazon developer's token none mandatory, 
+  by 2009-08-15 Amazon will require that all requests be signed with an 
+  Amazon assigned Secret Key.
+* Fix: Avoid destroy muggle database connection on fork
+* add option data=all:1 to deliver all tracks
+
+  GRAB/STATUS:
+* select fonts by real names (need perl modul Font::TTF::Font)
+
+  STATUS:
+* allow activated modul at runtime
+* Refactoring output (network/filesys/memory)
+
+  STREAM:
+* support new filestructure (since VDR-1.7.3) (REQUEST #15540)
+
+  RECORDS:
+* improve find files (Fix Bug #16516)
+* support new filestructure (since VDR-1.7.3) (REQUEST #15540)
+
+  TIMERS:
+* adjust inactive timer too (avoid double created autotimer)
+
+  VTX:
+* rewrite command interface, make functions stateless
+* remove embedded image, use css sprite for faster pages rendering
+* use css class to highlight search text
+* redesign teletext widget (show any subpages as same time)
 
 
 1.4 - Stable release
