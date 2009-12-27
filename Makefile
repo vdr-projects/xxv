@@ -4,7 +4,7 @@
 # $Id$
 
 XXV = xxv
-VERSION = 1.4
+VERSION = 1.5
 
 ### The name of the distribution archive:
 
@@ -62,6 +62,7 @@ setpermission:
 	@chmod a+x $(TMPDIR)/$(ARCHIVE)/locale/xgettext.pl
 	@chmod a+x $(TMPDIR)/$(ARCHIVE)/etc/xxvd
 	@chmod a+x $(TMPDIR)/$(ARCHIVE)/install.sh
+	@chmod a+x $(TMPDIR)/$(ARCHIVE)/install-debian.sh
 
 dist: tmpfolder\
     copyfiles\
