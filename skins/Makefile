@@ -3,7 +3,7 @@
 #
 # $Id$
 
-VERSION = 1.4
+VERSION = 1.5
 
 ARCHIVE = skins
 PACKAGE = xxv-$(ARCHIVE)-$(VERSION)
@@ -12,8 +12,7 @@ TMPDIR = /tmp/$(ARCHIVE)
 
 ### The name of the distribution archive:
 
-SKINS = stone snow blue deltab lcars stone_flat snow_flat blue_flat lcars_flat
-BONUS = xstyle 
+SKINS = stone snow blue deltab lcars stone_flat snow_flat blue_flat lcars_flat xstyle
 FILES = README COPYRIGHT HISTORY
 
 all: devel full dist
@@ -24,7 +23,7 @@ dist:
 
 full: 
 	@mkdir -p $(TMPDIR)/$(PACKAGE)
-	@for i in $(SKINS) $(BONUS); do $(MAKE) -C "./$$i" TMPDIR=$(TMPDIR)/$(PACKAGE) VERSION=$(VERSION) full; done
+	@for i in $(SKINS); do $(MAKE) -C "./$$i" TMPDIR=$(TMPDIR)/$(PACKAGE) VERSION=$(VERSION) full; done
 	@for i in $(SKINS); do for j in $(FILES); do cp "$(TMPDIR)/$(PACKAGE)/$$i/$$j" $(TMPDIR)/$(PACKAGE); done; done
 	@for i in $(SKINS); do for j in $(FILES); do rm -f "$(TMPDIR)/$(PACKAGE)/$$i/$$j" ; done; done
 	@tar czf $(PACKAGE).tgz --exclude=.svn -C $(TMPDIR) $(PACKAGE)
@@ -34,7 +33,7 @@ full:
 
 devel: 
 	@mkdir -p $(TMPDIR)/$(PACKAGE)
-	@for i in $(SKINS) $(BONUS); do $(MAKE) -C "./$$i" TMPDIR=$(TMPDIR)/$(PACKAGE) VERSION=$(VERSION) devel; done
+	@for i in $(SKINS); do $(MAKE) -C "./$$i" TMPDIR=$(TMPDIR)/$(PACKAGE) VERSION=$(VERSION) devel; done
 	@for i in $(SKINS); do for j in $(FILES); do cp "$(TMPDIR)/$(PACKAGE)/$$i/$$j" $(TMPDIR)/$(PACKAGE); done; done
 	@for i in $(SKINS); do for j in $(FILES); do rm -f "$(TMPDIR)/$(PACKAGE)/$$i/$$j" ; done; done
 	@cp Makefile $(TMPDIR)/$(PACKAGE)
