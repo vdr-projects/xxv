@@ -51,7 +51,7 @@ sub module {
         Prereq => {
             'SOAP::Lite' => 'Client and server side SOAP implementation.',
         },
-        Description => gettext('This module send and read shared data from SOAP Server.'),
+        Description => gettext('This module send anonymized epg data from programmed timern to a common web service. And read backward a ranking list of most programmed epg events.'),
         Version => (split(/ /, '$Revision$'))[1],
         Date => (split(/ /, '$Date$'))[1],
         Author => 'xpix',
