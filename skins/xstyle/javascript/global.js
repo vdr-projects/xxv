@@ -150,7 +150,7 @@ function checkValue (valobj, msgname, cmd, wrongMsg, goodMsg) {
 
         var o = eval("("+oXML.responseText+")");
         if(o && o.data && typeof(o.data) == 'string' 
-             && o.param && o.param.state && o.param.state == 'success') {
+             && o.success && o.success == true) {
             msg.className = 'good';
             msg.innerHTML = goodMsg.replace('%s', o.data);
         } else {
