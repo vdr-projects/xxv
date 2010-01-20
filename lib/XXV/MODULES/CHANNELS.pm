@@ -298,11 +298,11 @@ sub _prepare {
 	}
 
     
-    # ID
-    my $freqID = $data->[1];
-    if ( $data->[3] eq 'C' or $data->[3] eq 'T') {
-      while(length($freqID) > 3) {
-  	    $freqID = substr($freqID, 0, length($freqID)-3);
+    # Build alternative transponder ID from frequency
+    my $altid = CORE::int($data->[1]);
+    if ($data->[3] !~ /^S/sig) {
+      while($altid > 20000) {
+        $altid = CORE::int($altid / 1000);
       }
     }
 
@@ -312,9 +312,9 @@ sub _prepare {
     # By DVB-C gabs Probleme weil die Zahl grösser 100 war
     # Siehe auch http://www.vdr-portal.de/board/thread.php?sid=&postid=364373
     if($data->[12] && $data->[12] > 0) {
-        $id = sprintf('%s-%u-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $freqID, $data->[9],$data->[12]);
+        $id = sprintf('%s-%u-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $altid, $data->[9],$data->[12]);
     } else {
-        $id = sprintf('%s-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $freqID, $data->[9]);
+        $id = sprintf('%s-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $altid, $data->[9]);
     }
 
     my $attr = {
