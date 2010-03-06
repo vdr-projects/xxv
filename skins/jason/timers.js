@@ -256,6 +256,13 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
                     ,disabled: true
                     ,handler: function() { this.EditItem(this.ctxRecord); }
                    },{
+                     itemId:'ae'
+                    ,text: Ext.xxv.autotimerGrid.prototype.szEdit
+                    ,iconCls: 'autotimer-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function() { this.EditAutoTimerItem(this.ctxRecord); }
+                   },{
                      itemId:'td'
                     ,text: this.szDelete
                     ,iconCls: 'timer-delete-icon'
@@ -283,8 +290,10 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
         this.ctxRecord = this.store.getAt(index);
         Ext.fly(this.ctxRow).addClass('x-node-ctx');
 
+        var hasAutotimer = (this.ctxRecord.data.autotimerid <= 0) ? 0 : 1;
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) {
+                      if(f.itemId == 'ae') { if(hasAutotimer) f.show(); else f.hide(); };
                       if(XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
                       },items); 
@@ -506,6 +515,28 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       var record = this.store.getAt(index);
       this.EditItem(record);
     }
+    ,EditAutoTimerItem : function( record ) {
+      this.stopEditing();
+      var item;
+
+      if(record != null) {
+        var gsmTimer = this.getSelectionModel();
+        gsmTimer.selectRecords([record]);
+
+        item = {
+           cmd:   'ae'
+          ,id:    record.data.autotimerid
+          ,title: record.data.title
+        };
+      } else {
+        return;
+      }
+
+      if(this.viewer.formwin){
+        this.viewer.formwin.close();
+      }
+      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+    }
     ,select : function(sm, index, record){
       this.preview.select(record, this.filter.getValue());
     }
@@ -527,16 +558,21 @@ Ext.xxv.timerPreview = function(viewer) {
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.searchTab(this.gridTimer.getSelectionModel().getSelected()); }
-        } 
-        ,{
+        },{
              id:'te'
             ,iconCls: 'edit-icon'
             ,tooltip: this.szEdit
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridTimer.EditItem(this.gridTimer.getSelectionModel().getSelected()); }
-        }
-        ,{
+        },{
+             id:'ae'
+            ,iconCls: 'autotimer-icon'
+            ,tooltip: Ext.xxv.autotimerGrid.prototype.szEdit
+            ,scope: viewer
+            ,disabled:true
+            ,handler: function(){ this.gridTimer.EditAutoTimerItem(this.gridTimer.getSelectionModel().getSelected()); }
+        },{
              id:'td'
             ,iconCls: 'timer-delete-icon'
             ,tooltip: this.szDelete
@@ -557,10 +593,12 @@ Ext.extend(Ext.xxv.timerPreview, Ext.Panel, {
     if(lookup)
       highlightText(this.body.dom,lookup,'x-highlight',1);
 
+    var hasAutotimer = (record.data.autotimerid <= 0) ? 0 : 1;
     // Enable all toolbar buttons
     var items = this.topToolbar.items;
     if(items) { 
         items.eachKey(function(key, f) {
+                        if(f.id == 'ae') { if(hasAutotimer) f.show(); else f.hide(); };
                         if(XXV.help.cmdAllowed(key)) f.enable();
                       },items); 
       }
