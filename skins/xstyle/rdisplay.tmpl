@@ -109,10 +109,10 @@
 <tr>
     <td colspan="2">
 <?% IF allow('rconvert') %?>
-    <select name='data' onChange="di(this.form.data.options[this.form.data.options.selectedIndex].value, '?cmd=rconvert&amp;data=')">
+    <select name='data' onChange="di(this.form.data.options[this.form.data.options.selectedIndex].value, '?cmd=rconvert&amp;data=<?% data.RecordId %?>&amp;__action=save&amp;__cmd=')">
         <option value='0'><?% gettext("Choose a command to edit this recording ...") %?>:</option>
     <?% FOREACH cmd = param.reccmds %?>
-        <option value='<?% loop.count %?>_<?% data.RecordId %?>'><?% cmd %?></option>
+        <option value='<?% loop.count %?>'><?% cmd %?></option>
     <?% END %?>
     </select>
 <?% END %?>

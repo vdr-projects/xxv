@@ -164,6 +164,7 @@ background-repeat:no-repeat;
 .new-icon {             background-image:url(pic/new.png) !important;  }
 .edit-icon {            background-image:url(pic/edit.png) !important;  }
 .cut-icon {             background-image:url(pic/cut.png) !important;  }
+.convert-icon {         background-image:url(pic/convert.png) !important;  }
 .chronicle-icon {       background-image:url(pic/chronicle.png) !important; }
 .remote-icon {          background-image:url(pic/remote.png) !important; }
 .monitor-icon {         background-image:url(pic/monitor.png) !important; }

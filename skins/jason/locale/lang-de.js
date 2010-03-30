@@ -148,6 +148,7 @@ Ext.xxv.recordingsDataView.prototype.szToolTip = "Zeigt Aufnahmen";
 Ext.xxv.recordingsDataView.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.recordingsDataView.prototype.szEdit = "Bearbeiten";
 Ext.xxv.recordingsDataView.prototype.szCut = "Schneiden";
+Ext.xxv.recordingsDataView.prototype.szConvert = "Konvertieren";
 Ext.xxv.recordingsDataView.prototype.szDelete = "Löschen";
 Ext.xxv.recordingsDataView.prototype.szRecover = "Gelöschte Aufnahmen wiederherstellen";
 Ext.xxv.recordingsDataView.prototype.szStream = "Aufnahme streamen";

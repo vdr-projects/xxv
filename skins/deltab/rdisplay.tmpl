@@ -172,10 +172,10 @@
 									<?% IF allow( 'rconvert' ) && param.reccmds.size > 0 %?>
 									<form action="">
 									<p>
-										<select name='data' onchange="di('?cmd=rconvert&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)"> 
+										<select name='data' onchange="di('?cmd=rconvert&amp;data=<?% id %?>&amp;__action=save&amp;__cmd=',this.form.data.options[this.form.data.options.selectedIndex].value)"> 
 											<option value='0'><?% gettext("Choose a command to edit this recording ...") %?></option>
 											<?% FOREACH cmd = param.reccmds %?>
-											<option value='<?% loop.count %?>_<?% id %?>'><?% cmd %?></option>
+                      <option value='<?% loop.count %?>'><?% cmd %?></option>
 											<?% END %?>
 										</select>
 									</p>

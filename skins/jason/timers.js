@@ -242,13 +242,6 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
             this.menu = new Ext.menu.Menu({
                 id:'grid-ctx',
                 items: [{
-                     itemId:'s'
-                    ,text: this.szFindReRun
-                    ,iconCls: 'find-icon'
-                    ,scope:this
-                    ,disabled: true
-                    ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
-                   },{
                      itemId:'te'
                     ,text: this.szEdit
                     ,iconCls: 'edit-icon'
@@ -256,12 +249,12 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
                     ,disabled: true
                     ,handler: function() { this.EditItem(this.ctxRecord); }
                    },{
-                     itemId:'ae'
-                    ,text: Ext.xxv.autotimerGrid.prototype.szEdit
-                    ,iconCls: 'autotimer-icon'
+                     itemId:'tt'
+                    ,text: this.szToggle
+                    ,iconCls: 'timer-toggle-icon'
                     ,scope:this
                     ,disabled: true
-                    ,handler: function() { this.EditAutoTimerItem(this.ctxRecord); }
+                    ,handler: function() { this.ToggleItem(this.ctxRecord); }
                    },{
                      itemId:'td'
                     ,text: this.szDelete
@@ -269,14 +262,21 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.DeleteItem(this.ctxRecord); }
-                   },{
-                     itemId:'tt'
-                    ,text: this.szToggle
-                    ,iconCls: 'timer-toggle-icon'
+                   },'-',{
+                     itemId:'ae'
+                    ,text: Ext.xxv.autotimerGrid.prototype.szEdit
+                    ,iconCls: 'autotimer-icon'
                     ,scope:this
                     ,disabled: true
-                    ,handler: function() { this.ToggleItem(this.ctxRecord); }
-                   }
+                    ,handler: function() { this.EditAutoTimerItem(this.ctxRecord); }
+                   },{
+                     itemId:'s'
+                    ,text: this.szFindReRun
+                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
+                   },
                 ]
             });
             this.menu.on('hide', this.onContextHide, this);

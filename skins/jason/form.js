@@ -40,9 +40,10 @@ Ext.xxv.Question = function(item,parentstore) {
          stateful: false
         ,title: item.title
         ,width: 600
-        ,height:500
+        //,height:500
+        ,autoHeight:true
         ,minWidth: 300
-        ,minHeight: 200
+        ,minHeight: 100
         ,layout: 'anchor'
         ,plain:true
         //,bodyStyle:'padding:5px;'
@@ -255,7 +256,6 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             config.height = 200;  // anchor width by percentage and height by raw adjustment
             config.readOnly = true;
         }
-
         this.form.add(config);
       }
       if(i) {

@@ -516,6 +516,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,szFindReRun     : "Find rerun"
     ,szEdit          : "Edit"
     ,szCut           : "Cut"
+    ,szConvert       : "Convert"
     ,szDelete        : "Delete"
     ,szRecover       : "Recover deleted recordings"
     ,szStream        : "Stream recording"
@@ -729,13 +730,6 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                 id:'grid-ctx',
                 items: [
                    {
-                     itemId: 's'
-                    ,text: this.szFindReRun
-                    ,iconCls: 'find-icon'
-                    ,scope:this
-                    ,disabled: true
-                    ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
-                   },{
                      itemId: 're'
                     ,text: this.szEdit
                     ,iconCls: 'edit-icon'
@@ -750,12 +744,26 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                     ,disabled: true
                     ,handler: function() { this.CutItem(null); }
                    },{
+                     itemId: 'rc'
+                    ,text: this.szConvert
+                    ,iconCls: 'convert-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function() { this.ConvertItem(this.ctxRecord); }
+                   },{
                      itemId: 'rr'
                     ,text: this.szDelete
                     ,iconCls: 'delete-icon'
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.DeleteItem(null); }
+                   },'-',{
+                     itemId: 's'
+                    ,text: this.szFindReRun
+                    ,iconCls: 'find-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
                    },'-',{
                      itemId: 'pre'
                     ,text: this.szStream
@@ -793,6 +801,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                 switch(f.itemId) {
                   case 're':  enable = (record.data.isrecording == 0) ? false : true; break;
                   case 'rcu': enable = (record.data.isrecording == 0) ? false : true; break;
+                  case 'rc':  enable = (record.data.isrecording == 0) ? false : true; break;
                   case 'rpv': enable = (record.data.isrecording == 0) ? false : true; break;
                   case 'pre': enable = (record.data.isrecording == 0) ? false : true; break;
                 }
@@ -1015,7 +1024,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       var item = {
          cmd:   're'
         ,id:    record.data.id
-        ,title: record.data.fulltitle
+        ,title: this.szEdit + " : " + record.data.fulltitle
       };
 
       if(this.viewer.formwin){
@@ -1023,7 +1032,19 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       }
       this.viewer.formwin = new Ext.xxv.Question(item,this.store);
     }
+    ,ConvertItem : function(record) {
 
+      var item = {
+         cmd:   'rc'
+        ,id:    record.data.id
+        ,title: this.szConvert + " : " + record.data.fulltitle
+      };
+
+      if(this.viewer.formwin){
+        this.viewer.formwin.close();
+      }
+      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+    }
     ,Recover : function() {
 
       var item = {
@@ -1188,6 +1209,14 @@ function createRecordingsView(viewer,id) {
             ,scope: viewer
             ,disabled:true
             ,handler: function(){ this.gridRecordings.CutItem(this.gridRecordings.preview.record);  }
+        }
+        ,{
+             id:'rc'
+            ,iconCls: 'convert-icon'
+            ,tooltip: Ext.xxv.recordingsDataView.prototype.szConvert
+            ,scope: viewer
+            ,disabled:true
+            ,handler: function(){ this.gridRecordings.ConvertItem(this.gridRecordings.preview.record);  }
         }
         ,{
              id:'rr'
