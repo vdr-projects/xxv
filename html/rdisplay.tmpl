@@ -99,12 +99,12 @@
     </a>
 <?% IF allow('rconvert') %?>
     <br />
-    <select name='data' onChange="di(this.form.data.options[this.form.data.options.selectedIndex].value, '?cmd=rconvert&amp;data=')">
+    <select name='data' onChange="di(this.form.data.options[this.form.data.options.selectedIndex].value, '?cmd=rconvert&amp;data=<?% data.RecordId %?>&amp;__action=save&amp;__cmd=')">
     <?% c = 0 %?>
         <option value='0'><?% gettext("Choose a command to edit this recording ...") %?>:</option>
     <?% FOREACH cmd = param.reccmds %?>
         <?% c = c + 1 %?>
-        <option value='<?% c %?>_<?% data.RecordId %?>'><?% cmd %?></option>
+        <option value='<?% c %?>'><?% cmd %?></option>
     <?% END %?>
     </select>
 <?% END %?>

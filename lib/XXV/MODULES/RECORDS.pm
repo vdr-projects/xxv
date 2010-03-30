@@ -167,7 +167,7 @@ sub module {
             rconvert => {
                 description => gettext("Convert recording 'rid'"),
                 short       => 'rc',
-                callback    => sub{ $self->conv(@_) },
+                callback    => sub{ $self->convert(@_) },
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
@@ -2594,65 +2594,105 @@ sub _loadreccmds {
 }
 
 # ------------------
-sub conv {
+sub convert {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
     my $config = shift || return error('No config defined!');
-    my $data = shift || 0;
+    my $id  = shift || return con_err($console,gettext("No recording defined for converting!"));
+    my $data    = shift || 0;
 
-    $self->_loadreccmds;
-
+    $self->_loadreccmds();
     unless(scalar @{$self->{reccmds}}) {
         con_err($console,gettext('No reccmds.conf on your system!'));
-        return 1;
-    }
-
-    unless($data) {
-        con_err($console,gettext("Please use rconvert 'cmdid_rid'"));
-        unshift(@{$self->{reccmds}}, 
-          [
-           gettext('Description'),
-           gettext('Command')
-          ]);
-        $console->table($self->{reccmds});
-        $self->list($console);
-    }
-
-    my ($cmdid, $hash) = split(/[\s_]/, $data);
-    my $cmd = (split(':', $self->{reccmds}->[$cmdid-1]))[-1] || return con_err($console,gettext("Couldn't find this command ID!"));
-    my $path = $self->IdToPath($hash);
-    unless($path) {
-        con_err($console,gettext("This recording does not exist in the database!"));
         return undef;
     }
 
-    my $command = sprintf("%s %s",$cmd,qquote($path));
-    debug sprintf('Call command %s%s',
-        $command,
-        ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
-        );
-
-    my $output;
-    if(open P, $command .' |') { # execute command and read result from stdout
-      @$output = <P>;
-      close P;
-      if( $? >> 8 > 0) {
-          unshift(@$output,sprintf(gettext("Call %s '%s', standard error output :"), $cmd, $path));
-          $console->message($output);
-      } else {
-          unshift(@$output,sprintf(gettext("Call %s '%s', standard output :"), $cmd, $path));
-          $console->message($output);
-      }
-    } else {
-          con_err($console,sprintf(gettext("Sorry! Couldn't call %s '%s'! %s"), $cmd, $path, $!));
+    my $rec;
+    if($id) {
+        my $sql = qq|
+SELECT SQL_CACHE
+    r.hash,
+    e.vid,
+    CONCAT_WS('~',e.title,e.subtitle) as title,
+    e.eventid,
+    r.path
+FROM
+    RECORDS as r,
+    OLDEPG as e
+WHERE
+    e.eventid = r.eventid
+    AND ( r.hash = ? )
+|;
+        my $sth = $self->{dbh}->prepare($sql);
+        if(!$sth->execute($id)
+          || !($rec = $sth->fetchrow_hashref())) {
+            con_err($console,gettext("This recording does not exist in the database!"));
+            return undef;
+        }
     }
 
-    $console->link({
-        text => gettext("Back to recording list"),
-        url => "?cmd=rlist",
-    }) if($console->typ eq 'HTML');
-    return 1;
+    my $choices = [];
+    my $n = 1;
+    foreach my $v (@{$self->{reccmds}}) {
+      my $cmd = (split(':', $v))[0];
+      push(@$choices,[$cmd,$n]);
+      $n ++;
+    }
+
+    my $questions = [
+      'cmd' => {
+        msg     => gettext('Command'),
+        req     => gettext("This is required!"),
+        typ     => 'list',
+        choices => $choices,
+        check   => sub{
+            my $value = shift || return undef, gettext("This is required!");
+            my @ret = (ref $value eq 'ARRAY') ? @$value : split(/\s*,\s*/, $value);
+            return $ret[0];
+          }
+      },
+    ];
+
+    $data = $console->question(gettext("Choose a command to edit this recording ..."), $questions, $data);
+    if(ref $data eq 'HASH') {
+
+      my $cmdid = $data->{cmd};
+      my $cmd = (split(':', $self->{reccmds}->[$cmdid-1]))[-1] 
+                || return con_err($console,gettext("Couldn't find this command ID!"));
+      my $path = $rec->{path};
+      unless(-e $path) {
+          con_err($console,sprintf(gettext("Couldn't find recording: '%s'"),$path));
+          return undef;
+      }
+
+      my $command = sprintf("%s %s",$cmd,qquote($path));
+      debug sprintf('Call command %s%s',
+          $command,
+          ( $console->{USER} && $console->{USER}->{Name} ? sprintf(' from user: %s', $console->{USER}->{Name}) : "" )
+          );
+
+      my $output;
+      if(open P, $command .' |') { # execute command and read result from stdout
+        @$output = <P>;
+        close P;
+        if( $? >> 8 > 0) {
+            unshift(@$output,sprintf(gettext("Call %s '%s', standard error output :"), $cmd, $path));
+            $console->message($output);
+        } else {
+            unshift(@$output,sprintf(gettext("Call %s '%s', standard output :"), $cmd, $path));
+            $console->message($output);
+        }
+      } else {
+            con_err($console,sprintf(gettext("Sorry! Couldn't call %s '%s'! %s"), $cmd, $path, $!));
+      }
+
+      $console->link({
+          text => gettext("Back to recording list"),
+          url => "?cmd=rdisplay&data=" . $rec->{hash},
+      }) if($console->typ eq 'HTML');
+      return 1;
+    }
 }
 
 # ------------------
