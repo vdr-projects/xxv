@@ -10,7 +10,8 @@
 #          -d <database>  : XXV database name (default: xxv)
 #          -u <user>      : Username (default: root)
 #          -p <password>  : Password (default: no password)
-#          -a             : Ask for password
+#          -a             : Ask for password (once every run of mysql)
+#          -A             : Ask for password (just once)
 #          -f             : Force upgrade, do not check version
 #          -v             : Display actual Version
 #          -h             : Help
@@ -44,7 +45,8 @@ showHelp()
     echo '-u <user>      : Username (default: root)'
     echo '-p <password>  : Password (default: no password)'
     echo '-s <sql-file>  : Upgrade sql script (default: upgrade-xxv-db.sql)'
-    echo '-a             : Ask for password'
+    echo '-a             : Ask for password (once every run of mysql)'
+    echo '-A             : Ask for password (just once)'
     echo '-f             : Force upgrade, do not check version'
     echo '-v             : Display actual version'
     echo '-h             : Help'
@@ -248,9 +250,12 @@ while [ $# -ge 1 ] ; do
         -s)
             $upgrade=$2 ; shift
         ;;
-    	-a)
+    	  -a)
             askPassword='true'
-    	;;
+    	  ;;
+	      -A)
+	          read -s -p 'Enter Password (hidden): ' password
+	      ;;
         -f)
             isForceUpdate='true'
         ;;

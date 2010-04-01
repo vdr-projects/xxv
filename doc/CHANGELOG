@@ -6,6 +6,7 @@ Core changes:
 * Support new filestructure (since VDR-1.7.3) (REQUEST #15540)
 * Add italian translation (Thanks to Diego Pierotto)
 * Changed database layout version 32
+* update-xxv: add a new password option "-A Ask for password only once" (Thanks to Matthias Wächter)
 
   AUTOTIMER:
 * adjust timer himself, before create new autotimer
@@ -48,6 +49,7 @@ Core changes:
   RECORDS:
 * improve find files (Fix Bug #16516)
 * support new filestructure (since VDR-1.7.3) (REQUEST #15540)
+* rewrite rconvert 
 
   TIMERS:
 * adjust inactive timer too (avoid double created autotimer)
