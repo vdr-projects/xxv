@@ -1279,7 +1279,7 @@ sub page {
       $self->{$channel}->{updated} = time();
     }
     unless($self->{$channel}->{INDEX} and scalar @{$self->{$channel}->{INDEX}}) {
-      con_err($console,sprintf(gettext("No data found for \'%s\'!"),$channel));
+      con_err($console,sprintf(gettext("No data found for \'%s\'!"), $modC->ChannelToName($channel)));
       return;
     }
 
