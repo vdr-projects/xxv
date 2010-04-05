@@ -1,4 +1,13 @@
-1.5
+1.6 - Stable release
+--------------------------------------------------------------------------------
+
+* html/xstyle: adjust the checkvalue function to new notation [ Bug #16669 ]
+* MEDIALIB: hide unusable media search button
+* RECORDS: rewrite handling of commands
+* VTX: show real channel on error messages
+* update-xxv: add a new password option "-A Ask for password only once" (Thanks to Matthias Wächter)
+
+1.5 - Feature release (Release candidate)
 --------------------------------------------------------------------------------
 
 Core changes:

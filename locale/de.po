@@ -1,22 +1,23 @@
 # Deutsche Übersetzung der XXV Pakets.
-# Copyright (C) 2004-2009 THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) 2004-2010 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the XXV package.
 #
-# Andreas Brachold <anbr at users.berlios.de>, 2004-2009
 # Tobias Grimm <tg@e-tobi.net> 2005
 #
 # $Id$
 #
+# Andreas Brachold <anbr at users.berlios.de>, 2004-2009, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: XXV 1.5\n"
+"Project-Id-Version: XXV 1.6\n"
 "POT-Creation-Date: 2005-01-12 18:55\n"
-"PO-Revision-Date: 2009-19-12 14:30+0100\n"
+"PO-Revision-Date: 2010-04-05 14:43+0200\n"
 "Last-Translator: Andreas Brachold <anbr at users.berlios.de>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: DE <anbr at users.berlios.de>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Report-Msgid-Bugs-To: \n"
 
 #--------------------
 #:
@@ -39,7 +40,7 @@ msgid "Data source for the connection to the database"
 msgstr "Name der Datenquelle für die Verbindung zur Datenbank"
 
 #--------------------
-#: ../bin/xxvd:645 ../bin/xxvd:651 ../bin/xxvd:657 ../lib/XXV/MODULES/AUTOTIMER.pm:30 ../lib/XXV/MODULES/AUTOTIMER.pm:683 ../lib/XXV/MODULES/CHANNELS.pm:1150 ../lib/XXV/MODULES/CHANNELS.pm:1176 ../lib/XXV/MODULES/CHANNELS.pm:1189 ../lib/XXV/MODULES/CHANNELS.pm:1228 ../lib/XXV/MODULES/CHANNELS.pm:1254 ../lib/XXV/MODULES/CHANNELS.pm:28 ../lib/XXV/MODULES/CHRONICLE.pm:27 ../lib/XXV/MODULES/EPG.pm:34 ../lib/XXV/MODULES/EPG.pm:40 ../lib/XXV/MODULES/EPG.pm:47 ../lib/XXV/MODULES/EVENTS.pm:33 ../lib/XXV/MODULES/GRAB.pm:29 ../lib/XXV/MODULES/GRAB.pm:43 ../lib/XXV/MODULES/HTTPD.pm:63 ../lib/XXV/MODULES/HTTPD.pm:69 ../lib/XXV/MODULES/HTTPD.pm:75 ../lib/XXV/MODULES/HTTPD.pm:81 ../lib/XXV/MODULES/HTTPD.pm:87 ../lib/XXV/MODULES/HTTPD.pm:95 ../lib/XXV/MODULES/INTERFACE.pm:32 ../lib/XXV/MODULES/INTERFACE.pm:38 ../lib/XXV/MODULES/INTERFACE.pm:44 ../lib/XXV/MODULES/KEYWORDS.pm:28 ../lib/XXV/MODULES/LOGREAD.pm:31 ../lib/XXV/MODULES/LOGREAD.pm:37 ../lib/XXV/MODULES/LOGREAD.pm:43 ../lib/XXV/MODULES/LOGREAD.pm:49 ../lib/XXV/MODULES/MEDIALIB.pm:32 ../lib/XXV/MODULES/MEDIALIB.pm:38 ../lib/XXV/MODULES/MEDIALIB.pm:44 ../lib/XXV/MODULES/MOVETIMER.pm:26 ../lib/XXV/MODULES/MOVETIMER.pm:423 ../lib/XXV/MODULES/MOVETIMER.pm:426 ../lib/XXV/MODULES/MOVETIMER.pm:446 ../lib/XXV/MODULES/MOVETIMER.pm:449 ../lib/XXV/MODULES/MUSIC.pm:39 ../lib/XXV/MODULES/MUSIC.pm:45 ../lib/XXV/MODULES/MUSIC.pm:51 ../lib/XXV/MODULES/MUSIC.pm:57 ../lib/XXV/MODULES/MUSIC.pm:68 ../lib/XXV/MODULES/MUSIC.pm:74 ../lib/XXV/MODULES/RECORDS.pm:109 ../lib/XXV/MODULES/RECORDS.pm:2370 ../lib/XXV/MODULES/RECORDS.pm:2384 ../lib/XXV/MODULES/RECORDS.pm:2982 ../lib/XXV/MODULES/RECORDS.pm:2994 ../lib/XXV/MODULES/RECORDS.pm:41 ../lib/XXV/MODULES/RECORDS.pm:47 ../lib/XXV/MODULES/RECORDS.pm:53 ../lib/XXV/MODULES/RECORDS.pm:69 ../lib/XXV/MODULES/RECORDS.pm:81 ../lib/XXV/MODULES/RECORDS.pm:98 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:41 ../lib/XXV/MODULES/REPORT.pm:29 ../lib/XXV/MODULES/REPORT.pm:35 ../lib/XXV/MODULES/ROBOT.pm:29 ../lib/XXV/MODULES/SHARE.pm:64 ../lib/XXV/MODULES/SHARE.pm:81 ../lib/XXV/MODULES/SHARE.pm:87 ../lib/XXV/MODULES/STATUS.pm:29 ../lib/XXV/MODULES/STATUS.pm:35 ../lib/XXV/MODULES/STATUS.pm:40 ../lib/XXV/MODULES/STREAM.pm:105 ../lib/XXV/MODULES/STREAM.pm:30 ../lib/XXV/MODULES/STREAM.pm:40 ../lib/XXV/MODULES/STREAM.pm:61 ../lib/XXV/MODULES/STREAM.pm:67 ../lib/XXV/MODULES/STREAM.pm:85 ../lib/XXV/MODULES/STREAM.pm:91 ../lib/XXV/MODULES/SVDRP.pm:252 ../lib/XXV/MODULES/SVDRP.pm:258 ../lib/XXV/MODULES/SVDRP.pm:281 ../lib/XXV/MODULES/SVDRP.pm:30 ../lib/XXV/MODULES/TELNET.pm:29 ../lib/XXV/MODULES/TELNET.pm:35 ../lib/XXV/MODULES/TELNET.pm:41 ../lib/XXV/MODULES/TELNET.pm:47 ../lib/XXV/MODULES/TIMERS.pm:29 ../lib/XXV/MODULES/TIMERS.pm:630 ../lib/XXV/MODULES/TIMERS.pm:643 ../lib/XXV/MODULES/TIMERS.pm:646 ../lib/XXV/MODULES/TIMERS.pm:671 ../lib/XXV/MODULES/USER.pm:284 ../lib/XXV/MODULES/USER.pm:432 ../lib/XXV/MODULES/USER.pm:438 ../lib/XXV/MODULES/USER.pm:461 ../lib/XXV/MODULES/USER.pm:674 ../lib/XXV/MODULES/USER.pm:680 ../lib/XXV/MODULES/USER.pm:69 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:41 ../lib/XXV/MODULES/WAPD.pm:47 ../lib/XXV/MODULES/WAPD.pm:53 ../lib/XXV/MODULES/WAPD.pm:59 ../lib/XXV/MODULES/WAPD.pm:65 ../lib/XXV/MODULES/WAPD.pm:72 ../lib/XXV/MODULES/XMLTV.pm:31 ../lib/XXV/MODULES/XMLTV.pm:519 ../lib/XXV/MODULES/XMLTV.pm:538 ../lib/XXV/MODULES/XMLTV.pm:541 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:113 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:119 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:125 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:69 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:95 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:102 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:33 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:59 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:77 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:91 ../lib/XXV/OUTPUT/NEWS/RSS.pm:33 ../lib/XXV/OUTPUT/NEWS/RSS.pm:59 ../lib/XXV/OUTPUT/NEWS/VDR.pm:30 ../lib/XXV/OUTPUT/NEWS/VDR.pm:56
+#: ../bin/xxvd:645 ../bin/xxvd:651 ../bin/xxvd:657 ../lib/XXV/MODULES/AUTOTIMER.pm:30 ../lib/XXV/MODULES/AUTOTIMER.pm:683 ../lib/XXV/MODULES/CHANNELS.pm:1150 ../lib/XXV/MODULES/CHANNELS.pm:1176 ../lib/XXV/MODULES/CHANNELS.pm:1189 ../lib/XXV/MODULES/CHANNELS.pm:1228 ../lib/XXV/MODULES/CHANNELS.pm:1254 ../lib/XXV/MODULES/CHANNELS.pm:28 ../lib/XXV/MODULES/CHRONICLE.pm:27 ../lib/XXV/MODULES/EPG.pm:34 ../lib/XXV/MODULES/EPG.pm:40 ../lib/XXV/MODULES/EPG.pm:47 ../lib/XXV/MODULES/EVENTS.pm:33 ../lib/XXV/MODULES/GRAB.pm:29 ../lib/XXV/MODULES/GRAB.pm:43 ../lib/XXV/MODULES/HTTPD.pm:63 ../lib/XXV/MODULES/HTTPD.pm:69 ../lib/XXV/MODULES/HTTPD.pm:75 ../lib/XXV/MODULES/HTTPD.pm:81 ../lib/XXV/MODULES/HTTPD.pm:87 ../lib/XXV/MODULES/HTTPD.pm:95 ../lib/XXV/MODULES/INTERFACE.pm:32 ../lib/XXV/MODULES/INTERFACE.pm:38 ../lib/XXV/MODULES/INTERFACE.pm:44 ../lib/XXV/MODULES/KEYWORDS.pm:28 ../lib/XXV/MODULES/LOGREAD.pm:31 ../lib/XXV/MODULES/LOGREAD.pm:37 ../lib/XXV/MODULES/LOGREAD.pm:43 ../lib/XXV/MODULES/LOGREAD.pm:49 ../lib/XXV/MODULES/MEDIALIB.pm:32 ../lib/XXV/MODULES/MEDIALIB.pm:38 ../lib/XXV/MODULES/MEDIALIB.pm:44 ../lib/XXV/MODULES/MOVETIMER.pm:26 ../lib/XXV/MODULES/MOVETIMER.pm:423 ../lib/XXV/MODULES/MOVETIMER.pm:426 ../lib/XXV/MODULES/MOVETIMER.pm:446 ../lib/XXV/MODULES/MOVETIMER.pm:449 ../lib/XXV/MODULES/MUSIC.pm:39 ../lib/XXV/MODULES/MUSIC.pm:45 ../lib/XXV/MODULES/MUSIC.pm:51 ../lib/XXV/MODULES/MUSIC.pm:57 ../lib/XXV/MODULES/MUSIC.pm:68 ../lib/XXV/MODULES/MUSIC.pm:74 ../lib/XXV/MODULES/RECORDS.pm:109 ../lib/XXV/MODULES/RECORDS.pm:2370 ../lib/XXV/MODULES/RECORDS.pm:2384 ../lib/XXV/MODULES/RECORDS.pm:2646 ../lib/XXV/MODULES/RECORDS.pm:2650 ../lib/XXV/MODULES/RECORDS.pm:3022 ../lib/XXV/MODULES/RECORDS.pm:3034 ../lib/XXV/MODULES/RECORDS.pm:41 ../lib/XXV/MODULES/RECORDS.pm:47 ../lib/XXV/MODULES/RECORDS.pm:53 ../lib/XXV/MODULES/RECORDS.pm:69 ../lib/XXV/MODULES/RECORDS.pm:81 ../lib/XXV/MODULES/RECORDS.pm:98 ../lib/XXV/MODULES/REMOTE.pm:28 ../lib/XXV/MODULES/REMOTE.pm:34 ../lib/XXV/MODULES/REMOTE.pm:41 ../lib/XXV/MODULES/REPORT.pm:29 ../lib/XXV/MODULES/REPORT.pm:35 ../lib/XXV/MODULES/ROBOT.pm:29 ../lib/XXV/MODULES/SHARE.pm:64 ../lib/XXV/MODULES/SHARE.pm:81 ../lib/XXV/MODULES/SHARE.pm:87 ../lib/XXV/MODULES/STATUS.pm:29 ../lib/XXV/MODULES/STATUS.pm:35 ../lib/XXV/MODULES/STATUS.pm:40 ../lib/XXV/MODULES/STREAM.pm:105 ../lib/XXV/MODULES/STREAM.pm:30 ../lib/XXV/MODULES/STREAM.pm:40 ../lib/XXV/MODULES/STREAM.pm:61 ../lib/XXV/MODULES/STREAM.pm:67 ../lib/XXV/MODULES/STREAM.pm:85 ../lib/XXV/MODULES/STREAM.pm:91 ../lib/XXV/MODULES/SVDRP.pm:252 ../lib/XXV/MODULES/SVDRP.pm:258 ../lib/XXV/MODULES/SVDRP.pm:281 ../lib/XXV/MODULES/SVDRP.pm:30 ../lib/XXV/MODULES/TELNET.pm:29 ../lib/XXV/MODULES/TELNET.pm:35 ../lib/XXV/MODULES/TELNET.pm:41 ../lib/XXV/MODULES/TELNET.pm:47 ../lib/XXV/MODULES/TIMERS.pm:29 ../lib/XXV/MODULES/TIMERS.pm:630 ../lib/XXV/MODULES/TIMERS.pm:643 ../lib/XXV/MODULES/TIMERS.pm:646 ../lib/XXV/MODULES/TIMERS.pm:671 ../lib/XXV/MODULES/USER.pm:284 ../lib/XXV/MODULES/USER.pm:432 ../lib/XXV/MODULES/USER.pm:438 ../lib/XXV/MODULES/USER.pm:461 ../lib/XXV/MODULES/USER.pm:674 ../lib/XXV/MODULES/USER.pm:680 ../lib/XXV/MODULES/USER.pm:69 ../lib/XXV/MODULES/VTX.pm:33 ../lib/XXV/MODULES/VTX.pm:39 ../lib/XXV/MODULES/WAPD.pm:41 ../lib/XXV/MODULES/WAPD.pm:47 ../lib/XXV/MODULES/WAPD.pm:53 ../lib/XXV/MODULES/WAPD.pm:59 ../lib/XXV/MODULES/WAPD.pm:65 ../lib/XXV/MODULES/WAPD.pm:72 ../lib/XXV/MODULES/XMLTV.pm:31 ../lib/XXV/MODULES/XMLTV.pm:519 ../lib/XXV/MODULES/XMLTV.pm:538 ../lib/XXV/MODULES/XMLTV.pm:541 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:113 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:119 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:125 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:69 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:95 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:102 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:33 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:59 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:77 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:91 ../lib/XXV/OUTPUT/NEWS/RSS.pm:33 ../lib/XXV/OUTPUT/NEWS/RSS.pm:59 ../lib/XXV/OUTPUT/NEWS/VDR.pm:30 ../lib/XXV/OUTPUT/NEWS/VDR.pm:56
 msgid "This is required!"
 msgstr "Das ist erforderlich!"
 
@@ -291,7 +292,7 @@ msgid "Search with OFDb"
 msgstr "Suche mit OFDb"
 
 #--------------------
-#: ../html/display.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:443 ../lib/XXV/MODULES/AUTOTIMER.pm:645 ../lib/XXV/MODULES/EPG.pm:937 ../lib/XXV/MODULES/RECORDS.pm:2407 ../lib/XXV/MODULES/RECORDS.pm:2615 ../lib/XXV/MODULES/TIMERS.pm:775 ../lib/XXV/OUTPUT/Console.pm:171
+#: ../html/display.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:443 ../lib/XXV/MODULES/AUTOTIMER.pm:645 ../lib/XXV/MODULES/EPG.pm:937 ../lib/XXV/MODULES/RECORDS.pm:2407 ../lib/XXV/MODULES/TIMERS.pm:775 ../lib/XXV/OUTPUT/Console.pm:171
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -560,67 +561,67 @@ msgid "Memory usage in MB"
 msgstr "Verwendeter Speicher in MB"
 
 #--------------------
-#: ../html/mlcopy.tmpl:107 ../html/mldisplay.tmpl:110 ../html/mledit.tmpl:107 ../html/mlimport.tmpl:107
+#: ../html/mlcopy.tmpl:109 ../html/mldisplay.tmpl:110 ../html/mledit.tmpl:109 ../html/mlimport.tmpl:109
 msgid "TV-Episode"
 msgstr "TV-Episode"
 
 #--------------------
-#: ../html/mlcopy.tmpl:115 ../html/mldisplay.tmpl:115 ../html/mledit.tmpl:115 ../html/mlimport.tmpl:115 ../lib/XXV/MODULES/MEDIALIB.pm:1304
+#: ../html/mlcopy.tmpl:117 ../html/mldisplay.tmpl:115 ../html/mledit.tmpl:117 ../html/mlimport.tmpl:117 ../lib/XXV/MODULES/MEDIALIB.pm:1304
 msgid "Seen"
 msgstr "Gesehen"
 
 #--------------------
-#: ../html/mlcopy.tmpl:123 ../html/mldisplay.tmpl:38 ../html/mledit.tmpl:123 ../html/mlimport.tmpl:123
+#: ../html/mlcopy.tmpl:125 ../html/mldisplay.tmpl:38 ../html/mledit.tmpl:125 ../html/mlimport.tmpl:125
 msgid "Runtime"
 msgstr "Laufzeit"
 
 #--------------------
-#: ../html/mlcopy.tmpl:128 ../html/mldisplay.tmpl:30 ../html/mledit.tmpl:128 ../html/mlimport.tmpl:128 ../html/mlist.tmpl:75 ../lib/XXV/MODULES/MEDIALIB.pm:1279 ../lib/XXV/MODULES/MUSIC.pm:662
+#: ../html/mlcopy.tmpl:130 ../html/mldisplay.tmpl:30 ../html/mledit.tmpl:130 ../html/mlimport.tmpl:130 ../html/mlist.tmpl:75 ../lib/XXV/MODULES/MEDIALIB.pm:1279 ../lib/XXV/MODULES/MUSIC.pm:662
 msgid "Year"
 msgstr "Jahr"
 
 #--------------------
-#: ../html/mlcopy.tmpl:134 ../html/mldisplay.tmpl:122 ../html/mledit.tmpl:134 ../html/mlimport.tmpl:134
+#: ../html/mlcopy.tmpl:136 ../html/mldisplay.tmpl:122 ../html/mledit.tmpl:136 ../html/mlimport.tmpl:136
 msgid "Filename"
 msgstr "Dateiname"
 
 #--------------------
-#: ../html/mlcopy.tmpl:140 ../html/mldisplay.tmpl:209 ../html/mledit.tmpl:140 ../html/mlimport.tmpl:140 ../lib/XXV/MODULES/MEDIALIB.pm:1277
+#: ../html/mlcopy.tmpl:142 ../html/mldisplay.tmpl:209 ../html/mledit.tmpl:142 ../html/mlimport.tmpl:142 ../lib/XXV/MODULES/MEDIALIB.pm:1277
 msgid "Actors"
 msgstr "Schauspieler"
 
 #--------------------
-#: ../html/mlcopy.tmpl:148 ../html/mldisplay.tmpl:130 ../html/mledit.tmpl:148 ../html/mlimport.tmpl:148
+#: ../html/mlcopy.tmpl:150 ../html/mldisplay.tmpl:130 ../html/mledit.tmpl:150 ../html/mlimport.tmpl:150
 msgid "Filesize"
 msgstr "Dateigröße"
 
 #--------------------
-#: ../html/mlcopy.tmpl:156 ../html/mldisplay.tmpl:140 ../html/mledit.tmpl:156 ../html/mlimport.tmpl:156
+#: ../html/mlcopy.tmpl:158 ../html/mldisplay.tmpl:140 ../html/mledit.tmpl:158 ../html/mlimport.tmpl:158
 msgid "Filedate"
 msgstr "Dateidatum"
 
 #--------------------
-#: ../html/mlcopy.tmpl:164 ../html/mldisplay.tmpl:158 ../html/mledit.tmpl:164 ../html/mlimport.tmpl:164
+#: ../html/mlcopy.tmpl:166 ../html/mldisplay.tmpl:158 ../html/mledit.tmpl:166 ../html/mlimport.tmpl:166
 msgid "Audio Codec"
 msgstr "Audio Codec"
 
 #--------------------
-#: ../html/mlcopy.tmpl:172 ../html/mldisplay.tmpl:166 ../html/mledit.tmpl:172 ../html/mlimport.tmpl:172
+#: ../html/mlcopy.tmpl:174 ../html/mldisplay.tmpl:166 ../html/mledit.tmpl:174 ../html/mlimport.tmpl:174
 msgid "Video Codec"
 msgstr "Video Codec"
 
 #--------------------
-#: ../html/mlcopy.tmpl:180 ../html/mldisplay.tmpl:148 ../html/mledit.tmpl:180 ../html/mlimport.tmpl:180
+#: ../html/mlcopy.tmpl:182 ../html/mldisplay.tmpl:148 ../html/mledit.tmpl:182 ../html/mlimport.tmpl:182
 msgid "Size"
 msgstr "Größe"
 
 #--------------------
-#: ../html/mlcopy.tmpl:187 ../html/mldisplay.tmpl:201 ../html/mledit.tmpl:187 ../html/mlimport.tmpl:187 ../html/mlist.tmpl:77 ../lib/XXV/MODULES/MEDIALIB.pm:1284
+#: ../html/mlcopy.tmpl:189 ../html/mldisplay.tmpl:201 ../html/mledit.tmpl:189 ../html/mlimport.tmpl:189 ../html/mlist.tmpl:77 ../lib/XXV/MODULES/MEDIALIB.pm:1284
 msgid "Comment"
 msgstr "Kommentar"
 
 #--------------------
-#: ../html/mlcopy.tmpl:194 ../html/mledit.tmpl:194 ../html/mlimport.tmpl:194 ../html/mlist.tmpl:76
+#: ../html/mlcopy.tmpl:196 ../html/mledit.tmpl:196 ../html/mlimport.tmpl:196 ../html/mlist.tmpl:76
 msgid "Genre"
 msgstr "Genre"
 
@@ -630,7 +631,7 @@ msgid "Edit Media"
 msgstr "Medium editieren"
 
 #--------------------
-#: ../html/mlcopy.tmpl:201 ../html/mledit.tmpl:201 ../html/mlimport.tmpl:201
+#: ../html/mlcopy.tmpl:203 ../html/mledit.tmpl:203 ../html/mlimport.tmpl:203
 msgid "Save"
 msgstr "Speichern"
 
@@ -640,12 +641,12 @@ msgid "Title"
 msgstr "Titel"
 
 #--------------------
-#: ../html/mlcopy.tmpl:27 ../html/mledit.tmpl:27 ../html/mlimport.tmpl:27
+#: ../html/mlcopy.tmpl:28 ../html/mledit.tmpl:28 ../html/mlimport.tmpl:28
 msgid "Search at"
 msgstr "Suche bei"
 
 #--------------------
-#: ../html/mlcopy.tmpl:36 ../html/mledit.tmpl:36 ../html/mlimport.tmpl:36 ../lib/XXV/MODULES/AUTOTIMER.pm:432 ../lib/XXV/MODULES/AUTOTIMER.pm:644 ../lib/XXV/MODULES/EPG.pm:933 ../lib/XXV/MODULES/MEDIALIB.pm:1275 ../lib/XXV/MODULES/RECORDS.pm:1938 ../lib/XXV/MODULES/RECORDS.pm:2080
+#: ../html/mlcopy.tmpl:38 ../html/mledit.tmpl:38 ../html/mlimport.tmpl:38 ../lib/XXV/MODULES/AUTOTIMER.pm:432 ../lib/XXV/MODULES/AUTOTIMER.pm:644 ../lib/XXV/MODULES/EPG.pm:933 ../lib/XXV/MODULES/MEDIALIB.pm:1275 ../lib/XXV/MODULES/RECORDS.pm:1938 ../lib/XXV/MODULES/RECORDS.pm:2080
 msgid "Subtitle"
 msgstr "Serientitel"
 
@@ -655,57 +656,57 @@ msgid "Create Media"
 msgstr "Medium erstellen"
 
 #--------------------
-#: ../html/mlcopy.tmpl:42 ../html/mldisplay.tmpl:78 ../html/mledit.tmpl:42 ../html/mlimport.tmpl:42 ../lib/XXV/MODULES/MEDIALIB.pm:1280
+#: ../html/mlcopy.tmpl:44 ../html/mldisplay.tmpl:78 ../html/mledit.tmpl:44 ../html/mlimport.tmpl:44 ../lib/XXV/MODULES/MEDIALIB.pm:1280
 msgid "Country"
 msgstr "Land"
 
 #--------------------
-#: ../html/mlcopy.tmpl:50 ../html/mledit.tmpl:50 ../html/mlimport.tmpl:50
+#: ../html/mlcopy.tmpl:52 ../html/mledit.tmpl:52 ../html/mlimport.tmpl:52
 msgid "Cover URL"
 msgstr "Cover URL"
 
 #--------------------
-#: ../html/mlcopy.tmpl:56 ../html/mldisplay.tmpl:48 ../html/mledit.tmpl:56 ../html/mlimport.tmpl:56 ../lib/XXV/MODULES/MEDIALIB.pm:1276
+#: ../html/mlcopy.tmpl:58 ../html/mldisplay.tmpl:48 ../html/mledit.tmpl:58 ../html/mlimport.tmpl:58 ../lib/XXV/MODULES/MEDIALIB.pm:1276
 msgid "Director"
 msgstr "Regisseur"
 
 #--------------------
-#: ../html/mlcopy.tmpl:64 ../html/mldisplay.tmpl:62 ../html/mledit.tmpl:64 ../html/mlimport.tmpl:64 ../lib/XXV/MODULES/MEDIALIB.pm:1283
+#: ../html/mlcopy.tmpl:66 ../html/mldisplay.tmpl:62 ../html/mledit.tmpl:66 ../html/mlimport.tmpl:66 ../lib/XXV/MODULES/MEDIALIB.pm:1283
 msgid "Language"
 msgstr "Spache"
 
 #--------------------
-#: ../html/mlcopy.tmpl:68 ../html/mlcopy.tmpl:69 ../html/mledit.tmpl:68 ../html/mledit.tmpl:69 ../html/mlimport.tmpl:68 ../html/mlimport.tmpl:69
+#: ../html/mlcopy.tmpl:70 ../html/mlcopy.tmpl:71 ../html/mledit.tmpl:70 ../html/mledit.tmpl:71 ../html/mlimport.tmpl:70 ../html/mlimport.tmpl:71
 msgid "german"
 msgstr "deutsch"
 
 #--------------------
-#: ../html/mlcopy.tmpl:71 ../html/mlcopy.tmpl:72 ../html/mledit.tmpl:71 ../html/mledit.tmpl:72 ../html/mlimport.tmpl:71 ../html/mlimport.tmpl:72
+#: ../html/mlcopy.tmpl:73 ../html/mlcopy.tmpl:74 ../html/mledit.tmpl:73 ../html/mledit.tmpl:74 ../html/mlimport.tmpl:73 ../html/mlimport.tmpl:74
 msgid "english"
 msgstr "englisch"
 
 #--------------------
-#: ../html/mlcopy.tmpl:74 ../html/mlcopy.tmpl:75 ../html/mledit.tmpl:74 ../html/mledit.tmpl:75 ../html/mlimport.tmpl:74 ../html/mlimport.tmpl:75
+#: ../html/mlcopy.tmpl:76 ../html/mlcopy.tmpl:77 ../html/mledit.tmpl:76 ../html/mledit.tmpl:77 ../html/mlimport.tmpl:76 ../html/mlimport.tmpl:77
 msgid "french"
 msgstr "französisch"
 
 #--------------------
-#: ../html/mlcopy.tmpl:77 ../html/mlcopy.tmpl:78 ../html/mledit.tmpl:77 ../html/mledit.tmpl:78 ../html/mlimport.tmpl:77 ../html/mlimport.tmpl:78
+#: ../html/mlcopy.tmpl:79 ../html/mlcopy.tmpl:80 ../html/mledit.tmpl:79 ../html/mledit.tmpl:80 ../html/mlimport.tmpl:79 ../html/mlimport.tmpl:80
 msgid "spanish"
 msgstr "spanisch"
 
 #--------------------
-#: ../html/mlcopy.tmpl:82 ../html/mldisplay.tmpl:193 ../html/mledit.tmpl:82 ../html/mlimport.tmpl:82 ../lib/XXV/MODULES/MEDIALIB.pm:1278
+#: ../html/mlcopy.tmpl:84 ../html/mldisplay.tmpl:193 ../html/mledit.tmpl:84 ../html/mlimport.tmpl:84 ../lib/XXV/MODULES/MEDIALIB.pm:1278
 msgid "Plot"
 msgstr "Handlung"
 
 #--------------------
-#: ../html/mlcopy.tmpl:90 ../html/mldisplay.tmpl:102 ../html/mledit.tmpl:90 ../html/mlimport.tmpl:90 ../lib/XXV/MODULES/MEDIALIB.pm:1281
+#: ../html/mlcopy.tmpl:92 ../html/mldisplay.tmpl:102 ../html/mledit.tmpl:92 ../html/mlimport.tmpl:92 ../lib/XXV/MODULES/MEDIALIB.pm:1281
 msgid "DiskID"
 msgstr "DiskID"
 
 #--------------------
-#: ../html/mlcopy.tmpl:95 ../html/mldisplay.tmpl:92 ../html/mledit.tmpl:95 ../html/mlimport.tmpl:95 ../lib/XXV/MODULES/MEDIALIB.pm:1282
+#: ../html/mlcopy.tmpl:97 ../html/mldisplay.tmpl:92 ../html/mledit.tmpl:97 ../html/mlimport.tmpl:97 ../lib/XXV/MODULES/MEDIALIB.pm:1282
 msgid "Mediatype"
 msgstr "Medientyp"
 
@@ -974,7 +975,7 @@ msgid "Recording"
 msgstr "Aufnahme"
 
 #--------------------
-#: ../html/rdisplay.tmpl:104
+#: ../html/rdisplay.tmpl:104 ../lib/XXV/MODULES/RECORDS.pm:2657
 msgid "Choose a command to edit this recording ..."
 msgstr "Wählen Sie einen Befehl zum Bearbeiten der Aufnahme ..."
 
@@ -2245,7 +2246,7 @@ msgid "EPG table contains %d entries and since the last login on %s %d new entri
 msgstr "Die EPG Tabelle enthält %d Einträge und seit dem letzten Anmeldung am %s, %d neue Einträge"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1735 ../lib/XXV/MODULES/GRAB.pm:240 ../lib/XXV/MODULES/RECORDS.pm:3126
+#: ../lib/XXV/MODULES/EPG.pm:1735 ../lib/XXV/MODULES/GRAB.pm:240 ../lib/XXV/MODULES/RECORDS.pm:3166
 msgid "Sorry, get image is'nt supported"
 msgstr "Entschuldigung, Bilder werden nicht unterstützt!"
 
@@ -3047,7 +3048,7 @@ msgstr "Kopiere den original Timer"
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:100
 msgid "Access Key ID to gathering cover images (a 20-character, alphanumeric sequence). Please sign up at http://aws.amazon.com"
-msgstr ""
+msgstr "\"Access Key ID\" zum Abrufen von Plattenhüllen (Eine 20-Alphanumerische Zeichensequenz). Bitte unter http://aws.amazon.com anmelden."
 
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:1015
@@ -3057,12 +3058,12 @@ msgstr "Die Musikdatenbank enthält %d Einträge mit %d Alben von %d Künstlern 
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:105
 msgid "Secret Access Key to gathering cover images (a 40-character sequence). Please sign up at http://aws.amazon.com"
-msgstr ""
+msgstr "Geheimer \"Access Key\" zum Abrufen von Plattenhüllen (Eine 40-Zeichensequenz). Bitte unter http://aws.amazon.com anmelden."
 
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:1054
 msgid "No Amazon Web Service (AWS) access key identifiers token exists. Please sign up at http://aws.amazon.com ."
-msgstr ""
+msgstr "Kein Amazon Web Service (AWS) \"access key identifiers token\" existiert. Bitte unter http://aws.amazon.com anmelden."
 
 #--------------------
 #: ../lib/XXV/MODULES/MUSIC.pm:1069
@@ -3290,7 +3291,7 @@ msgid "No recording defined for display! Please use rdisplay 'rid'"
 msgstr "Keine Aufnahme zum Anzeigen definiert! Bitte verwende rdisplay 'rid'"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:1794 ../lib/XXV/MODULES/RECORDS.pm:1836 ../lib/XXV/MODULES/RECORDS.pm:1886 ../lib/XXV/MODULES/RECORDS.pm:2260 ../lib/XXV/MODULES/RECORDS.pm:2350 ../lib/XXV/MODULES/RECORDS.pm:2626
+#: ../lib/XXV/MODULES/RECORDS.pm:1794 ../lib/XXV/MODULES/RECORDS.pm:1836 ../lib/XXV/MODULES/RECORDS.pm:1886 ../lib/XXV/MODULES/RECORDS.pm:2260 ../lib/XXV/MODULES/RECORDS.pm:2350 ../lib/XXV/MODULES/RECORDS.pm:2630
 msgid "This recording does not exist in the database!"
 msgstr "Diese Aufnahme existiert nicht in der Datenbank!"
 
@@ -3340,7 +3341,7 @@ msgid "No recording defined for editing!"
 msgstr "Keine Aufnahme-ID zum Bearbeiten!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2368 ../lib/XXV/MODULES/RECORDS.pm:2981 ../lib/XXV/MODULES/TIMERS.pm:628
+#: ../lib/XXV/MODULES/RECORDS.pm:2368 ../lib/XXV/MODULES/RECORDS.pm:3021 ../lib/XXV/MODULES/TIMERS.pm:628
 msgid "Title of recording"
 msgstr "Titel der Aufnahme"
 
@@ -3370,7 +3371,7 @@ msgid "Cut marks"
 msgstr "Schnittmarken"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2445 ../lib/XXV/MODULES/RECORDS.pm:2960 ../lib/XXV/MODULES/RECORDS.pm:864 ../lib/XXV/MODULES/STREAM.pm:339
+#: ../lib/XXV/MODULES/RECORDS.pm:2445 ../lib/XXV/MODULES/RECORDS.pm:3000 ../lib/XXV/MODULES/RECORDS.pm:864 ../lib/XXV/MODULES/STREAM.pm:339
 msgid "Missing video directory on %s!"
 msgstr "Kein Videoverzeichnis auf %s gefunden!"
 
@@ -3395,7 +3396,7 @@ msgid "Recording: '%s', couldn't remove '%s' : %s"
 msgstr "Aufnahme: '%s', konnte nicht '%s' nicht entfernen : %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2551 ../lib/XXV/MODULES/RECORDS.pm:3030
+#: ../lib/XXV/MODULES/RECORDS.pm:2551 ../lib/XXV/MODULES/RECORDS.pm:3070
 msgid "Sorry! Couldn't touch '%s'! %s"
 msgstr "Entschuldigung! Konnte '%s' nicht aktualisieren! %s"
 
@@ -3410,54 +3411,54 @@ msgid "Recording was'nt changed!"
 msgstr "Aufnahme wurde nicht verändert!"
 
 #--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:2602
+msgid "No recording defined for converting!"
+msgstr "Keine Aufnahme zum Konvertieren definiert!"
+
+#--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:2607
 msgid "No reccmds.conf on your system!"
 msgstr "Keine reccmds.conf auf dem System!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2612
-msgid "Please use rconvert 'cmdid_rid'"
-msgstr "Bitte verwende rconvert 'cmdid_rid'"
-
-#--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2616
+#: ../lib/XXV/MODULES/RECORDS.pm:2645
 msgid "Command"
 msgstr "Kommando"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2623
+#: ../lib/XXV/MODULES/RECORDS.pm:2662
 msgid "Couldn't find this command ID!"
 msgstr "Kann diese Kommando-ID nicht finden!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2641
+#: ../lib/XXV/MODULES/RECORDS.pm:2665 ../lib/XXV/MODULES/STREAM.pm:285 ../lib/XXV/MODULES/STREAM.pm:308 ../lib/XXV/MODULES/STREAM.pm:318
+msgid "Couldn't find recording: '%s'"
+msgstr "Konnte Aufnahme '%s' nicht finden"
+
+#--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:2680
 msgid "Call %s '%s', standard error output :"
 msgstr "Aufruf %s '%s', Standardfehlerausgabe :"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2644
+#: ../lib/XXV/MODULES/RECORDS.pm:2683
 msgid "Call %s '%s', standard output :"
 msgstr "Aufruf %s '%s', Ausgabe :"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2648
+#: ../lib/XXV/MODULES/RECORDS.pm:2687
 msgid "Sorry! Couldn't call %s '%s'! %s"
 msgstr "Entschuldigung! Konnte %s '%s' nicht aufrufen! %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2652
+#: ../lib/XXV/MODULES/RECORDS.pm:2691
 msgid "Back to recording list"
 msgstr "Zurück zur Aufnahmeliste"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2689
+#: ../lib/XXV/MODULES/RECORDS.pm:2729
 msgid "%d new recordings since last report time %s"
 msgstr "%d neue Aufnahmen seit der letzten Reportzeit %s"
-
-#--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:2971
-msgid "There none recoverable recordings!"
-msgstr "Es sind keine wiederherstellbaren Aufnahmen vorhanden!"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:30
@@ -3465,27 +3466,32 @@ msgid "This module manages recordings."
 msgstr "Dieses Modul verwaltet die Aufnahmen."
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:3001
+#: ../lib/XXV/MODULES/RECORDS.pm:3011
+msgid "There none recoverable recordings!"
+msgstr "Es sind keine wiederherstellbaren Aufnahmen vorhanden!"
+
+#--------------------
+#: ../lib/XXV/MODULES/RECORDS.pm:3041
 msgid "Recover recording"
 msgstr "Aufnahme wiederherstellen"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:3007
+#: ../lib/XXV/MODULES/RECORDS.pm:3047
 msgid "Can't recover recording, maybe was this in the meantime deleted!"
 msgstr "Aufnahme konnte nicht wiederhergestellt werden, möglicherweise wurde sie in der zwischenzeit gelöscht!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:3016
+#: ../lib/XXV/MODULES/RECORDS.pm:3056
 msgid "Recover recording, couldn't rename '%s' to %s : %s"
 msgstr "Wiederhergestellen der Aufnahme, konnte '%s' nicht in %s umbenennen : %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:3035 ../lib/XXV/MODULES/RECORDS.pm:3037
+#: ../lib/XXV/MODULES/RECORDS.pm:3075 ../lib/XXV/MODULES/RECORDS.pm:3077
 msgid "Recording recovered!"
 msgstr "Aufnahme wiederhergestellt!"
 
 #--------------------
-#: ../lib/XXV/MODULES/RECORDS.pm:3045
+#: ../lib/XXV/MODULES/RECORDS.pm:3085
 msgid "None recording was'nt recovered!"
 msgstr "Keine Aufnahme wurde wiederhergestellt!"
 
@@ -3657,7 +3663,7 @@ msgstr "Platzierung"
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:54
 msgid "This module send anonymized epg data from programmed timern to a common web service. And read backward a ranking list of most programmed epg events."
-msgstr ""
+msgstr "Diese Modul sendet anonymisierte EPG Daten von programmierten Timern zu einem gemeinsamen Webservice. Und liest rückwärts eine sortierte Liste der meist programmierten EPG Einträge."
 
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:70 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:78 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:43 ../lib/XXV/OUTPUT/NEWS/RSS.pm:42 ../lib/XXV/OUTPUT/NEWS/VDR.pm:39
@@ -3948,11 +3954,6 @@ msgstr "Benutzter Host für verweisende Links innerhalb der Abspiellisten."
 #: ../lib/XXV/MODULES/STREAM.pm:277
 msgid "No recording defined for streaming!"
 msgstr "Keine Aufnahme für Streaming definiert!"
-
-#--------------------
-#: ../lib/XXV/MODULES/STREAM.pm:285 ../lib/XXV/MODULES/STREAM.pm:308 ../lib/XXV/MODULES/STREAM.pm:318
-msgid "Couldn't find recording: '%s'"
-msgstr "Konnte Aufnahme '%s' nicht finden"
 
 #--------------------
 #: ../lib/XXV/MODULES/STREAM.pm:33

@@ -149,7 +149,8 @@ An overview of all parameters receive you with:
   -d {database}  : XXV database name (default: xxv)
   -u {user}      : Username (default: root)
   -p {password}  : Password (default: no password)
-  -a             : Ask for password
+  -a             : Ask for password (once every run of mysql)
+  -A             : Ask for password (just once)
   -f             : Force upgrade, do not check version
   -h             : Help
 

@@ -4,7 +4,7 @@
  [
   <!ENTITY dhfirstname "<firstname>Tobias</firstname>">
   <!ENTITY dhsurname   "<surname>Grimm</surname>">
-  <!ENTITY date        "July 04, 2009">
+  <!ENTITY date        "April 05, 2010">
   <!ENTITY dhdate      "<date>&date;</date>">
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
   <!ENTITY dhemail     "<email>tg@e-tobi.net</email>">
@@ -23,7 +23,7 @@
     <address>&dhemail;</address>
     <author>&dhfirstname; &dhsurname;</author>
     <copyright>
-      <year>2005 - 2009</year>
+      <year>2005 - 2010</year>
       <holder>&dhusername;</holder>
     </copyright>
     &dhdate;
