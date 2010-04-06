@@ -1,19 +1,19 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2009, anbr
+ * Copyright(c) 2009-2010, Diego Pierotto
  * 
  * http://xxv.berlios.de/
  *
  * $Id$
  *
- * Template for translation
+ * Italian translation by Diego Pierotto [ita.translations@tiscali.it]
  */
 
 /* login.js */
-Ext.LoginPanel.prototype.szTitle = 'Please login';
-Ext.LoginPanel.prototype.szUser = 'Username';
-Ext.LoginPanel.prototype.szPassword = 'Password';
-Ext.LoginPanel.prototype.szLogin = 'Login';
-Ext.LoginPanel.prototype.szFailed = 'Login failed!';
-Ext.LoginPanel.prototype.szWarning = 'Warning!';
-Ext.LoginPanel.prototype.szUnreachable = 'Authentication server is unreachable : ';
+Ext.LoginPanel.prototype.szTitle = "Connessione";
+Ext.LoginPanel.prototype.szUser = "Nome utente";
+Ext.LoginPanel.prototype.szPassword = "Password";
+Ext.LoginPanel.prototype.szLogin = "Entra"';
+Ext.LoginPanel.prototype.szFailed = "Connessione fallita!";
+Ext.LoginPanel.prototype.szWarning = "Attenzione!";
+Ext.LoginPanel.prototype.szUnreachable = "Server autenticazione non raggiungibile : ";

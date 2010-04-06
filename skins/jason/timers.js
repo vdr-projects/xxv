@@ -42,12 +42,24 @@ Ext.xxv.timerStore = function() {
     });
 };
 
+// helper grouping view, don't scroll to top after editing (reload)
+Ext.xxv.editingGroupingView = function(config) {
+    Ext.apply(this, config);
+    Ext.xxv.editingGroupingView.superclass.constructor.call(this, {} );
+};
+
+Ext.extend(Ext.xxv.editingGroupingView,  Ext.grid.GroupingView, {
+   scrollTop : function() {
+       this.scroller.dom.scrollTop = 0;
+       this.scroller.dom.scrollLeft = 0;
+   },
+   scrollToTop : Ext.emptyFn
+});
+
 Ext.xxv.timerGrid = function(viewer) {
 
     this.viewer = viewer;
     this.preview = new Ext.xxv.timerPreview(viewer);
-
-    //Ext.apply(this, {}); // Apply config
 
     // create primary data store
     this.store = new Ext.xxv.timerStore();
@@ -162,7 +174,7 @@ Ext.xxv.timerGrid = function(viewer) {
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:false
         })
-        ,view: new Ext.grid.GroupingView({
+        ,view: new Ext.xxv.editingGroupingView({
             enableGroupingMenu:false,
             showGroupName: false
         })

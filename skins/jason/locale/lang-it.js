@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2009, Diego Pierotto
+ * Copyright(c) 2009-2010, Diego Pierotto
  * 
  * http://xxv.berlios.de/
  *
@@ -55,8 +55,8 @@ Ext.xxv.channelsPanel.prototype.webcastTTText = "Trasmissione web";
 Ext.xxv.channelsPanel.prototype.webcastText = "Trasmissione web dal vivo di questo canale";
 Ext.xxv.channelsPanel.prototype.switchTTText: "Cambia";
 Ext.xxv.channelsPanel.prototype.switchText = "Cambia su questo canale";
-/*NEED TO TRANSLATE*/ Ext.xxv.channelsPanel.prototype.teleTextText = "Teletext pages";
-/*NEED TO TRANSLATE*/ Ext.xxv.channelsPanel.prototype.teleTextTTText = "Show teletext pages from this channel";
+Ext.xxv.channelsPanel.prototype.teleTextText = "Pagine teletext";
+Ext.xxv.channelsPanel.prototype.teleTextTTText = "Mostra pagine teletext di questo canale";
 Ext.xxv.channelsPanel.prototype.editTTText = "Modifica";
 Ext.xxv.channelsPanel.prototype.editText = "Modifica questo canale";
 Ext.xxv.channelsPanel.prototype.deleteText = "Elimina questo canale";
@@ -148,7 +148,7 @@ Ext.xxv.recordingsDataView.prototype.szToolTip = "Mostra registrazioni";
 Ext.xxv.recordingsDataView.prototype.szFindReRun = "Cerca repliche";
 Ext.xxv.recordingsDataView.prototype.szEdit = "Modifica";
 Ext.xxv.recordingsDataView.prototype.szCut = "Taglia";
-/*NEED TO TRANSLATE*/ Ext.xxv.recordingsDataView.prototype.szConvert = "Convert";
+Ext.xxv.recordingsDataView.prototype.szConvert = "Converti";
 Ext.xxv.recordingsDataView.prototype.szDelete = "Elimina";
 Ext.xxv.recordingsDataView.prototype.szRecover = "Recupera registrazioni eliminate";
 Ext.xxv.recordingsDataView.prototype.szStream = "Trasmetti registrazione";
@@ -220,7 +220,7 @@ Ext.xxv.usersGrid.prototype.szColTitle = "Account";
 Ext.xxv.usersGrid.prototype.szColLevel = "Livello";
 Ext.xxv.usersGrid.prototype.szUserPreferences = "Preferenze utente";
 Ext.xxv.usersGrid.prototype.szAdminPreferences = "Preferenze";
-Ext.xxv.usersGrid.prototype.szLoadException = "Impossibile recuperare dati accout utente!\r\n{0}";
+Ext.xxv.usersGrid.prototype.szLoadException = "Impossibile recuperare dati account utente!\r\n{0}";
 Ext.xxv.usersGrid.prototype.szDeleteSuccess = "Eliminazione account utente riuscita.\r\n{0}";
 Ext.xxv.usersGrid.prototype.szDeleteFailure = "Impossibile eliminare account utente!\r\n{0}";
 
@@ -239,17 +239,17 @@ Ext.xxv.vdrGrid.prototype.szDeleteSuccess = "Eliminazione Video Disk Recorder ri
 Ext.xxv.vdrGrid.prototype.szDeleteFailure = "Impossibile eliminare Video Disk Recorder!\r\n{0}";
 
 /* audio.js */
-/*NEED TO TRANSLATE*/ Ext.xxv.AudioWindow.prototype.szTitle = "Musica riproduci";
-/*NEED TO TRANSLATE*/ Ext.xxv.AudioWindow.prototype.szNeedFlash = "You need to get the latest Flash Player to hear music with this player";
+Ext.xxv.AudioWindow.prototype.szTitle = "Riproduci musica";
+Ext.xxv.AudioWindow.prototype.szNeedFlash = "Devi avere una versione aggiornata di Flash Player per ascoltare la musica con questo lettore";
 
 /* music.js */
 Ext.xxv.musicGrid.prototype.szTitle = "Musica";
 Ext.xxv.musicGrid.prototype.szToolTip = "Mostra elenco titoli musicali";
-/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindTitle = "Search tracks with same title";
-/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindArtist = "Search tracks by same artist";
-/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindAlbum = "Search tracks from same album";
-/*NEED TO TRANSLATE*/ Ext.xxv.musicGrid.prototype.szFindGenre = "Search tracks by same genre";
-Ext.xxv.musicGrid.prototype.szFindYear = "Search tracks from same year";
+Ext.xxv.musicGrid.prototype.szFindTitle = "Cerca tracce con stesso titolo";
+Ext.xxv.musicGrid.prototype.szFindArtist = "Cerca tracce con stesso artista";
+Ext.xxv.musicGrid.prototype.szFindAlbum = "Cerca tracce con stesso album";
+Ext.xxv.musicGrid.prototype.szFindGenre = "Cerca tracce con stesso genere";
+Ext.xxv.musicGrid.prototype.szFindYear = "Cerca tracce con stesso anno";
 Ext.xxv.musicGrid.prototype.szPlaying = "Riproduci";
 Ext.xxv.musicGrid.prototype.szColAlbum	 = "Album";
 Ext.xxv.musicGrid.prototype.szColArtist = "Artista";
@@ -262,9 +262,9 @@ Ext.xxv.musicGrid.prototype.szColComment = "Commento";
 Ext.xxv.musicGrid.prototype.szLoadException = "Impossibile recuperare titoli elenco musicale!\r\n{0}";
 
 /* teletext */
-/*NEED TO TRANSLATE*/ Ext.xxv.TeleTextView.prototype.szTitle = "Teletext";
-/*NEED TO TRANSLATE*/ Ext.xxv.TeleTextView.prototype.szToolTip = "Display teletext pages";
-/*NEED TO TRANSLATE*/ Ext.xxv.TeleTextView.prototype.szLoadException = "Couldn't get teletext pages!\r\n{0}";
+Ext.xxv.TeleTextView.prototype.szTitle = "Teletext";
+Ext.xxv.TeleTextView.prototype.szToolTip = "Mostra pagine teletext";
+Ext.xxv.TeleTextView.prototype.szLoadException = "Impossibile recuperare pagine teletext!\r\n{0}";
 
 /* monitor.js */
 Ext.xxv.MonitorWindow.prototype.szTitle = "Schermo";
@@ -282,7 +282,7 @@ Ext.xxv.RemoteWindow.prototype.szTitle = "Telecomando";
 Ext.xxv.RemoteWindow.prototype.szRemoteFailure = "Impossibile trasmettere dati telecomando!\r\n{0}";
 
 /* ux/multiselect.js */
-Ext.ux.Multiselect.prototype.minLengthText = "Minimo {0} voci richiestae";
+Ext.ux.Multiselect.prototype.minLengthText = "Minimo {0} voci richieste";
 Ext.ux.Multiselect.prototype.maxLengthText = "Massimo {0} voci permesse";
 
 /* ux/filter.js */
