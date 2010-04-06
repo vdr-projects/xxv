@@ -1,8 +1,8 @@
 # Italian translation of package XXV.
-# Copyright (C) 2009 THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) 2009-2010 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the XXV package.
 #
-# Diego Pierotto <vdr-italian at tiscali.it>, 2009
+# Diego Pierotto <vdr-italian at tiscali.it>, 2009-2010
 #
 #
 # $Id$
@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XXV 1.5\n"
 "POT-Creation-Date: 2009-08-15 00:07+0100\n"
-"PO-Revision-Date: 2009-12-28 15:30+0100\n"
+"PO-Revision-Date: 2010-04-05 23:56+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -3421,7 +3421,7 @@ msgstr "Registrazione non modificata!"
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:2602
 msgid "No recording defined for converting!"
-msgstr ""
+msgstr "Nessuna registrazione definita per la conversione!"
 
 #--------------------
 #: ../lib/XXV/MODULES/RECORDS.pm:2607
@@ -3671,7 +3671,7 @@ msgstr "Valutazione"
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:54
 msgid "This module send anonymized epg data from programmed timern to a common web service. And read backward a ranking list of most programmed epg events."
-msgstr ""
+msgstr "Questo modulo invia dati EPG anonimi dal timer programmato ad un servizio web comune, e restituisce una classifica degli EPG più programmati."
 
 #--------------------
 #: ../lib/XXV/MODULES/SHARE.pm:70 ../lib/XXV/OUTPUT/NEWS/JABBER.pm:78 ../lib/XXV/OUTPUT/NEWS/MAIL.pm:43 ../lib/XXV/OUTPUT/NEWS/RSS.pm:42 ../lib/XXV/OUTPUT/NEWS/VDR.pm:39
