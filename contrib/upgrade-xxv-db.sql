@@ -32,9 +32,9 @@ CREATE TABLE IF NOT EXISTS `AUTOTIMER` (
 
 CREATE TABLE IF NOT EXISTS `CHRONICLE` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `hash` varchar(32) NOT NULL default '',
+  `hash` varchar(32) NOT NULL,
   `title` text NOT NULL,
-  `channel_id` varchar(32) default '',
+  `channel_id` varchar(32) default NULL,
   `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
   `duration` int(11) NOT NULL default '0',
   `description` text,
