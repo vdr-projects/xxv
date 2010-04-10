@@ -1,11 +1,19 @@
-Release 1.4
+Release 1.6
+* add formbased login
+* redesign teletext widget (show any subpages as same time)
+  Remove embedded image, use css sprite for faster pages rendering
+  use css class to highlight search text
+* adapt command rconvert to common method
+* adjust checkvalue function to new notation [ Bug #16669 ]
+* MEDIALIB: hide usable media search button
+* footer updated
+* css fix correct z-index on schema for timemarker
 
+Release 1.4
 * widget/time.tmpl : Add widget for input time based values
 * rdisplay: transmit keywords as data
 
 Release 1.0
-
-
 * no broken pics in schema on IE
 * add support for IE7
 * Added support for MEDIALIB
@@ -60,7 +68,7 @@ Release 0.4
 * schema.tmpl :
     - timemarker
 
-0.3
+Release 0.3
 * schema.tmpl :
     - bugfixing on mass
     - icons für funktionen

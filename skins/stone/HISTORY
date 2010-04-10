@@ -1,9 +1,17 @@
-1.4
+Release 1.6
+* add formbased login
+* redesign teletext widget (show any subpages as same time)
+  Remove embedded image, use css sprite for faster pages rendering
+  use css class to highlight search text
+* adapt command rconvert to common method
+* MEDIALIB: hide usable media search button
+
+Release 1.4
 
 * widget/time.tmpl : Add widget for input time based values
 * rdisplay: transmit keywords as data
 
-1.2
+Release 1.2
 
 * In Datei "skin.cfg" entfällt der Parameter "global.playbackmode", 
   Neu "global.preferedlocal" um als "Default" eher lokal oder Web angezeigt wird
@@ -11,7 +19,7 @@
     rlist - rplay/playrecord  - Zeigen der Aufnahme im VDR / Aufnahme als Stream
   (in display / rdisplay sind beide Optionen verfügbar)
 
-1.0
+Release 1.0
 
 Neue Feature :
 
@@ -57,7 +65,7 @@ Fixes :
 * tupdate:      Aktualisierung der Timer, zieht keinen kompletten Reload der Grafikelemente mehr nach sich.
 * popup:        Schliessen mit ESC-Taste
 
-0.80
+Release 0.80
 
 Neue Feature :
 
@@ -70,7 +78,7 @@ Fixes :
          "Fehlermeldung: 'length' ist NULL oder kein Objekt" (berichtet von Andreas Wellmann)
 
 
-0.71
+Release 0.71
 
 Neue Feature :
 
@@ -99,13 +107,13 @@ Fixes :
 * now/next Ausgabe mit CHANNELSGROUPS - FEATUREREQUSEST[145]
 
 
-0.60 Fixes:
+Release 0.60 Fixes:
 
 * widget - Feldbeschreibungen werden abgekürzt, und optional als Tooltip angezeigt
 * all - validierung
 * blue(remote) - Pixmap für Cursor aktualisiert
 
-0.52 Fixes:
+Release 0.52 Fixes:
 
 * now - Auswahlfeld für Zeitpunkte optimiert
 * display - seperate CSS Style für epgimages
@@ -119,7 +127,7 @@ Fixes :
 * Nutzung der von HTTPD::debug statt der Option global.debug in skin.cfg
 * skin.cfg/global.inline_css_and_js_files entfernt da HTTPD jetzt EXPIRES-Header sendet, und damit den Browsercache bedient
 
-0.50
+Release 0.50
 
 * Neues Skinthema: "LCARS" und zwar in Anlehnung an TNG, (siehe README)
 
@@ -167,7 +175,7 @@ Fixes:
 * rdisplay: Darstellung der Schnittmarken korrigiert
 * wait: style an Skins angepasst
 
-0.42
+Release 0.42
 
 Fixes:
 
@@ -176,13 +184,13 @@ Fixes:
 * widget/string.tmpl Anzeige als mehrzeiliges Feld durch xxv ermöglicht
 * widget/password.tmpl : Unveränderte Übernahme des alten Passwort bei leerem Feld durch falsche Anzeige vereitelt
 
-0.40
+Release 0.40
 
 Fixes:
 
 * Bug 25: Gruppieren in rlist präziser gemacht
 
-0.35
+Release 0.35
 
 Neues Feature : 
 
@@ -219,7 +227,7 @@ Fixes:
 * wait.tmpl Reimplement für Server-Push
 * now.tmpl Parameter für Laufzeiten nach "periods" umbenannt, um Verwechslungen mit timers zu vermeiden
 
-0.31
+Release 0.31
 
 Neues Feature : 
 * Flacher Modus der Skins wenn skin.cfg => global.cfgTableColumn = 0
@@ -239,7 +247,7 @@ Fixes:
 * aedit/tedit: update für Autotimer/Timer -> Channel wählt nur anhand des Name die Selection aus, nicht anhand der POS
 * EPG:now/program/search -> timer werden angzeigt und können direkt editiert werden
 
-0.20
+Release 0.20
 
 * tlist -> "VPS"-Anzeige, On/Off-Anzeige von inaktiven Timer mit VPS/Instant korrigiert
 
