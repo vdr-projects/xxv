@@ -198,7 +198,7 @@ sub parseTemplateFile {
         charset => $self->{charset},
         skin    => $self->{SkinName},
         # query the current locale
-        locale  => main::getGeneralConfig->{Language},
+        locale  => $Tools::LANGUAGE,
         allow   => sub{
             my($cmdobj, $cmdname, $se, $err) = $u->checkCommand($self, $_[0],"1");
             return $cmdobj;

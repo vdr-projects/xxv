@@ -42,7 +42,7 @@ $|++;
 
 my $REV = (split(/ /, '$Revision$'))[1];
 my $MODULES;
-my $VERSION = '1.6'; 
+my $VERSION = '1.6.1'; 
 my $VDRVERSION = 0;
 my $DBVERSION = 0;
 my $CLEANUP;
@@ -479,10 +479,13 @@ sub init_locale {
 # ------------------
     my $paths = shift || return error('No path defined!');
 
+    my $lang     = "C";
     setlocale (LC_ALL, ''); #From environment like 'export LANG="fr_FR"';
     my $current_locale = setlocale (LC_MESSAGES);
 
-    debug sprintf('Current locale is set to %s', $current_locale);
+    $lang = (split(/\.|\@/, $current_locale))[0] if($current_locale);
+
+    debug sprintf('Current locale is set to %s (%s)', $current_locale, $lang);
 
     my $charset;
     # Check for environment with UTF-8
@@ -496,7 +499,8 @@ sub init_locale {
     } else {
       $charset = 'ISO-8859-1';
     }
-    setcharset($charset);
+
+    setcharset($charset, $lang);
 
     # TODO set to installed folder like /usr/share/locale
     # set /usr/share/locale/de/LC_MESSAGES/xxv.mo

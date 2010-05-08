@@ -27,6 +27,7 @@ our $LOGCALLB   = sub{ };
 our $DBH        = {};
 our $LOCALE;
 our $CHARSET;
+our $LANGUAGE   = "C";
 
 # PAL use 25, NTFS use 30 frames per seconds
 use constant FRAMESPERSECOND => 25; 
@@ -751,8 +752,9 @@ sub frame2hms() {
     return sprintf('%d:%02d:%02d.%02d', $hour, $min, $sec, $frame); 
 }
 
-sub setcharset($) {
+sub setcharset {
     $CHARSET = shift;
+    $LANGUAGE = shift;
 }
 
 ################################################################################

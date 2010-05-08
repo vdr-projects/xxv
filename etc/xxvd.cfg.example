@@ -29,7 +29,6 @@ ysize=360
 
 [General]
 DSN=DBI:mysql:database=xxv;host=localhost;port=3306
-Language=de_DE
 PWD=xxv
 USR=xxv
 initscript=/etc/init.d/xxvd
