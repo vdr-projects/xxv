@@ -242,6 +242,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
           case 'time':
             config.xtype = 'timefield';
             config.increment = 15;
+            config.format = 'H:i';
             break;
           case 'integer':
             config.xtype = 'numberfield';
@@ -288,8 +289,11 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
                   }
                   params['__'+record.data.id] = boxes.join(',');
                   break;
+                case 'time':
+                  params['__'+record.data.id] = field.getValue();
+                  break;
                 case 'date':
-                  params['__'+record.data.id] = field.getRawValue();
+                  params['__'+record.data.id] = field.getValue().dateFormat('Y-m-d');
                   break;
                 default:
                   params['__'+record.data.id] = field.getValue();
