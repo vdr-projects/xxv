@@ -193,7 +193,7 @@ sub _init {
         }
 
         return 1;
-    }, "SHARE: Connect to popularity web service ...",4) if($self->{active} eq 'y');
+    }, "SHARE: Connect to popularity web service ...",3) if($self->{active} eq 'y');
 
     main::after(sub{
         if($self->{SOAP}) {
@@ -390,8 +390,6 @@ sub TopTen {
             FROM TIMERS as t
             WHERE t.eventid = e.eventid
             LIMIT 1) as __running,
-        e.video as __video,
-        e.audio as __audio,
         s.rank as \'$f{'rank'}\',
         s.level as __level,
         s.quantity as __quantity
@@ -405,20 +403,54 @@ sub TopTen {
         AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
     order by
         rank desc
-    LIMIT ?
-        |;
+    |;
 
-    my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute($anzahl)
-        or return con_err($console, sprintf("Couldn't execute query: %s.",$sth->errstr));
+
+    my $rows;
+    my $sth;
+    my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
+    unless($limit) { # enforce backward 
+      $limit = CORE::int($anzahl);
+    }
+    if($limit > 0) {
+      # Query total count of rows
+      my $rsth = $self->{dbh}->prepare($sql);
+         $rsth->execute()
+          or return error sprintf("Couldn't execute query: %s.",$rsth->errstr);
+      $rows = $rsth->rows;
+      if($rows <= $limit) {
+        $sth = $rsth;
+      } else {
+        # Add limit query
+        if($console->{cgi}->param('start')) {
+          $sql .= " LIMIT " . CORE::int($console->{cgi}->param('start'));
+          $sql .= "," . $limit;
+        } else {
+          $sql .= " LIMIT " . $limit;
+        }
+      }
+    }
+
+    unless($sth) {
+      $sth = $self->{dbh}->prepare($sql);
+      $sth->execute()
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      $rows = $sth->rows unless($rows);
+    }
+
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
-    map {
-        $_->[7] = datum($_->[7],'weekday');
-    } @$erg;
-    unshift(@$erg, $fields);
 
-    return $console->table($erg);
+    unless($console->typ eq 'AJAX') {
+      map {
+          $_->[7] = datum($_->[7],'weekday');
+      } @$erg;
+      unshift(@$erg, $fields);
+    }
+
+    return $console->table($erg, {
+        rows => $rows
+    });
 }
 
 # ------------------
