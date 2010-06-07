@@ -65,7 +65,8 @@ Ext.xxv.NowGrid = function(viewer) {
                 })
                 ,displayField:'display'
                 ,valueField:'value'
-                ,triggerAction: 'all'                ,lazyRender:true
+                ,triggerAction: 'all'
+                ,lazyRender:true
                 ,listClass: 'x-combo-list-small'
                 ,mode: 'local'
                 ,emptyText:this.szPresent
@@ -75,13 +76,14 @@ Ext.xxv.NowGrid = function(viewer) {
                 ,regex: new RegExp("^([0-9]+\:[0-9]+)|("+this.szFollowing+")$")
                 ,maxLengthText: 5
 				        ,listeners: {
-						      'select': {fn:this.reload, scope:this}
+						       'select': {fn:this.reload, scope:this}
 						      ,'specialkey': {fn:this.onSpecialkey, scope:this}
 				        }
             });
 
     this.columns = [
-        {           header: this.szColPosition,
+        {
+           header: this.szColPosition,
            dataIndex: 'rang',
            width: 20,
            hidden: true
@@ -91,10 +93,12 @@ Ext.xxv.NowGrid = function(viewer) {
            ,dataIndex: 'title'
            ,width: 150
            ,renderer: { fn: this.formatTitle, scope: this }
-        },{           header: this.szColChannel,
+        },{
+           header: this.szColChannel,
            dataIndex: 'channel',
            width: 50
-        },{           header: this.szColGrpName,
+        },{
+           header: this.szColGrpName,
            dataIndex: 'grpname',
            width: 50,
            hidden: true
@@ -176,19 +180,6 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onBeforeLoad : function(  store, opt ) {
-
-      delete(this.store.baseParams['data']);
-
-      var time = this.timefield.lastQuery;
-      if(!time || time == '') time = this.timefield.getValue();
-      if(!time || time == this.szPresent) {
-        store.baseParams.cmd = 'n';
-      } else if(time == this.szFollowing) {
-        store.baseParams.cmd = 'nx';
-      } else {
-        store.baseParams.cmd = 'n';
-        store.baseParams.data = time;
-      }
       this.preview.clear();
     }
     ,onLoad : function( store, records, opt ) {
@@ -325,8 +316,20 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
           this.menu = null;
         }
     }
-
     ,reload : function() {
+        if(this.store.baseParams.data)
+          delete(this.store.baseParams['data']);
+
+        var time = this.timefield.lastQuery;
+        if(!time || time == '') time = this.timefield.getValue();
+        if(!time || time == this.szPresent) {
+          this.store.baseParams.cmd = 'n';
+        } else if(time == this.szFollowing) {
+          this.store.baseParams.cmd = 'nx';
+        } else {
+          this.store.baseParams.cmd = 'n';
+          this.store.baseParams.data = time;
+        }   
         this.store.load({params:{start:0, limit:configuration.pageSize}});
     }
 
