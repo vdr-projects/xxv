@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -86,7 +86,8 @@ Ext.xxv.timerGrid = function(viewer) {
        ,hidden: false
     });
 
-    this.ChannelsCombo = new Ext.xxv.ChannelsCombo({           header: this.szColChannel,
+    this.ChannelsCombo = new Ext.xxv.ChannelsCombo({
+           header: this.szColChannel,
            dataIndex: 'pos',
            width: 200,
            store: channels,
@@ -103,7 +104,8 @@ Ext.xxv.timerGrid = function(viewer) {
                 store: channels,
                 displayField:'name',
                 valueField:'position',
-                triggerAction: 'all',                lazyRender:true,
+                triggerAction: 'all',
+                lazyRender:true,
                 listClass: 'x-combo-list-small',
                 mode: 'remote',
                 emptyText:this.szSelChEmptyText,
@@ -176,7 +178,9 @@ Ext.xxv.timerGrid = function(viewer) {
         })
         ,view: new Ext.xxv.editingGroupingView({
             enableGroupingMenu:false,
-            showGroupName: false
+            forceFit:true,
+            showGroupName: false,
+			      enableGrouping:true
         })
         ,tbar:new Ext.PagingToolbar({
               pageSize: this.store.autoLoad.params.limit

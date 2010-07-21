@@ -66,7 +66,7 @@ Ext.xxv.vdrGrid = function(viewer) {
         },
         this.activeColumn,
         this.primaryColumn,
-        {           header: this.szColDirectory
+        {           header: this.szColDirectory
            ,dataIndex: 'directory'
            ,width: 200
            ,renderer: this.formatTitle

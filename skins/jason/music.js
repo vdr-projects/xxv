@@ -219,27 +219,27 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
                     ,disabled: true
                     ,handler: function() { this.PlayingItem(this.ctxRecord); }
                   },'-',{
-                     text:  this.szFindTitle                    ,iconCls: 'find-icon'
+                     text:  this.szFindTitle                    ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: false
                     ,handler: function(){ this.reload('title', this.ctxRecord.data.title);}
                    },{
-                     text:  this.szFindArtist                    ,iconCls: 'find-icon'
+                     text:  this.szFindArtist                    ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: false
                     ,handler: function(){ this.reload('artist', this.ctxRecord.data.artist);}
                    },{
-                     text:  this.szFindAlbum                    ,iconCls: 'find-icon'
+                     text:  this.szFindAlbum                    ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: false
                     ,handler: function(){ this.reload('album', this.ctxRecord.data.album);}
                    }/*,{
-                     text:  this.szFindGenre                    ,iconCls: 'find-icon'
+                     text:  this.szFindGenre                    ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: false
                     ,handler: function(){ this.reload('genre', this.ctxRecord.data.genre);}
                    }*/,{
-                     text:  this.szFindYear                    ,iconCls: 'find-icon'
+                     text:  this.szFindYear                    ,iconCls: 'find-icon'
                     ,scope:this
                     ,disabled: false
                     ,handler: function(){ this.reload('year', this.ctxRecord.data.year);}

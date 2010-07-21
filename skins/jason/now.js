@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -27,16 +27,20 @@ Ext.xxv.NowStore = function() {
                                     ,{name: 'timeractiv', type: 'string'}
                                     ,{name: 'running', type: 'string'}
                                     ,{name: 'vps', type: 'string'} //type:'date', dateFormat:'timestamp'}
-                                    ,{name: 'rang', type: 'int'} //dummy field created after onload
+                                    ,{name: 'order', type: 'int'} //dummy field created after onload
                                   ]
                       })
             ,proxy : new Ext.data.HttpProxy({
                 url: XXV.help.baseURL()
                 ,method: 'GET'
             })
-            ,sortInfo:{field:'rang', direction:'ASC'}
+			      ,groupOnSort:false
+            ,sortInfo:{field:'order', direction:'ASC'}
             ,groupField:'grpname'
             ,remoteGroup:true
+	          ,hasMultiSort:false
+        	  ,multiSortInfo:{}
+
     });
 }
 
@@ -47,7 +51,6 @@ Ext.xxv.NowGrid = function(viewer) {
 
     // create the data store
     this.store = new Ext.xxv.NowStore();
-    this.store.setDefaultSort('rang', "ASC");
 
     var range = new Array();
     range.push([this.szPresent,0]);
@@ -84,7 +87,7 @@ Ext.xxv.NowGrid = function(viewer) {
     this.columns = [
         {
            header: this.szColPosition,
-           dataIndex: 'rang',
+           dataIndex: 'order',
            width: 20,
            hidden: true
         },{
@@ -126,9 +129,10 @@ Ext.xxv.NowGrid = function(viewer) {
             singleSelect:true
         })
         ,view: new Ext.grid.GroupingView({
-             enableGroupingMenu:false
-            ,forceFit:true
-            ,showGroupName: false
+            enableGroupingMenu:false,
+            forceFit:true,
+            showGroupName: false,
+			      enableGrouping:true
         })
         ,tbar:new Ext.PagingToolbar({
              pageSize: configuration.pageSize
@@ -183,10 +187,6 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       this.preview.clear();
     }
     ,onLoad : function( store, records, opt ) {
-      var l = records.length;
-      for (var i = 0; i < l; i++) {
-        records[i].data.rang = i;
-      }
       if(store.baseParams.data
         && store.baseParams.cmd != 'nx'
         && store.reader.meta 

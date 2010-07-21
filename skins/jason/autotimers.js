@@ -60,7 +60,7 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
            ,renderer: this.formatTitle
         },
         this.activeColumn,
-        {           header: this.szColChannels
+        {           header: this.szColChannels
            ,dataIndex: 'channels'
            ,width: 150
         },{

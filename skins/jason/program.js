@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -53,7 +53,8 @@ Ext.xxv.programGrid = function(viewer, record) {
            ,dataIndex: 'title'
            ,width: 150
            ,renderer: { fn: this.viewer.gridNow.formatTitle, scope: this.viewer.gridNow }
-        },{           header: this.szColDay,
+        },{
+           header: this.szColDay,
            dataIndex: 'day',
            width: 50,
            hidden: true,
@@ -92,9 +93,10 @@ Ext.xxv.programGrid = function(viewer, record) {
             singleSelect:false
         })
         ,view: new Ext.grid.GroupingView({
-             enableGroupingMenu:false
-            ,forceFit:true
-            ,showGroupName: false
+            enableGroupingMenu:false,
+            forceFit:true,
+            showGroupName: false,
+			      enableGrouping:true
         })
         ,tbar:new Ext.PagingToolbar({
              pageSize: configuration.pageSize

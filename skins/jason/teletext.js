@@ -283,14 +283,14 @@ function createTeleTextView(viewer,id,name, channel) {
       ,tbar:new Ext.Toolbar({
         items: [
               {    
-                   id: 'teletext-first'                  ,iconCls: 'x-tbar-page-first'
+                   id: 'teletext-first'                  ,iconCls: 'x-tbar-page-first'
             	    ,tooltip: Ext.PagingToolbar.prototype.firstText
-                  ,scope: viewer.pageTeleText                  ,disabled:true
+                  ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.moveFirst
               },{
-                   id: 'teletext-prev'                  ,iconCls: 'x-tbar-page-prev'
+                   id: 'teletext-prev'                  ,iconCls: 'x-tbar-page-prev'
             	    ,tooltip: Ext.PagingToolbar.prototype.prevText
-                  ,scope: viewer.pageTeleText                  ,disabled:true
+                  ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.movePrev
               },'-',{
                    xtype: 'tbtext', text: Ext.PagingToolbar.prototype.beforePageText
@@ -312,19 +312,19 @@ function createTeleTextView(viewer,id,name, channel) {
                    id: 'teletext-next'
                   ,iconCls: 'x-tbar-page-next'
             	    ,tooltip: Ext.PagingToolbar.prototype.nextText
-                  ,scope: viewer.pageTeleText                  ,disabled:true
+                  ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.moveNext
               },{
                    id: 'teletext-last'
                   ,iconCls: 'x-tbar-page-last'
             	    ,tooltip: Ext.PagingToolbar.prototype.lastText
-                  ,scope: viewer.pageTeleText                  ,disabled:true
+                  ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.moveLast
               },'-',{
                    id: 'teletext-refresh'
                   ,iconCls: 'x-tbar-loading'
             	    ,tooltip: Ext.PagingToolbar.prototype.refreshText
-                  ,scope: viewer.pageTeleText                  ,disabled:false
+                  ,scope: viewer.pageTeleText                  ,disabled:false
                   ,handler: viewer.pageTeleText.retryPage
               },'->'
             ]

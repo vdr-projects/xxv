@@ -44,16 +44,16 @@ Ext.xxv.usersGrid = function(viewer) {
            ,dataIndex: 'title'
            ,width: 200
         },
-        {           header: this.szColLevel
+        {           header: this.szColLevel
            ,dataIndex: 'level'
            ,width: 200
         },
-        {           header: this.szUserPreferences
+        {           header: this.szUserPreferences
            ,dataIndex: 'userpreferences'
            ,width: 400
            ,hidden: true
         },
-        {           header: this.szAdminPreferences
+        {           header: this.szAdminPreferences
            ,dataIndex: 'preferences'
            ,width: 400
            ,hidden: true

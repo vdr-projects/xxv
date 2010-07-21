@@ -82,8 +82,8 @@ Ext.xxv.RemoteWindow = function() {
                 ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-yellow-icon', handler: function() { this.onRemote('Yellow'); } }
                 ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-blue-icon', handler: function() { this.onRemote('Blue'); } }
                 ,{ xtype: 'spacer', width: 12 }
-                ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-quiet-icon', handler: function() { this.onRemote('Decrease volume'); } }
-                ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-loud-icon', handler: function() { this.onRemote('Increase volume'); } }
+                ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-quiet-icon', handler: function() { this.onRemote('VolumeMinus'); } }
+                ,{ scale: 'medium', scope: this, width: 32, iconCls: 'remote-loud-icon', handler: function() { this.onRemote('VolumePlus'); } }
                 ]
             },{
               xtype: 'buttongroup'

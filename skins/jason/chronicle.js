@@ -48,7 +48,7 @@ Ext.xxv.ChronicleGrid = function(viewer) {
            ,width: 200
            ,renderer: this.formatTitle
         },
-        {           header: this.szColChannel
+        {           header: this.szColChannel
            ,dataIndex: 'channel'
            ,width: 130
         },{

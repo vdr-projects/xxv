@@ -43,13 +43,13 @@ Ext.xxv.movetimersGrid = function(viewer) {
            header: this.szColSource
            ,dataIndex: 'source'
            ,width: 200
-        },{           header: this.szColDestination
+        },{           header: this.szColDestination
            ,dataIndex: 'destination'
            ,width: 200
-        },{           header: this.szColMove
+        },{           header: this.szColMove
            ,dataIndex: 'move'
            ,width: 200
-        },{           header: this.szColOriginal
+        },{           header: this.szColOriginal
            ,dataIndex: 'original'
            ,width: 200
         }

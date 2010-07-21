@@ -241,6 +241,7 @@ Ext.xxv.vdrGrid.prototype.szDeleteFailure = "Impossibile eliminare Video Disk Re
 /* audio.js */
 Ext.xxv.AudioWindow.prototype.szTitle = "Riproduci musica";
 Ext.xxv.AudioWindow.prototype.szNeedFlash = "Devi avere una versione aggiornata di Flash Player per ascoltare la musica con questo lettore";
+/*** Need translate */ Ext.xxv.AudioWindow.prototype.szSaveFile = "Save file to disk";
 
 /* music.js */
 Ext.xxv.musicGrid.prototype.szTitle = "Musica";

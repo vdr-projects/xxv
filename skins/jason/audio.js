@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2009, anbr
+ * Copyright(c) 2009-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -34,6 +34,9 @@ Ext.xxv.AudioWindow = function(item) {
         ,closeAction: 'hide'
         ,maximizable: false
         ,stateful: true
+        ,tools:[
+           {id:'save',   handler:this.save, scope:this, qtip:this.szSaveFile }
+        ]
         ,items: [{
            width: width
           ,height: height
@@ -47,13 +50,18 @@ Ext.xxv.AudioWindow = function(item) {
 Ext.extend(Ext.xxv.AudioWindow, Ext.Window, {
      szTitle: "Music playback"
     ,szNeedFlash: "You need to get the latest Flash Player to hear music with this player"
+    ,szSaveFile: "Save file to disk"
     ,onBeforeShow : function(){
         if(!this.embed){
+          var files = "";
           for(var i = 0, len = this.item.url.length; i < len; i++){
-            this.item.url[i] = escape(this.item.url[i]);
+            files += escape(this.item.url[i]);
+            if((i+1) < len) {
+              files += ",";
+            }
           }
           AudioPlayer.embed('audio-player', {
-             soundFile: this.item.url.join(',')
+             soundFile: files
             ,titles: this.item.title.join(',')
             ,artists: this.item.artist.join(',')
             ,autostart: 'yes'
@@ -72,7 +80,13 @@ Ext.extend(Ext.xxv.AudioWindow, Ext.Window, {
         if(this.embed) {
           AudioPlayer.load('audio-player',item.url.join(','),item.title.join(','),item.artist.join(','));
           AudioPlayer.open('audio-player');
+          this.item = item;
         }
         Ext.xxv.AudioWindow.superclass.show.apply(this, arguments);
+    }
+    ,save : function(){
+          for(var i = 0, len = this.item.url.length; i < len; i++){
+              window.open(this.item.url[i], '_blank');
+          }
     }
 });

@@ -118,7 +118,7 @@ Ext.reg('MarksSlider', Ext.xxv.slider);
 
 /******************************************************************************/
 Ext.xxv.RecHeader = function(config){
-    Ext.xxv.RecHeader.superclass.constructor.call(this, config);    Ext.apply(this, config);
+    Ext.xxv.RecHeader.superclass.constructor.call(this, config);    Ext.apply(this, config);
 };
 
 Ext.extend(Ext.xxv.RecHeader, Ext.Component, {
@@ -495,7 +495,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
    			                ,'beforeselect'   : {fn:function(view){ return view.store.getRange().length > 0; } }
 		                }
                    ,plugins: [
-                      new Ext.DataView.DragSelector()                   //,new Ext.DataView.LabelEditor({dataIndex: 'fulltitle', allow: 'isrecording'})
+                      new Ext.DataView.DragSelector()                   //,new Ext.DataView.LabelEditor({dataIndex: 'fulltitle', allow: 'isrecording'})
                      ,this.filter
                    ]
                   }

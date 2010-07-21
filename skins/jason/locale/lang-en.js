@@ -241,6 +241,7 @@ Ext.xxv.vdrGrid.prototype.szDeleteFailure = "Couldn't delete video disk recorder
 /* audio.js */
 Ext.xxv.AudioWindow.prototype.szTitle = "Music playback";
 Ext.xxv.AudioWindow.prototype.szNeedFlash = "You need to get the latest Flash Player to hear music with this player";
+Ext.xxv.AudioWindow.prototype.szSaveFile = "Save file to disk";
 
 /* music.js */
 Ext.xxv.musicGrid.prototype.szTitle = "Music";

@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -28,9 +28,7 @@ Ext.xxv.searchStore = function(lookup) {
                                     {name: 'running', type: 'string'},
                                     {name: 'video', type: 'string'},
                                     {name: 'audio', type: 'string'}
-                                  ],
-                          remoteGroup:true,
-                          remoteSort: true
+                                  ]
                       })
             ,proxy : new Ext.data.HttpProxy({
                  url: XXV.help.baseURL()
@@ -56,10 +54,12 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
            ,dataIndex: 'title'
            ,width: 150
            ,renderer: { fn: this.viewer.gridNow.formatTitle, scope: this.viewer.gridNow }
-        },{           header: this.szColChannel,
+        },{
+           header: this.szColChannel,
            dataIndex: 'channel',
            width: 100
-        },{           header: this.szColDay,
+        },{
+           header: this.szColDay,
            dataIndex: 'day',
            width: 50,
            hidden: true,
@@ -86,7 +86,8 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
         view: new Ext.grid.GroupingView({
             enableGroupingMenu:false,
             forceFit:true,
-            showGroupName: false
+            showGroupName: false,
+			      enableGrouping:true
         }),
         tbar:new Ext.PagingToolbar({
           pageSize: this.store.autoLoad.params.limit,
