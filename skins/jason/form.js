@@ -117,7 +117,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             config.baseCls = '';
             config.style = 'border: 0px none;';
             config.items = [{
-      			     xtype: 'checkbox'
+                 xtype: 'checkbox'
                 ,labelSeparator: ''
                 ,boxLabel: Ext.util.Format.ellipsis(r[i].data.fieldLabel,80)
                 ,checked: r[i].data.valuedef == 'y' ? true : false
@@ -126,7 +126,7 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
             ];
             break;
           case 'checkbox':
-      			config.xtype = 'checkboxgroup';
+            config.xtype = 'checkboxgroup';
             config.items = [];
             for(var f = 0, flen = r[i].data.choices.length; f < flen; f++){
               config.items.push({
@@ -152,15 +152,15 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
                 fields = [ {name: 'display'} ,{name: 'value'}, {name: 'groups'} ];
 
                 var cls = 'ux-mselect';
-		            var tpl = '<tpl for=".">';
+                var tpl = '<tpl for=".">';
                     tpl+= '<tpl if="this.isNewGroup(groups)"><div class="x-combo-list-hd">{groups}</div></tpl>';
                     tpl+= '<div class="' + cls +'-item';
-		            if(Ext.isIE || Ext.isIE7)
+                if(Ext.isIE || Ext.isIE7)
                     tpl+='" unselectable=on';
-		            else 
+                else
                     tpl+=' x-unselectable"';
 
- 		            tpl+='>{display}</div></tpl>';
+                tpl+='>{display}</div></tpl>';
 
                 config.tpl = new Ext.XTemplate(tpl, { 
                         isNewGroup: function(groups){
@@ -171,16 +171,16 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
                 });
               } else {
                 fields = [ {name: 'display'} ,{name: 'value'} ];
-		            config.tpl = null;
+                config.tpl = null;
               }
               config.store = new Ext.data.Store({
                           reader: new Ext.data.ArrayReader({}, fields),
                           data: r[i].data.choices
                       });
             }
-		        config.valueField        = 'value';
-		        config.displayField      = 'display';
-		        config.width             = '100%';
+            config.valueField        = 'value';
+            config.displayField      = 'display';
+            config.width             = '100%';
             if(len == 1) {
               config.hideLabel         = true;
               config.height            = 430; 
@@ -188,10 +188,10 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
                 this.title             = config.fieldLabel;
               }
             } else {
-  		        config.height            = 120;
+              config.height            = 120;
             }
-		        config.minLength         = 0;
-		        config.maxLength         = r[i].data.choices.length;
+            config.minLength         = 0;
+            config.maxLength         = r[i].data.choices.length;
             break;
           case 'list':
             config.xtype = 'combo';

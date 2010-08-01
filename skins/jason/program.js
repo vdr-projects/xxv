@@ -96,7 +96,7 @@ Ext.xxv.programGrid = function(viewer, record) {
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
-			      enableGrouping:true
+            enableGrouping:true
         })
         ,tbar:new Ext.PagingToolbar({
              pageSize: configuration.pageSize
@@ -232,8 +232,8 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
       var ids = "";
       for(var i = 0, len = sel.length; i < len; i++){
         if(i != 0)
-   	      ids += ',';
-	      ids += sel[i].data.id;
+           ids += ',';
+           ids += sel[i].data.id;
       }
       this.viewer.RecordID(ids);
     }
@@ -250,11 +250,11 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
         var items = "";
         for(var i = 0, len = sel.length; i < len; i++){
           if(i != 0)
-     	      items += ',';
+            items += ',';
           if(sel[i].data.timerid == 0) {
             continue;
           }
-	        items += sel[i].data.timerid;
+          items += sel[i].data.timerid;
         }
         this.viewer.gridNow.DeleteTimerId(items, this.store);
     }

@@ -87,7 +87,7 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
-			      enableGrouping:true
+            enableGrouping:true
         }),
         tbar:new Ext.PagingToolbar({
           pageSize: this.store.autoLoad.params.limit,
@@ -219,8 +219,8 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
       var ids = "";
       for(var i = 0, len = sel.length; i < len; i++){
         if(i != 0)
-   	      ids += ',';
-	      ids += sel[i].data.id;
+          ids += ',';
+        ids += sel[i].data.id;
       }
       this.viewer.RecordID(ids);
     }
@@ -237,11 +237,11 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
         var items = "";
         for(var i = 0, len = sel.length; i < len; i++){
           if(i != 0)
-     	      items += ',';
+            items += ',';
           if(sel[i].data.timerid == 0) {
             continue;
           }
-	        items += sel[i].data.timerid;
+          items += sel[i].data.timerid;
         }
         this.viewer.gridNow.DeleteTimerId(items, this.store);
     }
@@ -362,4 +362,3 @@ function createSearchView(viewer,id,lookup) {
 
     return tab;
 }
-

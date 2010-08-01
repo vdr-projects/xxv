@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -35,7 +35,6 @@ Ext.xxv.autotimerStore = function() {
 
 Ext.xxv.autotimerGrid = function(viewer, channels) {
     this.viewer = viewer;
-    //Ext.apply(this, {}); // Apply config
 
     // create the data store
     this.store = new Ext.xxv.autotimerStore();
@@ -59,8 +58,9 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
            ,width: 200
            ,renderer: this.formatTitle
         },
-        this.activeColumn,
-        {           header: this.szColChannels
+        this.activeColumn, 
+        {  
+           header: this.szColChannels
            ,dataIndex: 'channels'
            ,width: 150
         },{
@@ -100,8 +100,7 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
               pageSize: this.store.autoLoad.params.limit
               ,store: this.store
               ,displayInfo: true 
-              ,items: [
-              {
+              ,items: [{
                    id:'au'
                   ,iconCls: 'upgrade-icon'
                   ,tooltip: this.szUpgrade
@@ -239,9 +238,8 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
               value, style
               );
     }
-  /******************************************************************************/
-    ,onDeleteSuccess : function( response,options ) 
-    { 
+/******************************************************************************/
+    ,onDeleteSuccess : function( response,options ) { 
         this.loadMask.hide(); 
 
         var o = eval("("+response.responseText+")");
@@ -273,8 +271,7 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
         }
     }
 
-    ,onDeleteFailure : function( response,options ) 
-    { 
+    ,onDeleteFailure : function( response,options ) { 
         this.loadMask.hide();
         new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
     }
@@ -305,7 +302,7 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
       });
     }
 
-  /******************************************************************************/
+/******************************************************************************/
     ,EditItem : function( record ) {
       this.stopEditing();
       var item;
@@ -349,9 +346,8 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
 
         if(o && o.data && typeof(o.data) == 'string' 
              && o.success) {
-
             new Ext.xxv.MessageBox().msgSuccess(this.szUpgradeSuccess, o.data);
-
+            this.updateTimer();
         } else {
             var msg = '';
             if(o && o.data && typeof(o.data) == 'string') {
@@ -389,7 +385,11 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
     		   }
        });
     }
-
+    ,updateTimer : function() {
+      if(this.viewer.gridTimer) {
+        this.viewer.gridTimer.dataDirty = true;
+      }
+    }
 });
 
 function createAutoTimerView(viewer,id) {

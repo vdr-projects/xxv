@@ -180,7 +180,7 @@ Ext.xxv.timerGrid = function(viewer) {
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
-			      enableGrouping:true
+            enableGrouping:true
         })
         ,tbar:new Ext.PagingToolbar({
               pageSize: this.store.autoLoad.params.limit
@@ -338,14 +338,14 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
           }
           subtitle += Woerter[i];
         }
-	      var style = "";
-	      if((record.data.flags & 1) == 0) {
-	        style = " deactive";
-	      } else if(record.data.collision != '0') {
-	        style = " problem";
-	      } else if(record.data.running) {
-	        style = " running";
-	      }
+        var style = "";
+        if((record.data.flags & 1) == 0) {
+          style = " deactive";
+        } else if(record.data.collision != '0') {
+          style = " problem";
+        } else if(record.data.running) {
+          style = " running";
+        }
         if(subtitle) {
           return String.format(
                 '<div class="topic{2}"><b>{0}</b> <span class="subtitle{2}">{1}</span></div>',
@@ -360,9 +360,8 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     ,formatDuration: function(value, p, record) {
         return new Date(minTime().getTime()+(value * 1000)).dateFormat('H:i');
     }
-  /******************************************************************************/
-   ,onToggleSuccess : function( response,options ) 
-    { 
+/******************************************************************************/
+   ,onToggleSuccess : function( response,options ) {
         this.viewer.loadMask.hide(); 
 
         var o = eval("("+response.responseText+")");
@@ -400,8 +399,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
         }
     }
 
-    ,onToggleFailure : function( response,options ) 
-    { 
+    ,onToggleFailure : function( response,options ) {
         this.viewer.loadMask.hide();
         new Ext.xxv.MessageBox().msgFailure(this.szToggleFailure, response.statusText);
     }
@@ -419,8 +417,8 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       var todo = "";
       for(var i = 0, len = sel.length; i < len; i++){
         if(i != 0)
-   	      todo += ',';
-	      todo += sel[i].data.id;
+          todo += ',';
+          todo += sel[i].data.id;
       }
       Ext.Ajax.request({
           scope: this
@@ -432,8 +430,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       });
     }
   /******************************************************************************/
-    ,onDeleteSuccess : function( response,options ) 
-    { 
+    ,onDeleteSuccess : function( response,options ) { 
         this.viewer.loadMask.hide(); 
 
         var o = eval("("+response.responseText+")");
@@ -443,7 +440,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
             new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
 
             var gsm = this.getSelectionModel();
-      	    var sel = options.params.data.split(",");
+            var sel = options.params.data.split(",");
             sel.reverse();
             for(var i = 0, len = sel.length; i < len; i++){
               if(gsm.isIdSelected(sel[i])) {
@@ -465,8 +462,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
         }
     }
 
-    ,onDeleteFailure : function( response,options ) 
-    { 
+    ,onDeleteFailure : function( response,options ) {
         this.viewer.loadMask.hide();
         new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
     }
@@ -484,8 +480,8 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       var todel = "";
       for(var i = 0, len = sel.length; i < len; i++){
         if(i != 0)
-   	      todel += ',';
-	      todel += sel[i].data.id;
+          todel += ',';
+        todel += sel[i].data.id;
       }
       Ext.Ajax.request({
           scope: this

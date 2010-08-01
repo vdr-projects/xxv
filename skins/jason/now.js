@@ -34,13 +34,12 @@ Ext.xxv.NowStore = function() {
                 url: XXV.help.baseURL()
                 ,method: 'GET'
             })
-			      ,groupOnSort:false
+            ,groupOnSort:false
             ,sortInfo:{field:'order', direction:'ASC'}
             ,groupField:'grpname'
             ,remoteGroup:true
-	          ,hasMultiSort:false
-        	  ,multiSortInfo:{}
-
+            ,hasMultiSort:false
+            ,multiSortInfo:{}
     });
 }
 
@@ -78,10 +77,10 @@ Ext.xxv.NowGrid = function(viewer) {
                 ,maskRe: /^([0-9\:]+)$/
                 ,regex: new RegExp("^([0-9]+\:[0-9]+)|("+this.szFollowing+")$")
                 ,maxLengthText: 5
-				        ,listeners: {
-						       'select': {fn:this.reload, scope:this}
-						      ,'specialkey': {fn:this.onSpecialkey, scope:this}
-				        }
+                ,listeners: {
+                  'select': {fn:this.reload, scope:this}
+                 ,'specialkey': {fn:this.onSpecialkey, scope:this}
+                }
             });
 
     this.columns = [
@@ -132,7 +131,7 @@ Ext.xxv.NowGrid = function(viewer) {
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
-			      enableGrouping:true
+            enableGrouping:true
         })
         ,tbar:new Ext.PagingToolbar({
              pageSize: configuration.pageSize
@@ -403,8 +402,8 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         if(o && o.data && typeof(o.data) == 'string' 
              && o.success) {
             new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
-    
-      	    var items = options.params.data.split(",");
+
+            var items = options.params.data.split(",");
             for (var j = 0, jlen = options.store.getCount(); j < jlen; j++) {
               var record = options.store.getAt(j);
               for(var i = 0, len = items.length; i < len; i++){
@@ -424,8 +423,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
             new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, msg);
         }
     }
-    ,onDeleteFailure : function( response,options ) 
-    { 
+    ,onDeleteFailure : function( response,options ) {
         this.viewer.loadMask.hide();
         new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
     }
@@ -439,11 +437,11 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         var items = "";
         for(var i = 0, len = sel.length; i < len; i++){
           if(i != 0)
-     	      items += ',';
+            items += ',';
           if(sel[i].data.timerid == 0) {
             continue;
           }
-	        items += sel[i].data.timerid;
+          items += sel[i].data.timerid;
         }
         this.DeleteTimerId(items, this.store);
     }
@@ -465,13 +463,13 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
 
     ,formatTitle: function(value, p, record) {
 
-	      var style = "";
+        var style = "";
         if(record.data.timerid) {
-	        if(record.data.timeractiv != 1) {
-	          style = " deactive";
-	        } else if(record.data.running == 1) {
-	          style = " running";
-	        } else {
+          if(record.data.timeractiv != 1) {
+            style = " deactive";
+          } else if(record.data.running == 1) {
+            style = " running";
+          } else {
             style = " active";
           }
         }

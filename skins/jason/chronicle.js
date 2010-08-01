@@ -245,8 +245,8 @@ Ext.extend(Ext.xxv.ChronicleGrid,  Ext.grid.EditorGridPanel, {
       var todel = "";
       for(var i = 0, len = sel.length; i < len; i++){
         if(i != 0)
-   	      todel += ',';
-	      todel += sel[i].data.id;
+          todel += ',';
+        todel += sel[i].data.id;
       }
       Ext.Ajax.request({
           scope: this
