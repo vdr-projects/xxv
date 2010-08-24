@@ -45,7 +45,7 @@
             <td><a href="?cmd=program&amp;data=<?% data.first.$c %?>"><?% data.first.$c %?></a></td>
         <?% ELSIF field == gettext('Service') %?>
             <td>
-                <?% INCLUDE 'bloecke/event_links.tmpl' data=data.first timerid=data.first.10 %?>
+                <?% INCLUDE 'bloecke/event_links.tmpl' data=data.first timerid=data.first.10 level=data.first.16 %?>
             </td>
         <?% ELSIF field == gettext('Percent') %?>
             <?% NEXT IF data.first.$c > 100 %?>
