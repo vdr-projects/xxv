@@ -1194,18 +1194,40 @@ sub userTmp {
     my $self = shift  || return error('No object defined!');
     my $user = shift  || return error('No username defined!');
 
-    # /var/cache/xxv/temp/xpix/$PID
-    my $dir = sprintf('%s/%s/%d', $self->{tempimages} , $user, $$);
+    # /var/cache/xxv/temp/user/$PID
+    my $dir = $self->createTmpDir($user, $$);
 
-    unless(-d $dir) {
-        mkpath($dir) or error "Couldn't mkpath $dir : $!";
+    if($dir) {
+      # Nach Logout oder beenden von xxv das temp löschen
+      main::toCleanUp($user, sub{ deleteDir($dir) }, 'logout')
+          unless(main::toCleanUp($user, undef, 'exists')); # ein CB registrieren
     }
-
-    # Nach Logout oder beenden von xxv das temp löschen
-    main::toCleanUp($user, sub{ deleteDir($dir) }, 'logout')
-        unless(main::toCleanUp($user, undef, 'exists')); # ein CB registrieren
 
     return $dir;
 }
 
+
+sub createTmpDir {
+    my $self = shift  || return error('No object defined!');
+    my $dir = shift  || return error('No user defined!');
+    my $pid  = shift;
+
+    my $path;
+    if($pid) {
+      # /var/cache/xxv/temp/dir/$PID
+      $path = sprintf('%s/%s/%d', $self->{tempimages} , $dir, $pid);
+    } else {
+      # /var/cache/xxv/temp/dir
+      $path = sprintf('%s/%s', $self->{tempimages} , $dir);
+    }
+
+    unless(-d $path) {
+        unless(mkpath($path)) {
+          error "Couldn't mkpath $path : $!";
+          return undef;
+        }
+    }
+
+    return $path;
+}
 1;

@@ -118,13 +118,14 @@ sub status {
     my $lastReportTime = shift || 0;
 
     my $sql = "SELECT SQL_CACHE count(*) from CHANNELS";
-    my $gesamt = $self->{dbh}->selectrow_arrayref($sql)->[0];
+    my $total = $self->{dbh}->selectrow_arrayref($sql)->[0];
 
     $sql = "SELECT SQL_CACHE count(*) from CHANNELGROUPS";
     my $groups = $self->{dbh}->selectrow_arrayref($sql)->[0];
 
     return {
-        message => sprintf(gettext('The system has saved %d channels from %d groups'), $gesamt, $groups),
+        message => sprintf(gettext('The system has saved %d channels from %d groups'), $total, $groups),
+        complete => $total
     };
 
 }

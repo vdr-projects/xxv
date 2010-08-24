@@ -134,7 +134,7 @@ sub status {
     my $newEntrys = 0;
 
     {
-        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE  count(*) as count from EPG");
+        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE count(*) as count from EPG");
         if(!$sth->execute())
         {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -145,7 +145,7 @@ sub status {
     }
 
     {
-        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE  count(*) as count from EPG where UNIX_TIMESTAMP(addtime) > ?");
+        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE count(*) as count from EPG where UNIX_TIMESTAMP(addtime) > ?");
         if(!$sth->execute($lastReportTime))
         {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -158,6 +158,7 @@ sub status {
     return {
         message => sprintf(gettext('EPG table contains %d entries and since the last login on %s %d new entries.'),
             $total, datum($lastReportTime), $newEntrys),
+        complete => $total
     };
 }
 
@@ -419,7 +420,7 @@ sub compareEpgData {
         if(ref $waiter);
 
       # First - read database
-      my $sql = qq|SELECT SQL_CACHE  eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio, image from EPG where vid = ? and channel_id = ? |;
+      my $sql = qq|SELECT SQL_CACHE eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio, image from EPG where vid = ? and channel_id = ? |;
       my $sth = $self->{dbh}->prepare($sql);
       $sth->execute($vid, $channel)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -727,7 +728,12 @@ sub search {
               WHERE t.eventid = e.eventid
               LIMIT 1) as __running,
           e.video as __video,
-          e.audio as __audio
+          e.audio as __audio,
+          ( SELECT 
+              s.level
+              FROM SHARE as s
+              WHERE s.eventid = e.eventid
+              LIMIT 1) as __level
       from
           EPG as e,
           CHANNELS as c
@@ -851,7 +857,12 @@ SELECT SQL_CACHE
         NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
         FROM TIMERS as t
         WHERE t.eventid = e.eventid
-        LIMIT 1) as __running
+        LIMIT 1) as __running,
+    ( SELECT 
+        s.level
+        FROM SHARE as s
+        WHERE s.eventid = e.eventid
+        LIMIT 1) as __level
 from
     EPG as e, CHANNELS as c
 where
@@ -971,7 +982,12 @@ SELECT SQL_CACHE
         LIMIT 1) as __running,
     e.image as __Image,
     UNIX_TIMESTAMP(e.vpstime) as __PDC,
-    e.channel_id as __channel_id
+    e.channel_id as __channel_id,
+    ( SELECT 
+        s.level
+        FROM SHARE as s
+        WHERE s.eventid = e.eventid
+        LIMIT 1) as __level
 from
     $table as e,CHANNELS as c
 where
@@ -1118,7 +1134,12 @@ SELECT SQL_CACHE
         FROM TIMERS as t
         WHERE t.eventid = e.eventid
         LIMIT 1) as __running,
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
+    ( SELECT 
+        s.level
+        FROM SHARE as s
+        WHERE s.eventid = e.eventid
+        LIMIT 1) as __level
 FROM
     EPG as e, CHANNELS as c, NEXTEPG as n, CHANNELGROUPS as g
 WHERE
@@ -1264,7 +1285,12 @@ SELECT SQL_CACHE
         FROM TIMERS as t
         WHERE t.eventid = e.eventid
         LIMIT 1) as __running,
-    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC
+    IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
+    ( SELECT 
+      s.level
+      FROM SHARE as s
+      WHERE s.eventid = e.eventid
+      LIMIT 1) as __level
 FROM
     EPG as e, CHANNELS as c, CHANNELGROUPS as g
 WHERE
@@ -1400,7 +1426,12 @@ SELECT SQL_CACHE
         NOW() between t.starttime and t.stoptime AND (t.flags & 1) 
         FROM TIMERS as t
         WHERE t.eventid = e.eventid
-        LIMIT 1) as __running
+        LIMIT 1) as __running,
+    ( SELECT 
+        s.level
+        FROM SHARE as s
+        WHERE s.eventid = e.eventid
+        LIMIT 1) as __level
 FROM
     EPG as e, CHANNELS as c
 WHERE
@@ -1507,7 +1538,12 @@ SELECT SQL_CACHE
         WHERE t.eventid = e.eventid
         LIMIT 1) as __running,
     c.vid as __vid,
-    c.pos as __position
+    c.pos as __position,
+    ( SELECT 
+              s.level
+              FROM SHARE as s
+              WHERE s.eventid = e.eventid
+              LIMIT 1) as __level
 FROM
     EPG as e, CHANNELS as c, CHANNELGROUPS as g
 WHERE
@@ -1652,7 +1688,7 @@ sub getId {
 
     foreach my $table (qw/EPG OLDEPG/) {
     # EPG
-        my $sql = sprintf('SELECT SQL_CACHE  %s from %s WHERE eventid = ?',$fields, $table); 
+        my $sql = sprintf('SELECT SQL_CACHE %s from %s WHERE eventid = ?',$fields, $table); 
         my $sth = $self->{dbh}->prepare($sql);
            $sth->execute($id) 
                 or return error "Couldn't execute query: $sth->errstr.";
@@ -1689,7 +1725,7 @@ sub suggest {
     WHERE
         channel_id = c.id
       AND e.vid = c.vid
-    	AND ( e.title LIKE ? )
+      AND ( e.title LIKE ? )
         $ch
     GROUP BY
         title
@@ -1702,7 +1738,7 @@ UNION
     WHERE
         channel_id = c.id
       AND e.vid = c.vid
-    	AND ( e.subtitle LIKE ? )
+      AND ( e.subtitle LIKE ? )
         $ch
     GROUP BY
         title

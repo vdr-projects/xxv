@@ -167,7 +167,10 @@ sub edit {
         );
     }
 
-    $console->link({text => sprintf(gettext('%s manual'), $sector), url => "?cmd=doc&data=$sector"})
+    my $desc = $mod->{MOD}->{Description};
+    $desc =~ s/[\.\r\n].*$//g; # remove last part
+
+    $console->link({text => $desc . " - " . sprintf(gettext("%s manual") , $sector) . " ..." , url => "?cmd=doc&data=$sector"})
         if($console->typ eq 'HTML');
 
     $cfg = $console->question(sprintf(gettext('Edit configuration %s'), $sector), $questions, $data);

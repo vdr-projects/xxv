@@ -167,7 +167,7 @@ sub module {
             rconvert => {
                 description => gettext("Convert recording 'rid'"),
                 short       => 'rc',
-                callback    => sub{ $self->convert(@_) },
+                callback    => sub{ $self->reccmds(@_) },
                 Level       => 'user',
                 DenyClass   => 'redit',
             },
@@ -376,6 +376,58 @@ sub _init {
     }, "RECORDS: Store recordings in database ...", 20);
 
     1;
+}
+
+# ------------------
+sub status {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $lastReportTime = shift;
+
+    my $total = 0;
+    my $unseen = 0;
+    {
+      my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE count(*) as count,SUM(FIND_IN_SET('new',status)) as unseen from RECORDS");
+      if(!$sth->execute())
+      {
+          error sprintf("Couldn't execute query: %s.",$sth->errstr);
+      } else {
+          my $erg = $sth->fetchrow_hashref();
+          $total = $erg->{count} if($erg && $erg->{count});
+          $unseen = $erg->{unseen} if($erg && $erg->{unseen});
+      }
+    }
+    my $sql = qq|
+SELECT SQL_CACHE 
+    r.hash as __Id,
+    r.eventid as __EventId,
+    e.title,
+    e.subtitle,
+    FROM_UNIXTIME(e.duration,'%h:%i:%s') as Duration,
+    e.starttime as __RecordStart
+FROM
+    RECORDS as r,
+    OLDEPG as e
+WHERE
+    e.eventid = r.eventid
+    and UNIX_TIMESTAMP(e.starttime) > ?
+ORDER BY
+    e.starttime asc
+|;
+
+    my $sth = $self->{dbh}->prepare($sql);
+    $sth->execute($lastReportTime)
+        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
+    my $fields = $sth->{'NAME'};
+    my $erg = $sth->fetchall_arrayref();
+    unshift(@$erg, $fields);
+    return {
+        message => sprintf(gettext('%d new recordings since last report time %s'),
+                             (scalar @$erg -1), datum($lastReportTime))
+        ,table   => $erg
+        ,complete => $total
+        ,unseen => $unseen
+    };
 }
 
 sub _watch_recorder {
@@ -760,7 +812,7 @@ sub _readData {
     my $db_data;
     unless($forceUpdate) {
         # read database for compare with vdr data
-        my $sql = qq|SELECT SQL_CACHE  r.eventid as eventid, r.id as id, 
+        my $sql = qq|SELECT SQL_CACHE r.eventid as eventid, r.id as id, 
                         UNIX_TIMESTAMP(e.starttime) as starttime, 
                         e.duration, r.status, 
                         CONCAT_WS("~",e.title,e.subtitle) as title, 
@@ -1349,7 +1401,7 @@ sub _infofile {
     my $filever    = shift;
 
     my $f;
-    if($filever == 2) {
+    if($filever && $filever == 2) {
       $f = "info";
     } else {
       $f = "info.vdr";
@@ -1716,7 +1768,7 @@ sub createOldEventId {
         audio => $info->{audio} || "",
     };
 
-    $attr->{eventid} = $self->{dbh}->selectrow_arrayref('SELECT SQL_CACHE  max(eventid)+1 from OLDEPG')->[0];
+    $attr->{eventid} = $self->{dbh}->selectrow_arrayref('SELECT SQL_CACHE max(eventid)+1 from OLDEPG')->[0];
     $attr->{eventid} = 0x70000000 if(not defined $attr->{eventid} or $attr->{eventid} < 0x6FFFFFFF );
 
     lg sprintf('Create event "%s" into OLDEPG', $subtitle ? $title .'~'. $subtitle : $title);
@@ -2470,7 +2522,7 @@ WHERE
             }
 
             $info->{aux} = $self->{keywords}->mergexml($info->{aux},'keywords',$info->{keywords});
-
+            $info->{filever} = $rec->{filever};
             $self->saveinfo($rec->{path},$info)
                or return con_err($console,sprintf(gettext("Couldn't write file '%s' : %s"),
                          $self->_infofile($rec->{path},$rec->{filever}),$!));
@@ -2594,7 +2646,7 @@ sub _loadreccmds {
 }
 
 # ------------------
-sub convert {
+sub reccmds {
 # ------------------
     my $self = shift || return error('No object defined!');
     my $console = shift || return error('No console defined!');
@@ -2694,44 +2746,6 @@ WHERE
       return 1;
     }
 }
-
-# ------------------
-sub status {
-# ------------------
-    my $self = shift || return error('No object defined!');
-    my $lastReportTime = shift;
-
-    my $sql = qq|
-SELECT SQL_CACHE 
-    r.hash as __Id,
-    r.eventid as __EventId,
-    e.title,
-    e.subtitle,
-    FROM_UNIXTIME(e.duration,'%h:%i:%s') as Duration,
-    e.starttime as __RecordStart
-FROM
-    RECORDS as r,
-    OLDEPG as e
-WHERE
-    e.eventid = r.eventid
-    and UNIX_TIMESTAMP(e.starttime) > ?
-ORDER BY
-    e.starttime asc
-|;
-
-    my $sth = $self->{dbh}->prepare($sql);
-    $sth->execute($lastReportTime)
-        or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
-    my $fields = $sth->{'NAME'};
-    my $erg = $sth->fetchall_arrayref();
-    unshift(@$erg, $fields);
-    return {
-        message => sprintf(gettext('%d new recordings since last report time %s'),
-                             (scalar @$erg -1), datum($lastReportTime)),
-        table   => $erg,
-    };
-}
-
 
 # ------------------
 sub IdToData {

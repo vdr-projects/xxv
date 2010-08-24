@@ -181,7 +181,7 @@ sub _init {
         );
 
         return 1;
-    }, "EVENTS: Look for event entrys in modules ...", 3);
+    }, "EVENTS: Look for event entrys in modules ...", 2);
 
     return 1;
 }

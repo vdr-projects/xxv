@@ -265,19 +265,25 @@ sub status {
     my $lastReportTime = shift || 0;
 
     my $total = 0;
+    my $running = 0;
     {
-        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE count(*) as count from TIMERS");
+        my $sth = $self->{dbh}->prepare("SELECT SQL_CACHE count(*) as count
+                                         ,sum(NOW() between starttime and stoptime) as running 
+                                         from TIMERS WHERE (flags & 1)");
         if(!$sth->execute())
         {
             error sprintf("Couldn't execute query: %s.",$sth->errstr);
         } else {
             my $erg = $sth->fetchrow_hashref();
             $total = $erg->{count} if($erg && $erg->{count});
+            $running = $erg->{running} if($erg && $erg->{running});
         }
     }
 
     return {
-        message => sprintf(gettext('%d timer exists.'), $total),
+        message => sprintf(gettext('%d active timer exists.'), $total)
+        ,complete => $total
+        ,running => $running
     };
 }
 
@@ -1243,8 +1249,7 @@ sub _list {
         'channel' => gettext('Channel'),
         'start' => gettext('Start'),
         'stop' => gettext('Stop'),
-        'title' => gettext('Title'),
-        'priority' => gettext('Priority')
+        'title' => gettext('Title')
     );
 
     my $sql = qq|
@@ -1257,7 +1262,7 @@ SELECT SQL_CACHE
     DATE_FORMAT(t.starttime, '%H:%i') as \'$f{'start'}\',
     DATE_FORMAT(t.stoptime, '%H:%i') as \'$f{'stop'}\',
     t.file as \'$f{'title'}\',
-    t.priority as \'$f{'priority'}\',
+    t.priority as __priority,
     t.collision as __collision,
     t.eventid as __eventid,
     t.autotimerid as __autotimerid,

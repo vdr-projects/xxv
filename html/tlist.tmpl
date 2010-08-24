@@ -100,10 +100,7 @@
     <?% ELSE %?>
             			[<?% aktiv ? aus : an %?>]<?% IF pdc;'&nbsp;(';gettext('PDC');')';END %?>
     <?% END %?>
-
-                        <?% level = getModule('SHARE').getEventLevel(zeile.10) %?>
-                        <?% IF level %?><?% "*" FILTER repeat(level) %?><?% END %?>
-    		</td>
+                		</td>
                     <?% ELSIF c == 2; # Channel Field %?>
                     <td nowrap>
                         <a href="?cmd=program&amp;data=<?% zeile.3 %?>" title="<?% gettext("Jump to program:") %?> <?% field %?>"><div class="<?% myclass %?>"><?% field %?></div></a>

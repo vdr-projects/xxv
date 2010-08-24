@@ -402,7 +402,7 @@ sub TopTen {
         AND e.channel_id = c.Id
         AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
     order by
-        rank desc
+        rank desc, level desc
     |;
 
 

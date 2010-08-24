@@ -77,8 +77,8 @@
     <?% ELSIF allow('tnew') %?>
                     <a href="?cmd=tnew&amp;data=<?% zeile.0 %?>"><span name='recordlink' id='<?% zeile.0 %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
     <?% END %?>
-                <?% level = getModule('SHARE').getEventLevel(zeile.0) %?>
-                <?% IF level %?><br/><?% "*" FILTER repeat(level) %?><?% END %?>
+                <?% level = zeile.13 %?>
+                <?% IF level && allow('topten') %?><br/><a href="?cmd=topten" title="<?% gettext("Top Ten entrys") %?>" ><?% "*" FILTER repeat(level) %?></a><?% END %?>
                 </td>
                 <?% ELSIF c == 2; # Text Field %?>
                 <td>
