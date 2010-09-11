@@ -182,6 +182,7 @@ WHERE
     t.channel = c.Id
     and UNIX_TIMESTAMP(t.addtime) > ?
     and t.autotimerid > 0
+    AND t.vid = c.vid
 ORDER BY
     t.starttime|;
 
