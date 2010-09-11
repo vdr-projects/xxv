@@ -7,14 +7,15 @@
  * $Id$
  */
 
-Ext.xxv.Question = function(item,parentstore) {
+Ext.xxv.Question = function(item,callback,scope) {
 
     if(XXV.help.cmdDisabled(item.cmd)) {
         new Ext.xxv.MessageBox().msgFailure(this.szCommandDeny, item.cmd);
         return;
     }
 
-    this.parentstore = parentstore;
+    this.callback = callback;
+    this.scope = scope;
     this.item = item;
 
     this.store = new Ext.data.Store({
@@ -323,8 +324,8 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
              && o.success) {
             new Ext.xxv.MessageBox().msgSuccess(this.szSuccess, o.data);
             this.hide();
-            if(this.parentstore)
-              this.parentstore.reload();
+            if(this.callback)
+              this.callback.call(this.scope);
         } else {
             var msg = '';
             if(o && o.data && typeof(o.data) == 'string') {

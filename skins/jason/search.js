@@ -13,21 +13,22 @@ Ext.xxv.searchStore = function(lookup) {
             ,autoLoad:{params:{start:0, limit:configuration.pageSize}}
             ,reader: new Ext.xxv.jsonReader({
                           fields: [
-                                    {name: 'id', type: 'string'},
-                                    {name: 'title', type: 'string'},
-                                    {name: 'subtitle', type: 'string'},
-                                    {name: 'channel', type: 'string'},
-                                    {name: 'pos', type: 'int'},
-                                    {name: 'start', type: 'string' },
-                                    {name: 'stop', type: 'string' },
-                                    {name: 'day', type: 'date', convert : function(x){ return new Date(x * 1000);}  },
-                                    {name: 'description', type: 'string'},
-                                    {name: 'vps', type: 'string' },
-                                    {name: 'timerid', type: 'string'},
-                                    {name: 'timeractiv', type: 'string'},
-                                    {name: 'running', type: 'string'},
-                                    {name: 'video', type: 'string'},
-                                    {name: 'audio', type: 'string'}
+                                    {name: 'id', type: 'string'}
+                                    ,{name: 'title', type: 'string'}
+                                    ,{name: 'subtitle', type: 'string'}
+                                    ,{name: 'channel', type: 'string'}
+                                    ,{name: 'pos', type: 'int'}
+                                    ,{name: 'start', type: 'string' }
+                                    ,{name: 'stop', type: 'string' }
+                                    ,{name: 'day', type: 'date', convert : function(x){ return new Date(x * 1000);}  }
+                                    ,{name: 'description', type: 'string'}
+                                    ,{name: 'vps', type: 'string' }
+                                    ,{name: 'timerid', type: 'string'}
+                                    ,{name: 'timeractiv', type: 'string'}
+                                    ,{name: 'running', type: 'string'}
+                                    ,{name: 'video', type: 'string'}
+                                    ,{name: 'audio', type: 'string'}
+                                    ,{name: 'level', type: 'int'}
                                   ]
                       })
             ,proxy : new Ext.data.HttpProxy({
@@ -83,7 +84,7 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
             singleSelect:false
         }),
         autoExpandColumn:'title',
-        view: new Ext.grid.GroupingView({
+        view: new Ext.xxv.GroupingView({
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
@@ -127,7 +128,11 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
       this.preview.clear();
     }
     ,onLoad : function( store, records, opt ) {
-      this.getSelectionModel().selectFirstRow();
+      if(this.view.keepSelection)
+        this.getSelectionModel().selectRows(this.view.keepSelection,false);
+      else
+        this.getSelectionModel().selectFirstRow();
+
       this.ownerCt.SetPanelTitle(store.baseParams.data);
     }
 
@@ -222,10 +227,25 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
           ids += ',';
         ids += sel[i].data.id;
       }
-      this.viewer.RecordID(ids);
+      this.viewer.RecordID(ids, this.updateTimer, this);
+    }
+    ,updateTimer : function() {
+      var gsm = this.getSelectionModel();
+      if(gsm.hasSelection()) {
+        this.view.keepSelection = new Array();
+        for(var i = 0, len = this.store.getCount(); i < len; i++){
+          if(gsm.isSelected(i)) {
+            this.view.keepSelection.push(i);
+          }
+        }
+      }
+      this.store.reload();
+      if(this.viewer.gridTimer) {
+        this.viewer.gridTimer.dataDirty = true;
+      }
     }
     ,EditTimer : function(record) {
-        this.viewer.gridNow.EditTimer(record, this.store);
+        this.viewer.gridNow.EditTimer(record, this.updateTimer, this);
     }
     ,DeleteTimer : function(record) {
         var gsm = this.getSelectionModel();

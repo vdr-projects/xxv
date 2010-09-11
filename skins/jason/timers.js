@@ -42,20 +42,6 @@ Ext.xxv.timerStore = function() {
     });
 };
 
-// helper grouping view, don't scroll to top after editing (reload)
-Ext.xxv.editingGroupingView = function(config) {
-    Ext.apply(this, config);
-    Ext.xxv.editingGroupingView.superclass.constructor.call(this, {} );
-};
-
-Ext.extend(Ext.xxv.editingGroupingView,  Ext.grid.GroupingView, {
-   scrollTop : function() {
-       this.scroller.dom.scrollTop = 0;
-       this.scroller.dom.scrollLeft = 0;
-   },
-   scrollToTop : Ext.emptyFn
-});
-
 Ext.xxv.timerGrid = function(viewer) {
 
     this.viewer = viewer;
@@ -176,7 +162,7 @@ Ext.xxv.timerGrid = function(viewer) {
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:false
         })
-        ,view: new Ext.xxv.editingGroupingView({
+        ,view: new Ext.xxv.GroupingView({
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
@@ -246,7 +232,12 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     }
     ,onLoad : function( store, records, opt ) {
       this.dataDirty = false;
-      this.getSelectionModel().selectFirstRow();
+
+      if(this.view.keepSelection)
+        this.getSelectionModel().selectRows(this.view.keepSelection,false);
+      else
+        this.getSelectionModel().selectFirstRow();
+
       this.ownerCt.SetPanelTitle(this.szTitle);
     }
     ,refreshPanel : function(panel){
@@ -492,6 +483,18 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
          ,params:{ data: todel }
       });
     }
+    ,updateTimer : function() {
+      var gsm = this.getSelectionModel();
+      if(gsm.hasSelection()) {
+        this.view.keepSelection = new Array();
+        for(var i = 0, len = this.store.getCount(); i < len; i++){
+          if(gsm.isSelected(i)) {
+            this.view.keepSelection.push(i);
+          }
+        }
+      }
+      this.store.reload();
+    }
     ,EditItem : function( record ) {
       this.stopEditing();
       var item;
@@ -516,7 +519,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       if(this.viewer.formwin){
         this.viewer.formwin.close();
       }
-      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+      this.viewer.formwin = new Ext.xxv.Question(item, this.updateTimer, this);
     }
     ,onEditItem : function(grid, index, e) {
       e.stopEvent();
@@ -547,7 +550,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       if(this.viewer.formwin){
         this.viewer.formwin.close();
       }
-      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+      this.viewer.formwin = new Ext.xxv.Question(item, this.updateTimer, this);
     }
     ,select : function(sm, index, record){
       this.preview.select(record, this.filter.getValue());

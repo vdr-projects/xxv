@@ -221,3 +221,28 @@ function highlightText(node, regex, cls, deep) {
           }
       }
   };
+
+
+
+// helper grouping view, don't scroll to top after editing (reload)
+Ext.xxv.GroupingView = function(config) {
+    Ext.apply(this, config);
+    Ext.xxv.GroupingView.superclass.constructor.call(this, {} );
+};
+
+Ext.extend(Ext.xxv.GroupingView,  Ext.grid.GroupingView, {
+  scrollTop : function() {
+     this.scroller.dom.scrollTop = 0;
+     this.scroller.dom.scrollLeft = 0;
+  }
+  ,keepSelection : undefined
+  ,scrollToTop : function () {
+    if(this.keepSelection) {
+      delete this.keepSelection;
+      this.keepSelection = undefined;
+    } else
+      Ext.grid.GroupingView.superclass.scrollToTop.call(this);
+  }
+
+});
+

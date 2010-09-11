@@ -27,6 +27,7 @@ Ext.xxv.NowStore = function() {
                                     ,{name: 'timeractiv', type: 'string'}
                                     ,{name: 'running', type: 'string'}
                                     ,{name: 'vps', type: 'string'} //type:'date', dateFormat:'timestamp'}
+                                    ,{name: 'level', type: 'int'}
                                     ,{name: 'order', type: 'int'} //dummy field created after onload
                                   ]
                       })
@@ -127,7 +128,7 @@ Ext.xxv.NowGrid = function(viewer) {
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:true
         })
-        ,view: new Ext.grid.GroupingView({
+        ,view: new Ext.xxv.GroupingView({
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
@@ -186,6 +187,11 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       this.preview.clear();
     }
     ,onLoad : function( store, records, opt ) {
+      if(this.view.keepSelection)
+        this.getSelectionModel().selectRow(this.view.keepSelection[0],false);
+      else
+        this.getSelectionModel().selectFirstRow();
+
       if(store.baseParams.data
         && store.baseParams.cmd != 'nx'
         && store.reader.meta 
@@ -197,7 +203,6 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         this.ownerCt.SetPanelTitle(this.szFollowing + " - " + new Date().dateFormat('H:i'));
       else
         this.ownerCt.SetPanelTitle(this.szPresent + " - " + new Date().dateFormat('H:i'));
-      this.getSelectionModel().selectFirstRow();
     }
     ,onSpecialkey : function(f, e) {
       if(e.getKey() == e.ENTER){
@@ -248,7 +253,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                     ,iconCls: 'timer-edit-icon'
                     ,scope:this
                     ,disabled: true
-                    ,handler: function() { this.EditTimer(this.ctxRecord, this.store); }
+                    ,handler: function() { this.EditTimer(this.ctxRecord, this.updateTimer, this); }
                     },{
                      itemId:'td'
                     ,text: this.szDeleteTimer
@@ -343,7 +348,8 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         }
         if(o.success) {
             new Ext.xxv.MessageBox().msgSuccess(this.szRecordSuccess, o.data);
-            this.updateTimer();
+            if(options.callback)
+              options.callback.call(options.cbscope);
         } else {
             new Ext.xxv.MessageBox().msgFailure(this.szRecordFailure, o.data);
         }
@@ -354,23 +360,35 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         new Ext.xxv.MessageBox().msgFailure(this.szRecordFailure, response.statusText);
     }
     ,Record : function(record) {
-        this.RecordID(record.data.id);
+        this.RecordID(record.data.id, this.updateTimer, this);
     }
-    ,RecordID : function(id) {
+    ,RecordID : function(id, callback, cbscope) {
         this.viewer.loadMask.show();
         Ext.Ajax.request({
-              scope: this
+              scope:  this
              ,url: XXV.help.cmdAJAX('tn',{ data: id, '__fast':'1' })
              ,success: this.onRecordSuccess
              ,failure: this.onRecordFailure
+             ,callback: callback
+             ,cbscope:  cbscope
           });
     }
     ,updateTimer : function() {
+      var gsm = this.getSelectionModel();
+      if(gsm.hasSelection()) {
+        this.view.keepSelection = new Array();
+        for(var i = 0, len = this.store.getCount(); i < len; i++){
+          if(gsm.isSelected(i)) {
+            this.view.keepSelection.push(i);
+          }
+        }
+      }
+      this.store.reload();
       if(this.viewer.gridTimer) {
         this.viewer.gridTimer.dataDirty = true;
       }
     }
-    ,EditTimer : function(record,store) {
+    ,EditTimer : function(record,callback,scope) {
       var item;
 
       if(record.data.timerid) {
@@ -390,7 +408,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       if(this.viewer.formwin){
         this.viewer.formwin.close();
       }
-      this.viewer.formwin = new Ext.xxv.Question(item,store);
+      this.viewer.formwin = new Ext.xxv.Question(item,callback,scope);
     }
     /******************************************************************************/
     ,onDeleteSuccess : function( response,options ) 
@@ -502,7 +520,7 @@ Ext.xxv.NowPreview = function(viewer) {
             iconCls: 'record-icon',
             disabled:true,
             scope: viewer,
-            handler: function(){ this.Record(this.gridNow.getSelectionModel().getSelected()); }
+            handler: function(){ this.gridNow.Record(this.gridNow.getSelectionModel().getSelected()); }
         },{
             id:'te',
             tooltip: Ext.xxv.NowGrid.prototype.szEditTimer,
@@ -510,7 +528,7 @@ Ext.xxv.NowPreview = function(viewer) {
             disabled:true,
             scope: viewer,
             handler: function(){
-              this.gridNow.EditTimer(this.gridNow.getSelectionModel().getSelected()); 
+              this.gridNow.EditTimer(this.gridNow.getSelectionModel().getSelected(), this.updateTimer, this); 
             }
         },{
             id:'td',

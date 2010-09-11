@@ -1030,7 +1030,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(this.viewer.formwin){
         this.viewer.formwin.close();
       }
-      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+      this.viewer.formwin = new Ext.xxv.Question(item,this.store.reload,this.store);
     }
     ,ConvertItem : function(record) {
 
@@ -1043,7 +1043,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(this.viewer.formwin){
         this.viewer.formwin.close();
       }
-      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+      this.viewer.formwin = new Ext.xxv.Question(item,this.store.reload,this.store);
     }
     ,Recover : function() {
 
@@ -1054,7 +1054,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(this.viewer.formwin){
         this.viewer.formwin.close();
       }
-      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+      this.viewer.formwin = new Ext.xxv.Question(item,this.store.reload,this.store);
     }
 /******************************************************************************/
     ,onUpgradeSuccess : function( response,options ) 

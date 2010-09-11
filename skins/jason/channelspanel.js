@@ -331,7 +331,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
     if(viewer.formwin){
       viewer.formwin.close();
     }
-    viewer.formwin = new Ext.xxv.Question(item,this.store);
+    viewer.formwin = new Ext.xxv.Question(item,this.store.reload,this.store);
   }
 /******************************************************************************/
   ,onDeleteSuccess : function( response,options ) 

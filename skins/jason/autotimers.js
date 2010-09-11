@@ -327,7 +327,7 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
       if(this.viewer.formwin){
         this.viewer.formwin.close();
       }
-      this.viewer.formwin = new Ext.xxv.Question(item,this.store);
+      this.viewer.formwin = new Ext.xxv.Question(item,this.store.reload,this.store);
     },
     onEditItem : function(grid, index, e) {
       e.stopEvent();

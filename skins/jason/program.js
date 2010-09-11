@@ -27,6 +27,7 @@ Ext.xxv.programStore = function(data) {
                                     ,{name: 'timerid', type: 'string'}
                                     ,{name: 'timeractiv', type: 'string'}
                                     ,{name: 'running', type: 'string'}
+                                    ,{name: 'level', type: 'int'}
                                   ]
                       }),
             proxy : new Ext.data.HttpProxy({
@@ -92,7 +93,7 @@ Ext.xxv.programGrid = function(viewer, record) {
         ,sm: new Ext.grid.RowSelectionModel({
             singleSelect:false
         })
-        ,view: new Ext.grid.GroupingView({
+        ,view: new Ext.xxv.GroupingView({
             enableGroupingMenu:false,
             forceFit:true,
             showGroupName: false,
@@ -137,7 +138,11 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
       this.preview.clear();
     }
     ,onLoad : function( store, records, opt ) {
-      this.getSelectionModel().selectFirstRow();
+      if(this.view.keepSelection)
+        this.getSelectionModel().selectRows(this.view.keepSelection,false);
+      else
+        this.getSelectionModel().selectFirstRow();
+
       this.ownerCt.SetPanelTitle(store.title);
     }
     ,onContextClick : function(grid, index, e){
@@ -235,10 +240,25 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
            ids += ',';
            ids += sel[i].data.id;
       }
-      this.viewer.RecordID(ids);
+      this.viewer.RecordID(ids, this.updateTimer, this);
+    }
+    ,updateTimer : function() {
+      var gsm = this.getSelectionModel();
+      if(gsm.hasSelection()) {
+        this.view.keepSelection = new Array();
+        for(var i = 0, len = this.store.getCount(); i < len; i++){
+          if(gsm.isSelected(i)) {
+            this.view.keepSelection.push(i);
+          }
+        }
+      }
+      this.store.reload();
+      if(this.viewer.gridTimer) {
+        this.viewer.gridTimer.dataDirty = true;
+      }
     }
     ,EditTimer : function(record) {
-        this.viewer.gridNow.EditTimer(record, this.store);
+        this.viewer.gridNow.EditTimer(record, this.updateTimer, this);
     }
     ,DeleteTimer : function(record) {
         var gsm = this.getSelectionModel();

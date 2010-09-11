@@ -166,9 +166,9 @@ Ext.extend(Ext.xxv.tabPanel, Ext.TabPanel, {
         if(!record || !record.data) return;
         this.gridNow.Record(record);
     }
-    ,RecordID : function(id){
+    ,RecordID : function(id, callback, cbscope){
         if(!id) return;
-        this.gridNow.RecordID(id);
+        this.gridNow.RecordID(id, callback, cbscope);
     }
     ,openTeleText : function(name, data){
           var id = 'vt';
