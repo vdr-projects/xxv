@@ -401,6 +401,8 @@ sub TopTen {
         e.eventid = s.eventid
         AND e.channel_id = c.Id
         AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
+    group by
+        e.eventid
     order by
         rank desc, level desc
     |;
