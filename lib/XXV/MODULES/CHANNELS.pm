@@ -842,7 +842,7 @@ sub ChannelWithGroup {
 
     my $sql = sprintf(q|
 SELECT SQL_CACHE %s, ( SELECT g.name FROM CHANNELGROUPS as g WHERE c.grp = g.id AND c.vid = g.vid LIMIT 1) as grp 
-    from CHANNELS as c,CHANNELGROUPS as g %s GROUP BY c.id order by c.vid, c.pos
+    from CHANNELS as c,CHANNELGROUPS as g %s GROUP BY c.id order by c.pos,c.vid
 |, $field, $where);
 
 #    my $sql = sprintf(q|SELECT SQL_CACHE %s, ( SELECT 

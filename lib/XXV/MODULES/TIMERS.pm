@@ -1032,6 +1032,7 @@ sub _insert {
 
     # Search for event at EPG
     my $e = $self->_getNextEpgId( {
+          vid     => $timer->{vid},
           pos     => $timer->{pos},
           flags   => $timer->{flags},
           channel => $timer->{channel},
@@ -1829,6 +1830,7 @@ sub _getNextEpgId {
                 channel_id = ? 
                 AND ((UNIX_TIMESTAMP(%s) + (duration/2)) between  ?  and  ? )
                 AND (title like ? or title like ? )
+                AND vid = ?
             ORDER BY ABS(( ? )-UNIX_TIMESTAMP(%s)) LIMIT 1
             |,$timemode,$timemode,$timemode));
         if(!$sth->execute($timer->{channel},
@@ -1836,6 +1838,7 @@ sub _getNextEpgId {
                       $timer->{stop},
                       '%'.$file[-2].'%',
                       '%'.$file[-1].'%',
+                      $timer->{vid},
                       $timer->{start})) {
             lg sprintf("Couldn't find epg event for timer with id %d - %s", $timer->{pos} , $timer->{file} );
             return 0;
@@ -1849,12 +1852,14 @@ sub _getNextEpgId {
                 channel_id = ? 
                 AND ((UNIX_TIMESTAMP(%s) + (duration/2)) between  ?  and  ? )
                 AND (title like ? )
+                AND vid = ?
             ORDER BY ABS(( ? )-UNIX_TIMESTAMP(%s)) LIMIT 1
             |,$timemode,$timemode,$timemode));
         if(!$sth->execute($timer->{channel},
                       $timer->{start},
                       $timer->{stop},
                       '%'.$timer->{file}.'%',
+                      $timer->{vid},
                       $timer->{start})) {
             lg sprintf("Couldn't find epg event for timer with id %d - %s", $timer->{pos} , $timer->{file} );
             return 0;

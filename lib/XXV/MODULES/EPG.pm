@@ -214,7 +214,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 30; # Must be increment if rows of table changed
+    my $version = 32; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
 
@@ -239,11 +239,11 @@ sub _init {
               tableid tinyint(4) default 0,
               image text default '',
               version tinyint default 0,
-              video varchar(100) default '',
-              audio varchar(255) default '',
+              video varchar(32) default '',
+              audio varchar(128) default '',
               addtime datetime NOT NULL default '0000-00-00 00:00:00',
               vpstime datetime default '0000-00-00 00:00:00',
-              PRIMARY KEY (vid,eventid,channel_id),
+              PRIMARY KEY (vid,eventid),
               INDEX (starttime),
               INDEX (channel_id)
             ) COMMENT = '$version'
@@ -536,7 +536,7 @@ sub encodeEpgId {
     my @id = split('-', $channel);
 
     # Make a fix format 0xCCCCEEEE : C-Channelid (high-word), E-Eventid(low-word) => real-eventid = uniqueid & FFFF
-    my $eventid = (($vid & 0xFF) << 24) | ((($id[-3] + $id[-2] + $id[-1]) & 0x3FFF) << 16) | ($epgid & 0xFFFF);
+    my $eventid = ((($id[-3] + $id[-2] + $id[-1]) & 0x3FFF) << 16) | ($epgid & 0xFFFF);
        $eventid &= 0x6FFFFFFF; # Keep 0x70000000 .... free for recording events
 
     return $eventid;
@@ -743,7 +743,7 @@ sub search {
           AND ( $search->{query} )
           AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
       group by
-          c.id , e.eventid
+          c.id, e.eventid
       order by
           starttime
           |;
