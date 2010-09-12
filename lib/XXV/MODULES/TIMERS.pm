@@ -1477,6 +1477,7 @@ SELECT SQL_CACHE t.id, t.vid, t.pos, t.flags, t.channel, t.priority, t.lifetime,
         FROM TIMERS as t, EPG as e 
         WHERE e.eventid > 0 
         AND t.eventid = e.eventid
+        AND t.vid = e.vid
         AND (
                    (((t.flags & 4) = 0) AND e.starttime != t.eventstarttime) 
                 OR ((t.flags & 4) AND e.vpstime != t.eventstarttime) 

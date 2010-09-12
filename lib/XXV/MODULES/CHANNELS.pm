@@ -814,7 +814,7 @@ sub ChannelArray {
     my $where = shift || '';
     $where = sprintf('WHERE %s', $where) if($where);
 
-    my $sql = sprintf('SELECT SQL_CACHE %s, pos from CHANNELS %s order by pos', $field, $where);
+    my $sql = sprintf('SELECT SQL_CACHE %s, pos from CHANNELS %s GROUP BY id order by pos', $field, $where);
     my $erg = $self->{dbh}->selectall_arrayref($sql);
     return $erg;
 }
