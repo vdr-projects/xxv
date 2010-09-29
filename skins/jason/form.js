@@ -294,7 +294,11 @@ Ext.extend(Ext.xxv.Question, Ext.Window, {
                   params['__'+record.data.id] = field.getValue();
                   break;
                 case 'date':
-                  params['__'+record.data.id] = field.getValue().dateFormat('Y-m-d');
+                  var f = field.getValue();
+                  if(f && typeof(f) ==='date' )
+                    params['__'+record.data.id] = f.dateFormat('Y-m-d');
+                  else
+                    params['__'+record.data.id] = field.getRawValue();
                   break;
                 default:
                   params['__'+record.data.id] = field.getValue();

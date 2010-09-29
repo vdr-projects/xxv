@@ -47,6 +47,8 @@ Ext.xxv.Menu = Ext.extend(Ext.menu.Menu, {
 
 Ext.xxv.MainMenu = function(/*config*/){
 
+    this.vdrStore = new Ext.xxv.vdrStore();
+
     var selTheme = this.initTheme();
 
     XXV.configMenu = new Ext.menu.Menu();
@@ -148,14 +150,16 @@ Ext.xxv.MainMenu = function(/*config*/){
           ,handler: function() { Ext.xxv.RemoteWindowOpen(); }
           ,iconCls:"remote-icon"
           ,cmd: 'r'
+          ,scope:this
         },{
           text: Ext.xxv.MonitorWindow.prototype.szTitle
           ,handler: function() { Ext.xxv.MonitorWindowOpen(); }
           ,iconCls:"monitor-icon"
           ,cmd: 'r'
-        }
-       ]
+          ,scope:this
+        }]
     });
+
     // see this.styles to enum themes
     var themes = new Array;
     for(var i = 0, len = this.styles.length; i < len; i++){
@@ -247,6 +251,12 @@ Ext.xxv.MainMenu = function(/*config*/){
               })
         ]
     });
+
+    this.vdrStore.on({
+         'load' : this.onVDRLoad
+//      ,'loadexception' : this.onVDRLoadException
+        ,scope:this
+    });
 };
 
 
@@ -334,6 +344,84 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
               }
             );
       }, 250);
+    }
+
+/******************************************************************************/
+    ,onVDRLoad: function( store, records, opt ){
+
+      var r = this.get(3).menu;
+      if(store.data.length > 1) {
+        r.removeAll(true);
+
+        this.host = this.initHost(store);
+
+        var e = !(XXV.help.cmdAllowed('r'));
+
+        r.addItem({
+            text: Ext.xxv.RemoteWindow.prototype.szTitle
+            ,handler: function() { Ext.xxv.RemoteWindowOpen(); }
+            ,iconCls:"remote-icon"
+            ,cmd: 'r'
+            ,disabled: e
+            ,scope:this
+          });
+        r.addItem({
+            text: Ext.xxv.MonitorWindow.prototype.szTitle
+            ,handler: function() { Ext.xxv.MonitorWindowOpen(); }
+            ,iconCls:"monitor-icon"
+            ,cmd: 'r'
+            ,disabled: e
+            ,scope:this
+          });
+
+        r.addSeparator();
+        for(var i = 0, len = store.data.length; i < len; i++){
+          var rec = store.getAt(i);
+          if(!this.host && rec.data.primary) {
+            this.host = rec.data.id;
+          }
+          if(rec.data.active) {
+            r.addItem({
+        	    text: rec.data.host
+        	    ,checked: this.host == rec.data.id ? true : false
+        	    ,group: 'host'
+         	    ,checkHandler: this.onSelectHost
+        	    ,scope: this
+              ,disabled: e
+      	    });
+          }
+        }
+      }
+    }
+    ,initHost: function(store){
+        if(Ext.state.Manager.getProvider()) {
+            var h = Ext.state.Manager.get('host');
+            if(h) {
+              for(var i = 0, len = store.data.length; i < len; i++){
+                var rec = store.getAt(i);
+                if(rec.data.id == h) {
+                  this.host = h;
+                  return rec.data.id;
+                }
+              }
+            }
+        }
+        return 0;
+    }
+    ,onSelectHost: function(item, checked){
+        if(checked) {
+          for(var i = 0, len = this.vdrStore.data.length; i < len; i++){
+            var rec = this.vdrStore.getAt(i);
+            if(rec.data.host == item.text) {
+              this.host = rec.data.id;
+
+              if(Ext.state.Manager.getProvider()) {
+                 Ext.state.Manager.set('host', this.host);
+              }
+              return;
+            }
+          }
+       }
     }
 });
 

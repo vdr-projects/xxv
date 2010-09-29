@@ -264,8 +264,8 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
     }
     ,onLoad : function( store, records, opt ) {
 
-      var node,grpname;
-  
+      var node,grpname; 
+
       for(var i = this.root.childNodes.length; i > 0; i--){        
         this.root.removeChild(this.root.item(i-1));
       }
@@ -284,9 +284,8 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
         this.additem({
             text: records[i].data.name,
             channel: records[i].data.id
-//      }, (i == 0 ? false: true),(i == 0 ? false: true),node); //Select first node
         }, true,true,node);
-      }
+     }
   }
 /******************************************************************************/
   ,onSwitchSuccess : function( response,options ) 
@@ -311,7 +310,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
     
     if(this.SwitchChanneltid) Ext.Ajax.abort(this.SwitchChanneltid);
     this.SwitchChanneltid = Ext.Ajax.request({
-        url: XXV.help.cmdAJAX('sw',{ data: record.data.id })
+        url: XXV.help.cmdAJAX('sw',{ 'data': record.data.cid, '__vdr': XXV.menu.host })
        ,success: this.onSwitchSuccess
        ,failure: this.onSwitchFailure
        ,scope: this
@@ -373,7 +372,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
   ,onWebCastChannel : function( id ) {
     var record = this.store.getById(id);
     var item = {
-       url: XXV.help.cmdHTML('lst',{ data: record.data.position, '__player':'1' })
+       url: XXV.help.cmdHTML('lst',{ 'data': record.data.position, '__vdr': XXV.menu.host, '__player':'1' })
       ,title: record.data.name
     };
 

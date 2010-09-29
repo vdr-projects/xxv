@@ -143,7 +143,11 @@ Ext.extend(Ext.xxv.MonitorWindow, Ext.Window, {
           img.un('load', this.onupdate , this);
           img.on('load', this.onupdate , this);
           //img.hide();
-          img.dom.src = '?cmd=gdisplay&width='+ size.width +'&height='+ size.height +'&_dc=' + (new Date().getTime());
+          img.dom.src = XXV.help.cmdHTML('gdisplay', {
+                  'width': size.width
+                 ,'height': size.height
+                 ,'_dc': (new Date().getTime())
+                 ,'__vdr': XXV.menu.host });
     }
    ,onupdate : function(){
       if(this.timer) {

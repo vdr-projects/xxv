@@ -144,7 +144,7 @@ Ext.extend(Ext.xxv.RemoteWindow, Ext.Window, {
   ,onRemote : function( rc ) {
     if(this.Remotetid) Ext.Ajax.abort(this.Remotetid);
     this.Remotetid = Ext.Ajax.request({
-        url: XXV.help.cmdAJAX('r',{ data: rc })
+        url: XXV.help.cmdAJAX('r',{ 'data': rc, '__vdr': XXV.menu.host })
        ,success: this.onRemoteSuccess
        ,failure: this.onRemoteFailure
        ,scope:   this

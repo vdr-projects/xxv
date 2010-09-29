@@ -578,9 +578,9 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
        }
        if(store.reader.meta.param) {
         var tb = this.ownerCt.getTopToolbar();
-        tb.displayMsg = store.reader.meta.param.usage;
-        tb.displayMsg += ' - ';
-        tb.displayMsg += Ext.PagingToolbar.prototype.displayMsg;
+        //tb.displayMsg = store.reader.meta.param.usage;
+        //tb.displayMsg += ' - ';
+        //tb.displayMsg += Ext.PagingToolbar.prototype.displayMsg;
        }
        if(store.title) {
     	  this.ownerCt.SetPanelTitle(store.title);
@@ -1003,7 +1003,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(this.PlayTransaction) Ext.Ajax.abort(this.PlayTransaction);
       if(record.data.isrecording != 0) {
         this.PlayTransaction = Ext.Ajax.request({
-            url: XXV.help.cmdAJAX('rpv',{ data: record.data.id, '__start':begin })
+            url: XXV.help.cmdAJAX('rpv',{ data: record.data.id, '__start':begin, '__vdr': XXV.menu.host })
            ,success: this.onPlaySuccess
            ,failure: this.onPlayFailure
            ,scope: this

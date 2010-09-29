@@ -13,10 +13,12 @@ Ext.xxv.storeChannels = function() {
             reader: new Ext.xxv.jsonReader({
                         fields: [
                                   {name: 'id', type: 'string'},
+                                  {name: 'cid', type: 'string'},
                                   {name: 'name', type: 'string'},
                                   {name: 'group', type: 'string'},
                                   {name: 'position', type: 'int'},
-                                  {name: 'grpname', type: 'string'}
+                                  {name: 'grpname', type: 'string'},
+                                  {name: 'host', type: 'string'}
                                 ]
                     }),
             proxy : new Ext.data.HttpProxy({
