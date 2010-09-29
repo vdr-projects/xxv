@@ -200,18 +200,16 @@ sub livestream {
     return $console->err(gettext("Can't stream files!"))
       unless($console->can('datei'));
 
-    my $cmod = main::getModule('CHANNELS');
-    unless($cid and $cid =~ /^[0-9a-f]{32}$/) {
-      unless(index($cid, '-') > -1) {
-        $cid = $cmod->PosToHash($cid);
-      } else {
-        $cid = $cmod->CIDToHash($cid);
-      }
+    my $vdr = $self->{svdrp}->primary_hosts();
+    if($params && $params->{vdr}) {
+      $vdr = $params->{vdr};
     }
 
-    return $console->err(sprintf(gettext("This channel '%s' does not exist!"),$cid))
-      unless($cid);
-    my $channel = $cmod->GetChannel($cid);
+    my $cmod = main::getModule('CHANNELS');
+    my $hash = $cmod->ToHash($cid, $vdr);
+    return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$cid))
+      unless($hash);
+    my $channel = $cmod->GetChannel($hash, $vdr);
 
     if($self->{widget} ne 'external' && (!$params || !(exists $params->{player}))) {
       my $data = sprintf("?cmd=livestream&__player=1&data=%s",$channel->{hash});

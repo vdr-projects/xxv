@@ -621,24 +621,25 @@ sub list {
       $sql = qq|
       SELECT SQL_CACHE 
           c.hash as \'$f{'id'}\',
+          c.id as _cid,
           c.name as \'$f{'name'}\',
           c.grp as \'$f{'grp'}\',
           c.pos as \'$f{'pos'}\',
-          cg.name as __GrpName,
-          ( SELECT 
-              r.host
-              FROM RECORDER as r
-              WHERE r.id = c.vid
-              LIMIT 1) as __host
+          cg.name as __GrpName
       from
           CHANNELS as c,
-          CHANNELGROUPS as cg
+          CHANNELGROUPS as cg,
+          RECORDER as r
       WHERE
           c.name LIKE ?
           AND c.grp = cg.id
           AND c.vid = cg.vid
+          AND r.id = c.vid
+          AND r.active = 'y'
+      GROUP BY
+          c.id
       ORDER BY
-          c.vid, 
+          c.grp asc, r.id asc,
       |;
     } else {
       $sql = qq|
@@ -660,20 +661,19 @@ SELECT SQL_CACHE
     c.grp as \'$f{'grp'}\',
     c.pos as \'$f{'pos'}\',
     cg.name as __GrpName,
-    ( SELECT 
-        r.host
-        FROM RECORDER as r
-        WHERE r.id = c.vid
-        LIMIT 1) as __host
+    r.host as __host
 from
     CHANNELS as c,
-    CHANNELGROUPS as cg
+    CHANNELGROUPS as cg,
+    RECORDER as r
 WHERE
     c.name LIKE ?
     AND c.grp = cg.id
     AND c.vid = cg.vid
+    AND r.id = c.vid
+    AND r.active = 'y'
 ORDER BY
-    c.vid, 
+    r.id asc, 
 |;
     }
 
@@ -687,8 +687,10 @@ ORDER BY
       }
     }
     $sql .= $sortby;
-    $sql .= " desc"
-        if(exists $params->{desc} && $params->{desc} == 1);
+    if(exists $params->{desc} && $params->{desc} == 1)
+      {  $sql .= " desc"; }
+    else
+      {  $sql .= " asc";  }
 
     my $rows;
     my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
@@ -964,7 +966,7 @@ sub PosToHash {
     my $vid = shift;
 
     if($vid) {
-      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash as id from CHANNELS where vid = ? AND pos = ?');
+      my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE hash from CHANNELS where vid = ? AND pos = ?');
       $sth->execute($vid,$pos)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
       my $erg = $sth->fetchrow_hashref();

@@ -215,7 +215,7 @@ sub remote {
     my $params = shift;
 
     my $vdr = $self->{svdrp}->primary_hosts();
-    if($params->{vdr}) {
+    if($params && $params->{vdr}) {
       $vdr = $params->{vdr};
     }
 
@@ -272,8 +272,13 @@ sub switch {
     my $cid = shift || '';
     my $params = shift;
 
+    my $vdr = $self->{svdrp}->primary_hosts();
+    if($params && $params->{vdr}) {
+      $vdr = $params->{vdr};
+    }
+
     my $cmod = main::getModule('CHANNELS');
-    my $hash = $cmod->ToHash($cid, $params && $params->{vdr} ? $params->{vdr} : undef);
+    my $hash = $cmod->ToHash($cid, $vdr);
     return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$cid))
       unless($hash);
 

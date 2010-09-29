@@ -1390,20 +1390,14 @@ sub _timerexists {
     # Avoid Timer already defined (the timer with the same data again do not put on)
     my $sql = "SELECT SQL_CACHE count(*) as cc from TIMERS where
                 channel = ?
-                and UNIX_TIMESTAMP(starttime) = ?
-                and UNIX_TIMESTAMP(stoptime)  = ?
-                ";
-#               and priority = ?
-#               and lifetime = ?
-#               and (
-#                      ( flags & 1 = '0' )
-#                   or ( file = ? )
-#               )
+                AND ((UNIX_TIMESTAMP(starttime) = ?
+                AND UNIX_TIMESTAMP(stoptime) = ?)
+                OR eventid = ?)";
 
     my $sth = $obj->{dbh}->prepare($sql);
-    $sth->execute($eventdata->{channel},$eventdata->{starttime},$eventdata->{stoptime},
-#                 $eventdata->{priority},$eventdata->{lifetime},
-#                 $eventdata->{file}
+    $sth->execute($eventdata->{channel},
+                  $eventdata->{starttime},$eventdata->{stoptime},
+                  $eventdata->{eventid}
                   )
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     my $erg = $sth->fetchrow_hashref();
