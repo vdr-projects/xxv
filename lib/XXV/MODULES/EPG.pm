@@ -1331,7 +1331,7 @@ WHERE
 
     $sql .= qq|
 GROUP BY c.id 
-ORDER BY g.id, c.vid, c.pos
+ORDER BY g.pos, c.vid, c.pos
 |;
 
     my $rows;
