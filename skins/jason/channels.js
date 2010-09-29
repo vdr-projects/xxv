@@ -17,8 +17,7 @@ Ext.xxv.storeChannels = function() {
                                   {name: 'name', type: 'string'},
                                   {name: 'group', type: 'string'},
                                   {name: 'position', type: 'int'},
-                                  {name: 'grpname', type: 'string'},
-                                  {name: 'host', type: 'string'}
+                                  {name: 'grpname', type: 'string'}
                                 ]
                     }),
             proxy : new Ext.data.HttpProxy({
