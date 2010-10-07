@@ -89,7 +89,6 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
          region: 'center'
         ,id: 'autotimer-view-grid'
         ,loadMask: true
-        ,plugins:[this.activeColumn]
         ,clicksToEdit:1
         ,autoExpandColumn:'expand'
         ,cm: cm
@@ -116,7 +115,8 @@ Ext.xxv.autotimerGrid = function(viewer, channels) {
                   ,handler: function(){ this.EditItem(null); }
               }
               ]})
-              ,plugins:[new Ext.ux.grid.Search({
+        ,plugins:[this.activeColumn,
+                  new Ext.ux.grid.Search({
                    position:'top'
                   ,shortcutKey:null
                   ,paramNames: {
@@ -210,8 +210,9 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
 
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) {
-                      if(XXV.help.cmdAllowed(f.itemId)) 
-                        f.enable();
+                      if(XXV.help.cmdAllowed(f.itemId)) {  
+                         f.enable(); 
+                         }
                       },items); 
                   }
 
@@ -229,10 +230,10 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
         }
     }
     ,formatTitle: function(value, p, record) {
-	      var style = "";
-	      if((record.data.active & 1) == 0) {
-	        style = " deactive";
-	      }
+        var style = "";
+        if((record.data.active & 1) === 0) {
+          style = " deactive";
+        }
         return String.format(
               '<div class="topic{1}"><b>{0}</b></div>',
               value, style
@@ -249,7 +250,7 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
             new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
 
             var gsm = this.getSelectionModel();
-      	    var sel = options.params.data.split(",");
+            var sel = options.params.data.split(",");
             sel.reverse();
             for(var i = 0, len = sel.length; i < len; i++){
               if(gsm.isIdSelected(sel[i])) {
@@ -281,16 +282,17 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
       this.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
-      var sel = gsm.getSelections()
+      var sel = gsm.getSelections();
       if(sel.length <= 0) {
        gsm.selectRecords([record]);
        sel.push(record);
       }
       var todel = "";
       for(var i = 0, len = sel.length; i < len; i++){
-        if(i != 0)
-   	      todel += ',';
-	      todel += sel[i].data.id;
+        if(i !== 0) {
+          todel += ',';
+        }
+        todel += sel[i].data.id;
       }
       Ext.Ajax.request({
           scope: this
@@ -307,7 +309,7 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
       this.stopEditing();
       var item;
 
-      if(record != null) {
+      if(record !== null) {
         var gsmTimer = this.getSelectionModel();
         gsmTimer.selectRecords([record]);
 
@@ -362,27 +364,27 @@ Ext.extend(Ext.xxv.autotimerGrid,  Ext.grid.EditorGridPanel, {
         new Ext.xxv.MessageBox().msgFailure(this.szUpgradeFailure, response.statusText);
     }
     ,UpgradeItem : function() {
-		  Ext.Ajax.request({
-		    scope: this
-		   ,url: XXV.help.cmdAJAX('au')
-		   ,timeout: 120000
-		   ,success: this.onUpgradeSuccess
-		   ,failure: this.onUpgradeFailure
-		  });
+      Ext.Ajax.request({
+        scope: this
+       ,url: XXV.help.cmdAJAX('au')
+       ,timeout: 120000
+       ,success: this.onUpgradeSuccess
+       ,failure: this.onUpgradeFailure
+      });
 
       Ext.MessageBox.show({
            title: this.szUpgradeWait
            ,msg: this.szUpgrade
            ,width:240
            ,wait:true
-    		   ,waitConfig:{
-     				 interval:200
-    				,duration:119000
-    				,increment:15
-    				,fn:function() {
+           ,waitConfig:{
+              interval:200
+            ,duration:119000
+            ,increment:15
+            ,fn:function() {
                     Ext.MessageBox.hide();
-      				}
-    		   }
+              }
+           }
        });
     }
     ,updateTimer : function() {

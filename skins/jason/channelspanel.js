@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -88,14 +88,15 @@ Ext.xxv.channelsPanel = function() {
             if(node){
                 var record = this.store.getById(node.attributes.channel);
                 var top = Ext.getCmp('main-tabs');
-                switch(top.getActiveTab().id) {
-                  case 'vt': top.openTeleText(node.attributes.text, node.attributes.channel); break;
-                  default: top.openProgram(record.data); break;
+                if(top.getActiveTab().id == 'vt') {
+                  top.openTeleText(node.attributes.text, node.attributes.channel);
+                } else {
+                  top.openProgram(record.data);
                 }
 
                 var items = this.topToolbar.items;
                 if(items) { items.eachKey(function(key, f) {
-                            if(XXV.help.cmdAllowed(key)) f.enable();
+                            if(XXV.help.cmdAllowed(key)) { f.enable(); }
                 },items); }
             }
         },
@@ -201,7 +202,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
             var items = this.menu.items;
             if(items) { items.eachKey(function(key, f) {
                           if(XXV.help.cmdAllowed(f.itemId)) 
-                            f.enable();
+                          { f.enable(); }
                           },items); 
                       }
 
@@ -242,7 +243,7 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
         if(!inactive){
             if(!preventAnim){
                 Ext.fly(node.ui.elNode).slideIn('l', {
-                    callback: node.select, scope: node, duration: .4
+                    callback: node.select, scope: node, duration: 0.4
                 });
             }else{
                 node.select();
@@ -264,19 +265,19 @@ Ext.extend(Ext.xxv.channelsPanel, Ext.tree.TreePanel, {
     }
     ,onLoad : function( store, records, opt ) {
 
-      var node,grpname; 
+      var i,node,grpname; 
 
-      for(var i = this.root.childNodes.length; i > 0; i--){        
+      for(i = this.root.childNodes.length; i > 0; i--){        
         this.root.removeChild(this.root.item(i-1));
       }
 
-      for(var i = 0, len = records.length; i < len; i++){
+      for(i = 0, len = records.length; i < len; i++){
         if(!node || records[i].data.grpname != grpname) {
            node = this.root.appendChild(
                 new Ext.tree.TreeNode({
                     text:records[i].data.grpname,
                     cls:'channels-node',
-                    expanded: (i == 0 ? true: false)
+                    expanded: (i === 0 ? true: false)
                 })
             );
           grpname = records[i].data.grpname;

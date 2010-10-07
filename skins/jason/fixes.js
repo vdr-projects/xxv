@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -18,7 +18,7 @@ Ext.override(Ext.form.TimeField, {
     initComponent : function(){
         Ext.form.TimeField.superclass.initComponent.call(this);
 
-        this.minValue = this.parseDate(this.minValue) || Date.parseDate(this.initDate, this.initDateFormat).clearTime();;
+        this.minValue = this.parseDate(this.minValue) || Date.parseDate(this.initDate, this.initDateFormat).clearTime();
         this.maxValue = this.parseDate(this.maxValue) || this.minValue.add('mi', (24 * 60) - 1);
 
         if(!this.store){

@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -9,8 +9,8 @@
 
 Ext.xxv.MainSearchField = Ext.extend(Ext.form.TwinTriggerField, {
     initComponent : function(){
-  		Ext.xxv.MainSearchField.superclass.initComponent.call(this);
-  	  	this.on('specialkey', function(f, e){
+      Ext.xxv.MainSearchField.superclass.initComponent.call(this);
+        this.on('specialkey', function(f, e){
             if(e.getKey() == e.ENTER){
                 this.onTrigger2Click();
             }
@@ -35,9 +35,9 @@ Ext.xxv.MainSearchField = Ext.extend(Ext.form.TwinTriggerField, {
 
 Ext.xxv.Menu = Ext.extend(Ext.menu.Menu, {
     initComponent : function(){
-  		Ext.xxv.Menu.superclass.initComponent.call(this);
+      Ext.xxv.Menu.superclass.initComponent.call(this);
       this.on('beforerender', function(menu) {
-    		menu.items.eachKey(function(key, f) { 
+        menu.items.eachKey(function(key, f) { 
                         if(f.cmd && XXV.help.cmdAllowed(f.cmd)) 
                           f.enable();
                         },menu.items); 
@@ -58,13 +58,13 @@ Ext.xxv.MainMenu = function(/*config*/){
        ,handler: function(b,e) { XXV.tab.openTab(b.cmd); }
       }
       ,items:[{
-	          text:this.szOwnSettings
+            text:this.szOwnSettings
            ,iconCls: 'setup-icon'
            ,handler: XXV.help.Settings
            ,scope:XXV.help
            ,cmd: 'up'
         },{
-	          text:this.szGlobalSettings
+            text:this.szGlobalSettings
            ,iconCls: 'setup-icon'
            ,menu: XXV.configMenu
            ,cmd: 'ce'
@@ -86,12 +86,12 @@ Ext.xxv.MainMenu = function(/*config*/){
 
     var systemMenu = new Ext.menu.Menu({
       items:[{
-	          text:this.szMenuItemSetup
+            text:this.szMenuItemSetup
            ,iconCls: 'setup-icon'
            ,menu: setupMenu
         },'-',{
            text:this.szMenuItemLogout
-       	  ,handler: this.Logout
+           ,handler: this.Logout
           ,iconCls:"logout-icon"
           ,disabled:false
         }
@@ -136,7 +136,7 @@ Ext.xxv.MainMenu = function(/*config*/){
         }/*,{
           text: Ext.xxv.mediaDataView.prototype.szTitle, 
           iconCls:"media-icon",
-					,cmd: 'mll'
+          ,cmd: 'mll'
         }*/
        ]
     });
@@ -163,13 +163,13 @@ Ext.xxv.MainMenu = function(/*config*/){
     // see this.styles to enum themes
     var themes = new Array;
     for(var i = 0, len = this.styles.length; i < len; i++){
-	    themes.push({
-	    text: this.styles[i][1],
-	    checked: selTheme == i ? true : false,
-	    group: 'theme',
-	    checkHandler: this.onSelectTheme,
-	    scope: this
-	    });
+      themes.push({
+      text: this.styles[i][1],
+      checked: selTheme == i ? true : false,
+      group: 'theme',
+      checkHandler: this.onSelectTheme,
+      scope: this
+      });
     }
 
     Ext.xxv.MainMenu.superclass.constructor.call(this, {
@@ -271,7 +271,7 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
     ,szMenuItemSetup       : "Setup"
     ,szGlobalSettings      : "Global settings"
     ,szOwnSettings         : "Own settings"
-    ,szMenuItemLogout	     : "Logout"    
+    ,szMenuItemLogout       : "Logout"    
     ,szMenuItemLogoutTooltip : "Click this button to logout from XXV"
 
     ,szSelectTheme         : "Select theme"
@@ -333,11 +333,11 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
       Ext.Ajax.request({
           url: XXV.help.cmdAJAX('logout')
       });
-	    setTimeout(function(){
+      setTimeout(function(){
             XXV.viewport.container.fadeOut(
               {
                   remove:true
-                  ,duration: .5
+                  ,duration: 0.5
                   ,callback:function(){
                     Ext.MessageBox.updateText('Session closed!');
                   }
@@ -382,13 +382,13 @@ Ext.extend(Ext.xxv.MainMenu, Ext.Toolbar, {
           }
           if(rec.data.active) {
             r.addItem({
-        	    text: rec.data.host
-        	    ,checked: this.host == rec.data.id ? true : false
-        	    ,group: 'host'
-         	    ,checkHandler: this.onSelectHost
-        	    ,scope: this
+              text: rec.data.host
+              ,checked: this.host == rec.data.id ? true : false
+              ,group: 'host'
+               ,checkHandler: this.onSelectHost
+              ,scope: this
               ,disabled: e
-      	    });
+            });
           }
         }
       }

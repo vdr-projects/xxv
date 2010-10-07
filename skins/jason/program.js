@@ -37,7 +37,7 @@ Ext.xxv.programStore = function(data) {
             sortInfo:{field:'day', direction:'ASC'},
             groupField:'day'
     });
-}
+};
 
 Ext.xxv.programGrid = function(viewer, record) {
     this.viewer = viewer;
@@ -229,14 +229,14 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     }
     ,Record : function( record ) {
       var gsm = this.getSelectionModel();
-      var sel = gsm.getSelections()
+      var sel = gsm.getSelections();
       if(sel.length <= 0) {
        gsm.selectRecords([record]);
        sel.push(record);
       }
       var ids = "";
       for(var i = 0, len = sel.length; i < len; i++){
-        if(i != 0)
+        if(i !== 0)
            ids += ',';
            ids += sel[i].data.id;
       }
@@ -262,16 +262,16 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     }
     ,DeleteTimer : function(record) {
         var gsm = this.getSelectionModel();
-        var sel = gsm.getSelections()
+        var sel = gsm.getSelections();
         if(sel.length <= 0) {
          gsm.selectRecords([record]);
          sel.push(record);
         }
         var items = "";
         for(var i = 0, len = sel.length; i < len; i++){
-          if(i != 0)
+          if(i !== 0)
             items += ',';
-          if(sel[i].data.timerid == 0) {
+          if(sel[i].data.timerid === 0) {
             continue;
           }
           items += sel[i].data.timerid;

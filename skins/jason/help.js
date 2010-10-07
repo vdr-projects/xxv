@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -41,7 +41,7 @@ Ext.extend(Ext.xxv.help, Ext.util.Observable, {
       for(var i = 0, len = store.getCount(); i < len; i++){
         var record = store.getAt(i);
         if(!lastModule || record.data.module != lastModule) {
-          lastModule = record.data.module
+          lastModule = record.data.module;
           XXV.configMenu.add(new Ext.menu.Item(
             { 
                text: record.data.module

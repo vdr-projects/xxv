@@ -42,7 +42,7 @@ Ext.xxv.NowStore = function() {
             ,hasMultiSort:false
             ,multiSortInfo:{}
     });
-}
+};
 
 Ext.xxv.NowGrid = function(viewer) {
 
@@ -141,7 +141,7 @@ Ext.xxv.NowGrid = function(viewer) {
         })
     });
 
-    var tbPosition = 15
+    var tbPosition = 15;
     var tb = this.topToolbar;
     tb.insert(tbPosition+0, '-');
     tb.insert(tbPosition+1, this.timefield);
@@ -322,11 +322,11 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     }
     ,reload : function() {
         if(this.store.baseParams.data)
-          delete(this.store.baseParams['data']);
+          delete(this.store.baseParams.data);
 
         var time = this.timefield.lastQuery;
-        if(!time || time == '') time = this.timefield.getValue();
-        if(!time || time == this.szPresent) {
+        if(!time || time === '') time = this.timefield.getValue();
+        if(!time || time === this.szPresent) {
           this.store.baseParams.cmd = 'n';
         } else if(time == this.szFollowing) {
           this.store.baseParams.cmd = 'nx';
@@ -447,16 +447,16 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     }
     ,DeleteTimer : function(record) {
         var gsm = this.getSelectionModel();
-        var sel = gsm.getSelections()
+        var sel = gsm.getSelections();
         if(sel.length <= 0) {
          gsm.selectRecords([record]);
          sel.push(record);
         }
         var items = "";
         for(var i = 0, len = sel.length; i < len; i++){
-          if(i != 0)
+          if(i !== 0)
             items += ',';
-          if(sel[i].data.timerid == 0) {
+          if(sel[i].data.timerid === 0) {
             continue;
           }
           items += sel[i].data.timerid;

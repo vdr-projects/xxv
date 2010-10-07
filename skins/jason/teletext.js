@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2009, anbr
+ * Copyright(c) 2009-201ß, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -47,7 +47,7 @@ Ext.xxv.TeleTextView = function(viewer, store, config) {
         ,'</div>'
     ,'</tpl>'
     ,'<div class="x-clear"></div>'
-  	);
+    );
 
     this.filter = new Ext.ux.grid.Search({
          position:'owner'
@@ -71,9 +71,9 @@ Ext.xxv.TeleTextView = function(viewer, store, config) {
                     ,itemSelector:'div.thumb-wrap'
                     ,loadMask:null
                     ,listeners: {
-   			              'beforeselect'   : {fn:function(view){ return view.store.getRange().length > 0; } }
-			                ,'selectionchange': {fn:this.doClick, scope:this, buffer:100}
-		                }
+                       'beforeselect'   : {fn:function(view){ return view.store.getRange().length > 0; } }
+                      ,'selectionchange': {fn:this.doClick, scope:this, buffer:100}
+                    }
                    ,plugins: [
                      this.filter
                    ]
@@ -96,7 +96,7 @@ Ext.extend(Ext.xxv.TeleTextView,  Ext.DataView, {
 
     ,onLoadException :  function( scope, o, arg, e) {
       this.viewer.loadMask.hide();
-	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
       var tb = this.ownerCt.getTopToolbar();
       tb.get('teletext-refresh').enable();
     }
@@ -151,9 +151,9 @@ Ext.extend(Ext.xxv.TeleTextView,  Ext.DataView, {
       tb.get('teletext-refresh').enable();
       this.viewer.loadMask.hide();
     }
-	  ,doClick : function(){
-	      var selNode = this.getSelectedNodes();
-  		  if(selNode && selNode.length > 0){
+    ,doClick : function(){
+        var selNode = this.getSelectedNodes();
+        if(selNode && selNode.length > 0){
           var page = this.store.getById(selNode[0].id);
           if(page) {
             var tb = this.ownerCt.getTopToolbar();
@@ -284,12 +284,12 @@ function createTeleTextView(viewer,id,name, channel) {
         items: [
               {    
                    id: 'teletext-first'                  ,iconCls: 'x-tbar-page-first'
-            	    ,tooltip: Ext.PagingToolbar.prototype.firstText
+                  ,tooltip: Ext.PagingToolbar.prototype.firstText
                   ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.moveFirst
               },{
                    id: 'teletext-prev'                  ,iconCls: 'x-tbar-page-prev'
-            	    ,tooltip: Ext.PagingToolbar.prototype.prevText
+                  ,tooltip: Ext.PagingToolbar.prototype.prevText
                   ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.movePrev
               },'-',{
@@ -311,19 +311,19 @@ function createTeleTextView(viewer,id,name, channel) {
               },'-',{
                    id: 'teletext-next'
                   ,iconCls: 'x-tbar-page-next'
-            	    ,tooltip: Ext.PagingToolbar.prototype.nextText
+                  ,tooltip: Ext.PagingToolbar.prototype.nextText
                   ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.moveNext
               },{
                    id: 'teletext-last'
                   ,iconCls: 'x-tbar-page-last'
-            	    ,tooltip: Ext.PagingToolbar.prototype.lastText
+                  ,tooltip: Ext.PagingToolbar.prototype.lastText
                   ,scope: viewer.pageTeleText                  ,disabled:true
                   ,handler: viewer.pageTeleText.moveLast
               },'-',{
                    id: 'teletext-refresh'
                   ,iconCls: 'x-tbar-loading'
-            	    ,tooltip: Ext.PagingToolbar.prototype.refreshText
+                  ,tooltip: Ext.PagingToolbar.prototype.refreshText
                   ,scope: viewer.pageTeleText                  ,disabled:false
                   ,handler: viewer.pageTeleText.retryPage
               },'->'

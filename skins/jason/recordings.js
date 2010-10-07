@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -11,26 +11,26 @@
 minTime = function() {
   return Date.parseDate(Ext.form.TimeField.prototype.initDate, 
                         Ext.form.TimeField.prototype.initDateFormat).clearTime();
-}
+};
 
 SecondsToHMS = function(t) {
   return new Date(minTime().getTime()+(t * 1000)).dateFormat('H:i:s');
-}
+};
 
 /******************************************************************************/
 HMSToSeconds = function(s) {
   var seconds;
   var tt = s.replace(/\..*/g, '');
   var x = tt.split(":");
-  seconds = parseInt(x.pop());
+  seconds = parseInt(x.pop(),10);
   if(x.length > 0) {
-    seconds += ( 60 * parseInt(x.pop()));
+    seconds += ( 60 * parseInt(x.pop(),10));
   }
   if(x.length > 0) {
-    seconds += (3600 * parseInt(x.pop()));
+    seconds += (3600 * parseInt(x.pop(),10));
   }
   return seconds;
-}
+};
 
 /******************************************************************************/
 Ext.xxv.slider = function(config){
@@ -45,7 +45,7 @@ Ext.extend(Ext.xxv.slider, Ext.Component, {
 
     ,initComponent : function(){
         Ext.xxv.slider.superclass.initComponent.call(this);
-	      this.addEvents({'MoveSlider' : true});
+        this.addEvents({'MoveSlider' : true});
     },
 
     setvalue : function(marks, duration){
@@ -61,56 +61,56 @@ Ext.extend(Ext.xxv.slider, Ext.Component, {
       if(this.slider) {
         //this.slider.remove();
         ct.dom.innerHTML = '';
-	      delete this.slider;
-	      this.slider = null;
+        delete this.slider;
+        this.slider = null;
 
         //this.slider.sliders.clear();
         //this.slider.maxValue = this.duration;
       } //else 
-      {
-		    this.slider = new Ext.ux.SlideZone(ct.id, {  
-			     type: 'horizontal'
-			    ,size: ct.getWidth()
+      //{
+        this.slider = new Ext.ux.SlideZone(ct.id, {  
+           type: 'horizontal'
+          ,size: ct.getWidth()
           ,sliderWidth: 16
-			    ,sliderHeight: 24
-			    ,minValue: 0
-			    ,maxValue: this.duration
-			    //,sliderSnap: 1
-			    ,allowSliderCrossing: true
-			    });
-			  this.ts = new Ext.ux.ThumbSlider({
-				   value: 0
-				  ,name: 'cutpoint_thumb'
-				  ,cls: 'x-slide-zone-bottom'
-				  ,allowMove: true
-			    });
-			  this.ts.on('drag',
-				  function() {
-					  var v = parseInt(this.ts.value * 1000);
-					  this.fireEvent('MoveSlider', this, new Date((minTime().getTime())+v), null, null);
-			  },this);
-		  }
+          ,sliderHeight: 24
+          ,minValue: 0
+          ,maxValue: this.duration
+          //,sliderSnap: 1
+          ,allowSliderCrossing: true
+          });
+        this.ts = new Ext.ux.ThumbSlider({
+           value: 0
+          ,name: 'cutpoint_thumb'
+          ,cls: 'x-slide-zone-bottom'
+          ,allowMove: true
+          });
+        this.ts.on('drag',
+          function() {
+            var v = parseInt(this.ts.value * 1000,10);
+            this.fireEvent('MoveSlider', this, new Date((minTime().getTime())+v), null, null);
+        },this);
+      //}
 
       if(this.marks && this.marks.length) {
-			  var cutpoint = this.marks.split(",");
-			  for(var i = 0, len = cutpoint.length; i < len; i += 2){
-				  var first = HMSToSeconds(cutpoint[i]);
-				  var second;
-				  if(i+1 < cutpoint.length) {
-					  second = HMSToSeconds(cutpoint[i+1]);
-				  } else {
-					  second = this.duration;
-				  }
-				  var rs = new Ext.ux.RangeSlider({
-					   value: [first,second]
-					  ,name: 'cutpoint_'+i
-					  ,cls: 'x-slide-zone-top'
-					  ,allowMove: false
-				  });
-				  this.slider.add(rs);	
-			  }
-		  }
-		  this.slider.add(this.ts);
+        var cutpoint = this.marks.split(",");
+        for(var i = 0, len = cutpoint.length; i < len; i += 2){
+          var first = HMSToSeconds(cutpoint[i]);
+          var second;
+          if(i+1 < cutpoint.length) {
+            second = HMSToSeconds(cutpoint[i+1]);
+          } else {
+            second = this.duration;
+          }
+          var rs = new Ext.ux.RangeSlider({
+             value: [first,second]
+            ,name: 'cutpoint_'+i
+            ,cls: 'x-slide-zone-top'
+            ,allowMove: false
+          });
+          this.slider.add(rs);  
+        }
+      }
+      this.slider.add(this.ts);
     }
 });
 
@@ -138,21 +138,21 @@ Ext.extend(Ext.xxv.RecHeader, Ext.Component, {
            '</div>'
           ,{
              compiled: true
-			    	,formatSubtitle : function(t) {
-              if(t && t != '')
-			    		    return '&nbsp;-&nbsp;' + t;
+            ,formatSubtitle : function(t) {
+              if(t && t !== '')
+                  return '&nbsp;-&nbsp;' + t;
               return '&nbsp;';
-			    	}
-			    	,formatChannel : function(t) {
-              if(t && t != '')
-			    		    return '<div class="preview-channel"><b>' + t + '</b>&nbsp;</div>';
+            }
+            ,formatChannel : function(t) {
+              if(t && t !== '')
+                  return '<div class="preview-channel"><b>' + t + '</b>&nbsp;</div>';
               return '';
-			    	}
-			    	,formatCutlength : function(t) {
-              if(t && t != '')
-			    		    return '&nbsp;(' + t + ')';
+            }
+            ,formatCutlength : function(t) {
+              if(t && t !== '')
+                  return '&nbsp;(' + t + ')';
               return '';
-			    	}
+            }
           }
         );
     },
@@ -205,7 +205,7 @@ Ext.DataView.LabelEditor = function(cfg, field){
             selectOnFocus:true
         }), cfg
     );
-}
+};
 
 Ext.extend(Ext.DataView.LabelEditor, Ext.Editor, {
     alignment: "tl-tl",
@@ -379,7 +379,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
     var tpl = new Ext.XTemplate(
     '<tpl for=".">',
       '<div class="thumb-wrap" id="{id}">',
-		    '<div class="thumb">',
+        '<div class="thumb">',
         '<tpl if="isrecording == 0">',
             '<img src="pic/folder.png"<tpl if="group != 0"> ext:qtitle="{shortTitle}" ext:qtip="{ToolTip}"</tpl>/>',
         '</tpl>',
@@ -407,7 +407,7 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
              return name == 'RADIO';
          }
       }
-  	);
+    );
 
     this.filter = new Ext.ux.grid.Search({
          position:'owner'
@@ -488,12 +488,12 @@ Ext.xxv.recordingsDataView = function(viewer, preview, store, config) {
                       return data;
                     }
                     ,listeners: {
-			                  'selectionchange': {fn:this.doClick, scope:this, buffer:100}
- 		                    ,'contextmenu'    : {fn:this.onContextClick, scope:this}
-  			                ,'dblclick'       : {fn:this.doDblclick, scope:this}
-//			                ,'loadexception'  : {fn:this.onLoadException, scope:this}
-   			                ,'beforeselect'   : {fn:function(view){ return view.store.getRange().length > 0; } }
-		                }
+                        'selectionchange': {fn:this.doClick, scope:this, buffer:100}
+                         ,'contextmenu'    : {fn:this.onContextClick, scope:this}
+                        ,'dblclick'       : {fn:this.doDblclick, scope:this}
+//                      ,'loadexception'  : {fn:this.onLoadException, scope:this}
+                         ,'beforeselect'   : {fn:function(view){ return view.store.getRange().length > 0; } }
+                    }
                    ,plugins: [
                       new Ext.DataView.DragSelector()                   //,new Ext.DataView.LabelEditor({dataIndex: 'fulltitle', allow: 'isrecording'})
                      ,this.filter
@@ -539,12 +539,12 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
     ,szFolderTip2     : "There are {0} recordings<br />Have {1} new recordings<br />Total time {2}"
 
     ,onLoadException :  function( scope, o, arg, e) {
-	    new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
     }
     ,onBeforeLoad :  function( scope, params ) {
       if(this.DetailsTransaction) 
         Ext.Ajax.abort(this.DetailsTransaction);
-	    this.preview.clear();
+      this.preview.clear();
     }
     ,onLoad :  function( store, records, opt ) {
 
@@ -570,7 +570,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       // Show details from first recording
       for(var i = 0, len = store.getCount(); i < len; i++){
         var record = store.getAt(i);
-          if(record.data.isrecording != 0) {
+          if(record.data.isrecording !== 0) {
             this.showDetails(record);
             //this.select(record.data.id,false,false);
             break;
@@ -583,15 +583,15 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         //tb.displayMsg += Ext.PagingToolbar.prototype.displayMsg;
        }
        if(store.title) {
-    	  this.ownerCt.SetPanelTitle(store.title);
+        this.ownerCt.SetPanelTitle(store.title);
         store.title = undefined;
        } else {
-    	  this.ownerCt.SetPanelTitle(this.szTitle);
+        this.ownerCt.SetPanelTitle(this.szTitle);
        }
     }
     ,doSelectKeyword : function(tag) {
        if(tag) {
-         delete(this.store.baseParams['data']);
+         delete(this.store.baseParams.data);
          this.store.title = tag;
          this.store.baseParams.cmd = 'rk';
          this.store.baseParams.data = tag;
@@ -599,14 +599,14 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
        }
     }
     ,doDblclick : function() {
-	      var selNode = this.getSelectedNodes();
-  		  if(selNode && selNode.length > 0){
+        var selNode = this.getSelectedNodes();
+        if(selNode && selNode.length > 0){
           var firstNode = selNode[0];
           var record = this.store.getById(firstNode.id);
           if(record) {
-            if(record.data.isrecording == 0) {
-                var data = this.store.baseParams['data'];
-                delete(this.store.baseParams['data']);
+            if(record.data.isrecording === 0) {
+                var data = this.store.baseParams.data;
+                delete(this.store.baseParams.data);
                 this.store.baseParams.cmd = 'rl';
                 if(record.id == 'up') {
                   if(this.filter.field.isValid()) {
@@ -631,17 +631,17 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         }
     },
 
-	  doClick : function(){
-	      var selNode = this.getSelectedNodes();
-  		  if(selNode && selNode.length > 0){
+    doClick : function(){
+        var selNode = this.getSelectedNodes();
+        if(selNode && selNode.length > 0){
           var record = this.store.getById(selNode[0].id);
           this.showDetails(record);
         }
     },
-	  showDetails : function(record){
+    showDetails : function(record){
         this.preview.content(record,this.filter.getValue());
         this.DetailsItem(record);
-	  }, 
+    }, 
 /******************************************************************************/
     onDetailsSuccess : function( response,options ) 
     { 
@@ -659,8 +659,8 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 
               this.store.data.items[iSel].data.channel  = o.data.Channel;
               this.store.data.items[iSel].data.marks    = o.data.Marks;
-              this.store.data.items[iSel].data.lifetime = parseInt(o.data.lifetime);
-              this.store.data.items[iSel].data.priority = parseInt(o.data.priority);
+              this.store.data.items[iSel].data.lifetime = parseInt(o.data.lifetime,10);
+              this.store.data.items[iSel].data.priority = parseInt(o.data.priority,10);
               this.store.data.items[iSel].data.keywords = o.data.keywords;
 
               var record = this.store.getById(RecordingsID[j]);
@@ -693,8 +693,8 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(record && record.data) {
         toDetails = record.data.id;
       } else {
-	      var selNode = this.getSelectedNodes();
-		    if(selNode && selNode.length > 0){
+        var selNode = this.getSelectedNodes();
+        if(selNode && selNode.length > 0){
           for(var i = 0, len = selNode.length; i < len; i++){
             if(selNode[i].id == 'up')
               continue;
@@ -702,7 +702,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
               toDetails += ',';
             }
             var r = this.store.getById(selNode[i].id);
-            if(r.data.isrecording == 0) {
+            if(!r.data.isrecording) {
               //toDetails += 'all:';
               continue;
             }
@@ -799,11 +799,11 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
               var enable = XXV.help.cmdAllowed(f.itemId);
               if(enable) {
                 switch(f.itemId) {
-                  case 're':  enable = (record.data.isrecording == 0) ? false : true; break;
-                  case 'rcu': enable = (record.data.isrecording == 0) ? false : true; break;
-                  case 'rc':  enable = (record.data.isrecording == 0) ? false : true; break;
-                  case 'rpv': enable = (record.data.isrecording == 0) ? false : true; break;
-                  case 'pre': enable = (record.data.isrecording == 0) ? false : true; break;
+                  case 're':  enable = (record.data.isrecording) ? true : false; break;
+                  case 'rcu': enable = (record.data.isrecording) ? true : false; break;
+                  case 'rc':  enable = (record.data.isrecording) ? true : false; break;
+                  case 'rpv': enable = (record.data.isrecording) ? true : false; break;
+                  case 'pre': enable = (record.data.isrecording) ? true : false; break;
                 }
                 if(enable && node.id != 'up') {
                   f.enable();
@@ -863,8 +863,8 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(record && record.data) {
         toCut = record.data.id;
       } else {
-	      var selNode = this.getSelectedNodes();
-		    if(selNode && selNode.length > 0){
+        var selNode = this.getSelectedNodes();
+        if(selNode && selNode.length > 0){
           for(var i = 0, len = selNode.length; i < len; i++){
             if(selNode[i].id == 'up')
               continue;
@@ -872,7 +872,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
               toCut += ',';
             }
             var r = this.store.getById(selNode[i].id);
-            if(r.data.isrecording == 0) {
+            if(!r.data.isrecording) {
               //toCut += 'all:';
               continue;
             }
@@ -918,14 +918,14 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
             if(iSel >= 0 && iSel < this.store.getCount()) {
               selRecord = this.store.getAt(iSel);
             }
-            if(!selRecord || selRecord.data.isrecording == 0) {
+            if(!selRecord || !selRecord.data.isrecording) {
               for(iSel++;iSel < this.store.getCount();iSel++) {
                 selRecord = this.store.getAt(iSel);
-                if(selRecord.data.isrecording != 0)
+                if(selRecord.data.isrecording)
                   break;
               }
             }
-            if(selRecord && selRecord.data.isrecording != 0) {
+            if(selRecord && selRecord.data.isrecording) {
                 this.select(selRecord.data.id,false,false);
             }
 
@@ -951,8 +951,8 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
       if(record && record.data) {
         todelete = record.data.id;
       } else {
-	      var selNode = this.getSelectedNodes();
-		    if(selNode && selNode.length > 0){
+        var selNode = this.getSelectedNodes();
+        if(selNode && selNode.length > 0){
           for(var i = 0, len = selNode.length; i < len; i++){
             if(selNode[i].id == 'up')
               continue;
@@ -960,7 +960,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
               todelete += ',';
             }
             var r = this.store.getById(selNode[i].id);
-            if(r.data.isrecording == 0) {
+            if(!r.data.isrecording) {
               todelete += 'all:';
             }
             todelete += r.data.id;
@@ -1001,7 +1001,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
 
   onPlay : function( record, begin ) {
       if(this.PlayTransaction) Ext.Ajax.abort(this.PlayTransaction);
-      if(record.data.isrecording != 0) {
+      if(record.data.isrecording) {
         this.PlayTransaction = Ext.Ajax.request({
             url: XXV.help.cmdAJAX('rpv',{ data: record.data.id, '__start':begin, '__vdr': XXV.menu.host })
            ,success: this.onPlaySuccess
@@ -1066,7 +1066,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
              && o.success) {
 
             new Ext.xxv.MessageBox().msgSuccess(this.szUpgradeSuccess, o.data);
-        		this.reload();
+            this.reload();
 
         } else {
             var msg = '';
@@ -1082,27 +1082,27 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
         new Ext.xxv.MessageBox().msgFailure(this.szUpgradeFailure, response.statusText);
     }
     ,UpgradeItem : function() {
-		  Ext.Ajax.request({
-		    scope: this
-		   ,url: XXV.help.cmdAJAX('ru')
-		   ,timeout: 120000
-		   ,success: this.onUpgradeSuccess
-		   ,failure: this.onUpgradeFailure
-		  });
+      Ext.Ajax.request({
+        scope: this
+       ,url: XXV.help.cmdAJAX('ru')
+       ,timeout: 120000
+       ,success: this.onUpgradeSuccess
+       ,failure: this.onUpgradeFailure
+      });
 
       Ext.MessageBox.show({
            title: this.szUpgradeWait
            ,msg: this.szUpgrade
            ,width:240
            ,wait:true
-		       ,waitConfig:{
- 			    	 interval:200
-			    	,duration:119000
-			    	,increment:15
-			    	,fn:function() {
+           ,waitConfig:{
+              interval:200
+            ,duration:119000
+            ,increment:15
+            ,fn:function() {
               Ext.MessageBox.hide();
-			    	}
-		       }
+            }
+           }
        });
     }
     ,reload : function() {
@@ -1173,7 +1173,7 @@ function createRecordingsView(viewer,id) {
              },{ //content
                id:          'preview-recordings-frame'
               ,cls:         'preview-body'
-	            ,xtype:       'box'
+              ,xtype:       'box'
               ,flex:        3
              },{ // keywords
                  xtype:'container'
@@ -1245,7 +1245,7 @@ function createRecordingsView(viewer,id) {
         }
         , timefield
         ]
-	      ,content : function(record,lookup){
+        ,content : function(record,lookup){
 
             if(record && this.record != record
                 && record.data.isrecording 
@@ -1279,7 +1279,7 @@ function createRecordingsView(viewer,id) {
                     highlightText(content,lookup,'x-highlight',1);
                   this.doLayout();
                 }
-	      } 
+        } 
         ,update : function(record,lookup) {
             if(record
                 && record.data.isrecording 
@@ -1417,21 +1417,21 @@ function createRecordingsView(viewer,id) {
               ,hidden:XXV.RightPreview
             }]
       ,tbar:new Ext.PagingToolbar({
-        	   pageSize: viewer.gridRecordings.store.autoLoad.params.limit
-        	  ,store: viewer.gridRecordings.store
-		        ,displayInfo: true
+             pageSize: viewer.gridRecordings.store.autoLoad.params.limit
+            ,store: viewer.gridRecordings.store
+            ,displayInfo: true
             ,items: [
               {
                    id:'ru'
                   ,iconCls: 'upgrade-icon'
-            	    ,tooltip: viewer.gridRecordings.szUpgrade
+                  ,tooltip: viewer.gridRecordings.szUpgrade
                   ,scope: viewer.gridRecordings
                   ,disabled:false
                   ,handler: function(){ this.UpgradeItem(); }
               },{
                    id:'rru'
                   ,iconCls: 'recover-icon'
-            	    ,tooltip: viewer.gridRecordings.szRecover
+                  ,tooltip: viewer.gridRecordings.szRecover
                   ,scope: viewer.gridRecordings
                   ,disabled:false
                   ,handler: function(){ this.Recover(); }

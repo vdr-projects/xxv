@@ -14,7 +14,7 @@ Ext.ux.TabCloseMenu = function(){
     this.init = function(tp){
         tabs = tp;
         tabs.on('contextmenu', onContextMenu);
-    }
+    };
 
     function onContextMenu(ts, item, e){
         if(!menu){ // create context menu on first right click

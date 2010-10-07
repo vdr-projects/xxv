@@ -435,7 +435,7 @@ Ext.extend(Ext.ux.DDView, Ext.DataView, {
             if (dup && (dd != this.dragZone)) {
                 if(!this.allowDup && !this.allowTrash){
                     Ext.fly(this.getNode(this.store.indexOf(dup))).frame("red", 1);
-                    return true
+                    return true;
                 }
                 var x=new Ext.data.Record();
                 r.id=x.id;

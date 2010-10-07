@@ -45,7 +45,7 @@ Ext.xxv.AudioWindow = function(item) {
     });
     this.on('beforeshow', this.onBeforeShow, this);
     Ext.xxv.AudioWindow.superclass.show.apply(this, arguments);
-}
+};
 
 Ext.extend(Ext.xxv.AudioWindow, Ext.Window, {
      szTitle: "Music playback"

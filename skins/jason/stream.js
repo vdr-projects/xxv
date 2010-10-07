@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -72,7 +72,7 @@ Ext.xxv.StreamWindow = function(item) {
     Ext.xxv.StreamWindow.superclass.show.apply(this, arguments);
 
     this.on('resize', this.onresize, this);
-}
+};
 
 Ext.extend(Ext.xxv.StreamWindow, Ext.Window, {
 
@@ -98,7 +98,11 @@ Ext.extend(Ext.xxv.StreamWindow, Ext.Window, {
     }
     ,hide : function(){
         var video = Ext.getCmp('video');
-        if(video && video.body) video.body.update('');
+        if(video) {
+          video.destroy();
+          if(video.body)
+            video.body.update('');
+        }
         Ext.xxv.StreamWindow.superclass.hide.apply(this, arguments);
     }
     ,show : function(item){

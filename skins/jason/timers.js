@@ -52,7 +52,7 @@ Ext.xxv.timerGrid = function(viewer) {
     this.store.setDefaultSort('day', "ASC");
 
     // create the channels store
-    var channels = new Ext.xxv.storeChannels;
+    var channels = new Ext.xxv.storeChannels();
 
     // custom columns as plugins
     this.activeColumn = new Ext.grid.CheckColumn({
@@ -155,7 +155,7 @@ Ext.xxv.timerGrid = function(viewer) {
          region: 'center'
         ,id: 'timer-view-grid'
         ,loadMask: false
-        ,plugins:[this.activeColumn,this.vpsColumn,this.ChannelsCombo]
+        ,plugins:[this.activeColumn,this.vpsColumn,this.ChannelsCombo,this.filter]
         ,clicksToEdit:1
         ,autoExpandColumn:'expand'
         ,cm: cm
@@ -182,7 +182,6 @@ Ext.xxv.timerGrid = function(viewer) {
                   ,handler: function(){ this.EditItem(null); }
               }
               ]})
-        ,plugins:[this.filter]
     });
 
     this.store.on({
@@ -283,7 +282,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
                     ,scope:this
                     ,disabled: true
                     ,handler: function(){ this.viewer.searchTab(this.ctxRecord);}
-                   },
+                   }
                 ]
             });
             this.menu.on('hide', this.onContextHide, this);
@@ -300,7 +299,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
         var hasAutotimer = (this.ctxRecord.data.autotimerid <= 0) ? 0 : 1;
         var items = this.menu.items;
         if(items) { items.eachKey(function(key, f) {
-                      if(f.itemId == 'ae') { if(hasAutotimer) f.show(); else f.hide(); };
+                      if(f.itemId == 'ae') { if(hasAutotimer) f.show(); else f.hide(); }
                       if(XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
                       },items); 
@@ -400,14 +399,14 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       this.viewer.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
-      var sel = gsm.getSelections()
+      var sel = gsm.getSelections();
       if(sel.length <= 0) {
        gsm.selectRecords([record]);
        sel.push(record);
       }
       var todo = "";
       for(var i = 0, len = sel.length; i < len; i++){
-        if(i != 0)
+        if(i)
           todo += ',';
           todo += sel[i].data.id;
       }
@@ -463,14 +462,14 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       this.viewer.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
-      var sel = gsm.getSelections()
+      var sel = gsm.getSelections();
       if(sel.length <= 0) {
        gsm.selectRecords([record]);
        sel.push(record);
       }
       var todel = "";
       for(var i = 0, len = sel.length; i < len; i++){
-        if(i != 0)
+        if(i)
           todel += ',';
         todel += sel[i].data.id;
       }
@@ -499,7 +498,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       this.stopEditing();
       var item;
 
-      if(record != null) {
+      if(record) {
         var gsmTimer = this.getSelectionModel();
         gsmTimer.selectRecords([record]);
 
@@ -534,7 +533,7 @@ Ext.extend(Ext.xxv.timerGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       this.stopEditing();
       var item;
 
-      if(record != null) {
+      if(record) {
         var gsmTimer = this.getSelectionModel();
         gsmTimer.selectRecords([record]);
 
@@ -613,7 +612,7 @@ Ext.extend(Ext.xxv.timerPreview, Ext.Panel, {
     var items = this.topToolbar.items;
     if(items) { 
         items.eachKey(function(key, f) {
-                        if(f.id == 'ae') { if(hasAutotimer) f.show(); else f.hide(); };
+                        if(f.id == 'ae') { if(hasAutotimer) f.show(); else f.hide(); }
                         if(XXV.help.cmdAllowed(key)) f.enable();
                       },items); 
       }

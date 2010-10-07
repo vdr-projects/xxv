@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -124,7 +124,7 @@ Ext.extend(Ext.xxv.TagClouds, Ext.Component, {
     initComponent : function(){
         Ext.xxv.TagClouds.superclass.initComponent.call(this);
 
-	      this.addEvents({'selectKeyword' : true});
+        this.addEvents({'selectKeyword' : true});
     },
 
     setvalue : function(keywords){
@@ -133,8 +133,8 @@ Ext.extend(Ext.xxv.TagClouds, Ext.Component, {
 
       if(this.cloudlist) {
         this.cloudlist.remove();
-	      delete this.cloudlist;
-	      this.cloudlist = null;
+        delete this.cloudlist;
+        this.cloudlist = null;
       }
    },
 
@@ -142,31 +142,31 @@ Ext.extend(Ext.xxv.TagClouds, Ext.Component, {
 
       if(!this.cloudlist && this.keywords && this.keywords.length) {
         this.cloudlist = ct.createChild({tag: "ol", cls: "x-cloud-list"});
-    		for(var i = 0, len = this.keywords.length; i < len; i++){
-    			var child = this.cloudlist.createChild({
+        for(var i = 0, len = this.keywords.length; i < len; i++){
+          var child = this.cloudlist.createChild({
               tag: "li", 
               cls: "x-cloud-item "+this.getWeight(this.keywords[i][1]),
               html: '<a href="#">'+this.keywords[i][0]+'</a>'
               });
-	
-	        child.on('click', this.onSelectKeyWord, this);
+  
+          child.on('click', this.onSelectKeyWord, this);
         }
       }
     }
     /**************************************************************************/
-	  ,getWeight : function(weight){
+    ,getWeight : function(weight){
       var nmax = 100;
       var nmin = 0;
 
-      var styles = new Array('smallest','smaller','small','medium','large','larger','largest');
+      var styles = new Array("smallest","smaller","small","medium","large","larger","largest");
       var value = weight / (nmax - nmin) * 6;
-		  if(value >= 6.0)
-			  return styles[6];
-		  if(value <= 0.0)
-			  return styles[0];
+      if(value >= 6.0)
+        return styles[6];
+      if(value <= 0.0)
+        return styles[0];
 
-		  return styles[Math.round(value)];
-	  }
+      return styles[Math.round(value)];
+    }
     /**************************************************************************/
     ,onSelectKeyWord : function(e, t){
     

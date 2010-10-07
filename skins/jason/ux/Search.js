@@ -205,7 +205,7 @@ Ext.extend(Ext.ux.grid.Search, Ext.util.Observable, {
      * get value of search field
      */
     ,getValue:function() {
-        return this.field.isValid() ? this.field.getValue() : null
+        return this.field.isValid() ? this.field.getValue() : null;
     } // eo function disable
     // }}}
 

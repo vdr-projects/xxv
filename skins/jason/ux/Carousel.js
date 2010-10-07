@@ -70,7 +70,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
                 duration: this.chunkedScroll ? this.scrollDuration : this.scrollDuration * 2,
                 callback: this.updateScrollButtons,
                 scope: this
-            }
+            };
         } else {
             this.scrollAnimationConfig = this.animScroll ? {
                 duration: this.scrollDuration,
@@ -80,10 +80,10 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
         }
         
 //        if (Ext.isIE){
-//	        if (!this.defaults) { this.defaults={} }
-//	        if (!this.defaults.bodyStyle) { this.defaults.bodyStyle={} }
-//	        this.defaults.bodyStyle.position='static';
-//	    }
+//          if (!this.defaults) { this.defaults={} }
+//          if (!this.defaults.bodyStyle) { this.defaults.bodyStyle={} }
+//          this.defaults.bodyStyle.position='static';
+//      }
 
     },
 
@@ -91,10 +91,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
      * @cfg {Number} marginScrollButtons This is to set aside space for the left and right navigation buttons.
      */
 
-	marginScrollButtons : 10,
-    /**
-     * @cfg scrollElementTag {String} The tag name of the carousel item container. If each item's main Element
-     * is an &lt;LI> then this could be specified as '&lt;UL>. Defaults to '&lt;DIV>'.
+  marginScrollButtons : 10,
     /**
      * @cfg {Number} scrollIncrement The number of pixels to scroll each time a tab scroll button is pressed (defaults
      * to 10, or if {@link #Ext.ux.layout.Carousel-resizeTabs} = true, the calculated tab width).
@@ -125,7 +122,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
     /**
      * @cfg {Boolean} pageScroll Scroll full pages
      */
-	pagedScroll: false, 
+  pagedScroll: false, 
 
     /**
      * @cfg {Boolean} loopCount This does an intro page loop this many times after render
@@ -147,24 +144,24 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
 
 
     loopImages: function(){
-    	    	
-	    if (this.loopCount <= 0){ return }
-	    
+            
+      if (this.loopCount <= 0){ return; }
+      
         var s = this.getScrollTo(1);
         if (s) {
             s = Math.min(this.getMaxScrollPos(), s);
             if(s != this.getScrollPos()) {
                 this.scrollTo(s);
             }else{
-            	return; /*it should not get here*/
+              return; /*it should not get here*/
             }
         }else{
             this.scrollTo(0);
-    		this.loopCount--;
-	    	if (this.loopCount <= 0){ return }
+        this.loopCount--;
+        if (this.loopCount <= 0){ return; }
         }
-    	    	
-    	this.loopImages.defer(this.loopPictureDelay * 1000, this);
+            
+      this.loopImages.defer(this.loopPictureDelay * 1000, this);
     },
 
 
@@ -226,10 +223,10 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
         this.updateScrollButtons.defer(10, this);
         
         
-    	if (this.loopCount > 0 && (this.chunkedScroll || this.pagedScroll) && !this.startedLoop){ 
-    		this.startedLoop=true; /*this var is important since onLayout can be called more than once*/
-	    	this.loopImages.defer(this.loopPictureDelay * 1000, this);
-    	}
+      if (this.loopCount > 0 && (this.chunkedScroll || this.pagedScroll) && !this.startedLoop){ 
+        this.startedLoop=true; /*this var is important since onLayout can be called more than once*/
+        this.loopImages.defer(this.loopPictureDelay * 1000, this);
+      }
 
     },
 
@@ -265,7 +262,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
         }
 
         if(!this.strip) return;
-    		this.setItemsEdges();
+        this.setItemsEdges();
 
 //      If width increase has introduced spare space to the right, close it up.
         var r = this.getMaxScrollPos();
@@ -276,7 +273,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
 
     },
 
-	setItemsEdges:function(){
+  setItemsEdges:function(){
 //      Register strip-relative left/right edges for easy chunked scrolling
         var stripLeft = this.strip.getLeft();
         var t = this.container.items.items;
@@ -315,8 +312,8 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
 
 //      Work out average item width
         this.itemWidth = t[lt - 1].edges.rightAnchor / lt;
-		
-	},
+    
+  },
     getNextOnLeft: function() {
         var t = this.container.items.items;
         if (t.length) {
@@ -399,7 +396,7 @@ Ext.ux.layout.Carousel = Ext.extend(Ext.layout.ContainerLayout, {
         var t = this.container.items.items;
 
         if (t.length && ! t[0].edges){
-        	this.setItemsEdges();
+          this.setItemsEdges();
         }
 
         return t.length ? t[t.length - 1].edges.rightAnchor : 0;

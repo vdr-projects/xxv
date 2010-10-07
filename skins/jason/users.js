@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -185,7 +185,7 @@ Ext.extend(Ext.xxv.usersGrid,  Ext.grid.EditorGridPanel, {
             new Ext.xxv.MessageBox().msgSuccess(this.szDeleteSuccess, o.data);
 
             var gsm = this.getSelectionModel();
-      	    var sel = options.params.data.split(",");
+            var sel = options.params.data.split(",");
             sel.reverse();
             for(var i = 0, len = sel.length; i < len; i++){
               if(gsm.isIdSelected(sel[i])) {
@@ -218,16 +218,16 @@ Ext.extend(Ext.xxv.usersGrid,  Ext.grid.EditorGridPanel, {
       this.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
-      var sel = gsm.getSelections()
+      var sel = gsm.getSelections();
       if(sel.length <= 0) {
        gsm.selectRecords([record]);
        sel.push(record);
       }
       var todel = "";
       for(var i = 0, len = sel.length; i < len; i++){
-        if(i != 0)
-   	      todel += ',';
-	      todel += sel[i].data.id;
+        if(i)
+           todel += ',';
+        todel += sel[i].data.id;
       }
       Ext.Ajax.request({
           scope: this
@@ -244,7 +244,7 @@ Ext.extend(Ext.xxv.usersGrid,  Ext.grid.EditorGridPanel, {
       this.stopEditing();
       var item;
 
-      if(record != null) {
+      if(record) {
         var gsmTimer = this.getSelectionModel();
         gsmTimer.selectRecords([record]);
 

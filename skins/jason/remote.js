@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -105,7 +105,7 @@ Ext.xxv.RemoteWindow = function() {
     });
 
     Ext.xxv.RemoteWindow.superclass.show.apply(this, arguments);
-}
+};
 
 Ext.extend(Ext.xxv.RemoteWindow, Ext.Window, {
 
@@ -131,9 +131,7 @@ Ext.extend(Ext.xxv.RemoteWindow, Ext.Window, {
       if(!o || !o.data || typeof(o.data) != 'string') {
         throw {message: "Ajax.read: Json message not found"};
       }
-      if(o.success) {
-          //new Ext.xxv.MessageBox().msgSuccess(this.szRemoteSuccess, o.data);
-      }else {
+      if(!o.success) {
           new Ext.xxv.MessageBox().msgFailure(this.szRemoteFailure, o.data);
       }
   }
@@ -159,4 +157,5 @@ Ext.xxv.RemoteWindowOpen = function(){
     } else {
       viewer.Remote.show();
     }
-}
+};
+

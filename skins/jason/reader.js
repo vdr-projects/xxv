@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -15,7 +15,7 @@ Ext.extend(Ext.xxv.jsonReader, Ext.data.DataReader, {
 
     read : function(r){
         if(r.status != 200) {
-            throw {message: "XXVReader.read: " . r.statusText };
+            throw {message: "XXVReader.read: " + r.statusText };
         }
         var o = eval('('+r.responseText+')');
         if(!o || !o.data || typeof(o.data) != 'object') {

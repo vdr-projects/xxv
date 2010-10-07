@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2009, anbr
+ * Copyright(c) 2009-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -15,7 +15,7 @@ Ext.LoginPanel = function() {
         ,frame:true
         ,title:this.szTitle
         ,defaultType:'textfield'
-	      ,monitorValid:true
+        ,monitorValid:true
         ,items:[ {
                xtype:'box'
               ,anchor:''
@@ -46,7 +46,7 @@ Ext.LoginPanel = function() {
                 ,handler:this.onSubmit
                 }]
     });
-}
+};
 
 Ext.extend(Ext.LoginPanel, Ext.FormPanel, {
      szTitle:   'Please login'
@@ -130,9 +130,9 @@ Ext.onReady(function(){
       plain: true,
       border: false,
       items: [new Ext.LoginPanel()]
-  	});
+    });
 
-	win.show();
+  win.show();
 
   setTimeout(function(){
         var l = Ext.get('loading'); 

@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2010, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -287,7 +287,7 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
     }
     ,reload : function(topic, value) {
         var f = this.filter.field.getValue();
-        if(f && f != '') {
+        if(f && f !== '') {
           this.filter.field.setValue('');
         }
         this.store.baseParams = {
@@ -312,7 +312,7 @@ Ext.extend(Ext.xxv.musicGrid,  Ext.grid.GridPanel, { // Ext.grid.EditorGridPanel
       //this.loadMask.show(); 
 
       var gsm = this.getSelectionModel();
-      var sel = gsm.getSelections()
+      var sel = gsm.getSelections();
       if(sel.length <= 0) {
        gsm.selectRecords([record]);
        sel.push(record);

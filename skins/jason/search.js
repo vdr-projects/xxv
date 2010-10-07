@@ -216,14 +216,14 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
     }
     ,Record : function( record ) {
       var gsm = this.getSelectionModel();
-      var sel = gsm.getSelections()
+      var sel = gsm.getSelections();
       if(sel.length <= 0) {
        gsm.selectRecords([record]);
        sel.push(record);
       }
       var ids = "";
       for(var i = 0, len = sel.length; i < len; i++){
-        if(i != 0)
+        if(i)
           ids += ',';
         ids += sel[i].data.id;
       }
@@ -249,16 +249,16 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
     }
     ,DeleteTimer : function(record) {
         var gsm = this.getSelectionModel();
-        var sel = gsm.getSelections()
+        var sel = gsm.getSelections();
         if(sel.length <= 0) {
          gsm.selectRecords([record]);
          sel.push(record);
         }
         var items = "";
         for(var i = 0, len = sel.length; i < len; i++){
-          if(i != 0)
+          if(i)
             items += ',';
-          if(sel[i].data.timerid == 0) {
+          if(!sel[i].data.timerid) {
             continue;
           }
           items += sel[i].data.timerid;
@@ -320,7 +320,6 @@ Ext.extend(Ext.xxv.searchPreview, Ext.Panel, {
     if(lookup)
       highlightText(this.body.dom,lookup,'x-highlight',1);
     // Enable all toolbar buttons
-    var items = this.topToolbar.items;
     var items = this.topToolbar.items;
     if(items) { 
         items.eachKey(function(key, f) {
