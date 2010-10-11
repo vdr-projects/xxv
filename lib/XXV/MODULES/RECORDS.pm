@@ -1909,14 +1909,19 @@ sub play {
     }
 
     my $cmd = sprintf('PLAY %d %s', $rec->{id}, $start);
-    if($self->{svdrp}->scommand($console, $config, $cmd, $vdr)) {
 
-      $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{hash}), wait => 1})
-          if(ref $console and $console->typ eq 'HTML');
+    # call playback command via svdrp
+    my ($erg,$error) = $self->{svdrp}->command($cmd,$vdr);
 
-      return 1;
-    }
-    return 0;
+    $console->msg($erg, $error)
+        if(ref $console);
+    return undef if($error);
+
+    $console->redirect({url => sprintf('?cmd=rdisplay&data=%s',$rec->{hash}), wait => 1})
+      if(ref $console and $console->typ eq 'HTML');
+
+    my ($ret) = $erg->[1] =~ /^\d{3}\s*(.+)/s;
+    return $ret;
 }
 
 # ------------------

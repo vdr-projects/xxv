@@ -669,8 +669,8 @@ sub search {
 
       # Channelsearch
       if($params->{channel}) {
-          $search->{query} .= ' AND c.hash = ?';
-          push(@{$search->{term}}, $cmod->ToHash($params->{channel}));
+          $search->{query} .= ' AND c.id = ?';
+          push(@{$search->{term}}, $cmod->ToCID($params->{channel}));
       }
 
       # Videoformat search
@@ -819,8 +819,8 @@ sub program {
       $search->{query} .= ' AND ';
     }
 
-    $search->{query} .= ' c.hash = ?';
-    $cid = $cmod->ToHash($cid);
+    $search->{query} .= ' c.id = ?';
+    $cid = $cmod->ToCID($cid);
     push(@{$search->{term}},$cid);
 
     my %f = (
@@ -870,6 +870,8 @@ where
     AND e.vid = c.vid
     AND ( $search->{query} )
     AND ((UNIX_TIMESTAMP(e.starttime) + e.duration) > UNIX_TIMESTAMP())
+group by
+    e.eventid
 order by
     starttime
 |;
@@ -1712,8 +1714,13 @@ sub suggest {
   
     if($search) {
         my $ch = '';
+        my $cid;
         if($params->{channel}) {
-            $ch = " AND c.pos = ? ";
+            my $cmod = main::getModule('CHANNELS');
+            $cid = $cmod->ToCID($params->{channel});
+            return con_err($console, sprintf(gettext("Channel '%s' does not exist in the database!"),$params->{channel}))
+              unless($cid);
+            $ch = " AND c.id = ? ";
         }
 
         my $sql = qq|
@@ -1747,8 +1754,8 @@ ORDER BY
 LIMIT 25
         |;
         my $sth = $self->{dbh}->prepare($sql);
-        if($params->{channel}) {
-            $sth->execute('%'.$search.'%',$params->{channel},'%'.$search.'%',$params->{channel}) 
+        if($cid) {
+            $sth->execute('%'.$search.'%',$cid,'%'.$search.'%',$cid) 
                 or return error "Couldn't execute query: $sth->errstr.";
         } else {
             $sth->execute('%'.$search.'%','%'.$search.'%')

@@ -453,7 +453,7 @@ sub msg {
     if(ref $data eq 'ARRAY') {
       $msg = join("\r\n",@{$data});
     } else {
-      $msg = $data;
+      $msg = $data || $err;
     }
 
     $self->{output}->{success} = $err ? \0 : \1;
