@@ -2588,7 +2588,7 @@ WHERE
 
         if($dropEPGEntry) { # Delete EpgOld Entrys
             my $sth = $self->{dbh}->prepare('DELETE FROM OLDEPG WHERE eventid = ?');
-            $sth->execute($rec->{EventId})
+            $sth->execute($rec->{eventid})
                 or return con_err($console,sprintf("Couldn't execute query: %s.",$sth->errstr));
         }
 
