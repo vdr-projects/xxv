@@ -1,9 +1,22 @@
 #
-# Makefile
+# jason - Javascript based skin for xxv
+# Copyright(c) 2008-2010, anbr
+#
+# http://xxv.berlios.de/
 #
 # $Id$
+#
 
-SKIN = xstyle
+include files.lst
+
+#all.js: $(FILES)
+#	cat $(FILES) > all.tmp
+
+#alljs: all.js
+#	java -jar ./temp/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar --line-break 80 --nomunge --type js all.tmp > all.js
+
+
+SKIN = $(shell basename `pwd`)
 VERSION = 1.6.1
 
 ### The name of the distribution archive:
@@ -16,27 +29,24 @@ TMPDIR = /tmp
 
 all: dist
 
-dist: clean preparepkg copyfollow removedevel postpkg
+dist: clean preparepkg copy removedevel postpkg
 	@tar czfh ../$(PACKAGE).tgz --exclude=.svn -C $(TMPDIR) $(ARCHIVE) 
 	@echo Distribution package created as $(PACKAGE).tgz
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
 
 preparepkg:
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
-	@mkdir -p $(TMPDIR)/$(ARCHIVE)
 
-copyfollow:
-	@cp -LpR * $(TMPDIR)/$(ARCHIVE)
+copy:
+	@svn export . $(TMPDIR)/$(ARCHIVE)
 
-copylinks:
-	@cp -a * $(TMPDIR)/$(ARCHIVE)
+full: clean preparepkg copy removedevel postpkg
 
-full: clean preparepkg copylinks removedevel postpkg
-
-devel: clean preparepkg copylinks postpkg 
+devel: clean preparepkg copy postpkg 
 
 removedevel:
 	@-rm -f $(TMPDIR)/$(ARCHIVE)/Makefile
+	@-rm -rf $(TMPDIR)/$(ARCHIVE)/artwork
 
 postpkg:
 	@find $(TMPDIR)/$(ARCHIVE) -type d -exec chmod 755 {} \;
@@ -58,4 +68,5 @@ backup: clean
 
 clean:
 	@-find -name "*~" -print -exec rm -f {} \;
+	@-rm -f *~ all.tmp all.js
 	@-rm -f $(PACKAGE).tgz
