@@ -1,3 +1,31 @@
+1.6.1 - Stable release (bugfixed)
+--------------------------------------------------------------------------------
+
+* improve multi recorder environment (some moduls)
+- don't show epg-events twice
+- group channel list by recorder
+- order events by recorder
+- REMOTE/STREAM : allow select recorder (switch/livestream)
+- EPG: search data by channel, instead of recorder
+
+* CONFIG: show moduls description on editing preferences
+* RECORDS: refactoring status handler
+           show error message if command 'play' failed
+           after edit description - update datebase entry
+* SHARE: change order of topten view
+         show level on any skins
+         add paging support
+* update localisation detection(Bug #17082)
+* refactoring createTmpDir
+* html/jason (skin):
+- fix misspelled javascript syntax (Bug #017539)
+- improve select time at 'now'
+- keep selection if timer programmed
+- remote control - allow select recorder
+- remote fix wrong keycodes for adjust volume
+- update timer view if autotimer upgraded
+- allow download music files (save button on player window)
+
 1.6 - Stable release
 --------------------------------------------------------------------------------
 
