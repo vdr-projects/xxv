@@ -41,8 +41,9 @@ XXV::MODULES::<?% Name %?>
 =over 4
 
 <?% FOREACH prefname = Preferences.keys.sort %?>
+<?% NEXT IF Preferences.$prefname.type == 'hidden' %?>
 
-=item <?% loop.count %?> <?% prefname %?>
+=item * <?% prefname %?>
 
 <?% Preferences.$prefname.description %?>
 
@@ -65,13 +66,12 @@ XXV::MODULES::<?% Name %?>
 =over 4
 
 <?% FOREACH cmdname = Commands.keys.sort %?>
+<?% NEXT IF Commands.$cmdname.hidden == 'yes' %?>
 
-<?% IF Commands.$cmdname.hidden != 'yes' %?>
 =item *  <?% cmdname %?> (<?% Commands.$cmdname.short %?>)
 
 <?% Commands.$cmdname.description %?>
 
-<?% END %?>
 <?% END %?>
 
 =back
