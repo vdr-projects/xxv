@@ -132,6 +132,10 @@ sub _init {
         return 0;
     }
 
+    # read default port from /etc/services
+    $self->{defaultport} = getservbyname('svdrp', 'tcp');
+    $self->{defaultport} = 2001 unless($self->{defaultport});
+
     # Look for table or create this table
     my $erg = $self->{dbh}->do(qq|
       CREATE TABLE IF NOT EXISTS RECORDER (
@@ -139,7 +143,7 @@ sub _init {
           active enum('y', 'n') default 'y',
           master enum('y', 'n') default 'n',
           host varchar(100) NOT NULL default 'localhost',
-          port smallint unsigned default 2001,
+          port smallint unsigned default $self->{defaultport},
           cards varchar(100) default '',
           videodirectory text default '',
           PRIMARY KEY (id)
@@ -153,7 +157,7 @@ sub _init {
             active => 'y',
             master => 'y',
             host => 'localhost',
-            port => 2001,
+            port => $self->{defaultport},
             cards => '',
             videodirectory => '/var/lib/video'
         });
@@ -256,7 +260,7 @@ sub edit {
             typ     => 'integer',
             msg   => gettext("Used Port of SVDRP"),
             req   => gettext('This is required!'),
-            def   => $default->{port} || 2001,
+            def   => $default->{port} || $self->{defaultport},
             check   => sub{
                 my $value = int(shift);
                 if($value > 0 && $value < 65536) {
