@@ -26,14 +26,15 @@
 <!-- TableTemplate -->
 <table border="0" width="95%">
 <?% fields = data.shift %?>
+<?% values = data.shift %?>
     <?% c = -1 %?>
-    <?% IF data.first.13 %?>
-       <?% Image = data.first.13 %?>
+    <?% IF values.13 %?>
+       <?% Image = values.13 %?>
     <?% END %?>
     <?% FOREACH field = fields %?>
         <?% c = c + 1 %?>
-        <?%# NEXT UNLESS data.first.$c %?>
-        <?% NEXT IF field == gettext('Percent') && data.first.$c > 100 %?>
+        <?%# NEXT UNLESS values.$c %?>
+        <?% NEXT IF field == gettext('Percent') && values.$c > 100 %?>
         <?% NEXT IF field.match('^__') %?>
         <?% IF field == gettext('Percent') %?>
                 <tr height="45">
@@ -42,15 +43,15 @@
         <?% END %?>
             <td><?% field %?></td>
         <?% IF field == gettext('Channel') %?>
-            <td><a href="?cmd=program&amp;data=<?% data.first.$c %?>"><?% data.first.$c %?></a></td>
+            <td><a href="?cmd=program&amp;data=<?% values.$c %?>"><?% values.$c %?></a></td>
         <?% ELSIF field == gettext('Service') %?>
             <td>
-                <?% INCLUDE 'bloecke/event_links.tmpl' data=data.first timerid=data.first.10 level=data.first.16 %?>
+                <?% INCLUDE 'bloecke/event_links.tmpl' data=values timerid=values.10 level=values.16 %?>
             </td>
         <?% ELSIF field == gettext('Percent') %?>
-            <?% NEXT IF data.first.$c > 100 %?>
+            <?% NEXT IF values.$c > 100 %?>
             <td valign='bottom'><nobr>
-                    <?% INCLUDE 'bloecke/percentbar.tmpl' barwidth=300 percent=(100-data.first.$c) color_switch=1 %?>
+                    <?% INCLUDE 'bloecke/percentbar.tmpl' barwidth=300 percent=(100-values.$c) color_switch=1 %?>
             </td>
 
         <?% ELSIF field == gettext('Description') %?>
@@ -62,25 +63,42 @@
                 <?% END %?>
                 </td></tr></table>
             <?% END %?>
-            <?% data.first.$c %?>
+            <?% values.$c %?>
             </td>
 
         <?% ELSIF field == gettext('Title') %?>
-            <td><?% data.first.$c %?></td>
+            <td><?% values.$c %?></td>
         <?% ELSIF field == gettext('Start') %?>
             <td>
-			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
-                <?% date.format(data.first.$c,"%H:%M",locale) %?>
-                <?% IF data.first.14 && data.first.14 != data.first.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(data.first.14,"%H:%M",locale) %?>) <?% END %?>
+			          <?% date.format(values.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(values.$c,"%H:%M",locale) %?>
+                <?% IF values.14 && values.14 != values.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(values.14,"%H:%M",locale) %?>) <?% END %?>
             </td>
         <?% ELSIF field == gettext('Stop') %?>
             <td>
-			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
-                <?% date.format(data.first.$c,"%H:%M",locale) %?>
+			          <?% date.format(values.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(values.$c,"%H:%M",locale) %?>
             </td>
         <?% ELSE %?>
-            <td><?% data.first.$c %?></td>
+            <td><?% values.$c %?></td>
         <?% END %?>
         </tr>
+    <?% END %?>
+    <?% content = values.17.split(" "); %?>
+    <?% IF content.size %?>
+        <tr>
+          <td>
+          <?% gettext("Content") %?>
+          </td>
+          <td>
+<?% FOREACH c=content %?>
+  <?% ct = getModule('EPG').content(c) %?>
+  <?% IF ct && loop.count != 1 %?>,<?% END %?>
+  <a href="?cmd=search&amp;__contentid=<?% c %?>">
+    <?% ct %?>
+  </a>
+<?% END %?>
+          </td>
+          </tr>
     <?% END %?>
 </table>

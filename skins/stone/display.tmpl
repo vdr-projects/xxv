@@ -35,6 +35,8 @@
   pdc = data.last.14;
   channelid = data.last.15;
   level = data.last.16;
+  content = data.last.17.split(" ");
+  rating = data.last.18;
 %?>
 <?% ######################################################################## %?>
 <?% BLOCK dur %?>
@@ -152,6 +154,18 @@ END %?>
     <?% IF description != "" %?>
                     <p class="description">
 <?% description %?>
+                    </p>
+    <?% END %?>
+    <?% IF content.size %?>
+                    <p class="description">
+                      <?% gettext("Content") %?>:
+<?% FOREACH c=content %?>
+  <?% ct = getModule('EPG').content(c) %?>
+  <?% IF ct && loop.count != 1 %?>,<?% END %?>
+  <a target="_blank" href="?cmd=search&amp;__contentid=<?% c %?>">
+    <?% ct %?>
+  </a>
+<?% END %?>
                     </p>
     <?% END %?>
     <?% IF level && allow('topten') %?>

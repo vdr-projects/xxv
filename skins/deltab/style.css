@@ -430,3 +430,13 @@ border-style:solid;
 border-width:1px;
 padding:0;
 }
+
+.levelbar {
+  width: 80px;
+  background: url(images/star_gray.png) 0 0 repeat-x;
+}
+
+.levelbar div {
+  height: 16px;
+  background: url(images/star_rated.png) 0 0 repeat-x;
+}
