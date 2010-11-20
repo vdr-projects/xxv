@@ -657,49 +657,51 @@ sub scandirectory {
                       if(-r $File::Find::name) {
                           my $filename = $File::Find::name;
                           my $path = $File::Find::dir;
-                          my $hash = md5_hex($path);
-                          unless(exists $files->{$hash}) {
-                            my $rec;
-                            $rec->{path} = $path;
+                          if($path =~ /\.$typ$/) {
+		                        my $hash = md5_hex($path);
+		                        unless(exists $files->{$hash}) {
+		                          my $rec;
+		                          $rec->{path} = $path;
 
-                            if($filename =~ /\.vdr$/) {
-                              # Splitt 2005-01-16.04:35.88.99.rec
-                              my ($year, $month, $day, $hour, $minute, $priority, $lifetime)
-                                 = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\./s;
-                              $rec->{year} = int($year);
-                              $rec->{month} = int($month);
-                              $rec->{day} = int($day);
-                              $rec->{hour} = int($hour);
-                              $rec->{minute} = int($minute);
-                              $rec->{priority} = int($priority);
-                              $rec->{lifetime} = int($lifetime);
-                              $rec->{filever} = 1;
-                            } else {
-                              # Splitt 2009-10-24.19.30.10-0.rec
-                              my ($year, $month, $day, $hour, $minute, $channel, $counter)
-                                 = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\-(\d+)\./s;
-                              $rec->{year} = int($year);
-                              $rec->{month} = int($month);
-                              $rec->{day} = int($day);
-                              $rec->{hour} = int($hour);
-                              $rec->{minute} = int($minute);
-                              # $rec->{channel} = $channel;
-                              # $rec->{counter} = $counter;
-                              $rec->{filever} = 2;
-                            }
-                            # convert path to title
-                            my $title = dirname($path);
-                            $title =~ s/^$directory//g;
-                            $title =~ s/^\///g;
-                            $rec->{title} = $self->converttitle($title);
+		                          if($filename =~ /\.vdr$/) {
+		                            # Splitt 2005-01-16.04:35.88.99.rec
+		                            my ($year, $month, $day, $hour, $minute, $priority, $lifetime)
+		                               = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\.(\d+)\./s;
+		                            $rec->{year} = int($year);
+		                            $rec->{month} = int($month);
+		                            $rec->{day} = int($day);
+		                            $rec->{hour} = int($hour);
+		                            $rec->{minute} = int($minute);
+		                            $rec->{priority} = int($priority);
+		                            $rec->{lifetime} = int($lifetime);
+		                            $rec->{filever} = 1;
+		                          } else {
+		                            # Splitt 2009-10-24.19.30.10-0.rec
+		                            my ($year, $month, $day, $hour, $minute, $channel, $counter)
+		                               = (basename($path)) =~ /^(\d+)\-(\d+)\-(\d+)\.(\d+)[\:|\.](\d+)\.(\d+)\-(\d+)\./s;
+		                            $rec->{year} = int($year);
+		                            $rec->{month} = int($month);
+		                            $rec->{day} = int($day);
+		                            $rec->{hour} = int($hour);
+		                            $rec->{minute} = int($minute);
+		                            # $rec->{channel} = $channel;
+		                            # $rec->{counter} = $counter;
+		                            $rec->{filever} = 2;
+		                          }
+		                          # convert path to title
+		                          my $title = dirname($path);
+		                          $title =~ s/^$directory//g;
+		                          $title =~ s/^\///g;
+		                          $rec->{title} = $self->converttitle($title);
 
-                            # add file
-                            push(@{$rec->{files}},$filename);
-                            $files->{$hash} = $rec;
+		                          # add file
+		                          push(@{$rec->{files}},$filename);
+		                          $files->{$hash} = $rec;
 
-                          } else {
-                            push(@{$files->{$hash}->{files}},$filename);
-                          }
+		                        } else {
+		                          push(@{$files->{$hash}->{files}},$filename);
+		                        }
+													}
                         } else {
                             lg "Permissions deny, couldn't read : $File::Find::name";
                         }
@@ -763,6 +765,17 @@ sub _readData {
         ];
         $console->err($msg);
       }
+			# ignore data from offline host
+			if(!$forceUpdate && $self->{svdrp}->is_host_online($vid) ne 'yes') {
+		    my $osth = $self->{dbh}->prepare('SELECT hash FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid and vid = ?');
+		    if(!$osth->execute($vid)) {
+		        con_err($console, sprintf("Couldn't execute query: %s.",$osth->errstr));
+		    }
+		    my $ignoreRecordings = $osth->fetchall_hashref('hash');
+		  	foreach my $k (keys %{$ignoreRecordings}) {
+		    	delete $outdatedRecordings->{$k};
+				}
+			}
       next;
     }
 
@@ -1455,6 +1468,12 @@ sub readinfo {
               elsif($zeile =~ /^P\s+(.+)$/s) {
                   $info->{priority} = int($1);
               }
+              elsif($zeile =~ /^G\s+(.+)$/s) {
+                  $info->{content} = $1;
+              }
+              elsif($zeile =~ /^R\s+(.+)$/s) {
+                  $info->{rating} = int($1);
+              }
               elsif($zeile =~ /^X\s+1\s+(.+)$/s) {
                   $info->{video} = $1;
               }
@@ -1535,6 +1554,12 @@ sub saveinfo {
     if($info->{filever} == 2) {
       if(defined $status->{framerate} && $status->{framerate}) {
         $out .= "F ".  $status->{framerate} . "\n";
+      }
+      if(defined $status->{content} && $status->{content}) {
+        $out .= "G ".  $status->{content} . "\n";
+      }
+      if(defined $status->{rating} && $status->{rating}) {
+        $out .= "R ".  $status->{rating} . "\n";
       }
       if(defined $status->{lifetime} && $status->{lifetime}) {
         $out .= "L ".  $status->{lifetime} . "\n";
@@ -1766,6 +1791,8 @@ sub createOldEventId {
         vpstime => $info->{vpstime} || 0,
         video => $info->{video} || "",
         audio => $info->{audio} || "",
+        content => $info->{content} || "",
+        rating => $info->{rating} || "",
     };
 
     $attr->{eventid} = $self->{dbh}->selectrow_arrayref('SELECT SQL_CACHE max(eventid)+1 from OLDEPG')->[0];
@@ -1775,8 +1802,8 @@ sub createOldEventId {
 
     my $sth = $self->{dbh}->prepare(
 q|REPLACE INTO OLDEPG(vid, eventid, title, subtitle, description, channel_id, 
-                      duration, tableid, starttime, vpstime, video, audio, addtime) 
-  VALUES (?,?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?,NOW())|);
+                      duration, starttime, vpstime, video, audio, content, rating, addtime) 
+  VALUES (?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?,?,?,NOW())|);
 
     $sth->execute(
         $vid,
@@ -1786,11 +1813,12 @@ q|REPLACE INTO OLDEPG(vid, eventid, title, subtitle, description, channel_id,
         $attr->{description},
         $attr->{channel},
         int($attr->{duration}),
-        $attr->{tableid},
         $attr->{starttime},
         $attr->{vpstime},
         $attr->{video},
-        $attr->{audio}
+        $attr->{audio},
+        $attr->{content},
+        $attr->{rating}
     );
 
     return $attr;

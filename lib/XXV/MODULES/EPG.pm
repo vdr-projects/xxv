@@ -214,7 +214,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 32; # Must be increment if rows of table changed
+    my $version = 33; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
 
@@ -241,6 +241,8 @@ sub _init {
               version tinyint default 0,
               video varchar(32) default '',
               audio varchar(128) default '',
+              content varchar(32) default '',
+              rating tinyint default 0,
               addtime datetime NOT NULL default '0000-00-00 00:00:00',
               vpstime datetime default '0000-00-00 00:00:00',
               PRIMARY KEY (vid,eventid),
@@ -420,7 +422,7 @@ sub compareEpgData {
         if(ref $waiter);
 
       # First - read database
-      my $sql = qq|SELECT SQL_CACHE eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio, image from EPG where vid = ? and channel_id = ? |;
+      my $sql = qq|SELECT SQL_CACHE eventid, title, subtitle, length(description) as ldescription, duration, UNIX_TIMESTAMP(starttime) as starttime, UNIX_TIMESTAMP(vpstime) as vpstime, video, audio, content from EPG where vid = ? and channel_id = ? |;
       my $sth = $self->{dbh}->prepare($sql);
       $sth->execute($vid, $channel)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
@@ -434,7 +436,7 @@ sub compareEpgData {
         # Exists in DB .. update
         if(exists $db_data->{$eid}) {
           # Compare fields
-          foreach my $field (qw/title subtitle ldescription duration starttime vpstime video audio image/) {
+          foreach my $field (qw/title subtitle ldescription duration starttime vpstime video audio content/) {
             next if(not exists $row->{$field} or not $row->{$field});
             if((not exists $db_data->{$eid}->{$field})
                 or (not $db_data->{$eid}->{$field})
@@ -505,7 +507,7 @@ sub replace {
     my $vid = shift || return error('No vid defined!');
     my $attr = shift || return error('No data defined!');
 
-    my $sth = $self->{dbh}->prepare('REPLACE INTO EPG(eventid, vid, title, subtitle, description, channel_id, duration, tableid, image, version, video, audio, starttime, vpstime, addtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),NOW())');
+    my $sth = $self->{dbh}->prepare('REPLACE INTO EPG(eventid, vid, title, subtitle, description, channel_id, duration, tableid, image, version, video, audio, content, rating, starttime, vpstime, addtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),NOW())');
     $sth->execute(
         $eventid,
         $vid,
@@ -519,6 +521,8 @@ sub replace {
         hex($attr->{version}),
         $attr->{video} || '1 01 deu 4:3',
         $attr->{audio} || "2 03 deu stereo",
+        $attr->{content} || '',
+        $attr->{rating} || 0,
         $attr->{starttime},
         $attr->{vpstime}
     ) if($attr->{channel});
@@ -635,6 +639,10 @@ sub readEpgData {
         }
       } elsif($mark eq 'V') {
         $event->{vpstime} = $data;
+      } elsif($mark eq 'G') {
+        $event->{content} = $data;
+      } elsif($mark eq 'R') {
+        $event->{rating} = $data;
       }
     }
     return ($dataHash,$channel,$channelname,$count);
@@ -659,6 +667,8 @@ sub search {
         } else {
             $search = buildsearch("e.title,e.subtitle,e.description",$data);
         }
+    } else {
+      $search->{query} = "1";
     }
 
     my $erg = [];
@@ -689,6 +699,13 @@ sub search {
       if($params->{MinLength}) {
           $search->{query} .= ' AND e.duration >= ?';
           push(@{$search->{term}},($params->{MinLength}*60));
+      }
+
+      if($params->{contentid}) {
+          my $c = $params->{contentid};
+          $c .= '[[:xdigit:]]+' if(length $c == 1);
+          $search->{query} .= ' AND e.content REGEXP ?';
+          push(@{$search->{term}}, $c);
       }
 
       my %f = (
@@ -749,7 +766,7 @@ sub search {
           |;
 
       my $sth;
-      my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 0;
+      my $limit = $console->{cgi} && $console->{cgi}->param('limit') ? CORE::int($console->{cgi}->param('limit')) : 250;
       if($limit > 0) {
         # Query total count of rows
         my $rsth = $self->{dbh}->prepare($sql);
@@ -989,7 +1006,9 @@ SELECT SQL_CACHE
         s.level
         FROM SHARE as s
         WHERE s.eventid = e.eventid
-        LIMIT 1) as __level
+        LIMIT 1) as __level,
+    e.content as __content,
+    e.rating as __rating
 from
     $table as e,CHANNELS as c
 where
@@ -1786,6 +1805,156 @@ sub image {
     return $console->status404('NULL','Wrong image parameter') 
       unless($eventid);
     return $console->datei(sprintf('%s/%s.png',$self->{epgimages},$eventid));
+}
+
+
+# ------------------
+sub content {
+# ------------------
+    my $self = shift || return error('No object defined!');
+    my $content = shift || return error('No content defined!');
+  
+    $content = hex($content);
+    
+    my $translate = {
+       0x1  => gettext('Movie/Drama')
+      ,0x10 => gettext('Movie/Drama')
+      ,0x11 => gettext('Detective/Thriller')
+      ,0x12 => gettext('Adventure/Western/War')
+      ,0x13 => gettext('Science Fiction/Fantasy/Horror')
+      ,0x14 => gettext('Comedy')
+      ,0x15 => gettext('Soap/Melodrama/Folkloric')
+      ,0x16 => gettext('Romance')
+      ,0x17 => gettext('Serious/Classical/Religious/Historical Movie/Drama')
+      ,0x18 => gettext('Adult Movie/Drama')
+#     ,0x19 to 0x1E reserved for future use
+#     ,0x1F => user defined
+
+      ,0x2   => gettext('News/Current Affairs')
+      ,0x20  => gettext('News/Current Affairs')
+      ,0x21  => gettext('News/Weather Report')
+      ,0x22  => gettext('News Magazine')
+      ,0x23  => gettext('Documentary')
+      ,0x24  => gettext('Discussion/Inverview/Debate')
+#     ,0x25 to 0x2E reserved for future use
+#     ,0x2F  => user defined
+
+      ,0x3   => gettext('Show/Game Show')
+      ,0x30  => gettext('Show/Game Show')
+      ,0x31  => gettext('Game Show/Quiz/Contest')
+      ,0x32  => gettext('Variety Show')
+      ,0x33  => gettext('Talk Show')
+#     ,0x34 to 0x3E reserved for future use
+#     ,0x3F  => user defined
+
+      ,0x4   => gettext('Sports')
+      ,0x40  => gettext('Sports')
+      ,0x41  => gettext('Special Event')
+      ,0x42  => gettext('Sport Magazine')
+      ,0x43  => gettext('Football/Soccer') 
+      ,0x44  => gettext('Tennis/Squash')
+      ,0x45  => gettext('Team Sports')
+      ,0x46  => gettext('Athletics')
+      ,0x47  => gettext('Motor Sport')
+      ,0x48  => gettext('Water Sport')
+      ,0x49  => gettext('Winter Sports')
+      ,0x4A  => gettext('Equestrian')
+      ,0x4B  => gettext('Martial Sports')
+#     ,0x4C to 0x4E reserved for future use
+#     ,0x4F  => user defined
+
+      ,0x5   => gettext("Children's/Youth Programme")
+      ,0x50  => gettext("Children's/Youth Programme")
+      ,0x51  => gettext("Pre-school Children's Programme")
+      ,0x52  => gettext('Entertainment Programme for 6 to 14')
+      ,0x53  => gettext('Entertainment Programme for 10 to 16')
+      ,0x54  => gettext('Informational/Educational/School Programme')
+      ,0x55  => gettext('Cartoons/Puppets')
+#     ,0x56 to 0x5E reserved for future use
+#     ,0x5F  => user defined
+
+      ,0x6   => gettext('Music/Ballet/Dance')
+      ,0x60  => gettext('Music/Ballet/Dance')
+      ,0x61  => gettext('Rock/Pop')
+      ,0x62  => gettext('Serious/Classical Music')
+      ,0x63  => gettext('Folk/Tradional Music')
+      ,0x64  => gettext('Jazz')
+      ,0x65  => gettext('Musical/Opera')
+      ,0x66  => gettext('Ballet')
+#     ,0x67 to 0x6E reserved for future use
+#     ,0x6F  => user defined
+
+      ,0x7   => gettext('Arts/Culture')
+      ,0x70  => gettext('Arts/Culture')
+      ,0x71  => gettext('Performing Arts')
+      ,0x72  => gettext('Fine Arts')
+      ,0x73  => gettext('Religion')
+      ,0x74  => gettext('Popular Culture/Traditional Arts')
+      ,0x75  => gettext('Literature')
+      ,0x76  => gettext('Film/Cinema')
+      ,0x77  => gettext('Experimental Film/Video')
+      ,0x78  => gettext('Broadcasting/Press')
+      ,0x79  => gettext('New Media')
+      ,0x7A  => gettext('Arts/Culture Magazine')
+      ,0x7B  => gettext('Fashion')
+#     ,0x7C to 0x7E reserved for future use
+#     ,0x7F  => user defined
+
+      ,0x8   => gettext('Social/Political/Economics')
+      ,0x80  => gettext('Social/Political/Economics')
+      ,0x81  => gettext('Magazine/Report/Documentary')
+      ,0x82  => gettext('Economics/Social Advisory')
+      ,0x83  => gettext('Remarkable People')
+#     ,0x84 to 0x8E reserved for future use
+#     ,0x8F  => user defined
+
+      ,0x9   => gettext('Education/Science/Factual')
+      ,0x90  => gettext('Education/Science/Factual')
+      ,0x91  => gettext('Nature/Animals/Environment')
+      ,0x92  => gettext('Technology/Natural Sciences')
+      ,0x93  => gettext('Medicine/Physiology/Psychology')
+      ,0x94  => gettext('Foreign Countries/Expeditions')
+      ,0x95  => gettext('Social/Spiritual Sciences')
+      ,0x96  => gettext('Further Education')
+      ,0x97  => gettext('Languages')
+#     ,0x98 to 0x9E reserved for future use
+#     ,0x9F  => user defined
+
+      ,0xA   => gettext('Leisure/Hobbies')
+      ,0xA0  => gettext('Leisure/Hobbies')
+      ,0xA1  => gettext('Tourism/Travel')
+      ,0xA2  => gettext('Handicraft')
+      ,0xA3  => gettext('Motoring')
+      ,0xA4  => gettext('Fitness & Health')
+      ,0xA5  => gettext('Cooking')
+      ,0xA6  => gettext('Advertisement/Shopping')
+      ,0xA7  => gettext('Gardening')
+#     ,0xA8 to 0xAE reserved for future use
+#     ,0xAF  => user defined
+
+      ,0xB   => gettext('Special characteristics')
+      ,0xB0  => gettext('Original Language')
+      ,0xB1  => gettext('Black & White')
+      ,0xB2  => gettext('Unpublished')
+      ,0xB3  => gettext('Live Broadcast')
+#     ,0xB4 to 0xBE reserved for future use
+#     ,0xBF  => user defined
+
+#     ,0xC0 to 0xEF reserved for future use
+#     ,0xF0 to 0xFF user defined 
+      };
+
+      my $description;
+      
+      $description = $translate->{$content}
+          if(exists $translate->{$content});
+
+      unless($description) {
+        $description = $translate->{($content & 0x0F) >> 8 }
+            if(exists $translate->{($content & 0x0F) >> 8 });
+      }
+
+      return $description;
 }
 
 1;

@@ -11,26 +11,27 @@
 <!-- TableTemplate -->
 <table border="0" width="95%">
 <?% fields = data.shift %?>
+<?% values = data.shift %?>
     <?% c = -1 %?>
-    <?% IF data.first.13 %?>
-       <?% Image = data.first.13 %?>
+    <?% IF values.13 %?>
+       <?% Image = values.13 %?>
     <?% END %?>
     <?% FOREACH field = fields %?>
         <?% c = c + 1 %?>
-        <?% NEXT UNLESS data.first.$c %?>
-        <?% NEXT IF field == gettext('Percent') && data.first.$c > 100 %?>
+        <?% NEXT UNLESS values.$c %?>
+        <?% NEXT IF field == gettext('Percent') && values.$c > 100 %?>
         <?% NEXT IF field.match('^__') %?>
         <tr>
             <td><?% field %?></td>
         <?% IF field == gettext('Channel') %?>
-            <td><a href="?cmd=program&amp;data=<?% data.first.$c %?>"><?% data.first.$c %?></a></td>
+            <td><a href="?cmd=program&amp;data=<?% values.$c %?>"><?% values.$c %?></a></td>
         <?% ELSIF field == gettext('Service') %?>
             <td>
-            <a href="?cmd=search&amp;data=<?% url( data.first.1 ) %?>">[<?% gettext("Search for repeats") %?>]</a>
-            <?% IF data.first.10 && allow('tedit') %?>
-                <a href="?cmd=tedit&amp;data=<?% data.first.10 %?>"><span name='recordlink' class='normal'><b>[<?% gettext("Edit this timer") %?>]</b></span></a>
+            <a href="?cmd=search&amp;data=<?% url( values.1 ) %?>">[<?% gettext("Search for repeats") %?>]</a>
+            <?% IF values.10 && allow('tedit') %?>
+                <a href="?cmd=tedit&amp;data=<?% values.10 %?>"><span name='recordlink' class='normal'><b>[<?% gettext("Edit this timer") %?>]</b></span></a>
             <?% ELSIF allow('tnew')%?>
-                <a href="?cmd=tnew&amp;data=<?% data.first.$c %?>"><span name='recordlink' id='<?% data.first.$c %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
+                <a href="?cmd=tnew&amp;data=<?% values.$c %?>"><span name='recordlink' id='<?% values.$c %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
             <?% END %?>
             <a target="_blank" href="http://german.imdb.com/find?s=tt&amp;site=aka&amp;q=<?% data.last.1 %?>">
                 [<?% gettext("Search with IMDb") %?>]
@@ -38,14 +39,14 @@
             <a target="_blank" href="http://www.ofdb.de/view.php?page=suchergebnis&Kat=Titel&SText=<?% data.last.1 %?>">
                 [<?% gettext("Search with OFDb") %?>]
             </a>
-            <?% level = data.first.16 %?>
+            <?% level = values.16 %?>
             <?% IF level && allow('topten') %?><br/><a href="?cmd=topten" title="<?% gettext("Top Ten entrys") %?>" ><?% "*" FILTER repeat(level) %?></a><?% END %?>
             </td>
         <?% ELSIF field == gettext('Percent') %?>
-            <?% NEXT IF data.first.$c > 100 %?>
+            <?% NEXT IF values.$c > 100 %?>
             <td valign='bottom'><nobr>
                 <?% fac = 3 %?>
-                <?% val = data.first.$c * fac %?>
+                <?% val = values.$c * fac %?>
                 <?% per = (100 * fac) - val  + 0.999 | format('%d') %?>
                 <?% per2 = (100 * fac) - per %?>
                 <?% text = (per / fac) | format("<br><font size='1'>%d%%</font>") %?>
@@ -64,22 +65,39 @@
                 <img src='?cmd=eimage&data=<?% img %?>' border=1 align='right'>
                 <?% END %?>
             <?% END %?>
-            <?% data.first.$c %?>
+            <?% values.$c %?>
             </td>
         <?% ELSIF field == gettext('Start') %?>
             <td>
-			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
-                <?% date.format(data.first.$c,"%H:%M",locale) %?>
-                <?% IF data.first.14 && data.first.14 != data.first.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(data.first.14,"%H:%M",locale) %?>) <?% END %?>
+			          <?% date.format(values.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(values.$c,"%H:%M",locale) %?>
+                <?% IF values.14 && values.14 != values.$c %?>&nbsp;(<?% gettext("PDC") %?>&nbsp;<?% date.format(values.14,"%H:%M",locale) %?>) <?% END %?>
             </td>
         <?% ELSIF field == gettext('Stop') %?>
             <td>
-			          <?% date.format(data.first.$c,"%A, %x",locale) %?>&nbsp;
-                <?% date.format(data.first.$c,"%H:%M",locale) %?>
+			          <?% date.format(values.$c,"%A, %x",locale) %?>&nbsp;
+                <?% date.format(values.$c,"%H:%M",locale) %?>
             </td>
         <?% ELSE %?>
-            <td><?% data.first.$c %?></td>
+            <td><?% values.$c %?></td>
         <?% END %?>
         </tr>
+    <?% END %?>
+    <?% content = values.17.split(" "); %?>
+    <?% IF content.size %?>
+        <tr>
+          <td>
+          <?% gettext("Content") %?>
+          </td>
+          <td>
+<?% FOREACH c=content %?>
+  <?% ct = getModule('EPG').content(c) %?>
+  <?% IF ct && loop.count != 1 %?>,<?% END %?>
+  <a href="?cmd=search&amp;__contentid=<?% c %?>">
+    <?% ct %?>
+  </a>
+<?% END %?>
+          </td>
+          </tr>
     <?% END %?>
 </table>

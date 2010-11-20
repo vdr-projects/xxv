@@ -485,6 +485,18 @@ sub cards {
     return $vdr ? $vdr->{cards} : undef;
 }
 
+sub is_host_online {
+    my $self = shift  || return error('No object defined!');
+    my $vdrid = shift;
+
+    if($self->{Cache} 
+			&& $self->{Cache}->{$vdrid}
+			&& $self->{Cache}->{$vdrid}->{online}) { 
+    	return $self->{Cache}->{$vdrid}->{online};
+		}
+  	return 'no';
+}
+
 sub enum_onlinehosts {
     my $self = shift  || return error('No object defined!');
   

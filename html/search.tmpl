@@ -71,6 +71,32 @@
     </td>
 </tr>
 <tr>
+    <td><?% gettext('Content') %?>:</td>
+    <td>
+            <select name='__contentid'>
+                <option value="0"><?% gettext('All contents') %?></option>
+                <?% h = 1;WHILE h < 16 %?>
+                    <?% c = h | format "%x" %?>
+                    <?% ct = getModule('EPG').content(c) %?>
+                    <?% IF ct %?>
+                      <optgroup label="<?% ct %?>">
+                      <option value="<?% c %?>"<?% ' selected="selected"' IF cgi.param('__contentid') == c %?>><?% gettext('All')%?> - <?% ct %?></option>
+                      <?% l = 0;WHILE l < 16 %?>
+                      <?% c = ((16 * h) + l) | format "%x" %?>
+                      <?% ct = getModule('EPG').content(c) %?>
+                        <?% IF ct %?>
+                          <option value="<?% c %?>"<?% ' selected="selected"' IF cgi.param('__contentid') == c %?>><?% ct %?></option>
+                        <?% END %?>
+                      <?% l = l + 1 %?>
+                      <?% END %?>
+                      </optgroup>
+                    <?% END %?>
+                  <?% h = h + 1 %?>
+                <?% END %?>
+            </select>
+    </td>
+</tr>
+<tr>
     <td colspan=2>
         <input type='submit' value='<?% gettext('Search') %?>'>&nbsp;
         <input type='reset' value='<?% gettext('Reset') %?>'>&nbsp;
