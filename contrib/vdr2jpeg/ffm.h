@@ -14,3 +14,15 @@ extern void ffm_deinitalize(void);
 extern bool decode(const char* szMPVfile,
                    const char* szTmpMask, int width, int height); 
 
+
+// Helperclass for proper init/deinit ffmpeg
+struct ffminit
+{
+    ffminit() { 
+      ffm_initalize();    
+    }
+
+    virtual ~ffminit() { 
+      ffm_deinitalize();   
+    }
+};

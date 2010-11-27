@@ -1,7 +1,7 @@
 /*
  * Simple program to grab images from VDR Recording
  *
- * Copyright(c) 2005-2008 Andreas Brachold
+ * Copyright(c) 2005-2010 Andreas Brachold
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -21,8 +21,7 @@
 #include "ffm.h"
 #include "gop.h"
 
-
-static const char *VERSION        = "0.1.1";
+static const char *VERSION        = "0.1.9";
 
 void help(int argc, char *argv[])
 {
@@ -72,7 +71,8 @@ int main(int argc, char *argv[])
     std::vector < int >nFrame;
     int n = 0;
     std::string f;
-        while(-1 !=(n = option(argc, argv, 'f', true, f, n))) {
+    
+    while(-1 !=(n = option(argc, argv, 'f', true, f, n))) {
         int frame = atoi(f.c_str());
         if(frame < 0) {
             std::cerr << "ignore negative frame" << std::endl << std::endl;
@@ -91,22 +91,33 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::stringstream ss;
-    ss << szFolder;
-    if('/' != *szFolder.rbegin())
-        ss << '/';
-    ss << "index.vdr";
-    ss << std::ends;
-    std::string szIndex(ss.str());
+    static const char* files[] = { "index.vdr", "index" };
 
     struct stat64 ds;
-    if(stat64(szIndex.c_str(), &ds)) {
-        std::cerr << "Can't access file : " << szIndex << std::endl;
+    std::string szIndex;
+    int nIndexVersion = -1;
+    for(unsigned int l = 0; l < 2; ++l) {
+      std::stringstream ss;
+      ss << szFolder;
+      if('/' != *szFolder.rbegin())
+          ss << '/';
+      ss << files[l];
+      ss << std::ends;
+      szIndex = ss.str();
+
+      if(!stat64(szIndex.c_str(), &ds)) {
+          nIndexVersion = l;
+          break;
+      }
+    }
+    if(-1 == nIndexVersion) {
+        std::cerr << "Can't find index file at " << szFolder << std::endl;
         return 1;
     }
+
     int nTotalFrames = (ds.st_size / 8);
     if(nTotalFrames <= 0) {
-        std::cerr << "Empty file : " << szIndex << std::endl;
+        std::cerr << "Empty index file : " << szIndex << std::endl;
         return 1;
     }
 
@@ -206,13 +217,14 @@ int main(int argc, char *argv[])
         return 0;    // Success
     }
 #endif //DEBUG
-
     std::vector < std::pair<tFrame,tFrame> > nGOP;
-    if(ReadIndexFile(szFolder, nFrame, nGOP)) {
+    if(ReadIndexFile(szIndex, nIndexVersion, nFrame, nGOP)) {
         ffminit x;
-
-        if(ReadRecordings(szFolder, szOutPath, szTempPath, nGOP, width, height, exact, true))
+        if(ReadRecordings(szFolder, nIndexVersion, 
+                          szOutPath, szTempPath, 
+                          nGOP, width, height, exact, true)) {
             return 0;    // Success
+            }
     }
     return 1;
 }

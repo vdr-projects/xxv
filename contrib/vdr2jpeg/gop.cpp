@@ -1,10 +1,8 @@
 /*
  * Simple program to grab images from VDR Recording
  *
- * Copyright(c) 2005-2008 Andreas Brachold
+ * Copyright(c) 2005-2010 Andreas Brachold
  * 
- * demux ported from vdrsync.pl : Copyright(c) 2005 Peter Sebbel 
- *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
  *
@@ -26,6 +24,7 @@
 #include <algorithm>
 #include "ffm.h"
 #include "gop.h"
+#include "mpegdec.h"
 
 bool operator >>(std::istream & i, tFrame & x)
 {
@@ -39,24 +38,23 @@ bool operator >>(std::istream & i, tFrame & x)
 
 std::ostream & operator <<(std::ostream & o, const tFrame & x)
 {
-    o << "Frame = " << x.nFrame;
-#ifdef DEBUG
     o << " I-Frame = " << x.nIFrame;
-#endif // DEBUG
-    o << " Offset = " << x.u.f.offset;
-    o << " File = " <<(int) x.u.f.number;
-#ifdef DEBUG
-    o << " Type = " <<(int) x.u.f.type;
-    o << " Reserved : " << x.u.f.reserved;
-#endif // DEBUG
+//#ifdef DEBUG
+//    o << " Offset = " << x.u.pes.offset;
+//    o << " File = " <<(int) x.u.pes.number;
+//    o << " Type = " <<(int) x.u.pes.type;
+//    o << " Reserved : " << x.u.pes.reserved;
+//#endif // DEBUG
     return o;
 }
 
 
-bool ReadIndexFile(const std::string & szFolder, std::vector < int >&nFrames, std::vector < std::pair<tFrame,tFrame> > &nGOP)
+bool ReadIndexFile(const std::string & szFile, int nIndexVersion, 
+                   const std::vector < int >&nFrames, 
+                   std::vector < std::pair<tFrame,tFrame> > &nGOP)
 {
-    if(szFolder.empty()) {
-        std::cerr << "Missing VDR-recording folder" << std::endl;
+    if(szFile.empty()) {
+        std::cerr << "Missing index file" << std::endl;
         return false;
     }
 
@@ -65,72 +63,68 @@ bool ReadIndexFile(const std::string & szFolder, std::vector < int >&nFrames, st
         return false;
     }
 
-    std::stringstream ss;
-    ss << szFolder;
-    if('/' != *szFolder.rbegin())
-        ss << '/';
-    ss << "index.vdr";
-    ss << std::ends;
-    std::string szFile(ss.str());
     try
     {
         std::ifstream f(szFile.c_str(), std::ifstream::in | std::ifstream::binary);
-            if(f.fail()) {
-        std::cerr << "Can't open file : " << szFile << std::
-            endl;
+        
+        if(f.fail()) {
+            std::cerr << "Can't open file : " << szFile << std::endl;
         return false;
-    }
-    std::vector < int >::const_iterator i = nFrames.begin();
-    std::vector < int >::const_iterator e = nFrames.end();
-    for(; i != e && f.good(); ++i) {
-    std::pair<tFrame,tFrame> gop;
-    tFrame x( (*i) );
-    f.seekg(x.nIFrame * 8, std::ifstream::beg);
+        }
+        std::vector < int >::const_iterator i = nFrames.begin();
+        std::vector < int >::const_iterator e = nFrames.end();
+        for(; i != e && f.good(); ++i) {
+          std::pair<tFrame,tFrame> gop;
+          tFrame x( *i );
+          f.seekg(x.nIFrame * 8, std::ifstream::beg);
             do
             {
                 if(!f.good())
                 {
-                    std::cerr <<
-                        "Seek behind end of file : ";
+                    std::cerr << "Seek behind end of file : ";
                     std::cerr << szFile;
-                    std::cerr << " at Frame ";
+                    std::cerr << " at first frame ";
                     std::cerr << x.nIFrame << std::endl;
                     return false;
                 }
                 if(!(f >> x)) {
-                    std::cerr <<
-                        "Incomplete struct : ";
+                    std::cerr << "Incomplete struct : ";
                     std::cerr << szFile;
-                    std::cerr << " at Frame ";
+                    std::cerr << " at first frame ";
                     std::cerr << x.nIFrame << std::endl;
                     return false;                  
                 }
-                if(x.u.f.type != 1)
+                if(!x.bIsIFrame(nIndexVersion))
                 {
                     f.seekg(8 * 2 * -1, std::ifstream::cur);
+                    if(x.nIFrame > 0)
                       --x.nIFrame;
+                    else {
+                      std::cerr << "Missing start struct : ";
+                      std::cerr << szFile;
+                      std::cerr << " at first frame ";
+                      std::cerr << x.nIFrame << std::endl;
+                      return false;
+                    }
                 }
             }
-            while(x.u.f.type != 1);    // found I-Frame
+            while(!x.bIsIFrame(nIndexVersion)); // loop until found I-Frame
 
             gop.first = x;    //Remember I-Frame
-
             do
             {
                 ++x.nIFrame;
                 if(!f.good())
                 {
-                    std::cerr <<
-                        "Seek behind end of file : ";
+                    std::cerr << "Seek behind end of file : ";
                     std::cerr << szFile;
-                    std::cerr << " at Frame ";
+                    std::cerr << " at second frame ";
                     std::cerr << x.nIFrame << std::endl;
                     return false;
                 }
                 if(!(f >> x)) {
 #ifdef DEBUG
-                    std::cerr <<
-                        "Incomplete struct : ";
+                    std::cerr << "Incomplete struct : ";
                     std::cerr << szFile;
                     std::cerr << " at Frame ";
                     std::cerr << x.nIFrame << std::endl;
@@ -138,7 +132,7 @@ bool ReadIndexFile(const std::string & szFolder, std::vector < int >&nFrames, st
                     return true;                  
                 }
             }
-            while(f.good() && x.u.f.type != 1);    // Build IBBP..I -> break on next I-Frame
+            while(f.good() && !x.bIsIFrame(nIndexVersion));    // Build IBBP..I -> break on next I-Frame
             gop.second = x;
             nGOP.push_back(gop);    //Remember I-Frame
         }
@@ -151,28 +145,21 @@ bool ReadIndexFile(const std::string & szFolder, std::vector < int >&nFrames, st
     }
 }
 
-bool ReadIndexFileFull(const std::string & szFolder, 
+bool ReadIndexFileFull(const std::string & szFile, int nIndexVersion, 
                        std::vector < std::pair<tFrame,tFrame> > &nGOP,
                        bool bIntraOnly,
                        unsigned int &nFirst, unsigned int nLimit)
 {
-    if(szFolder.empty()) {
-        std::cerr << "Missing VDR-recording folder" << std::endl;
+    if(szFile.empty()) {
+        std::cerr << "Missing index file" << std::endl;
         return false;
     }
-
-    std::stringstream ss;
-    ss << szFolder;
-    if('/' != *szFolder.rbegin())
-        ss << '/';
-    ss << "index.vdr";
-    ss << std::ends;
-    std::string szFile(ss.str());
 
     try
     {
         std::ifstream f(szFile.c_str(), std::ifstream::in | std::ifstream::binary);
-                if(f.fail()) {
+        
+        if(f.fail()) {
           std::cerr << "Can't open file : " << szFile << std::
               endl;
           return false;
@@ -192,7 +179,7 @@ bool ReadIndexFileFull(const std::string & szFolder,
               std::cerr << x.nIFrame << std::endl;
               return false;                  
           }
-          if(x.u.f.type == 1) {
+          if(x.bIsIFrame(nIndexVersion)) {
             break;
           }
           ++x.nFrame;
@@ -217,7 +204,7 @@ bool ReadIndexFileFull(const std::string & szFolder,
             }
             ++x.nFrame;
             ++x.nIFrame;
-            if(!bIntraOnly || x.u.f.type == 1) {
+            if(!bIntraOnly || x.bIsIFrame(nIndexVersion)) {
               break;
             }
           } while(f.good());    
@@ -461,7 +448,7 @@ bool ReadGOP(const std::string & szFile, int nBegin, int nLength, char *pMem )
     return true;
 }
 
-bool ReadRecordings(const std::string & szFolder, 
+bool ReadRecordings(const std::string & szFolder, int nIndexVersion, 
         const std::string & szOutPath, const std::string & szTempPath,
         const std::vector < std::pair<tFrame,tFrame> > &nGOP, int width, int height,
         bool exact, bool bJPEG)
@@ -478,6 +465,7 @@ bool ReadRecordings(const std::string & szFolder,
         return false;
     }
 
+    unsigned int nError = 0;
     std::vector < std::pair<tFrame,tFrame> >::const_iterator i = nGOP.begin();
     std::vector < std::pair<tFrame,tFrame> >::const_iterator e = nGOP.end();
 
@@ -489,7 +477,7 @@ bool ReadRecordings(const std::string & szFolder,
 #endif //DEBUG
 
         //Skip empty frames (most at end)
-        if(i->first.u.f.offset == i->second.u.f.offset) {
+        if(i->first.GetOffset(nIndexVersion) == i->second.GetOffset(nIndexVersion)) {
           continue;
         }
 
@@ -509,21 +497,18 @@ bool ReadRecordings(const std::string & szFolder,
         try
         {
             char *pMem = NULL;
-            int nSize  = 0;
+            off_t nSize  = 0;
 
             // Offset bigger then current 00x.vdr files, goto next
-            if((i->first.u.f.offset >= i->second.u.f.offset 
-             || i->first.u.f.number != i->second.u.f.number) 
-             && i->second.u.f.offset != 0) {
+            if((i->first.GetOffset(nIndexVersion) >= i->second.GetOffset(nIndexVersion) 
+             || i->first.GetFileNr(nIndexVersion) != i->second.GetFileNr(nIndexVersion)) 
+             && i->second.GetOffset(nIndexVersion) != 0) {
 
                 ss.str("");
                 ss << szFolder;
                 if('/' != *szFolder.rbegin())
                     ss << '/';
-                ss.fill('0');
-                ss.width(3);
-                ss << (int)i->first.u.f.number; // Filenumber 001.vdr ...
-                ss << ".vdr";
+                i->first.buildFilename(ss,nIndexVersion); // Filenumber 001.vdr ...
                 ss << std::ends;
                 std::string szFile(ss.str());
 
@@ -534,13 +519,13 @@ bool ReadRecordings(const std::string & szFolder,
                     return false;
                 }
 
-                if(i->first.u.f.offset >=(ds.st_size)) {
+                if(i->first.GetOffset(nIndexVersion) >= (ds.st_size)) {
                     std::cerr << "Offset bigger than current file : " << szFile << std::endl;
                     std::cerr << i->first  << " / " << i->second << std::endl;
                     return false;
                 }
 
-                nSize = ds.st_size - i->first.u.f.offset + i->second.u.f.offset;
+                nSize = ds.st_size - i->first.GetOffset(nIndexVersion) + i->second.GetOffset(nIndexVersion);
                 if(nSize <= 0
                     || nSize >=(1 << 24)
                     || NULL ==(pMem = new char[nSize])) {
@@ -550,7 +535,7 @@ bool ReadRecordings(const std::string & szFolder,
                     return false;
                 }
 
-                if(!ReadGOP(szFile, i->first.u.f.offset, ds.st_size - i->first.u.f.offset, pMem)) {
+                if(!ReadGOP(szFile, i->first.GetOffset(nIndexVersion), ds.st_size - i->first.GetOffset(nIndexVersion), pMem)) {
                   delete[]pMem;
                   return false;
                 }
@@ -559,10 +544,7 @@ bool ReadRecordings(const std::string & szFolder,
                 ss << szFolder;
                 if('/' != *szFolder.rbegin())
                     ss << '/';
-                ss.fill('0');
-                ss.width(3);
-                ss << (int)i->second.u.f.number; // Filenumber 002.vdr ...
-                ss << ".vdr";
+                i->second.buildFilename(ss,nIndexVersion); // Filenumber 002.vdr ...
                 ss << std::ends;
                 szFile = ss.str();
 
@@ -572,13 +554,13 @@ bool ReadRecordings(const std::string & szFolder,
                     return false;
                 }
 
-                if(i->second.u.f.offset >=(ds.st_size)) {
+                if(i->second.GetOffset(nIndexVersion) >=(ds.st_size)) {
                     std::cerr << "Offset bigger than current file : " << szFile << std::endl;
                     std::cerr << i->first  << " / " << i->second << std::endl;
                     return false;
                 }
 
-                if(!ReadGOP(szFile, 0, i->second.u.f.offset, pMem + i->first.u.f.offset)) {
+                if(!ReadGOP(szFile, 0, i->second.GetOffset(nIndexVersion), pMem + i->first.GetOffset(nIndexVersion))) {
                   delete[]pMem;
                   return false;
                 }
@@ -589,10 +571,7 @@ bool ReadRecordings(const std::string & szFolder,
                 ss << szFolder;
                 if('/' != *szFolder.rbegin())
                     ss << '/';
-                ss.fill('0');
-                ss.width(3);
-                ss << (int)i->first.u.f.number; // Filenumber 001.vdr ...
-                ss << ".vdr";
+                i->first.buildFilename(ss,nIndexVersion); // Filenumber 001.vdr ...
                 ss << std::ends;
                 std::string szFile(ss.str());
 
@@ -603,14 +582,16 @@ bool ReadRecordings(const std::string & szFolder,
                     std::cerr << i->first  << " / " << i->second << std::endl;
                     return false;
                 }
-                if(i->first.u.f.offset >=(ds.st_size)) {
+                if(i->first.GetOffset(nIndexVersion) >=(ds.st_size)) {
                     std::cerr << "Offset bigger than current file : " << szFile << std::endl;
                     std::cerr << i->first  << " / " << i->second << std::endl;
                     return false;
                 }
 
                 // size of GOP
-                nSize = i->second.u.f.offset ? i->second.u.f.offset - i->first.u.f.offset : ds.st_size - i->first.u.f.offset;
+                nSize = i->second.GetOffset(nIndexVersion) 
+                      ? i->second.GetOffset(nIndexVersion) - i->first.GetOffset(nIndexVersion)
+                      : ds.st_size - i->first.GetOffset(nIndexVersion);
                 if(nSize <= 0
                     || nSize >=(1 << 24)
                     || NULL ==(pMem = new char[nSize]))
@@ -621,7 +602,7 @@ bool ReadRecordings(const std::string & szFolder,
                     return false;
                 }
 
-                if(!ReadGOP(szFile, i->first.u.f.offset, nSize, pMem)) {
+                if(!ReadGOP(szFile, i->first.GetOffset(nIndexVersion), nSize, pMem)) {
                   delete[]pMem;
                   return false;
                 }
@@ -629,104 +610,85 @@ bool ReadRecordings(const std::string & szFolder,
 
 
 /* 
-00 00 01 // Startcode
+00 00 01 // PES Startcode
 e4       // Streamtype
 07 fa    // Length => 2042
 84 c0    // notused
 0b       // header_length
 */
-            static const unsigned char packetMagic[3] = { 0x00, 0x00, 0x01 };
-            if(0 != memcmp(pMem, packetMagic, 3))
-            {
-                std::cerr << "No valid magic found, at current packet, for file : " << szFolder << std::endl;
+            int nMagicFormat = -1;
+            static const unsigned char pesMagic[3] = { 0x00, 0x00, 0x01 };
+            static const unsigned char tsMagic[3] = { 0x47, 0x40, 0x00 };
+            if(0 == memcmp(pMem, pesMagic, sizeof(pesMagic))) {
+              nMagicFormat = 1;
+            } else if(0 == memcmp(pMem, tsMagic, sizeof(tsMagic))) {
+              nMagicFormat = 2;
+            } else {
+                std::cerr << "No valid magic found, at current pes packet, for file : " << szFolder << std::endl;
                 std::cerr << i->first  << " / " << i->second << std::endl;
-                std::cerr.fill('0');
-                std::cerr.width(2);
-                std::cerr << "found : 0x" 
-                          << std::hex << (unsigned int)(*(pMem + 0) & 0xFF) 
-                          << std::hex << (unsigned int)(*(pMem + 1) & 0xFF) 
-                          << std::hex << (unsigned int)(*(pMem + 2) & 0xFF) 
-                          << " streamcode : 0x";
-                std::cerr.fill('0');
-                std::cerr.width(2);
-                std::cerr <<(unsigned int)(*(pMem + 3)) << std::endl;
-                delete[]pMem;
-                return false;
-            }
-            int nOffset = 0;
-            int nPackets = 0;
-
-
-            std::ofstream fo;
-
-            while(nOffset < nSize)
-            {
-                int pLength =(((unsigned char) *(pMem + nOffset + 4)) << 8) +
-                             (((unsigned char) *(pMem + nOffset + 5)) << 0);
-                int hLength =(((unsigned char) *(pMem + nOffset + 8)) << 0);
-                unsigned char cStream =(unsigned char) *(pMem + nOffset + 3);
-                if((cStream & 0xe0) == 0xe0)
-                {    // Check for Stream 0xE0-0xEF
-                    // Store payload
-                    // |Header|......PaketLength| 
-                    unsigned char *pBuffer =(unsigned char *) pMem + nOffset + 9 + hLength;
-                    unsigned int nWrite =(pLength + 6) -(9 + hLength);
-
-                    if(!fo.is_open()) // Open on first write.
-                    {
-                        fo.open(szTmpMVP.c_str(), std::ofstream::out | std::ofstream::binary);
-                        if(!fo.good())
-                            break;
-                    }
-                    fo.write((char *) pBuffer, nWrite);
-                    if(!fo.good())
-                        break;
-
-                    ++nPackets;
+#ifdef DEBUG
+#if 0
+                for(unsigned int b = 0; b < nSize; ++b) {        
+                  if(0 == b % 16) {
+                     std::cerr << std::endl;
+                     std::cerr.fill('0');
+                     std::cerr.width(4);
+                     std::cerr << std::hex << b;
+                     std::cerr << " ";
+                  }
+#else
+                std::cerr << "magic and streamcode are : ";
+                for(unsigned int b = 0; b < 4 && b < nSize; ++b) {   
+#endif
+                  std::cerr.fill('0');
+                  std::cerr.width(2);
+                  std::cerr << std::hex << (unsigned int)(*(pMem + b) & 0xFF);
+                  std::cerr << " ";
                 }
-                nOffset +=(pLength + 6);
-
-
-                if(nOffset <= 0)    // avoid negativ seek
-                    break;
-            }
-            if(nPackets == 0 && nOffset >= nSize)
-            {
-                std::cerr << "No valid packet found, for file : " << szFolder << std::endl;
-                std::cerr << i->first  << " / " << i->second << std::endl;
+                std::cerr << std::endl;
+#endif
                 delete[]pMem;
                 return false;
             }
 
-            std::stringstream so;
-            so << szTmpBase;
-            so << "%2d";
-            so << (bJPEG ? ".jpg" : ".ppm");
-            so << std::ends;
-            std::string szTmpMask(so.str());
-
-            bool bRet = decode(szTmpMVP.c_str(), szTmpMask.c_str(), width, height);
-            if(bRet) 
-            {
-                if(!handleTmpfile(szTmpBase, szOutPath,i->first.nFrame,
-                                  i->first.nIFrame, exact, bJPEG, bJPEG,width, height)) {
-                  std::cerr << "Can't handle file : " << szFolder << std::endl;
-                  std::cerr << i->first  << " / " << i->second << std::endl;
-                  return false;
-                }
-
-                // look for more picture from same GOP
-                std::vector < std::pair<tFrame,tFrame> >::const_iterator j = i + 1;
-                std::vector < std::pair<tFrame,tFrame> >::const_iterator e = nGOP.end();
-                for(;j != e; ++j ,++i) 
-                {
-                    if((i->first.nIFrame != j->first.nIFrame ) 
-                      ||(!handleTmpfile(szTmpBase, szOutPath,i->first.nFrame, 
-                                        i->first.nIFrame, exact, bJPEG, bJPEG, width, height)))
-                        break;
-                }
+            bool bRet = false;
+            if(nMagicFormat == 1) {
+              demux_reset();
+              bRet = 0 == demuxPES ((uint8_t*)pMem,(uint8_t*)pMem + nSize, szTmpMVP.c_str(), 0);
+            } else {
+              demux_reset();
+              bRet = 0 == demuxTS ((uint8_t*)pMem,(uint8_t*)pMem + nSize, szTmpMVP.c_str(), 0);
             }
+            if(bRet)
+            {
+              std::stringstream so;
+              so << szTmpBase;
+              so << "%2d";
+              so << (bJPEG ? ".jpg" : ".ppm");
+              so << std::ends;
+              std::string szTmpMask(so.str());
+              bRet = decode(szTmpMVP.c_str(), szTmpMask.c_str(), width, height);
+              if(bRet) 
+              {
+                  if(!handleTmpfile(szTmpBase, szOutPath,i->first.nFrame,
+                                    i->first.nIFrame, exact, bJPEG, bJPEG,width, height)) {
+                    std::cerr << "Can't handle file : " << szFolder << std::endl;
+                    std::cerr << i->first  << " / " << i->second << std::endl;
+                    return false;
+                  }
 
+                  // look for more picture from same GOP
+                  std::vector < std::pair<tFrame,tFrame> >::const_iterator j = i + 1;
+                  std::vector < std::pair<tFrame,tFrame> >::const_iterator e = nGOP.end();
+                  for(;j != e; ++j ,++i) 
+                  {
+                      if((i->first.nIFrame != j->first.nIFrame ) 
+                        ||(!handleTmpfile(szTmpBase, szOutPath,i->first.nFrame, 
+                                          i->first.nIFrame, exact, bJPEG, bJPEG, width, height)))
+                          break;
+                  }
+              }
+            }
             unlinkTmpfiles(szTmpBase, bJPEG);
 
             delete[]pMem;
@@ -734,7 +696,7 @@ e4       // Streamtype
             {
                 std::cerr << "decode failed, for file : " << szFolder << std::endl;
                 std::cerr << i->first  << " / " << i->second << std::endl;
-                return false;
+                nError += 1;
             }
         }
         catch(...)
@@ -743,7 +705,7 @@ e4       // Streamtype
             return false;
         }
     }
-    return true;
+    return (nError == 0);
 }
 
 bool decodegop(const std::string & szFile,
@@ -778,11 +740,12 @@ bool decodegop(const std::string & szFile,
         unlinkTmpfiles(szTmpBase, bJPEG);
 
         return bRet;
+
     }
     catch(...)
     {
         std::cerr << "Something fail at read " << szFile << std::endl;
-        return -1;
     }
+    return false;
 }
 
