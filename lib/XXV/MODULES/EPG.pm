@@ -118,7 +118,13 @@ sub module {
                 short       => 'ei',
                 callback    => sub{ $self->image(@_) },
                 binary      => 'cache'
-            }
+            },
+            opensearch => {
+                hidden      => 'yes',
+                binary      => 'cache',
+                callback    => sub{ $self->opensearch(@_) }
+            },
+
         },
     };
     return $args;
@@ -1037,7 +1043,9 @@ where
           $_->[14] = datum($_->[14],'time') if($_->[14]);
       } @$erg;
     }
-    unshift(@$erg, $fields);
+    unless($console->typ eq 'AJAX') {
+      unshift(@$erg, $fields);
+    }
     $console->table($erg);
 }
 
@@ -1955,6 +1963,19 @@ sub content {
       }
 
       return $description;
+}
+
+sub opensearch {
+    my $self = shift || return error('No object defined!');
+    my $console = shift || return error('No console defined!');
+    my $config = shift || return error('No config defined!');
+
+    return $console->err(gettext("Sorry, feature is'nt supported"))
+      if ($console->{TYP} ne 'HTML');
+
+    my $params = {};
+    $console->out( $console->parseTemplateFile("opensearch", {}, $params, $console->{call})
+                   , "application/opensearchdescription+xml" );
 }
 
 1;

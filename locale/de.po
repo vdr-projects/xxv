@@ -252,17 +252,17 @@ msgid "Detailed program information"
 msgstr "Detailierte Programminformation"
 
 #--------------------
-#: ../html/display.tmpl:22 ../html/display.tmpl:45 ../lib/XXV/MODULES/EPG.pm:1279 ../lib/XXV/MODULES/EPG.pm:968
+#: ../html/display.tmpl:22 ../html/display.tmpl:45 ../lib/XXV/MODULES/EPG.pm:1287 ../lib/XXV/MODULES/EPG.pm:974
 msgid "Percent"
 msgstr "Prozent"
 
 #--------------------
-#: ../html/display.tmpl:26 ../html/rdisplay.tmpl:161 ../html/search.tmpl:54 ../lib/XXV/MODULES/AUTOTIMER.pm:157 ../lib/XXV/MODULES/AUTOTIMER.pm:435 ../lib/XXV/MODULES/CHRONICLE.pm:178 ../lib/XXV/MODULES/CHRONICLE.pm:260 ../lib/XXV/MODULES/EPG.pm:1126 ../lib/XXV/MODULES/EPG.pm:1276 ../lib/XXV/MODULES/EPG.pm:714 ../lib/XXV/MODULES/EPG.pm:964 ../lib/XXV/MODULES/RECORDS.pm:2479 ../lib/XXV/MODULES/SHARE.pm:359 ../lib/XXV/MODULES/TIMERS.pm:1250 ../lib/XXV/MODULES/TIMERS.pm:877 ../lib/XXV/MODULES/XMLTV.pm:691
+#: ../html/display.tmpl:26 ../html/rdisplay.tmpl:161 ../html/search.tmpl:54 ../lib/XXV/MODULES/AUTOTIMER.pm:157 ../lib/XXV/MODULES/AUTOTIMER.pm:435 ../lib/XXV/MODULES/CHRONICLE.pm:178 ../lib/XXV/MODULES/CHRONICLE.pm:260 ../lib/XXV/MODULES/EPG.pm:1134 ../lib/XXV/MODULES/EPG.pm:1284 ../lib/XXV/MODULES/EPG.pm:720 ../lib/XXV/MODULES/EPG.pm:970 ../lib/XXV/MODULES/RECORDS.pm:2479 ../lib/XXV/MODULES/SHARE.pm:359 ../lib/XXV/MODULES/TIMERS.pm:1250 ../lib/XXV/MODULES/TIMERS.pm:877 ../lib/XXV/MODULES/XMLTV.pm:691
 msgid "Channel"
 msgstr "Kanal"
 
 #--------------------
-#: ../html/display.tmpl:28 ../html/movetimerlist.tmpl:81 ../lib/XXV/MODULES/AUTOTIMER.pm:1145 ../lib/XXV/MODULES/CHANNELS.pm:601 ../lib/XXV/MODULES/CHRONICLE.pm:176 ../lib/XXV/MODULES/CHRONICLE.pm:258 ../lib/XXV/MODULES/EPG.pm:1124 ../lib/XXV/MODULES/EPG.pm:1274 ../lib/XXV/MODULES/EPG.pm:712 ../lib/XXV/MODULES/EPG.pm:844 ../lib/XXV/MODULES/EPG.pm:961 ../lib/XXV/MODULES/MOVETIMER.pm:582 ../lib/XXV/MODULES/MUSIC.pm:657 ../lib/XXV/MODULES/SHARE.pm:357 ../lib/XXV/MODULES/SVDRP.pm:373 ../lib/XXV/MODULES/TIMERS.pm:1247 ../lib/XXV/MODULES/USER.pm:614 ../lib/XXV/MODULES/XMLTV.pm:689
+#: ../html/display.tmpl:28 ../html/movetimerlist.tmpl:81 ../lib/XXV/MODULES/AUTOTIMER.pm:1145 ../lib/XXV/MODULES/CHANNELS.pm:601 ../lib/XXV/MODULES/CHRONICLE.pm:176 ../lib/XXV/MODULES/CHRONICLE.pm:258 ../lib/XXV/MODULES/EPG.pm:1132 ../lib/XXV/MODULES/EPG.pm:1282 ../lib/XXV/MODULES/EPG.pm:718 ../lib/XXV/MODULES/EPG.pm:850 ../lib/XXV/MODULES/EPG.pm:967 ../lib/XXV/MODULES/MOVETIMER.pm:582 ../lib/XXV/MODULES/MUSIC.pm:657 ../lib/XXV/MODULES/SHARE.pm:357 ../lib/XXV/MODULES/SVDRP.pm:373 ../lib/XXV/MODULES/TIMERS.pm:1247 ../lib/XXV/MODULES/USER.pm:614 ../lib/XXV/MODULES/XMLTV.pm:689
 msgid "Service"
 msgstr "Service"
 
@@ -297,12 +297,12 @@ msgid "Top Ten entrys"
 msgstr "Die besten zehn Einträge"
 
 #--------------------
-#: ../html/display.tmpl:61 ../lib/XXV/MODULES/AUTOTIMER.pm:444 ../lib/XXV/MODULES/AUTOTIMER.pm:646 ../lib/XXV/MODULES/EPG.pm:967 ../lib/XXV/MODULES/RECORDS.pm:2492 ../lib/XXV/MODULES/TIMERS.pm:781 ../lib/XXV/OUTPUT/Console.pm:171
+#: ../html/display.tmpl:61 ../lib/XXV/MODULES/AUTOTIMER.pm:444 ../lib/XXV/MODULES/AUTOTIMER.pm:646 ../lib/XXV/MODULES/EPG.pm:973 ../lib/XXV/MODULES/RECORDS.pm:2492 ../lib/XXV/MODULES/TIMERS.pm:781 ../lib/XXV/OUTPUT/Console.pm:171
 msgid "Description"
 msgstr "Beschreibung"
 
 #--------------------
-#: ../html/display.tmpl:70 ../lib/XXV/MODULES/AUTOTIMER.pm:158 ../lib/XXV/MODULES/AUTOTIMER.pm:438 ../lib/XXV/MODULES/AUTOTIMER.pm:441 ../lib/XXV/MODULES/CHRONICLE.pm:180 ../lib/XXV/MODULES/CHRONICLE.pm:262 ../lib/XXV/MODULES/EPG.pm:1127 ../lib/XXV/MODULES/EPG.pm:1277 ../lib/XXV/MODULES/EPG.pm:715 ../lib/XXV/MODULES/EPG.pm:846 ../lib/XXV/MODULES/EPG.pm:965 ../lib/XXV/MODULES/SHARE.pm:360 ../lib/XXV/MODULES/TIMERS.pm:1251 ../lib/XXV/MODULES/TIMERS.pm:878
+#: ../html/display.tmpl:70 ../lib/XXV/MODULES/AUTOTIMER.pm:158 ../lib/XXV/MODULES/AUTOTIMER.pm:438 ../lib/XXV/MODULES/AUTOTIMER.pm:441 ../lib/XXV/MODULES/CHRONICLE.pm:180 ../lib/XXV/MODULES/CHRONICLE.pm:262 ../lib/XXV/MODULES/EPG.pm:1135 ../lib/XXV/MODULES/EPG.pm:1285 ../lib/XXV/MODULES/EPG.pm:721 ../lib/XXV/MODULES/EPG.pm:852 ../lib/XXV/MODULES/EPG.pm:971 ../lib/XXV/MODULES/SHARE.pm:360 ../lib/XXV/MODULES/TIMERS.pm:1251 ../lib/XXV/MODULES/TIMERS.pm:878
 msgid "Start"
 msgstr "Start"
 
@@ -312,7 +312,7 @@ msgid "PDC"
 msgstr "VPS"
 
 #--------------------
-#: ../html/display.tmpl:76 ../html/widgets/player.tmpl:100 ../html/widgets/player.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:159 ../lib/XXV/MODULES/AUTOTIMER.pm:439 ../lib/XXV/MODULES/AUTOTIMER.pm:442 ../lib/XXV/MODULES/CHRONICLE.pm:181 ../lib/XXV/MODULES/CHRONICLE.pm:263 ../lib/XXV/MODULES/EPG.pm:1128 ../lib/XXV/MODULES/EPG.pm:1278 ../lib/XXV/MODULES/EPG.pm:716 ../lib/XXV/MODULES/EPG.pm:847 ../lib/XXV/MODULES/EPG.pm:966 ../lib/XXV/MODULES/SHARE.pm:361 ../lib/XXV/MODULES/TIMERS.pm:1252
+#: ../html/display.tmpl:76 ../html/widgets/player.tmpl:100 ../html/widgets/player.tmpl:60 ../lib/XXV/MODULES/AUTOTIMER.pm:159 ../lib/XXV/MODULES/AUTOTIMER.pm:439 ../lib/XXV/MODULES/AUTOTIMER.pm:442 ../lib/XXV/MODULES/CHRONICLE.pm:181 ../lib/XXV/MODULES/CHRONICLE.pm:263 ../lib/XXV/MODULES/EPG.pm:1136 ../lib/XXV/MODULES/EPG.pm:1286 ../lib/XXV/MODULES/EPG.pm:722 ../lib/XXV/MODULES/EPG.pm:853 ../lib/XXV/MODULES/EPG.pm:972 ../lib/XXV/MODULES/SHARE.pm:361 ../lib/XXV/MODULES/TIMERS.pm:1252
 msgid "Stop"
 msgstr "Stopp"
 
@@ -646,7 +646,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #--------------------
-#: ../html/mlcopy.tmpl:23 ../html/mledit.tmpl:23 ../html/mlimport.tmpl:23 ../lib/XXV/MODULES/AUTOTIMER.pm:155 ../lib/XXV/MODULES/AUTOTIMER.pm:432 ../lib/XXV/MODULES/AUTOTIMER.pm:644 ../lib/XXV/MODULES/CHRONICLE.pm:177 ../lib/XXV/MODULES/CHRONICLE.pm:259 ../lib/XXV/MODULES/EPG.pm:1125 ../lib/XXV/MODULES/EPG.pm:1275 ../lib/XXV/MODULES/EPG.pm:713 ../lib/XXV/MODULES/EPG.pm:845 ../lib/XXV/MODULES/EPG.pm:962 ../lib/XXV/MODULES/EVENTS.pm:349 ../lib/XXV/MODULES/MEDIALIB.pm:1274 ../lib/XXV/MODULES/MUSIC.pm:660 ../lib/XXV/MODULES/RECORDS.pm:2022 ../lib/XXV/MODULES/RECORDS.pm:2164 ../lib/XXV/MODULES/RECORDS.pm:2313 ../lib/XXV/MODULES/SHARE.pm:358 ../lib/XXV/MODULES/TIMERS.pm:1253 ../lib/XXV/MODULES/TIMERS.pm:876
+#: ../html/mlcopy.tmpl:23 ../html/mledit.tmpl:23 ../html/mlimport.tmpl:23 ../lib/XXV/MODULES/AUTOTIMER.pm:155 ../lib/XXV/MODULES/AUTOTIMER.pm:432 ../lib/XXV/MODULES/AUTOTIMER.pm:644 ../lib/XXV/MODULES/CHRONICLE.pm:177 ../lib/XXV/MODULES/CHRONICLE.pm:259 ../lib/XXV/MODULES/EPG.pm:1133 ../lib/XXV/MODULES/EPG.pm:1283 ../lib/XXV/MODULES/EPG.pm:719 ../lib/XXV/MODULES/EPG.pm:851 ../lib/XXV/MODULES/EPG.pm:968 ../lib/XXV/MODULES/EVENTS.pm:349 ../lib/XXV/MODULES/MEDIALIB.pm:1274 ../lib/XXV/MODULES/MUSIC.pm:660 ../lib/XXV/MODULES/RECORDS.pm:2022 ../lib/XXV/MODULES/RECORDS.pm:2164 ../lib/XXV/MODULES/RECORDS.pm:2313 ../lib/XXV/MODULES/SHARE.pm:358 ../lib/XXV/MODULES/TIMERS.pm:1253 ../lib/XXV/MODULES/TIMERS.pm:876
 msgid "Title"
 msgstr "Titel"
 
@@ -656,7 +656,7 @@ msgid "Search at"
 msgstr "Suche bei"
 
 #--------------------
-#: ../html/mlcopy.tmpl:38 ../html/mledit.tmpl:38 ../html/mlimport.tmpl:38 ../lib/XXV/MODULES/AUTOTIMER.pm:433 ../lib/XXV/MODULES/AUTOTIMER.pm:645 ../lib/XXV/MODULES/EPG.pm:963 ../lib/XXV/MODULES/MEDIALIB.pm:1275 ../lib/XXV/MODULES/RECORDS.pm:2023 ../lib/XXV/MODULES/RECORDS.pm:2165
+#: ../html/mlcopy.tmpl:38 ../html/mledit.tmpl:38 ../html/mlimport.tmpl:38 ../lib/XXV/MODULES/AUTOTIMER.pm:433 ../lib/XXV/MODULES/AUTOTIMER.pm:645 ../lib/XXV/MODULES/EPG.pm:969 ../lib/XXV/MODULES/MEDIALIB.pm:1275 ../lib/XXV/MODULES/RECORDS.pm:2023 ../lib/XXV/MODULES/RECORDS.pm:2165
 msgid "Subtitle"
 msgstr "Serientitel"
 
@@ -958,6 +958,16 @@ msgstr "Aufn"
 #: ../html/next.tmpl:71 ../html/now.tmpl:71
 msgid "Swt"
 msgstr "Umsch"
+
+#--------------------
+#: ../html/opensearch.tmpl:3
+msgid "Search with XXV"
+msgstr "Suchen mit XXV"
+
+#--------------------
+#: ../html/opensearch.tmpl:4
+msgid "Search for TV shows"
+msgstr "Suche nach TV Sendungen"
 
 #--------------------
 #: ../html/program.tmpl:17
@@ -1582,7 +1592,7 @@ msgid "Autotimer '%s' found: %s"
 msgstr "Autotimer '%s' hat gefunden: %s"
 
 #--------------------
-#: ../lib/XXV/MODULES/AUTOTIMER.pm:156 ../lib/XXV/MODULES/CHRONICLE.pm:179 ../lib/XXV/MODULES/CHRONICLE.pm:261 ../lib/XXV/MODULES/EPG.pm:717 ../lib/XXV/MODULES/EPG.pm:848 ../lib/XXV/MODULES/SHARE.pm:362 ../lib/XXV/MODULES/TIMERS.pm:1249
+#: ../lib/XXV/MODULES/AUTOTIMER.pm:156 ../lib/XXV/MODULES/CHRONICLE.pm:179 ../lib/XXV/MODULES/CHRONICLE.pm:261 ../lib/XXV/MODULES/EPG.pm:723 ../lib/XXV/MODULES/EPG.pm:854 ../lib/XXV/MODULES/SHARE.pm:362 ../lib/XXV/MODULES/TIMERS.pm:1249
 msgid "Day"
 msgstr "Datum"
 
@@ -1902,7 +1912,7 @@ msgid "Deletes one or more channels 'pos'"
 msgstr "Löscht einen oder mehrere Kanäle 'pos'"
 
 #--------------------
-#: ../lib/XXV/MODULES/CHANNELS.pm:1100 ../lib/XXV/MODULES/CHANNELS.pm:1105 ../lib/XXV/MODULES/CHANNELS.pm:1443 ../lib/XXV/MODULES/EPG.pm:1740 ../lib/XXV/MODULES/REMOTE.pm:282 ../lib/XXV/MODULES/REMOTE.pm:287 ../lib/XXV/MODULES/STREAM.pm:210
+#: ../lib/XXV/MODULES/CHANNELS.pm:1100 ../lib/XXV/MODULES/CHANNELS.pm:1105 ../lib/XXV/MODULES/CHANNELS.pm:1443 ../lib/XXV/MODULES/EPG.pm:1748 ../lib/XXV/MODULES/REMOTE.pm:282 ../lib/XXV/MODULES/REMOTE.pm:287 ../lib/XXV/MODULES/STREAM.pm:210
 msgid "Channel '%s' does not exist in the database!"
 msgstr "Der Kanal '%s' existiert nicht in der Datenbank!"
 
@@ -2241,29 +2251,24 @@ msgid "There none module reloaded."
 msgstr "Es wurden keine Module neugeladen."
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1030
+#: ../lib/XXV/MODULES/EPG.pm:1036
 msgid "Event '%d' does not exist in the database!"
 msgstr "Sendung '%d' existiert nicht in der Datenbank!"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1417 ../lib/XXV/MODULES/VTX.pm:1270 ../lib/XXV/MODULES/VTX.pm:1336
+#: ../lib/XXV/MODULES/EPG.pm:1425 ../lib/XXV/MODULES/VTX.pm:1270 ../lib/XXV/MODULES/VTX.pm:1336
 msgid "No channel defined!"
 msgstr "Kein Kanal definiert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:159
-msgid "EPG table contains %d entries and since the last login on %s %d new entries."
-msgstr "Die EPG Tabelle enthält %d Einträge und seit dem letzten Anmeldung am %s, %d neue Einträge"
-
-#--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1640
+#: ../lib/XXV/MODULES/EPG.pm:1648
 msgid "No event id defined!"
 msgstr "Keine ID zum Event definiert!"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1797 ../lib/XXV/MODULES/GRAB.pm:240 ../lib/XXV/MODULES/RECORDS.pm:3213
-msgid "Sorry, get image is'nt supported"
-msgstr "Entschuldigung, Bilder werden nicht unterstützt!"
+#: ../lib/XXV/MODULES/EPG.pm:165
+msgid "EPG table contains %d entries and since the last login on %s %d new entries."
+msgstr "Die EPG Tabelle enthält %d Einträge und seit dem letzten Anmeldung am %s, %d neue Einträge"
 
 #--------------------
 #: ../lib/XXV/MODULES/EPG.pm:18
@@ -2271,404 +2276,414 @@ msgid "This module reads new EPG data and saves it to the database."
 msgstr "Dieses Modul liest neue EPG-Daten und speichert sie in der Datenbank."
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1820 ../lib/XXV/MODULES/EPG.pm:1821
+#: ../lib/XXV/MODULES/EPG.pm:1805 ../lib/XXV/MODULES/GRAB.pm:240 ../lib/XXV/MODULES/RECORDS.pm:3213
+msgid "Sorry, get image is'nt supported"
+msgstr "Entschuldigung, Bilder werden nicht unterstützt!"
+
+#--------------------
+#: ../lib/XXV/MODULES/EPG.pm:1828 ../lib/XXV/MODULES/EPG.pm:1829
 msgid "Movie/Drama"
 msgstr "Film/Drama"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1822
+#: ../lib/XXV/MODULES/EPG.pm:1830
 msgid "Detective/Thriller"
 msgstr "Detektiv/Thriller"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1823
+#: ../lib/XXV/MODULES/EPG.pm:1831
 msgid "Adventure/Western/War"
 msgstr "Abenteuer/Western/Krieg"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1824
+#: ../lib/XXV/MODULES/EPG.pm:1832
 msgid "Science Fiction/Fantasy/Horror"
 msgstr "Science-Fiction/Fantasy/Horror"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1825 ../lib/XXV/MODULES/MEDIALIB.pm:1162
+#: ../lib/XXV/MODULES/EPG.pm:1833 ../lib/XXV/MODULES/MEDIALIB.pm:1162
 msgid "Comedy"
 msgstr "Komödie"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1826
+#: ../lib/XXV/MODULES/EPG.pm:1834
 msgid "Soap/Melodrama/Folkloric"
 msgstr "Seife/Melodram/Folklore"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1827 ../lib/XXV/MODULES/MEDIALIB.pm:1202
+#: ../lib/XXV/MODULES/EPG.pm:1835 ../lib/XXV/MODULES/MEDIALIB.pm:1202
 msgid "Romance"
 msgstr "Romanze"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1828
+#: ../lib/XXV/MODULES/EPG.pm:1836
 msgid "Serious/Classical/Religious/Historical Movie/Drama"
 msgstr "Ernst/Klassik/Religion/Historischer Film/Drama"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1829
+#: ../lib/XXV/MODULES/EPG.pm:1837
 msgid "Adult Movie/Drama"
 msgstr "Erwachsenen-Film/Drama"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1833 ../lib/XXV/MODULES/EPG.pm:1834
+#: ../lib/XXV/MODULES/EPG.pm:1841 ../lib/XXV/MODULES/EPG.pm:1842
 msgid "News/Current Affairs"
 msgstr "Aktuelle Angelegenheiten"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1835
+#: ../lib/XXV/MODULES/EPG.pm:1843
 msgid "News/Weather Report"
 msgstr "Wetterbericht"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1836
+#: ../lib/XXV/MODULES/EPG.pm:1844
 msgid "News Magazine"
 msgstr "Nachrichtenmagazin"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1837 ../lib/XXV/MODULES/MEDIALIB.pm:1170
+#: ../lib/XXV/MODULES/EPG.pm:1845 ../lib/XXV/MODULES/MEDIALIB.pm:1170
 msgid "Documentary"
 msgstr "Dokumentation"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1838
+#: ../lib/XXV/MODULES/EPG.pm:1846
 msgid "Discussion/Inverview/Debate"
 msgstr "Diskussion/Interview/Debatte"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1842 ../lib/XXV/MODULES/EPG.pm:1843
+#: ../lib/XXV/MODULES/EPG.pm:1850 ../lib/XXV/MODULES/EPG.pm:1851
 msgid "Show/Game Show"
 msgstr "Show/Spielshow"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1844
+#: ../lib/XXV/MODULES/EPG.pm:1852
 msgid "Game Show/Quiz/Contest"
 msgstr "Spielshow/Quiz/Wettbewerb"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1845
+#: ../lib/XXV/MODULES/EPG.pm:1853
 msgid "Variety Show"
 msgstr "Variete-Show"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1846
+#: ../lib/XXV/MODULES/EPG.pm:1854
 msgid "Talk Show"
 msgstr "Talkshow"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1850 ../lib/XXV/MODULES/EPG.pm:1851
+#: ../lib/XXV/MODULES/EPG.pm:1858 ../lib/XXV/MODULES/EPG.pm:1859
 msgid "Sports"
 msgstr "Sport"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1852
+#: ../lib/XXV/MODULES/EPG.pm:1860
 msgid "Special Event"
 msgstr "Besonderes Ereignis"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1853
+#: ../lib/XXV/MODULES/EPG.pm:1861
 msgid "Sport Magazine"
 msgstr "Sportmagazin"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1854
+#: ../lib/XXV/MODULES/EPG.pm:1862
 msgid "Football/Soccer"
 msgstr "Football/Fußball"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1855
+#: ../lib/XXV/MODULES/EPG.pm:1863
 msgid "Tennis/Squash"
 msgstr "Tennis/Squash"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1856
+#: ../lib/XXV/MODULES/EPG.pm:1864
 msgid "Team Sports"
 msgstr "Mannschaftssport"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1857
+#: ../lib/XXV/MODULES/EPG.pm:1865
 msgid "Athletics"
 msgstr "Athletik"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1858
+#: ../lib/XXV/MODULES/EPG.pm:1866
 msgid "Motor Sport"
 msgstr "Motorsport"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1859
+#: ../lib/XXV/MODULES/EPG.pm:1867
 msgid "Water Sport"
 msgstr "Wassersport"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1860
+#: ../lib/XXV/MODULES/EPG.pm:1868
 msgid "Winter Sports"
 msgstr "Wintersport"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1861
+#: ../lib/XXV/MODULES/EPG.pm:1869
 msgid "Equestrian"
 msgstr "Reitsport"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1862
+#: ../lib/XXV/MODULES/EPG.pm:1870
 msgid "Martial Sports"
 msgstr "Kampfsport"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1866 ../lib/XXV/MODULES/EPG.pm:1867
+#: ../lib/XXV/MODULES/EPG.pm:1874 ../lib/XXV/MODULES/EPG.pm:1875
 msgid "Children's/Youth Programme"
 msgstr "Kinder/Jugendprogramm"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1868
+#: ../lib/XXV/MODULES/EPG.pm:1876
 msgid "Pre-school Children's Programme"
 msgstr "Programm für Vorschulkinder"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1869
+#: ../lib/XXV/MODULES/EPG.pm:1877
 msgid "Entertainment Programme for 6 to 14"
 msgstr "Unterhaltungsprogramm für 6 bis 14"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1870
+#: ../lib/XXV/MODULES/EPG.pm:1878
 msgid "Entertainment Programme for 10 to 16"
 msgstr "Unterhaltungsprogramm für 10 bis 16"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1871
+#: ../lib/XXV/MODULES/EPG.pm:1879
 msgid "Informational/Educational/School Programme"
 msgstr "Informations/Lehr/Schul-Programm"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1872
+#: ../lib/XXV/MODULES/EPG.pm:1880
 msgid "Cartoons/Puppets"
 msgstr "Zeichentrick/Puppen"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1876 ../lib/XXV/MODULES/EPG.pm:1877
+#: ../lib/XXV/MODULES/EPG.pm:1884 ../lib/XXV/MODULES/EPG.pm:1885
 msgid "Music/Ballet/Dance"
 msgstr "Musik/Ballett/Tanz"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1878
+#: ../lib/XXV/MODULES/EPG.pm:1886
 msgid "Rock/Pop"
 msgstr "Rock/Pop"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1879
+#: ../lib/XXV/MODULES/EPG.pm:1887
 msgid "Serious/Classical Music"
 msgstr "Ernste/Klassische Musik"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1880
+#: ../lib/XXV/MODULES/EPG.pm:1888
 msgid "Folk/Tradional Music"
 msgstr "Volks/Traditionelle Musik"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1881
+#: ../lib/XXV/MODULES/EPG.pm:1889
 msgid "Jazz"
 msgstr "Jazz"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1882
+#: ../lib/XXV/MODULES/EPG.pm:1890
 msgid "Musical/Opera"
 msgstr "Musical/Oper"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1883
+#: ../lib/XXV/MODULES/EPG.pm:1891
 msgid "Ballet"
 msgstr "Ballett"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1887 ../lib/XXV/MODULES/EPG.pm:1888
+#: ../lib/XXV/MODULES/EPG.pm:1895 ../lib/XXV/MODULES/EPG.pm:1896
 msgid "Arts/Culture"
 msgstr "Kunst/Kultur"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1889
+#: ../lib/XXV/MODULES/EPG.pm:1897
 msgid "Performing Arts"
 msgstr "Darstellende Künste"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1890
+#: ../lib/XXV/MODULES/EPG.pm:1898
 msgid "Fine Arts"
 msgstr "Bildende Künste"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1891
+#: ../lib/XXV/MODULES/EPG.pm:1899
 msgid "Religion"
 msgstr "Religion"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1892
+#: ../lib/XXV/MODULES/EPG.pm:1900
 msgid "Popular Culture/Traditional Arts"
 msgstr "Pop-Kultur/Traditionelle Künste"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1893
+#: ../lib/XXV/MODULES/EPG.pm:1901
 msgid "Literature"
 msgstr "Literatur"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1894
+#: ../lib/XXV/MODULES/EPG.pm:1902
 msgid "Film/Cinema"
 msgstr "Film/Kino"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1895
+#: ../lib/XXV/MODULES/EPG.pm:1903
 msgid "Experimental Film/Video"
 msgstr "Experimentalfilm/Video"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1896
+#: ../lib/XXV/MODULES/EPG.pm:1904
 msgid "Broadcasting/Press"
 msgstr "Rundfunk/Presse"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1897
+#: ../lib/XXV/MODULES/EPG.pm:1905
 msgid "New Media"
 msgstr "Neue Medien"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1898
+#: ../lib/XXV/MODULES/EPG.pm:1906
 msgid "Arts/Culture Magazine"
 msgstr "Kunst/Kulturmagazin"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1899
+#: ../lib/XXV/MODULES/EPG.pm:1907
 msgid "Fashion"
 msgstr "Mode"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1903 ../lib/XXV/MODULES/EPG.pm:1904
+#: ../lib/XXV/MODULES/EPG.pm:1911 ../lib/XXV/MODULES/EPG.pm:1912
 msgid "Social/Political/Economics"
 msgstr "Gesellschaft/Politik/Wirtschaft"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1905
+#: ../lib/XXV/MODULES/EPG.pm:1913
 msgid "Magazine/Report/Documentary"
 msgstr "Magazin/Bericht/Dokumentation"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1906
+#: ../lib/XXV/MODULES/EPG.pm:1914
 msgid "Economics/Social Advisory"
 msgstr "Wirtschafts/Gesellschaftsberatung"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1907
+#: ../lib/XXV/MODULES/EPG.pm:1915
 msgid "Remarkable People"
 msgstr "Bemerkenswerte Leute"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1911 ../lib/XXV/MODULES/EPG.pm:1912
+#: ../lib/XXV/MODULES/EPG.pm:1919 ../lib/XXV/MODULES/EPG.pm:1920
 msgid "Education/Science/Factual"
 msgstr "Ausbildung/Wissenschaft/Sachlich"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1913
+#: ../lib/XXV/MODULES/EPG.pm:1921
 msgid "Nature/Animals/Environment"
 msgstr "Natur/Tiere/Umwelt"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1914
+#: ../lib/XXV/MODULES/EPG.pm:1922
 msgid "Technology/Natural Sciences"
 msgstr "Technik/Naturwissenschaften"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1915
+#: ../lib/XXV/MODULES/EPG.pm:1923
 msgid "Medicine/Physiology/Psychology"
 msgstr "Medizin/Physiologie/Psychologie"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1916
+#: ../lib/XXV/MODULES/EPG.pm:1924
 msgid "Foreign Countries/Expeditions"
 msgstr "Ausland/Expeditionen"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1917
+#: ../lib/XXV/MODULES/EPG.pm:1925
 msgid "Social/Spiritual Sciences"
 msgstr "Sozial/Geisteswissenschaften"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1918
+#: ../lib/XXV/MODULES/EPG.pm:1926
 msgid "Further Education"
 msgstr "Weiterbildung"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1919
+#: ../lib/XXV/MODULES/EPG.pm:1927
 msgid "Languages"
 msgstr "Sprachen"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1923 ../lib/XXV/MODULES/EPG.pm:1924
+#: ../lib/XXV/MODULES/EPG.pm:1931 ../lib/XXV/MODULES/EPG.pm:1932
 msgid "Leisure/Hobbies"
 msgstr "Freizeit/Hobbies"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1925
+#: ../lib/XXV/MODULES/EPG.pm:1933
 msgid "Tourism/Travel"
 msgstr "Tourismus/Reisen"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1926
+#: ../lib/XXV/MODULES/EPG.pm:1934
 msgid "Handicraft"
 msgstr "Handwerk"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1927
+#: ../lib/XXV/MODULES/EPG.pm:1935
 msgid "Motoring"
 msgstr "Autofahren"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1928
+#: ../lib/XXV/MODULES/EPG.pm:1936
 msgid "Fitness & Health"
 msgstr "Fitness & Gesundheit"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1929
+#: ../lib/XXV/MODULES/EPG.pm:1937
 msgid "Cooking"
 msgstr "Kochen"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1930
+#: ../lib/XXV/MODULES/EPG.pm:1938
 msgid "Advertisement/Shopping"
 msgstr "Werbung/Einkaufen"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1931
+#: ../lib/XXV/MODULES/EPG.pm:1939
 msgid "Gardening"
 msgstr "Gartenbau"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1935
+#: ../lib/XXV/MODULES/EPG.pm:1943
 msgid "Special characteristics"
 msgstr "Besondere Merkmale"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1936
+#: ../lib/XXV/MODULES/EPG.pm:1944
 msgid "Original Language"
 msgstr "Originalsprache"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1937
+#: ../lib/XXV/MODULES/EPG.pm:1945
 msgid "Black & White"
 msgstr "Schwarz-weiß"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1938
+#: ../lib/XXV/MODULES/EPG.pm:1946
 msgid "Unpublished"
 msgstr "Unveröffentlicht"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:1939
+#: ../lib/XXV/MODULES/EPG.pm:1947
 msgid "Live Broadcast"
 msgstr "Live-Sendung"
+
+#--------------------
+#: ../lib/XXV/MODULES/EPG.pm:1973
+msgid "Sorry, feature is'nt supported"
+msgstr ""
 
 #--------------------
 #: ../lib/XXV/MODULES/EPG.pm:26
@@ -2676,7 +2691,7 @@ msgid "Location of additional EPG images."
 msgstr "Position von zusätzlichen EPG Bildern."
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:294
+#: ../lib/XXV/MODULES/EPG.pm:300
 msgid "Read EPG data ..."
 msgstr "Lese EPG Daten"
 
@@ -2686,7 +2701,7 @@ msgid "How often EPG data are to be analyzed (in seconds)"
 msgstr "Wie oft sollen EPG Daten analysiert werden (in Sekunden)"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:330
+#: ../lib/XXV/MODULES/EPG.pm:336
 msgid "%d events in database updated."
 msgstr "Es wurden %d Einträge in Datenbank aktualisiert."
 
@@ -2696,7 +2711,7 @@ msgid "Preferred program times. (eg. 12:00, 18:00)"
 msgstr "Die bevorzugten Programmzeiten (Kommagetrenne Liste)"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:421
+#: ../lib/XXV/MODULES/EPG.pm:427
 msgid "Analyze channel '%s'"
 msgstr "Untersuche Kanal '%s'"
 
@@ -2716,7 +2731,7 @@ msgid "List program for channel 'channel name'"
 msgstr "Zeige Programm für Kanal 'Kanalname'"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:581
+#: ../lib/XXV/MODULES/EPG.pm:587
 msgid "No title"
 msgstr "Kein Titel"
 
@@ -2741,17 +2756,17 @@ msgid "Display events in a schematic way"
 msgstr "Zeigt Sendungen in einer übersichtlichen Weise"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:825
-msgid "No channel available!"
-msgstr "Keine Kanäle verfügbar!"
-
-#--------------------
 #: ../lib/XXV/MODULES/EPG.pm:83
 msgid "Update EPG data."
 msgstr "Aktualisiere EPG Daten"
 
 #--------------------
-#: ../lib/XXV/MODULES/EPG.pm:956
+#: ../lib/XXV/MODULES/EPG.pm:831
+msgid "No channel available!"
+msgstr "Keine Kanäle verfügbar!"
+
+#--------------------
+#: ../lib/XXV/MODULES/EPG.pm:962
 msgid "No ID defined to display this program! Please use display 'eid'!"
 msgstr "Keine ID einer Sendung, zur Anzeige dieses Programmes, definiert! Bitte verwende display 'eid'"
 
