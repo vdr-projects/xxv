@@ -23,6 +23,7 @@
 <?% IF allow("request") %?>
     <link rel="alternate" type="application/rss+xml" title="RSS-News" href="?cmd=request&amp;data=rss" />
 <?% END %?>
+    <link rel="search" type="application/opensearchdescription+xml" href="?cmd=opensearch" title="<?% gettext("Search with XXV") %?>" />
 </head>
 <?% IF info.http_useragent.match('.*MSIE.*') && !info.http_useragent.match('.*Opera.*');
     global.imagetyp = "gif";

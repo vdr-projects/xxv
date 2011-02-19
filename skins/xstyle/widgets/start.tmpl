@@ -5,12 +5,12 @@
 <head>
     <title><?% IF param.title.defined;param.title;ELSE %?>XXV - <?% user %?><?% END %?></title>
 <?% IF allow('request') %?>
-    <link rel="alternate" type="application/rss+xml" title="RSS-News 1.0" href="http://<?% info.HOST %?>/?cmd=request&data=rss&__version=1">
-    <link rel="alternate" type="application/rss+xml" title="RSS-News 2.0" href="http://<?% info.HOST %?>/?cmd=request&data=rss&__version=2">
+    <link rel="alternate" type="application/rss+xml" title="RSS-News 1.0" href="?cmd=request&data=rss&__version=1">
+    <link rel="alternate" type="application/rss+xml" title="RSS-News 2.0" href="?cmd=request&data=rss&__version=2">
 <?% END %?>
+    <link rel="search" type="application/opensearchdescription+xml" href="?cmd=opensearch" title="<?% gettext("Search with XXV") %?>" />
     <meta name="generator" content="XXV System - Version: <?% version %?>" />
     <meta http-equiv="Content-Type" content="text/html; charset=<?% charset %?>">
-    <meta name="copyright" content="copyright 2004 Xpix">
 <!-- Styles -->
     <link href="style/style.css" type="text/css" rel="stylesheet"   />
     <link href="style/xmenu.css" type="text/css" rel="stylesheet">
