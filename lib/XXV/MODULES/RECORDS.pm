@@ -298,7 +298,7 @@ sub _init {
       return 0;
     }
 
-    my $version = 33; # Must be increment if rows of table changed
+    my $version = 34; # Must be increment if rows of table changed
     # this tables hasen't handmade user data,
     # therefore old table could dropped if updated rows
     if(!tableUpdated($self->{dbh},'RECORDS',$version,1)) {
@@ -313,8 +313,8 @@ sub _init {
           hash varchar(32) NOT NULL,
           path text NOT NULL,
           track text NOT NULL,
-          priority tinyint NOT NULL,
-          lifetime tinyint NOT NULL,
+          priority tinyint default '1', 
+          lifetime tinyint default '99', 
           status set('new', 'cutted'),
           size int unsigned default '0', 
           cutlength int unsigned default '0',
@@ -936,7 +936,7 @@ sub _readData {
             last;
           }
 
-          my $info = $self->analyze($vid,$files,$event);
+          my $info = $self->analyze($vid,$files,$event,$forceUpdate);
           if(ref $info eq 'HASH') {
               $self->{Capacity}->{$vid}->{duration} += $info->{duration};
               $self->{Capacity}->{$vid}->{size} += $info->{size};
@@ -1222,6 +1222,7 @@ sub analyze {
     my $vid = shift; # ID of Video disk recorder
     my $files = shift; # Hash with md5 and path to recording
     my $vdrdata = shift;
+    my $forceUpdate = shift; # Read manual or Once at day, make full scan
 
     lg sprintf('Analyze recording "%s"', $vdrdata->{title} );
 
@@ -1261,7 +1262,7 @@ sub analyze {
     }
 
     # Make Preview
-    my $job = $self->videoPreview( $info );
+    my $job = $self->videoPreview( $info, 0, $forceUpdate );
     push(@{$self->{JOBS}}, $job) if($job);
 
     my $ret = {
@@ -1495,6 +1496,8 @@ sub readinfo {
               }
           }
         }
+    } else {
+      error sprintf("Can't read file %s", $file);
     }
     return $info;
 }
@@ -1591,6 +1594,7 @@ sub videoPreview {
     my $self     = shift || return error('No object defined!');
     my $info    = shift || return error ('No information defined!');
     my $rebuild = shift || 0;
+    my $forceUpdate = shift || 0; # Read manual or Once at day, make full scan
 
     $info->{preview} = [];
 
@@ -1618,14 +1622,18 @@ sub videoPreview {
     # Stop here if enough files present
     my @images = glob("$outdir/[0-9]*.jpg");
     if(scalar @images >= $count && !$rebuild) {
+      my $loop = 0;
       foreach(@images) {
         my $frame = basename($_);
         $frame =~ s/\.jpg$//ig;
         push(@{$info->{preview}},$frame);
-        last if(scalar @{$info->{preview}} >= $self->{previewcount});
+        shift(@{$info->{preview}}) if(scalar @{$info->{preview}} >= $self->{previewcount});
+        last if($loop++ > $self->{previewcount});
       }
       return 0;
     }
+    # add some reserved images (if recordings frames has incorrect data ) 
+    $count += (($count / 2)+1);
 
     my $startseconds = ($self->{timers}->{prevminutes} * 60) * 2;
     my $endseconds = ($self->{timers}->{afterminutes} * 60) * 2;
@@ -1645,7 +1653,7 @@ sub videoPreview {
 
     # or stop if log's present
     my $log = sprintf('%s/preview.log', $outdir);
-    if(-e $log) {
+    if(-e $log && !$forceUpdate) {
         return 0;
     }
 
