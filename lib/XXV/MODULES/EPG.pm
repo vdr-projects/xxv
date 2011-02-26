@@ -1075,11 +1075,17 @@ INSERT INTO NEXTEPG select
     MIN(e.starttime) as nexttime
     FROM EPG as e, CHANNELS as c, CHANNELGROUPS as g
     WHERE e.channel_id = c.id
-    AND e.vid = c.vid
     AND c.grp = g.id
-    AND c.vid = g.vid
-AND e.starttime > NOW()
+    AND e.starttime > NOW()
 |;
+
+    # Merge epg entries from different hosts, only if more then one host exists (it slow down query)
+    if(scalar @{$self->{svdrp}->list_hosts()} > 1) {
+        $sqltemp .= qq|
+    AND e.vid = c.vid
+    AND c.vid = g.vid
+|;
+    }
 
     my $term;
     my $grpsql = '';
@@ -1174,11 +1180,16 @@ FROM
 WHERE
     e.channel_id = c.id
     AND n.channel_id = c.id
-    AND c.grp = g.id
-    AND c.vid = g.vid
     AND e.starttime = n.nexttime
 |;
 
+    # Merge epg entries from different hosts, only if more then one host exists (it slow down query)
+    if(scalar @{$self->{svdrp}->list_hosts()} > 1) {
+        $sql .= qq|
+    AND e.vid = c.vid
+    AND c.vid = g.vid
+|;
+    }
 
     $sql .= $grpsql;
     $sql .= qq|
@@ -1323,13 +1334,19 @@ SELECT SQL_CACHE
 FROM
     EPG as e, CHANNELS as c, CHANNELGROUPS as g
 WHERE
-    e.channel_id = c.id
+    ? BETWEEN UNIX_TIMESTAMP(e.starttime)
+    AND (UNIX_TIMESTAMP(e.starttime) + e.duration)
+    AND e.channel_id = c.id
     AND c.grp = g.id
+|;
+
+    # Merge epg entries from different hosts, only if more then one host exists (it slow down query)
+    if(scalar @{$self->{svdrp}->list_hosts()} > 1) {
+        $sql .= qq|
     AND e.vid = c.vid
     AND c.vid = g.vid
-    AND ? BETWEEN UNIX_TIMESTAMP(e.starttime)
-    AND (UNIX_TIMESTAMP(e.starttime) + e.duration)
 |;
+    }
 
     my $cmod = main::getModule('CHANNELS');
     my $cgroups = $cmod->ChannelGroupsArray('name');
