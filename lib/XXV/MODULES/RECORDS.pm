@@ -2046,7 +2046,7 @@ SELECT SQL_CACHE
     COUNT(*) as __Group,
     SUBSTRING_INDEX(CONCAT_WS('~',e.title,e.subtitle), '~', $deep) as __fulltitle,
     IF(COUNT(*)>1,0,1) as __IsRecording,
-    e.description as __description,
+    IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __description,
     preview as __preview,
     SUM(cutlength) as __cutlength
 FROM
@@ -2188,7 +2188,7 @@ SELECT SQL_CACHE
     0 as __Group,
     CONCAT_WS('~',e.title,e.subtitle) as __fulltitle,
     1 as __IsRecording,
-    e.description as __description,
+    IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __description,
     preview as __preview,
     cutlength as __cutlength
 FROM

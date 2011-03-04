@@ -1268,7 +1268,7 @@ SELECT SQL_CACHE
     t.eventid as __eventid,
     t.autotimerid as __autotimerid,
 	  UNIX_TIMESTAMP(t.stoptime) - UNIX_TIMESTAMP(t.starttime) as __duration,
-    (SELECT description
+    (SELECT IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description)
       FROM EPG as e
       WHERE t.eventid = e.eventid
       LIMIT 1) as __description,
