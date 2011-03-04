@@ -108,15 +108,6 @@
             <input style="width:auto;" type="radio" name="__Where" value="title" <?% IF cgi.param('__Where') == 'title' %?>checked="checked"<?% END %?> /><?% gettext('Only in title') %?>&nbsp;
             <input style="width:auto;" type="radio" name="__Where" value="titlesubtitle" <?% IF cgi.param('__Where') == 'titlesubtitle' %?>checked="checked"<?% END %?> /><?% gettext('Only in title and subtitle') %?>&nbsp;
             <br /><br />
-            <?% gettext('Video format',30) %?><br />
-            <input style="width:auto;" type="radio" name="__VideoFormat" value="all" <?% IF ! cgi.param('__VideoFormat') || cgi.param('__VideoFormat') == 'all' %?>checked="checked"<?% END %?> /><?% gettext('All') %?>&nbsp;
-            <input style="width:auto;" type="radio" name="__VideoFormat" value="widescreen" <?% IF cgi.param('__VideoFormat') == 'widescreen' %?>checked="checked"<?% END %?> /><?% gettext('16:9 Wide screen') %?>&nbsp;
-            <br /><br />
-            <?% gettext('Audio format',30) %?><br />
-            <input style="width:auto;" type="radio" name="__AudioFormat" value="all" <?% IF ! cgi.param('__AudioFormat') || cgi.param('__AudioFormat') == 'all' %?>checked="checked"<?% END %?> /><?% gettext('All') %?>&nbsp;
-            <input style="width:auto;" type="radio" name="__AudioFormat" value="dts" <?% IF cgi.param('__AudioFormat') == 'dts' %?>checked="checked"<?% END %?> /><?% gettext('Dolby Digital') %?>&nbsp;
-            <input style="width:auto;" type="radio" name="__AudioFormat" value="stereo" <?% IF cgi.param('__AudioFormat') == 'stereo' %?>checked="checked"<?% END %?> /><?% gettext('Stereo') %?>&nbsp;
-            <br /><br />
             <?% gettext('Minimum length (in minutes)',30) %?><br />
             <input type="text" name="__MinLength" value="<?% cgi.param('__MinLength') %?>"/>
             <br /><br />

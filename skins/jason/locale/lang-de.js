@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2009, anbr
+ * Copyright(c) 2008-2011, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -192,10 +192,6 @@ Ext.xxv.timerGrid.prototype.szDeleteSuccess = "Timer erfolgreich gelöscht.\r\n{
 Ext.xxv.timerGrid.prototype.szDeleteFailure = "Konnte Timer nicht löschen!\r\n{0}";
 Ext.xxv.timerGrid.prototype.szToggleSuccess = "Timer erfolgreich umgeschaltet.\r\n{0}";
 Ext.xxv.timerGrid.prototype.szToggleFailure = "Konnte Timer nicht umgeschalten!\r\n{0}";
-
-Ext.xxv.timerPreview.prototype.szFindReRun = "Suche Wiederholung";
-Ext.xxv.timerPreview.prototype.szEdit = "Bearbeiten";
-Ext.xxv.timerPreview.prototype.szDelete = "Löschen";
 
 /* movetimers.js */
 Ext.xxv.movetimersGrid.prototype.szTitle = "Regeln zum Verschieben von Timern";

@@ -302,6 +302,13 @@ padding:10px;
 overflow: auto;
 }
 
+.preview .x-panel-body div.preview-footer {
+padding:10px;
+overflow: auto;
+bottom: 10px;
+position: fixed;
+}
+
 .reading-menu .x-menu-item-checked {
 border:1px dotted #a3bae9 !important;
 background:#DFE8F6;

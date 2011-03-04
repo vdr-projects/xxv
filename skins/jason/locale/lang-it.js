@@ -194,10 +194,6 @@ Ext.xxv.timerGrid.prototype.szDeleteFailure = "Impossibile eliminare timer!\r\n{
 Ext.xxv.timerGrid.prototype.szToggleSuccess = "Attivazione timer riuscita.\r\n{0}";
 Ext.xxv.timerGrid.prototype.szToggleFailure = "Impossibile attivare timer!\r\n{0}";
 
-Ext.xxv.timerPreview.prototype.szFindReRun = "Cerca repliche";
-Ext.xxv.timerPreview.prototype.szEdit = "Modifica";
-Ext.xxv.timerPreview.prototype.szDelete = "Elimina";
-
 /* movetimers.js */
 Ext.xxv.movetimersGrid.prototype.szTitle = "Regole per spostamento timer";
 Ext.xxv.movetimersGrid.prototype.szNew = "Nuova";

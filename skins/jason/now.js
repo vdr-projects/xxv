@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2010, anbr
+ * Copyright(c) 2008-2011, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -29,6 +29,11 @@ Ext.xxv.NowStore = function() {
                                     ,{name: 'vps', type: 'string'} //type:'date', dateFormat:'timestamp'}
                                     ,{name: 'level', type: 'int'}
                                     ,{name: 'order', type: 'int'} //dummy field created after onload
+                                    //*** filled later by display ***
+                                    ,{name: 'image', type: 'string'}
+                                    ,{name: 'audio', type: 'string'}
+                                    ,{name: 'video', type: 'string'}
+                                    ,{name: 'contents', type: 'string'}
                                   ]
                       })
             ,proxy : new Ext.data.HttpProxy({
@@ -47,10 +52,10 @@ Ext.xxv.NowStore = function() {
 Ext.xxv.NowGrid = function(viewer) {
 
     this.viewer = viewer;
-    this.preview = new Ext.xxv.NowPreview(viewer);
-
     // create the data store
     this.store = new Ext.xxv.NowStore();
+
+    this.preview = new Ext.xxv.NowPreview(viewer, this.store);
 
     var range = new Array();
     range.push([this.szPresent,0]);
@@ -154,7 +159,7 @@ Ext.xxv.NowGrid = function(viewer) {
     });
 
     this.on('rowcontextmenu', this.onContextClick, this);
-    this.getSelectionModel().on('rowselect', this.preview.select, this.preview, {buffer:50});
+    this.getSelectionModel().on('rowselect', this.showDetails, this, {buffer:50});
     this.on('rowdblclick', this.onSelectProgram, this);
 };
 
@@ -179,9 +184,17 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szRecordFailure : "Couldn't create timer!\r\n{0}"
     ,szDeleteSuccess : "Timer deleted successful.\r\n{0}"
     ,szDeleteFailure : "Couldn't delete timer!\r\n{0}"
+    ,szDetailsFailure : "Couldn't update details of event!\r\n{0}"
 
     ,onLoadException :  function( scope, o, arg, e) {
-      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, e.message);
+      var msg = '';
+      if(e && e.message && typeof(e.message) == 'string') {
+        msg = e.message;
+      }
+      else if(o && o.data && typeof(o.data) == 'string') {
+        msg = o.data;
+      }
+      new Ext.xxv.MessageBox().msgFailure(this.szLoadException, msg);
     }
     ,onBeforeLoad : function(  store, opt ) {
       this.preview.clear();
@@ -204,6 +217,9 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       else
         this.ownerCt.SetPanelTitle(this.szPresent + " - " + new Date().dateFormat('H:i'));
     }
+    ,showDetails : function(sm, index, record){
+        this.preview.showDetails(record, record.data.id, null);
+    } 
     ,onSpecialkey : function(f, e) {
       if(e.getKey() == e.ENTER){
           this.reload();
@@ -219,6 +235,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       var data = {'id':record.data.chid,'name':record.data.channel};
       this.viewer.openProgram(data); 
     }
+/******************************************************************************/
     ,onContextClick : function(grid, index, e){
 
         if(!this.menu){ // create context menu on first right click
@@ -499,9 +516,8 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     }
 });
 
-Ext.xxv.NowPreview = function(viewer) {
-    this.viewer = viewer;
-    Ext.xxv.NowPreview.superclass.constructor.call(this, {
+Ext.xxv.NowPreview = function(viewer,store) {
+    return new Ext.xxv.EPGPreview(viewer,store, {
         id: 'now-preview',
         region: 'south',
         cls:'preview',
@@ -542,33 +558,6 @@ Ext.xxv.NowPreview = function(viewer) {
         } ]
     });
 };
-
-Ext.extend(Ext.xxv.NowPreview, Ext.Panel, {
-  select : function(sm, index, record){
-    if(this.body)
-      XXV.getTemplate().overwrite(this.body, record.data);
-
-    // Enable all toolbar buttons
-    var items = this.topToolbar.items;
-    if(items) { 
-        items.eachKey(function(key, f) {
-                  if(f.id == 'tn')      { if(record.data.timerid) f.hide(); else f.show(); }
-                  else if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
-                  else if(f.id == 'td') { if(record.data.timerid) f.show(); else f.hide(); }
-                  if(XXV.help.cmdAllowed(key)) f.enable();
-          },items); 
-      }
-  }
-  ,clear: function(){
-      if(this) {
-        if(this.body)
-           this.body.update('');
-        // Disable all items
-        var items = this.topToolbar.items;
-        if(items) { items.eachKey(function(key, f){f.disable();},items); }
-      }
-   }
-});
 
 function createNowView(viewer,id) {
 

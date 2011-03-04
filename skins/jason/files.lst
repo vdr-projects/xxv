@@ -20,6 +20,7 @@ monitor.js \
 remote.js \
 channels.js \
 timers.js \
+epg.js \
 now.js \
 program.js \
 search.js \

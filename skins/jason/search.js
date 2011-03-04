@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2010, anbr
+ * Copyright(c) 2008-2011, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -26,9 +26,12 @@ Ext.xxv.searchStore = function(lookup) {
                                     ,{name: 'timerid', type: 'string'}
                                     ,{name: 'timeractiv', type: 'string'}
                                     ,{name: 'running', type: 'string'}
-                                    ,{name: 'video', type: 'string'}
-                                    ,{name: 'audio', type: 'string'}
                                     ,{name: 'level', type: 'int'}
+                                    //*** filled later by display ***
+                                    ,{name: 'image', type: 'string'}
+                                    ,{name: 'audio', type: 'string'}
+                                    ,{name: 'video', type: 'string'}
+                                    ,{name: 'contents', type: 'string'}
                                   ]
                       })
             ,proxy : new Ext.data.HttpProxy({
@@ -43,11 +46,12 @@ Ext.xxv.searchStore = function(lookup) {
 Ext.xxv.searchGrid = function(viewer, lookup) {
 
     this.viewer = viewer;
-    this.preview = new Ext.xxv.searchPreview(viewer);
-    //Ext.apply(this, config);
 
     // create the data store
     this.store = new Ext.xxv.searchStore(lookup);
+
+    this.preview = new Ext.xxv.searchPreview(viewer, this.store);
+
     this.store.setDefaultSort('day', "ASC");
 
     this.columns = [{
@@ -103,7 +107,7 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
         ,scope:this
     });
     this.on('rowcontextmenu', this.onContextClick, this);
-    this.getSelectionModel().on('rowselect', this.select, this, {buffer:50});
+    this.getSelectionModel().on('rowselect', this.showDetails, this, {buffer:50});
 };
 
 Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
@@ -135,7 +139,9 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
 
       this.ownerCt.SetPanelTitle(store.baseParams.data);
     }
-
+    ,showDetails : function(sm, index, record){
+        this.preview.showDetails(record, record.data.id, this.store.baseParams.data);
+    } 
     ,onContextClick : function(grid, index, e){
         if(!this.menu){ // create context menu on first right click
             this.menu = new Ext.menu.Menu({
@@ -265,14 +271,10 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
         }
         this.viewer.gridNow.DeleteTimerId(items, this.store);
     }
-    ,select : function(sm, index, record){
-      this.preview.select(record,this.store.baseParams.data);
-    }
 });
 
-Ext.xxv.searchPreview = function(viewer) {
-    this.viewer = viewer;
-    Ext.xxv.searchPreview.superclass.constructor.call(this, {
+Ext.xxv.searchPreview = function(viewer,store) {
+    return new Ext.xxv.EPGPreview(viewer,store, {
         id: 'preview-Search',
         region: 'south',
         cls:'preview',
@@ -287,14 +289,14 @@ Ext.xxv.searchPreview = function(viewer) {
             handler: function(){ this.searchTab(this.gridSearch.getSelectionModel().getSelected()); }
         } ,{
             id:'tn',
-            tooltip: this.viewer.gridNow.szRecord,
+            tooltip: Ext.xxv.NowGrid.prototype.szRecord,
             iconCls: 'record-icon',
             disabled:true,
             scope: viewer,
             handler: function(){ this.Record(this.gridSearch.getSelectionModel().getSelected()); }
         },{
             id:'te',
-            tooltip: this.viewer.gridNow.szEditTimer,
+            tooltip: Ext.xxv.NowGrid.prototype.szEditTimer,
             iconCls: 'timer-edit-icon',
             disabled:true,
             scope: viewer,
@@ -303,7 +305,7 @@ Ext.xxv.searchPreview = function(viewer) {
             }
         },{
             id:'td',
-            tooltip: this.viewer.gridNow.szDeleteTimer,
+            tooltip: Ext.xxv.NowGrid.prototype.szDeleteTimer,
             iconCls: 'timer-delete-icon',
             disabled:true,
             scope: viewer,
@@ -313,33 +315,6 @@ Ext.xxv.searchPreview = function(viewer) {
         } ]
     });
 };
-Ext.extend(Ext.xxv.searchPreview, Ext.Panel, {
-  select : function(record, lookup){
-    if(this.body)
-      XXV.getTemplate().overwrite(this.body, record.data);
-    if(lookup)
-      highlightText(this.body.dom,lookup,'x-highlight',1);
-    // Enable all toolbar buttons
-    var items = this.topToolbar.items;
-    if(items) { 
-        items.eachKey(function(key, f) {
-                  if(f.id == 'tn')      { if(record.data.timerid) f.hide(); else f.show(); }
-                  else if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
-                  else if(f.id == 'td') { if(record.data.timerid) f.show(); else f.hide(); }
-                  if(XXV.help.cmdAllowed(key)) f.enable();
-          },items); 
-      }
-  }
-  ,clear: function(){
-      if(this) {
-        if(this.body)
-           this.body.update('');
-        // Disable all items
-        var items = this.topToolbar.items;
-        if(items) { items.eachKey(function(key, f){f.disable();},items); }
-      }
-   }
-});
 
 function createSearchView(viewer,id,lookup) {
 

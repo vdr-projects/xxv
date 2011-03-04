@@ -119,8 +119,7 @@
     <?% FOREACH zeile = data %?>
         <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;
-            description=zeile.6;video=zeile.7;audio=zeile.8;pdc=zeile.9;
-            timerid=zeile.10;recording=zeile.11;running=zeile.12;
+            description=zeile.6;pdc=zeile.7;timerid=zeile.8;recording=zeile.9;running=zeile.10;
             day = zeile.5 %?>
         <?% IF old.defined && day != old %?>
 <div class="areaclose"></div>

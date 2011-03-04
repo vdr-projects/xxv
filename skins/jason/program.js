@@ -1,6 +1,6 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2010, anbr
+ * Copyright(c) 2008-2011, anbr
  * 
  * http://xxv.berlios.de/
  *
@@ -21,13 +21,16 @@ Ext.xxv.programStore = function(data) {
                                     ,{name: 'stop', type: 'string' }
                                     ,{name: 'day', type:'date', dateFormat:'timestamp'}
                                     ,{name: 'description', type: 'string'}
-                                    ,{name: 'video', type: 'string'}
-                                    ,{name: 'audio', type: 'string'}
                                     ,{name: 'vps', type:'date', dateFormat:'timestamp'}
                                     ,{name: 'timerid', type: 'string'}
                                     ,{name: 'timeractiv', type: 'string'}
                                     ,{name: 'running', type: 'string'}
                                     ,{name: 'level', type: 'int'}
+                                    //*** filled later by display ***
+                                    ,{name: 'image', type: 'string'}
+                                    ,{name: 'audio', type: 'string'}
+                                    ,{name: 'video', type: 'string'}
+                                    ,{name: 'contents', type: 'string'}
                                   ]
                       }),
             proxy : new Ext.data.HttpProxy({
@@ -41,11 +44,12 @@ Ext.xxv.programStore = function(data) {
 
 Ext.xxv.programGrid = function(viewer, record) {
     this.viewer = viewer;
-    this.preview = new Ext.xxv.programPreview(viewer);
-    //Ext.apply(this, config);
 
     // create the data store
     this.store = new Ext.xxv.programStore(record);
+
+    this.preview = new Ext.xxv.programPreview(viewer, this.store);
+
     this.store.setDefaultSort('day', "ASC");
 
     this.columns = [{
@@ -114,7 +118,7 @@ Ext.xxv.programGrid = function(viewer, record) {
         ,scope:this
     });
     this.on('rowcontextmenu', this.onContextClick, this);
-    this.getSelectionModel().on('rowselect', this.select, this, {buffer:50});
+    this.getSelectionModel().on('rowselect', this.showDetails, this, {buffer:50});
 };
 
 Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
@@ -145,6 +149,9 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
 
       this.ownerCt.SetPanelTitle(store.title);
     }
+    ,showDetails : function(sm, index, record){
+      this.preview.showDetails(record, record.data.id, this.filter.getValue());
+    } 
     ,onContextClick : function(grid, index, e){
         if(!this.menu){ // create context menu on first right click
             this.menu = new Ext.menu.Menu({
@@ -278,14 +285,10 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
         }
         this.viewer.gridNow.DeleteTimerId(items, this.store);
     }
-    ,select : function(sm, index, record){
-      this.preview.select(record, this.filter.getValue());
-    }
 });
 
-Ext.xxv.programPreview = function(viewer) {
-    this.viewer = viewer;
-    Ext.xxv.programPreview.superclass.constructor.call(this, {
+Ext.xxv.programPreview = function(viewer,store) {
+    return new Ext.xxv.EPGPreview(viewer,store, {
         id: 'program-preview',
         region: 'south',
         cls:'preview',
@@ -296,18 +299,18 @@ Ext.xxv.programPreview = function(viewer) {
             tooltip: Ext.xxv.NowGrid.prototype.szFindReRun,
             iconCls: 'find-icon',
             disabled:true,
-            scope: this.viewer,
+            scope: viewer,
             handler: function(){ this.searchTab(this.gridProgram.getSelectionModel().getSelected()); }
         } ,{
             id:'tn',
-            tooltip: this.viewer.gridNow.szRecord,
+            tooltip: Ext.xxv.NowGrid.prototype.szRecord,
             iconCls: 'record-icon',
             disabled:true,
-            scope: this.viewer,
+            scope: viewer,
             handler: function(){ this.Record(this.gridProgram.getSelectionModel().getSelected()); }
         },{
             id:'te',
-            tooltip: this.viewer.gridNow.szEditTimer,
+            tooltip: Ext.xxv.NowGrid.prototype.szEditTimer,
             iconCls: 'timer-edit-icon',
             disabled:true,
             scope: viewer,
@@ -316,7 +319,7 @@ Ext.xxv.programPreview = function(viewer) {
             }
         },{
             id:'td',
-            tooltip: this.viewer.gridNow.szDeleteTimer,
+            tooltip: Ext.xxv.NowGrid.prototype.szDeleteTimer,
             iconCls: 'timer-delete-icon',
             disabled:true,
             scope: viewer,
@@ -326,36 +329,6 @@ Ext.xxv.programPreview = function(viewer) {
         } ]
     });
 };
-
-Ext.extend(Ext.xxv.programPreview, Ext.Panel, {
-
-   select : function(record, lookup){
-    if(this.body)
-      XXV.getTemplate().overwrite(this.body, record.data);
-    if(lookup)
-      highlightText(this.body.dom,lookup,'x-highlight',1);
-
-    // Enable all toolbar buttons
-    var items = this.topToolbar.items;
-    if(items) { 
-        items.eachKey(function(key, f) {
-                  if(f.id == 'tn')      { if(record.data.timerid) f.hide(); else f.show(); }
-                  else if(f.id == 'te') { if(record.data.timerid) f.show(); else f.hide(); }
-                  else if(f.id == 'td') { if(record.data.timerid) f.show(); else f.hide(); }
-                  if(XXV.help.cmdAllowed(key)) f.enable();
-          },items); 
-      }
-  }
-  ,clear: function(){
-      if(this) {
-        if(this.body)
-           this.body.update('');
-        // Disable all items
-        var items = this.topToolbar.items;
-        if(items) { items.eachKey(function(key, f){f.disable();},items); }
-      }
-   }
-});
 
 function createProgramView(viewer,id, record) {
 

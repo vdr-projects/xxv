@@ -58,6 +58,9 @@ Ext.onReady(function(){
         ,getBody : function(v, all){
             return Ext.util.Format.stripScripts(v || all.description).replace(/\r\n/g, '<br />');
         }
+        ,getFooter : function(v, all){
+            return Ext.util.Format.stripScripts(v || all.footer || "").replace(/\r\n/g, '<br />');
+        }
     });
     XXV.getTemplate = function(){
         return tpl;
