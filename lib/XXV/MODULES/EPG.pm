@@ -495,7 +495,7 @@ sub deleteDoubleEPGEntrys {
     my $self = shift || return error('No object defined!');
 
     # Delete double EPG Entrys
-    my $erg = $self->{dbh}->selectall_arrayref('SELECT SQL_CACHE eventid FROM EPG GROUP BY starttime, vid, channel_id having count(*) > 1');
+    my $erg = $self->{dbh}->selectall_arrayref('SELECT eventid FROM EPG GROUP BY starttime, vid, channel_id having count(*) > 1');
     if(scalar @$erg > 0) {
         lg sprintf('Repair data found %d wrong events!', scalar @$erg);
         my $sth = $self->{dbh}->prepare('DELETE FROM EPG WHERE eventid = ?');
@@ -733,7 +733,7 @@ sub search {
           DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
           DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
           UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
-          e.description as __description,
+          IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
           IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
           ( SELECT 
               t.id
@@ -750,8 +750,6 @@ sub search {
               FROM TIMERS as t
               WHERE t.eventid = e.eventid
               LIMIT 1) as __running,
-          e.video as __video,
-          e.audio as __audio,
           ( SELECT 
               s.level
               FROM SHARE as s
@@ -862,9 +860,7 @@ SELECT SQL_CACHE
     DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
     UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
-    e.description as __Description,
-    e.video as __Video,
-    e.audio as __Audio,
+    IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
     IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
     ( SELECT 
         t.id
@@ -1021,6 +1017,8 @@ where
     e.channel_id = c.id
     AND e.vid = c.vid
     and eventid = ?
+group by
+    eventid
 |;
     my $sth = $self->{dbh}->prepare($sql);
     $sth->execute($eventid)
@@ -1064,9 +1062,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS NEXTEPG (
     channel_id varchar(100) NOT NULL default '',
     nexttime datetime NOT NULL default '0000-00-00 00:00:00'
     )
-|);
+|) or error sprintf("Couldn't execute query: %s.", $DBI::errstr);
     # Remove old data
-    $self->{dbh}->do('delete from NEXTEPG');
+    $self->{dbh}->do('delete from NEXTEPG') or error sprintf("Couldn't execute query: %s.", $DBI::errstr);
 
     # Get channelid and starttime of next broadcasting
     my $sqltemp = qq|
@@ -1075,17 +1073,9 @@ INSERT INTO NEXTEPG select
     MIN(e.starttime) as nexttime
     FROM EPG as e, CHANNELS as c, CHANNELGROUPS as g
     WHERE e.channel_id = c.id
-    AND c.grp = g.id
     AND e.starttime > NOW()
+    AND c.grp = g.id
 |;
-
-    # Merge epg entries from different hosts, only if more then one host exists (it slow down query)
-    if(scalar @{$self->{svdrp}->list_hosts()} > 1) {
-        $sqltemp .= qq|
-    AND e.vid = c.vid
-    AND c.vid = g.vid
-|;
-    }
 
     my $term;
     my $grpsql = '';
@@ -1152,7 +1142,7 @@ SELECT SQL_CACHE
     g.name as __Channelgroup,
     DATE_FORMAT(e.starttime, "%H:%i") as \'$f{'Start'}\',
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
-    e.description as __Description,
+    IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
     999 as __Percent,
     ( SELECT 
         t.id
@@ -1178,23 +1168,23 @@ SELECT SQL_CACHE
 FROM
     EPG as e, CHANNELS as c, NEXTEPG as n, CHANNELGROUPS as g
 WHERE
-    e.channel_id = c.id
-    AND n.channel_id = c.id
-    AND e.starttime = n.nexttime
+    e.starttime = n.nexttime
+    AND e.channel_id = c.id
+    AND c.grp = g.id
 |;
 
     # Merge epg entries from different hosts, only if more then one host exists (it slow down query)
-    if(scalar @{$self->{svdrp}->list_hosts()} > 1) {
-        $sql .= qq|
-    AND e.vid = c.vid
-    AND c.vid = g.vid
-|;
-    }
+#    if(scalar @{$self->{svdrp}->list_hosts()} > 1) {
+#        $sql .= qq|
+#    AND e.vid = c.vid
+#    AND c.vid = g.vid
+#|;
+#    }
 
     $sql .= $grpsql;
     $sql .= qq|
 GROUP BY c.id 
-ORDER BY c.vid, c.pos
+ORDER BY g.pos, c.pos, c.vid
 |;
 
     my $rows;
@@ -1308,7 +1298,7 @@ SELECT SQL_CACHE
     g.name as __Channelgroup,
     DATE_FORMAT(e.starttime, "%H:%i") as \'$f{'Start'}\',
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
-    e.description as __Description,
+    IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as \'$f{'Percent'}\',
     ( SELECT 
         t.id
@@ -1456,7 +1446,7 @@ SELECT SQL_CACHE
     DATE_FORMAT(e.starttime, "%a %d.%m") as StartDay,
     DATE_FORMAT(e.starttime, "%H:%i") as StartTime,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as __Percent,
-    e.description as Description,
+    IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as Description,
     IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,        
     ( SELECT 
         t.id
@@ -1562,11 +1552,9 @@ SELECT SQL_CACHE
     DATE_FORMAT(e.starttime, "%H:%i") as Start,
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as Stop,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as Percent,
-    e.description as __Description,
+    IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
     UNIX_TIMESTAMP(starttime) as second_start,
     UNIX_TIMESTAMP(starttime) + e.duration as second_stop,
-    e.video as __video,
-    e.audio as __audio,
     e.image as __image,      
     ( SELECT 
         t.id
