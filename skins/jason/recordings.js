@@ -657,6 +657,7 @@ Ext.extend(Ext.xxv.recordingsDataView,  Ext.DataView, {
                 || this.store.data.items[iSel].id != o.data.RecordId)
                 continue;
 
+              this.store.data.items[iSel].data.description = o.data.Description;
               this.store.data.items[iSel].data.channel  = o.data.Channel;
               this.store.data.items[iSel].data.marks    = o.data.Marks;
               this.store.data.items[iSel].data.lifetime = parseInt(o.data.lifetime,10);
@@ -1288,6 +1289,10 @@ function createRecordingsView(viewer,id) {
                   this.record = record;
 
                   this.get(0).get(0).setvalue(record.data,lookup);
+                  var content = Ext.getDom("preview-recordings-frame");
+                  content.innerHTML = record.data.description.replace(/\r\n/g, '<br />');
+                  if(lookup)
+                    highlightText(content,lookup,'x-highlight',1);
 
                   if(!this.tplimg) {
                     this.tplimg = new Ext.Template('{day:date} - {start} ({period})');
