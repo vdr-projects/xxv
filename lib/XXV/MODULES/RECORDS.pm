@@ -756,8 +756,7 @@ sub _readData {
   foreach my $vid (@$hostlist) {
     my ($lstr,$error) = $self->{svdrp}->command('lstr',$vid);
     my $hostname = $self->{svdrp}->hostname($vid);
-    my $vdata = [ grep(/^250/, @$lstr) ];
-    if($error) {
+    if($error || !(defined $lstr)) {
       if($console) {
         my $msg = [
           sprintf(gettext("Can't read recordings from %s !"),$hostname), 
@@ -766,12 +765,12 @@ sub _readData {
         $console->err($msg);
       }
 			# ignore data from offline host
-			if(!$forceUpdate && $self->{svdrp}->is_host_online($vid) ne 'yes') {
-		    my $osth = $self->{dbh}->prepare('SELECT hash FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid and vid = ?');
+			if($self->{svdrp}->is_host_online($vid) ne 'yes') {
+		    my $osth = $self->{dbh}->prepare('SELECT CONCAT_WS("~",e.title,e.subtitle,UNIX_TIMESTAMP(e.starttime)) as idx FROM RECORDS as r,OLDEPG as e where r.eventid = e.eventid and vid = ?');
 		    if(!$osth->execute($vid)) {
 		        con_err($console, sprintf("Couldn't execute query: %s.",$osth->errstr));
 		    }
-		    my $ignoreRecordings = $osth->fetchall_hashref('hash');
+		    my $ignoreRecordings = $osth->fetchall_hashref('idx');
 		  	foreach my $k (keys %{$ignoreRecordings}) {
 		    	delete $outdatedRecordings->{$k};
 				}
@@ -799,6 +798,7 @@ sub _readData {
         $self->{Capacity}->{$vid}->{size} = 0;
     }
 
+    my $vdata = [ grep(/^250/, @$lstr) ];
     # There none recordings present
     unless(scalar @$vdata) {
         unless($forceUpdate) {
