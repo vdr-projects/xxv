@@ -497,6 +497,18 @@ sub is_host_online {
   	return 'no';
 }
 
+sub vdr_version {
+    my $self = shift  || return error('No object defined!');
+    my $vdrid = shift;
+
+    if($self->{Cache} 
+			&& $self->{Cache}->{$vdrid}
+			&& $self->{Cache}->{$vdrid}->{version}) { 
+    	return $self->{Cache}->{$vdrid}->{version};
+		}
+  	return 'no';
+}
+
 sub enum_onlinehosts {
     my $self = shift  || return error('No object defined!');
   
@@ -698,7 +710,9 @@ sub command {
       
       # parse header like 220 video SVDRP VideoDiskRecorder 1.7.1; Fri May 2 16:17:10 2008; ISO-8859-1
       my @header = split (/\;/, $data->[0]);
-      main::getVdrVersion($1)
+
+      # Store version 1.2.6 => 10206, 1.3.32 => 10332
+      $self->{Cache}->{$vdrid}->{version} = int(sprintf("%02d%02d%02d",split(/\./,$1)))
         if($header[0] =~ /SVDRP\s+VideoDiskRecorder\s+(\d\.\d\.\d+)/);
 
       if(scalar @header > 2) {
