@@ -1402,6 +1402,9 @@ sub _calcmarks {
     unless ($marks) {
       return $duration;
     }
+    unless ($framerate) {
+      return $duration;
+    }
     
     my $frames = 0;
     for (my $i = 0; $i < (scalar(@$marks)); $i += 2) {
@@ -1472,7 +1475,10 @@ sub readinfo {
                   $info->{vpstime} = $1;
               }
               elsif($zeile =~ /^F\s+(.+)$/s) {
-                  $info->{framerate} = int($1);
+                  my $rate = int($1);
+                  if($rate > 0) {
+                    $info->{framerate} = $rate;
+                  }
               }
               elsif($zeile =~ /^L\s+(.+)$/s) {
                   $info->{lifetime} = int($1);
@@ -1941,7 +1947,9 @@ sub play {
       $start = &text2frame($params->{start});
     }
     if($start) {
-      if($start < 0 or ($start / $rec->{framerate}) >= ($rec->{duration})) {
+      if($start < 0 or 
+        ($rec->{framerate} <= 0) or
+        ($start / $rec->{framerate}) >= ($rec->{duration})) {
         $start = 'begin';
       } else {
         $start = &frame2hms($start);
@@ -2943,6 +2951,10 @@ sub _recordinglength {
     return 0 unless($fst and $rst);
 
     if($fst->mode & 00400) { # mode & S_IRUSR
+        unless(int($framerate)>0) {
+            error sprintf("Unknown framerate : '%s'", $index);
+            return 0;
+        }
         return int(($fst->size / 8) / $framerate);
     } else {
         error sprintf("Couldn't read : '%s'", $index);
