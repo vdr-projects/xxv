@@ -592,15 +592,22 @@ sub dot1000 {
 sub parseData {
 # ------------------
     my $self = shift || return error('No object defined!');
+    my $vid = shift || return error('No vid defined!'); 
     my $vdata = shift || return error('No data defined!');
     my ($event, $idx, $id, $date, $hour, $minute, $new, $duration, $title, $day, $month, $year);
     my $data = {};
 
+    my $version = $self->{svdrp}->vdr_version($vid);
+
     foreach my $record (@{$vdata}) {
-        if($record =~ /\s+\d+\xB4\s+/) { # VDR is patched with recording length patch
-          ($id, $date, $hour, $minute, $new, $duration, $title)
-            = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)(.?)\s*(\d*).*?\s+(.+)/si;
-        } else { # Vanilla VDR
+        if($version >= 10721) { 
+            # 250-1 24.04.11 22:12 2:06* Discovery~Die Rose von Kerrymore Spielfilm D/2000
+          ($id, $date, $hour, $minute, $duration, $new, $title)
+            = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)\s+([\d+|\:]+)(.?).*?\s+(.+)/si;
+
+           my ($dh,$dm) = $duration =~ /^(\d+)\:(\d+)$/;
+           $duration = ($dh * 3600) + ($dm * 60);
+        } else { # older VDR < 10721
           # 250-1  01.11 15:14* Discovery~Die Rose von Kerrymore Spielfilm D/2000
           ($id, $date, $hour, $minute, $new, $title)
             = $record =~ /^250[\-|\s](\d+)\s+([\d|\.]+)\s+(\d+)\:(\d+)(.?).*?\s+(.+)/si;
@@ -635,6 +642,10 @@ sub parseData {
 
         $event->{starttime} = timelocal(0,$minute,$hour,$day,$month-1, $year);
         $event->{title} = $title;
+
+        if($duration) {
+            $event->{duration} = $duration;
+        }
 
         $idx = sprintf("%s~%s",$title,$event->{starttime});
         %{$data->{$idx}} = %{$event};
@@ -816,7 +827,7 @@ sub _readData {
 
     my $l = 0;
 
-    my $vdrData = $self->parseData($vdata);
+    my $vdrData = $self->parseData($vid, $vdata);
 
     # Adjust waiter max value now.
     $waiter->max(scalar keys %$vdrData)

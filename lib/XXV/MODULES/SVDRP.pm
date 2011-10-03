@@ -506,7 +506,7 @@ sub vdr_version {
 			&& $self->{Cache}->{$vdrid}->{version}) { 
     	return $self->{Cache}->{$vdrid}->{version};
 		}
-  	return 'no';
+  	return 'unknown';
 }
 
 sub enum_onlinehosts {
