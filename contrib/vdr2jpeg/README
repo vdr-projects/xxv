@@ -1,0 +1,59 @@
+
+This is a simple c++ program to grab jpeg images from VDR-Recordings. 
+It's based on vdrsync.pl and ffmain, and was design as little study to enhance xxv.
+vdr2jpeg are used from xxv to generated preview images of recordings.
+
+Requirements
+-------------
+ffmpeg-svn (tested with r15589)
+
+Recommended
+------------
+ffmpeg as shared libary and with software scaler
+
+$ cd ffmpeg && \
+ ./configure --enable-shared --enable-swscale && \
+  make && \
+  make install
+
+Installation
+------------
+
+to build, type simple
+$ make all
+
+for install on /usr/bin/local :
+$ make install
+
+or build with more diagnostic
+$ make all DEBUG=1 
+
+or to link vdr2jpeg static, 
+if your want that no external libraries are needed at run-time
+$ make all STATIC=1 
+
+ 
+Usage 
+----------
+$ ./vdr2jpeg
+Usage: ./vdr2jpeg
+            -r recordings    : VDR recording folder
+            -f frame         : wanted frame (resolution at PAL - 1/25s)
+            -o outdirectory  : output folder
+            -x 160           : scaled width of output image
+            -y 120           : scaled height of output image
+            -s 5000          : frame range, started at wanted frame (e.g 500 : 20s)
+            -i 25            : space beetween frames at selected range (resolution at PAL - 1/25s)
+            -c 5             : number of extracted frames of an recording or within the selected range 
+
+
+e.g. to extract frames 5000,10000,15000 (at 3,6,9 Minutes)
+
+$ vdr2jpeg -r /video/Auf_der_Flucht/2004-12-28.22:10.50.99.rec \
+	-f 5000 -f 10000 -f 15000
+
+
+same using with selected span of frames
+
+$ vdr2jpeg -r /video/Auf_der_Flucht/2004-12-28.22:10.50.99.rec \
+	-f 5000 -s 10000 -i 5000
