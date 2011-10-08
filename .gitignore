@@ -1,0 +1,6 @@
+*.o
+.dependencies
+*.so
+*.pot
+*.tgz
+*~
