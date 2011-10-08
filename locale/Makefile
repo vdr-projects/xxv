@@ -60,14 +60,14 @@ MODULES = ../lib/XXV/MODULES/AUTOTIMER.pm \
   ../skins/html/widgets/*.tmpl \
   ../skins/html/javascript/*.js \
   ../skins/wml/*.tmpl \
-  ../skins/wml/widgets/*.tmpl 
+  ../skins/wml/widgets/*.tmpl \
   ../skins/stone/*.tmpl \
   ../skins/stone_flat/*.tmpl \
   ../skins/stone/widgets/*.tmpl \
   ../skins/deltab/*.tmpl \
   ../skins/deltab/widgets/*.tmpl \
   ../skins/xstyle/*.tmpl \
-  ../skins/xstyle/widgets/*.tmpl \
+  ../skins/xstyle/widgets/*.tmpl
 
 
 ### TODO Need Touch if only a Modul is changed
