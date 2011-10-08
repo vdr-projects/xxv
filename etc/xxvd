@@ -27,7 +27,7 @@ LANGUAGE="de_DE@euro";
 # Adjust some moduls directories
 MODPATH="$FOLDER/lib/XXV/MODULES"
 CONFIG="$FOLDER/etc/xxvd.cfg"
-HTMLDIR="$FOLDER/"
+HTMLDIR="$FOLDER/skins/"
 DOCUDIR="$FOLDER/doc/"
 PODDIR="$FOLDER/doc/"
 CONTRIB="$FOLDER/contrib"

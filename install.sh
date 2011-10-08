@@ -202,8 +202,8 @@ doInstall()
 	makeDir "$LIBDIR" 1 && cp -r lib/* "$LIBDIR" || exit 1
 	makeDir "$SHAREDIR" 1 && cp -r share/* "$SHAREDIR" || exit 1
 	makeDir "$DOCDIR" 1 && cp INSTALL doc/COPYING doc/CHANGELOG doc/docu.tmpl doc/README "$DOCDIR" || exit 1
-	makeDir "$CONTRIBDIR" 1 && cp -r contrib/* "$CONTRIBDIR" || exit 1
-	makeDir "$SKINDIR" 1 && cp -r html wml "$SKINDIR" || exit 1
+	makeDir "$CONTRIBDIR" 1 && cp contrib/update-xxv contrib/upgrade-xxv-db.sql "$CONTRIBDIR" || exit 1
+	makeDir "$SKINDIR" 1 && cp -r skins/* "$SKINDIR" || exit 1
     (cd "$SKINDIR";ln -s html default) || exit 1
 	makeDir "$MANDIR" && cp doc/xxvd.1 "$MANDIR" || exit 1
 	makeDir "$BINDIR" || exit 1

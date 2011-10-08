@@ -56,18 +56,18 @@ MODULES = ../lib/XXV/MODULES/AUTOTIMER.pm \
   ../lib/XXV/OUTPUT/NEWS/RSS.pm \
   ../lib/XXV/OUTPUT/NEWS/VDR.pm \
   ../bin/xxvd \
-  ../html/*.tmpl \
-  ../html/widgets/*.tmpl \
-  ../html/javascript/*.js \
-  ../wml/*.tmpl \
-  ../wml/widgets/*.tmpl 
-#  ../../XXV-Skins/stone/*.tmpl \
-#  ../../XXV-Skins/stone_flat/*.tmpl \
-#  ../../XXV-Skins/stone/widgets/*.tmpl \
-#  ../../XXV-Skins/deltab/*.tmpl \
-#  ../../XXV-Skins/deltab/widgets/*.tmpl \
-#  ../../XXV-Skins/xstyle/*.tmpl \
-#  ../../XXV-Skins/xstyle/widgets/*.tmpl \
+  ../skins/html/*.tmpl \
+  ../skins/html/widgets/*.tmpl \
+  ../skins/html/javascript/*.js \
+  ../skins/wml/*.tmpl \
+  ../skins/wml/widgets/*.tmpl 
+  ../skins/stone/*.tmpl \
+  ../skins/stone_flat/*.tmpl \
+  ../skins/stone/widgets/*.tmpl \
+  ../skins/deltab/*.tmpl \
+  ../skins/deltab/widgets/*.tmpl \
+  ../skins/xstyle/*.tmpl \
+  ../skins/xstyle/widgets/*.tmpl \
 
 
 ### TODO Need Touch if only a Modul is changed
