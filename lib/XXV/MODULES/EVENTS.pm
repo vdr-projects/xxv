@@ -154,10 +154,10 @@ sub _init {
 
         main::addModule($moduleName, $self->{NEWSMODS}->{$moduleName});
 
-        debug sprintf("Load news module %s(%s)\n",
+        debug sprintf("Load news module %s %s\n",
             $moduleName,
             (ref $self->{NEWSMODS}->{$moduleName})
-                ? $self->{NEWSMODS}->{$moduleName}->{MOD}->{Version}
+                ? "successful."
                 : 'failed!');
     }
 
