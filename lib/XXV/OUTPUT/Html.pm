@@ -83,8 +83,6 @@ sub new {
     $self->{htmdir} = $attr{'-htmdir'}
         || return error('No htmdir given!');
 
-    $self->{htmdef} = sprintf('%s/default', $self->{htmdir});
-
     $self->{cgi} = $attr{'-cgi'}
         || return error('No cgi given!');
 
@@ -161,7 +159,7 @@ sub parseTemplateFile {
       $self->{tt} = Template->new(
         START_TAG    => '\<\?\%',		    # Tagstyle
         END_TAG      => '\%\?\>',		    # Tagstyle
-        INCLUDE_PATH => [$self->{Skin},$self->{htmdef}] ,  # or list ref
+        INCLUDE_PATH => [$self->{Skin}] ,  # or list ref
         INTERPOLATE  => 1,                # expand "$var" in plain text
         PRE_CHOMP    => 1,                # cleanup whitespace
         EVAL_PERL    => 1,                # evaluate Perl code blocks

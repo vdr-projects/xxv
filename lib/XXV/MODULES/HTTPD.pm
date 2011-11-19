@@ -78,7 +78,7 @@ sub module {
             },
             HtmlRoot => {
                 description => gettext('Skin used'),
-                default     => 'default',
+                default     => 'html',
                 type        => 'list',
                 required    => gettext('This is required!'),
                 choices     => sub{ return $self->findskins(); },
