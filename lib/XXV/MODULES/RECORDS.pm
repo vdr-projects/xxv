@@ -28,10 +28,6 @@ sub module {
             'Linux::Inotify2' => 'scalable directory/file change notification'
         },
         Description => gettext('This module manages recordings.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $self->status(@_) },
         Preferences => {
             commandfile => {

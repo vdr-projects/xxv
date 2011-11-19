@@ -16,10 +16,6 @@ sub module {
 #            'WWW::Mechanize' => 'Handy web browsing in a Perl object ',
         },
         Description => gettext('This module register and run robots to fetch data from internet.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $obj->status(@_) },
         Preferences => {
             active => {

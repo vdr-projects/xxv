@@ -16,10 +16,6 @@ sub module {
             'Time::Local' => 'efficiently compute time from local and GMT time ',
         },
         Description => gettext('This module reads new EPG data and saves it to the database.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $self->status(@_) },
         Preferences => {
             epgimages => {
@@ -341,7 +337,7 @@ sub startReadEpgData {
 }
 
 # Routine um Callbacks zu registrieren die vor dem Aktualisieren der EPG Daten 
-# ausgeführt werden
+# ausgefÃ¼hrt werden
 # ------------------
 sub before_updated {
 # ------------------
@@ -352,7 +348,7 @@ sub before_updated {
     push(@{$self->{before_updated}}, [$cb, $log]);
 }
 
-# Ausführen der Registrierten Callbacks vor dem Aktualisieren der EPG Daten
+# AusfÃ¼hren der Registrierten Callbacks vor dem Aktualisieren der EPG Daten
 # ------------------
 sub _before_updated {
 # ------------------
@@ -370,7 +366,7 @@ sub _before_updated {
 }
 
 # Routine um Callbacks zu registrieren die nach dem Aktualisieren der EPG Daten 
-# ausgeführt werden
+# ausgefÃ¼hrt werden
 # ------------------
 sub updated {
 # ------------------
@@ -381,7 +377,7 @@ sub updated {
     push(@{$self->{after_updated}}, [$cb, $log]);
 }
 
-# Ausführen der Registrierten Callbacks nach dem Aktualisieren der EPG Daten
+# AusfÃ¼hren der Registrierten Callbacks nach dem Aktualisieren der EPG Daten
 # ------------------
 sub _updated {
 # ------------------
@@ -696,7 +692,7 @@ sub search {
 
       # Audioformat search
       # XXX: Leider kann man an den Audioeintrag nicht richtig erkennnen
-      # hab erst zu spät erkannt das diese Info aus dem tvm2vdr kommen ;(
+      # hab erst zu spÃ¤t erkannt das diese Info aus dem tvm2vdr kommen ;(
   #    if($params->{Audioformat} eq 'dts') {
   #        $search->{query} .= ' AND e.audio like "%%Digital%%"';
   #    }

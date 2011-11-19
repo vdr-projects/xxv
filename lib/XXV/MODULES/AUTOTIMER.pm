@@ -17,10 +17,6 @@ sub module {
             'Date::Manip' => 'date manipulation routines'
         },
         Description => gettext('This module searches for EPG entries with user-defined text and creates new timers.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $obj->status(@_) },
         Preferences => {
             active => {

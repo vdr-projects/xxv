@@ -15,10 +15,6 @@ sub module {
 #           'modul' => 'description',
         },
         Description => gettext('This module reads new channels and stores them in the database.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $self->status(@_) },
         Preferences => {
             interval => {
@@ -310,7 +306,7 @@ sub _prepare {
     my $id;
     $data->[12] = (split(':', $data->[12]))[0];
 #   if($data->[12] && $data->[12] > 0 && $data->[12] < 100) {
-    # By DVB-C gabs Probleme weil die Zahl grösser 100 war
+    # By DVB-C gabs Probleme weil die Zahl grÃ¶sser 100 war
     # Siehe auch http://www.vdr-portal.de/board/thread.php?sid=&postid=364373
     if($data->[12] && $data->[12] > 0) {
         $id = sprintf('%s-%u-%u-%u-%u', $data->[3], $data->[10], ($data->[10] || $data->[11]) ? $data->[11] : $altid, $data->[9],$data->[12]);

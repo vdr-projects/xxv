@@ -23,11 +23,7 @@ sub module {
 #           'Term::ReadLine' => 'Perl interface to various readline packages.',
             'Term::ReadLine::Perl' => 'a quick implementation of the minimal interface to Readline',
         },
-        Description => gettext('This receives and sends ASCII messages'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
+        Description => gettext('This receives and sends ASCII messages')
     };
     return $args;
 }

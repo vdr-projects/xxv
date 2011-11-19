@@ -18,11 +18,7 @@ sub module {
             'XML::Simple' => 'Easy API to maintain XML (esp config files)',
             'JSON' => 'Parse and convert to JSON (JavaScript Object Notation)',
         },
-        Description => gettext('This receive and send Ajax messages.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
+        Description => gettext('This receive and send Ajax messages.')
     };
     return $args;
 }

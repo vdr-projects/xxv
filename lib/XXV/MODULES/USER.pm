@@ -24,10 +24,6 @@ gettext("This module manages the User administration.
 You may set a level for the whole module with 
 the 'Level' parameter in the main module
 or the same parameter is set for each function."),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Enable user authentication'),
@@ -1198,7 +1194,7 @@ sub userTmp {
     my $dir = $self->createTmpDir($user, $$);
 
     if($dir) {
-      # Nach Logout oder beenden von xxv das temp löschen
+      # Nach Logout oder beenden von xxv das temp lÃ¶schen
       main::toCleanUp($user, sub{ deleteDir($dir) }, 'logout')
           unless(main::toCleanUp($user, undef, 'exists')); # ein CB registrieren
     }

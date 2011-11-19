@@ -18,10 +18,6 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module generate streams from recordings.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             host => {
                 description => gettext('Used host of referred link inside playlist.'),

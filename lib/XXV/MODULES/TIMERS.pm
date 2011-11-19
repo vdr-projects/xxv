@@ -16,10 +16,6 @@ sub module {
             'Digest::MD5 qw(md5_hex)' => 'Perl interface to the MD5 Algorithm'
         },
         Description => gettext('This module reads timers and saves it to the database.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $self->status(@_) },
         Preferences => {
             interval => {

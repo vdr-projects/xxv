@@ -20,10 +20,6 @@ sub module {
             "SOAP::Transport::HTTP::Event" => 'Server/Client side HTTP support for SOAP::Lite',
         },
         Description => gettext('This module is a multichannel soap server for second party software.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Activate this service'),

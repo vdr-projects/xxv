@@ -17,11 +17,7 @@ sub module {
         Prereq => {
             'Template'  => 'Front-end module to the Template Toolkit',
         },
-        Description => gettext('This receives and sends WAP messages.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
+        Description => gettext('This receives and sends WAP messages.')
     };
     return $args;
 }

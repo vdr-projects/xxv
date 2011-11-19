@@ -15,10 +15,6 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module saves recordings in a chronicle.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'Andreas Brachold',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Activate this service'),

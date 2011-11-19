@@ -28,11 +28,7 @@ sub module {
             'IO::Select'        => 'OO interface to the select system call',
             'IO::Handle'        => 'Supply object methods for I/O handles'
         },
-        Description => gettext('This receives and sends HTML messages.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
+        Description => gettext('This receives and sends HTML messages.')
     };
     return $args;
 }

@@ -50,10 +50,6 @@ sub module {
             ,'Compress::Zlib'   => 'Interface to zlib compression library'
         },
         Description => gettext('This module is a multisession HTTPD server.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $self->status(@_) },
         Preferences => {
             active => {

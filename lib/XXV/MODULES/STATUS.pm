@@ -16,10 +16,6 @@ sub module {
             'Font::TTF::Font' => 'String table for a TTF font'
         },
         Description => gettext('This module analyzes your system and displays the result.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Level => 'user',
         Preferences => {
             active => {

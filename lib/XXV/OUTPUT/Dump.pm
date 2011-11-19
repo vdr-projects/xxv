@@ -14,11 +14,7 @@ sub module {
         Name => 'Dump',
         Prereq => {
         },
-        Description => gettext('This receives and sends dump messages.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
+        Description => gettext('This receives and sends dump messages.')
     };
     return $args;
 }

@@ -19,10 +19,6 @@ sub module {
             'LWP::UserAgent' => 'simple procedural interface to LWP',
         },
         Description => gettext('This module manages media like DVDs, VCD, etc.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'poetter',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $obj->status(@_) },
         Preferences => {
             active => {
@@ -395,7 +391,7 @@ sub importMedia {
         if ( $params->{genres} ) {
             my $gen_hash_1 = $obj->_get_videogenres_as_hash;
             my $gen_hash_2 = {
-                'Komödie' => 'Comedy',
+                'KomÃ¶die' => 'Comedy',
                 'Musik' => 'Music',
                 'Musikfilm' => 'Music',
                 'Kriegsfilm' => 'War',

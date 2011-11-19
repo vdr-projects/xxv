@@ -17,10 +17,6 @@ sub module {
             ,'Font::TTF::Font' => 'String table for a TTF font'
         },
         Description => gettext('This module grab a picture from video output.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             xsize => {
                 description => gettext('Image width'),

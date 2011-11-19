@@ -40,7 +40,6 @@ use Locale::gettext qw/!gettext/;
 
 $|++;
 
-my $REV = (split(/ /, '$Revision$'))[1];
 my $MODULES;
 my $VERSION = '1.7.0';
 my $VDRVERSION = 0;
@@ -216,13 +215,7 @@ sub init {
 
         if(ref $modul) {
           $MODULES->{$moduleName} = $modul;
-          my $modRev = $modul->{MOD}->{Version};
-          debug sprintf("Load module %s(%s)",
-            $moduleName,
-            $modRev);
-          $REV = $modRev
-            if($modRev > $REV);
-
+          debug sprintf("Load module %s", $moduleName);
         } else {
           panic sprintf("Load module %s failed!",$moduleName);
         }
@@ -349,7 +342,7 @@ sub getGeneralConfig {
 # ------------------
 sub getVersion {
 # ------------------
-    return sprintf('%s(%s)', $VERSION, $REV);
+    return sprintf('%s', $VERSION);
 }
 
 # ------------------
@@ -626,10 +619,6 @@ sub module {
     my $args = {
         Name => 'General',
         Description => gettext('This is the main program xxvd.'),
-        Version => $VERSION,
-        Date => (split(/ /, '$Date$'))[1],
-        LastAuthor => (split(/ /, '$Author$'))[1],
-        Author => 'Frank Herrmann <xpix at xpix.de>',
         Preferences => {
             DSN => {
                 description => gettext('Data source for the connection to the database'),

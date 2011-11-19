@@ -17,10 +17,6 @@ sub module {
             'IO::Socket::INET'  => 'Object interface for AF_INET domain sockets ',
         },
         Description => gettext('This module module manages connection to video disk recorder.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $self->status(@_) },
         Preferences => {
             timeout => {

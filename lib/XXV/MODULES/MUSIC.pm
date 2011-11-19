@@ -26,10 +26,6 @@ sub module {
             'Net::Amazon::Request::Artist' => 'Class for submitting Artist requests',
         },
         Description => gettext('This module managed music files.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Status => sub{ $self->status(@_) },
         Preferences => {
             active => {

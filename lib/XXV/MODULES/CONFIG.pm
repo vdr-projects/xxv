@@ -15,10 +15,6 @@ sub module {
             'Module::Reload'    => 'Reload %INC files when updated on disk ',
         },
         Description => gettext('This module edits, writes and saves the configuration.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Commands => {
             configedit => {
                 description => gettext("Edit configuration 'section'"),

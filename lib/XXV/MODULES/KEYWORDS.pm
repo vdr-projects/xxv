@@ -15,10 +15,6 @@ sub module {
             'XML::Simple' => 'Easy API to maintain XML (esp config files)'
         },
         Description => gettext('This module manages keywords and tag within timer and recordings.'),
-        Version => (split(/ /, '$Revision: 1332 $'))[1],
-        Date => (split(/ /, '$Date: 2008-05-24 09:05:56 +0200 (Sa, 24 Mai 2008) $'))[1],
-        Author => 'anbr',
-        LastAuthor => (split(/ /, '$Author: anbr $'))[1],
 #       Status => sub{ $self->status(@_) },
         Preferences => {
             active => {

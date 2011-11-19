@@ -21,10 +21,6 @@ sub module {
             'XML::RSS' => 'SMTP Protocol module to connect and send emails',
         },
         Description => gettext('This NEWS module generates an RSS news feed for your RSS reader.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Activate this service'),

@@ -57,10 +57,6 @@ or Telnet Interface:
 Then you must receive a message in your running jabber client.
 
 |),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Preferences => {
             active => {
                 description => gettext('Activate this service'),
@@ -284,7 +280,7 @@ sub req {
     my $vars = {
         AddDate => time,
         Title   => 'This is a testmessage for NEWS::JABBER ...',
-        Text    => "abcdefghijklmnopqrstuvwxyz\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789\n‰¸ˆƒ‹÷!@#$%^&*()_+=-':;<>?/\n",
+        Text    => "abcdefghijklmnopqrstuvwxyz\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789\n√§√º√∂√Ñ√ú√ñ!@#$%^&*()_+=-':;<>?/\n",
         Level   => 100,
     };
 

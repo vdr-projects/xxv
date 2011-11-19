@@ -16,10 +16,6 @@ sub module {
             # 'Perl::Module' => 'Description',
         },
         Description => gettext('This module read and show status information from every module.'),
-        Version => (split(/ /, '$Revision$'))[1],
-        Date => (split(/ /, '$Date$'))[1],
-        Author => 'xpix',
-        LastAuthor => (split(/ /, '$Author$'))[1],
         Level => 'user',
         Preferences => {
             active => {
