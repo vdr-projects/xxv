@@ -23,7 +23,7 @@ sub module {
         Preferences => {
             active => {
                 description => gettext('Activate this service'),
-                default     => 'y',
+                default     => 'n',
                 type        => 'confirm',
                 required    => gettext('This is required!'),
             },
