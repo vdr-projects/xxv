@@ -42,6 +42,7 @@ Ext.extend(Ext.xxv.EPGPreview, Ext.Panel, {
           this.topToolbar.items.eachKey(function(key, f) {
                     if(f.id == 'tn')      { if(hasTimer) f.hide(); else f.show(); }
                     else if(f.id == 'te') { if(hasTimer) f.show(); else f.hide(); }
+                    else if(f.id == 'tt') { if(hasTimer) f.show(); else f.hide(); }
                     else if(f.id == 'td') { if(hasTimer) f.show(); else f.hide(); }
                     else if(f.id == 'ae') { if(hasAutotimer) f.show(); else f.hide(); }
                     if(XXV.help.cmdAllowed(key)) f.enable();
