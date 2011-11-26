@@ -172,6 +172,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szProgram       : "Show program"
     ,szRecord        : "Record"
     ,szEditTimer     : "Edit timer"
+    ,szToggleTimer   : "Enable or disable timer"
     ,szDeleteTimer   : "Delete timer"
     ,szColPosition   : "Channel position"
     ,szColTitle      : "Title"
@@ -180,8 +181,9 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szColStart      : "Start"
     ,szColStop       : "Stop"
     ,szLoadException : "Couldn't get data!\r\n{0}"
-    ,szRecordSuccess : "Successful created timer.\r\n{0}"
+    ,szRecordSuccess : "Timer created successful.\r\n{0}"
     ,szRecordFailure : "Couldn't create timer!\r\n{0}"
+    ,szToggleFailure : "Couldn't modify timer!\r\n{0}"
     ,szDeleteSuccess : "Timer deleted successful.\r\n{0}"
     ,szDeleteFailure : "Couldn't delete timer!\r\n{0}"
     ,szDetailsFailure : "Couldn't update details of event!\r\n{0}"
@@ -257,7 +259,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                     ,handler: function(){ 
                       var data = {'id':this.ctxRecord.data.chid,'name':this.ctxRecord.data.channel};
                       this.viewer.openProgram(data); }
-                    },{
+                    },'-',{
                      itemId:'tn'
                     ,text: this.szRecord
                     ,iconCls: 'record-icon'
@@ -271,6 +273,13 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.EditTimer(this.ctxRecord, this.updateTimer, this); }
+                    },{
+                     itemId:'tt'
+                    ,text: this.szToggleTimer
+                    ,iconCls: 'timer-toggle-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function() { this.ToogleTimer(this.ctxRecord, this.updateTimer, this); }
                     },{
                      itemId:'td'
                     ,text: this.szDeleteTimer
@@ -318,6 +327,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                       }
                       if(f.itemId == 'tn') { if(timerid) f.hide(); else f.show(); }
                       else if(f.itemId == 'te') { if(timerid) f.show(); else f.hide(); }
+                      else if(f.itemId == 'tt') { if(timerid) f.show(); else f.hide(); }
                       else if(f.itemId == 'td') { if(timerid) f.show(); else f.hide(); }
                       if(XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
@@ -428,6 +438,83 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
       this.viewer.formwin = new Ext.xxv.Question(item,callback,scope);
     }
     /******************************************************************************/
+    ,SelectedTimer : function(record) {
+        var gsm = this.getSelectionModel();
+        var sel = gsm.getSelections();
+        if(sel.length <= 0) {
+         gsm.selectRecords([record]);
+         sel.push(record);
+        }
+        var items = "";
+        for(var i = 0, len = sel.length; i < len; i++){
+          if(i !== 0)
+            items += ',';
+          if(sel[i].data.timerid === 0) {
+            continue;
+          }
+          items += sel[i].data.timerid;
+        }
+        return items;
+    }
+    ,ToggleTimer : function(record) {
+        this.ToggleTimerId(this.SelectedTimer(record), this.store);
+    }
+    ,onToggleSuccess : function( response,options ) 
+    { 
+        this.viewer.loadMask.hide();
+
+        var o = eval("("+response.responseText+")");
+
+        if(o && o.data && typeof(o.data) == 'object' 
+             && o.param && o.param.state && o.param.state === 'success') {
+
+            var items = options.params.data.split(",");
+            for (var j = 0, jlen = options.store.getCount(); j < jlen; j++) {
+              var record = options.store.getAt(j);
+              for(var i = 0, len = items.length; i < len; i++){
+                if(!record || record.data.timerid != items[i]) {
+                  continue;
+                }
+                for(var k = 0, klen = o.data.length; k < klen; k++){
+                    if(record.data.timerid == o.data[k][0]) {
+                        record.data.timeractiv = o.data[k][1];
+                        record.data.running = o.data[k][2];
+                        //record.data.conflict = o.data[k][3];
+                        record.commit();
+                        break;
+                    }
+                 }
+              }
+            }
+            this.updateTimer();
+        } else {
+            var msg = '';
+            if(o && o.data && typeof(o.data) == 'string') {
+              msg = o.data;
+            }
+            new Ext.xxv.MessageBox().msgFailure(this.szToggleFailure, msg);
+        }
+    }
+    ,onToggleFailure : function( response,options ) {
+        this.viewer.loadMask.hide();
+        new Ext.xxv.MessageBox().msgFailure(this.szToggleFailure, response.statusText);
+    }
+    ,ToggleTimerId : function( items,store ) {
+      if(items.length <= 0)
+        return;
+      this.viewer.loadMask.show(); 
+
+      Ext.Ajax.request({
+          scope: this
+         ,url: XXV.help.cmdAJAX('tt')
+         ,timeout: 15000
+         ,success: this.onToggleSuccess
+         ,failure: this.onToggleFailure
+         ,store:   store
+         ,params:{ data: items }
+      });
+    }
+    /******************************************************************************/
     ,onDeleteSuccess : function( response,options ) 
     { 
         this.viewer.loadMask.hide(); 
@@ -463,22 +550,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
         new Ext.xxv.MessageBox().msgFailure(this.szDeleteFailure, response.statusText);
     }
     ,DeleteTimer : function(record) {
-        var gsm = this.getSelectionModel();
-        var sel = gsm.getSelections();
-        if(sel.length <= 0) {
-         gsm.selectRecords([record]);
-         sel.push(record);
-        }
-        var items = "";
-        for(var i = 0, len = sel.length; i < len; i++){
-          if(i !== 0)
-            items += ',';
-          if(sel[i].data.timerid === 0) {
-            continue;
-          }
-          items += sel[i].data.timerid;
-        }
-        this.DeleteTimerId(items, this.store);
+        this.DeleteTimerId(this.SelectedTimer(record), this.store);
     }
     ,DeleteTimerId : function( items,store ) {
       if(items.length <= 0)
@@ -545,6 +617,15 @@ Ext.xxv.NowPreview = function(viewer,store) {
             scope: viewer,
             handler: function(){
               this.gridNow.EditTimer(this.gridNow.getSelectionModel().getSelected(), this.updateTimer, this); 
+            }
+        },{
+            id:'tt',
+            tooltip: Ext.xxv.NowGrid.prototype.szToggleTimer,
+            iconCls: 'timer-toggle-icon',
+            disabled:true,
+            scope: viewer,
+            handler: function(){
+              this.gridNow.ToggleTimer(this.gridNow.getSelectionModel().getSelected(), this.updateTimer, this); 
             }
         },{
             id:'td',

@@ -163,7 +163,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
                     ,scope:this
                     ,disabled: true
                     ,handler: function(){ this.viewer.searchTab(this.ctxRecord); }
-                    },{
+                    },'-',{
                      itemId:'tn'
                     ,text: this.szRecord
                     ,iconCls: 'record-icon'
@@ -177,6 +177,13 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
                     ,scope:this
                     ,disabled: true
                     ,handler: function() { this.EditTimer(this.ctxRecord); }
+                    },{
+                     itemId:'tt'
+                    ,text: this.viewer.gridNow.szToggleTimer
+                    ,iconCls: 'timer-toggle-icon'
+                    ,scope:this
+                    ,disabled: true
+                    ,handler: function() { this.ToggleTimer(this.ctxRecord); }
                     },{
                      itemId:'td'
                     ,text: this.viewer.gridNow.szDeleteTimer
@@ -202,6 +209,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
         if(items) { items.eachKey(function(key, f) { 
                       if(f.itemId == 'tn') { if(timerid) f.hide(); else f.show(); }
                       else if(f.itemId == 'te') { if(timerid) f.show(); else f.hide(); }
+                      else if(f.itemId == 'tt') { if(timerid) f.show(); else f.hide(); }
                       else if(f.itemId == 'td') { if(timerid) f.show(); else f.hide(); }
                       if(XXV.help.cmdAllowed(f.itemId)) 
                         f.enable();
@@ -267,7 +275,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     ,EditTimer : function(record) {
         this.viewer.gridNow.EditTimer(record, this.updateTimer, this);
     }
-    ,DeleteTimer : function(record) {
+    ,SelectedTimer : function(record) {
         var gsm = this.getSelectionModel();
         var sel = gsm.getSelections();
         if(sel.length <= 0) {
@@ -276,14 +284,20 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
         }
         var items = "";
         for(var i = 0, len = sel.length; i < len; i++){
-          if(i !== 0)
+          if(i)
             items += ',';
-          if(sel[i].data.timerid === 0) {
+          if(!sel[i].data.timerid) {
             continue;
           }
           items += sel[i].data.timerid;
         }
-        this.viewer.gridNow.DeleteTimerId(items, this.store);
+        return items;
+    }
+    ,ToggleTimer : function(record) {
+        this.viewer.gridNow.ToggleTimerId(this.SelectedTimer(record), this.store);
+    }
+    ,DeleteTimer : function(record) {
+        this.viewer.gridNow.DeleteTimerId(this.SelectedTimer(record), this.store);
     }
 });
 
@@ -316,6 +330,15 @@ Ext.xxv.programPreview = function(viewer,store) {
             scope: viewer,
             handler: function(){
               this.gridProgram.EditTimer(this.gridProgram.getSelectionModel().getSelected()); 
+            }
+        },{
+            id:'tt',
+            tooltip: Ext.xxv.NowGrid.prototype.szToggleTimer,
+            iconCls: 'timer-toggle-icon',
+            disabled:true,
+            scope: viewer,
+            handler: function(){
+              this.gridProgram.ToggleTimer(this.gridProgram.getSelectionModel().getSelected()); 
             }
         },{
             id:'td',

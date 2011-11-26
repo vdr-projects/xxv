@@ -108,6 +108,7 @@ Ext.xxv.NowGrid.prototype.szFindReRun = "Suche Wiederholung";
 Ext.xxv.NowGrid.prototype.szProgram = "Zeige Programm";
 Ext.xxv.NowGrid.prototype.szRecord = "Aufnehmen";
 Ext.xxv.NowGrid.prototype.szEditTimer = "Timer bearbeiten";
+Ext.xxv.NowGrid.prototype.szToggleTimer = "Timer de- bzw. aktivieren";
 Ext.xxv.NowGrid.prototype.szDeleteTimer = "Timer löschen";
 Ext.xxv.NowGrid.prototype.szColPosition = "Position des Kanal";
 Ext.xxv.NowGrid.prototype.szColTitle = "Titel";
@@ -118,6 +119,10 @@ Ext.xxv.NowGrid.prototype.szColStop = "Ende";
 Ext.xxv.NowGrid.prototype.szLoadException = "Konnte keine Daten holen!\r\n{0}";
 Ext.xxv.NowGrid.prototype.szRecordSuccess = "Timer erfolgreich erstellt.\r\n{0}";
 Ext.xxv.NowGrid.prototype.szRecordFailure = "Konnte Timer nicht erstellen!\r\n{0}";
+Ext.xxv.NowGrid.prototype.szToggleFailure = "Konnte Timer nicht verändern!\r\n{0}";
+Ext.xxv.NowGrid.prototype.szDeleteSuccess = "Timer erfolgreich gelöscht.\r\n{0}";
+Ext.xxv.NowGrid.prototype.szDeleteFailure = "Konnte Timer nicht löschen!\r\n{0}";
+Ext.xxv.NowGrid.prototype.szDetailsFailure = "Konnte Details der Sendung nicht aktualisieren!\r\n{0}";
 
 /* program.js */
 Ext.xxv.programGrid.prototype.szTitle = "Programführer";

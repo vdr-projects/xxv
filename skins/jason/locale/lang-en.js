@@ -108,6 +108,7 @@ Ext.xxv.NowGrid.prototype.szFindReRun = "Find rerun";
 Ext.xxv.NowGrid.prototype.szProgram = "Show program";
 Ext.xxv.NowGrid.prototype.szRecord = "Record";
 Ext.xxv.NowGrid.prototype.szEditTimer = "Edit timer";
+Ext.xxv.NowGrid.prototype.szToggleTimer = "Enable or disable timer";
 Ext.xxv.NowGrid.prototype.szDeleteTimer = "Delete timer";
 Ext.xxv.NowGrid.prototype.szColPosition = "Channel position";
 Ext.xxv.NowGrid.prototype.szColTitle = "Title";
@@ -116,8 +117,12 @@ Ext.xxv.NowGrid.prototype.szColGrpName = "Group of channel";
 Ext.xxv.NowGrid.prototype.szColStart = "Start";
 Ext.xxv.NowGrid.prototype.szColStop = "Stop";
 Ext.xxv.NowGrid.prototype.szLoadException = "Couldn't get data!\r\n{0}";
-Ext.xxv.NowGrid.prototype.szRecordSuccess = "Successful created timer.\r\n{0}";
+Ext.xxv.NowGrid.prototype.szRecordSuccess = "Timer created successful.\r\n{0}";
 Ext.xxv.NowGrid.prototype.szRecordFailure = "Couldn't create timer!\r\n{0}";
+Ext.xxv.NowGrid.prototype.szToggleFailure = "Couldn't modify timer!\r\n{0}";
+Ext.xxv.NowGrid.prototype.szDeleteSuccess = "Timer deleted successful.\r\n{0}";
+Ext.xxv.NowGrid.prototype.szDeleteFailure = "Couldn't delete timer!\r\n{0}";
+Ext.xxv.NowGrid.prototype.szDetailsFailure = "Couldn't update details of event!\r\n{0}";
 
 /* program.js */
 Ext.xxv.programGrid.prototype.szTitle = "Program guide";
