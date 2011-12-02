@@ -1267,6 +1267,7 @@ SELECT SQL_CACHE
     (SELECT IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description)
       FROM EPG as e
       WHERE t.eventid = e.eventid
+      and  t.channel = e.channel_id
       LIMIT 1) as __description,
     NOW() between starttime and stoptime AND (flags & 1) as __running,
     r.host as __host
