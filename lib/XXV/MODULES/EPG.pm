@@ -1626,7 +1626,7 @@ WHERE
 
     my $data = {};
     foreach my $c (@$erg) {
-        push(@{$data->{($c->[17]*100000) + $c->[18]}}, $c);
+        push(@{$data->{($c->[15]*100000) + $c->[16]}}, $c);
     }
 
     $console->table($data,
