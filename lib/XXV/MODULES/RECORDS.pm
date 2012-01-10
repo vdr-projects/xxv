@@ -2567,7 +2567,9 @@ WHERE
           or $data->{channel} ne $status->{channel} 
           or $data->{keywords} ne $status->{keywords}
           or $data->{video} ne $status->{video}
-          or $data->{audio} ne $status->{audio}) {
+          or $data->{audio} ne $status->{audio}
+          or ($rec->{filever} == 2 && $data->{lifetime} ne $rec->{lifetime})  
+            ) {
 
             my $info;
             foreach my $h (keys %{$data}) { $info->{$h} = $data->{$h}; }
@@ -2593,7 +2595,8 @@ WHERE
         }
 
 
-        if($data->{lifetime} ne $rec->{lifetime}) {
+        if($rec->{filever} == 1 
+            && $data->{lifetime} ne $rec->{lifetime}) {
 
             my @options = split('\.', $rec->{path});
 
