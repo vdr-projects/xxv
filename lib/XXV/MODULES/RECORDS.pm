@@ -2568,7 +2568,7 @@ WHERE
           or $data->{keywords} ne $status->{keywords}
           or $data->{video} ne $status->{video}
           or $data->{audio} ne $status->{audio}
-          or ($rec->{filever} == 2 && $data->{lifetime} ne $rec->{lifetime})  
+          or ($rec->{filever} == 2 && $data->{lifetime} ne $status->{lifetime})  
             ) {
 
             my $info;
