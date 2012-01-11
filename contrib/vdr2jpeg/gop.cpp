@@ -417,7 +417,7 @@ bool handleTmpfile(const std::string & szTmpBase, const std::string & szOutPath,
 }
 
 
-bool ReadGOP(const std::string & szFile, int nBegin, int nLength, char *pMem )
+bool ReadGOP(const std::string & szFile, off_t nBegin, off_t nLength, char *pMem )
 {
     std::ifstream f(szFile.c_str(),
               std::ifstream::in | std::ifstream::binary);
@@ -439,12 +439,18 @@ bool ReadGOP(const std::string & szFile, int nBegin, int nLength, char *pMem )
     if(nBegin != 0) {
       f.seekg(nBegin, std::ifstream::beg);    // Seek to I-Frame
     }
+#ifdef DEBUG
+    std::cerr << "Seek file : " << szFile << " to "<< nBegin << std::endl;
+#endif
 
     f.read(pMem, nLength);
     if (f.gcount() != nLength) {
         std::cerr << "Can't read all from file : " << szFile << std::endl;
         return false;
     }
+#ifdef DEBUG
+    std::cerr << "Read file : " << szFile << " length "<< nLength << std::endl;
+#endif
     return true;
 }
 
