@@ -1,10 +1,8 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2009-2011, anbr
+ * Copyright(c) 2009-2012, anbr
  * 
- * http://xxv.berlios.de/
- *
- * $Id$
+ * http://projects.vdr-developer.org/projects/xxv
  *
  * Template for translation
  */

@@ -2,9 +2,7 @@
  * jason - Javascript based skin for xxv
  * Copyright(c) 2009-2010, Diego Pierotto
  * 
- * http://xxv.berlios.de/
- *
- * $Id$
+ * http://projects.vdr-developer.org/projects/xxv
  *
  * Italian translation by Diego Pierotto [ita.translations@tiscali.it]
  */

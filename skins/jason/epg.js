@@ -1,10 +1,9 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2011, anbr
+ * Copyright(c) 2011-2012, anbr
  * 
- * http://xxv.berlios.de/
+ * http://projects.vdr-developer.org/projects/xxv
  *
- * $Id$
  */
 
 Ext.xxv.EPGPreview = function(viewer,store, config) {

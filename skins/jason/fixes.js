@@ -1,10 +1,9 @@
 /*
  * jason - Javascript based skin for xxv
- * Copyright(c) 2008-2010, anbr
+ * Copyright(c) 2008-2012, anbr
  * 
- * http://xxv.berlios.de/
+ * http://projects.vdr-developer.org/projects/xxv
  *
- * $Id$
  */
 
 /* http://extjs.com/forum/showthread.php?p=309913#post309913 */
