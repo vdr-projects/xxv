@@ -1044,9 +1044,9 @@ sub autotimerDelete {
 }
 
 # ------------------
-# Name:  autotimerToogle
+# Name:  autotimerToggle
 # Descr: Switch Autotimer on or off.
-# Usage: $obj->autotimerToogle($console, $atid);
+# Usage: $obj->autotimerToggle($console, $atid);
 # ------------------
 sub autotimerToggle {
     my $obj = shift || return error('No object defined!');
