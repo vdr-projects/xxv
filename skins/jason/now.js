@@ -278,7 +278,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
                     ,iconCls: 'timer-toggle-icon'
                     ,scope:this
                     ,disabled: true
-                    ,handler: function() { this.ToogleTimer(this.ctxRecord, this.updateTimer, this); }
+                    ,handler: function() { this.ToggleTimer(this.ctxRecord); }
                     },{
                      itemId:'td'
                     ,text: this.szDeleteTimer
