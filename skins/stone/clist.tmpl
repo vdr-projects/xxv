@@ -17,6 +17,8 @@
 <?% END %?>
     <?% IF cgi.param('start') %?>
         <?% start = cgi.param('start') %?>
+    <?% ELSE %?>
+        <?% start = 0 %?>
     <?% END %?>
 <?% ######################################################################## %?>
 <?% BLOCK PageButtons %?>
@@ -82,16 +84,16 @@
             <?% srate %?>
           </td>-->
           <td class="fieldinline">
-            <?% chop(VPID,10) %?>
+            <?% chop(VPID,12) %?>
           </td>
           <td class="fieldinline">
-            <?% chop(APID,10) %?>
+            <?% chop(APID,25) %?>
           </td>
           <td class="fieldinline">
-            <?% chop(TPID,10) %?>
+            <?% chop(TPID,12) %?>
           </td>
           <td class="fieldinline">
-            <?% chop(CA,10) %?>
+            <?% chop(CA,30) %?>
           </td>
           <td class="fieldinline push">
             <?% PROCESS RowButtons %?>
@@ -157,16 +159,16 @@
         <tr>
             <td class="largetext" align="left">
             <table summary="" width="100%">
-            <tr><th width="20"></th>
-                <th width="120"><?% gettext('Name') %?></th>
-                <th><?% gettext('Transponder frequency',6)%?></th>
+            <tr align="left"><th width="20"></th>
+                <th width="160"><?% gettext('Name') %?></th>
+                <th><?% gettext('Transponder frequency',8)%?></th>
                 <th><?% gettext('Various parameters, depending on signal source',8) %?></th>
                 <th><?% gettext('Signal source',6) %?></th>
                 <!--<th><?% gettext('Symbol rate',6) %?></th>-->
                 <th><?% gettext('Video PID (VPID)',10) %?></th>
-                <th><?% gettext('Audio PID (APID)',10) %?></th>
+                <th><?% gettext('Audio PID (APID)',20) %?></th>
                 <th><?% gettext('Teletext PID (TPID)',10) %?></th>
-                <th><?% gettext('Conditional access (CA)',10)%?></th>
+                <th><?% gettext('Conditional access (CA)',20)%?></th>
                 <th width="64" align="right"></th>
             </tr>
         <?% END %?>

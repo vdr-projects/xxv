@@ -391,7 +391,7 @@ font-size:14px;
 
 td.fieldhead {
 vertical-align:middle;
-background:url(images/head200.png) no-repeat;
+background:url(images/head220.png) no-repeat;
 height:35px;
 color:#000;
 font-size:11px;
@@ -402,14 +402,14 @@ padding:0 0 15px 25px;
 
 td.fieldtext {
 vertical-align:top;
-background:url(images/mid200.png) repeat-y;
+background:url(images/mid220.png) repeat-y;
 overflow:hidden;
 padding:0 1px 0 3px;
 }
 
 td.fieldbottom {
 vertical-align:bottom;
-background:url(images/down200.png) no-repeat;
+background:url(images/down220.png) no-repeat;
 height:15px;
 }
 

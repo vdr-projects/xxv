@@ -518,14 +518,14 @@ height:1px;
 }
 
 table.largetable {
-background:url(images/dark800.gif) repeat-y;
-width:800px;
+background:url(images/dark1000.gif) repeat-y;
+width:1000px;
 margin-bottom:5px;
 }
 
 td.largehead {
 vertical-align:middle;
-background:url(images/head800.gif) no-repeat;
+background:url(images/head1000.gif) no-repeat;
 height:20px;
 color:#000;
 font-size:12px;
@@ -535,7 +535,7 @@ padding:0 4px 0 4px;
 
 td.largetext {
 vertical-align:top;
-background:url(images/dark800.gif) repeat-y;
+background:url(images/dark1000.gif) repeat-y;
 color:#000;
 font-size:12px;
 padding:1px;
@@ -543,7 +543,7 @@ padding:1px;
 
 td.largebottom {
 vertical-align:bottom;
-background:url(images/down800.gif) no-repeat;
+background:url(images/down1000.gif) no-repeat;
 height:1px;
 }
 

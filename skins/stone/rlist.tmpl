@@ -214,6 +214,7 @@
           description=zeile.11;
           preview=zeile.12;
           cutlength=zeile.13;
+      IF cutlength == ""; cutlength = 0; END;
           foldertitle=fulltitle.split('&#x7e;').last;
           IF foldertitle == " ";  foldertitle=fulltitle.split('&#x7e;').last(2).join(" "); END;
     -%?>
@@ -350,6 +351,7 @@
         <td class="sidebottom"></td>
     </tr>
   </table>
+  <?% IF param.keywords.size == ""; param.keywords.size = 0; END %?>
   <?% IF param.keywords.size > 0 && allow('rk') %?>
   <table summary="">
     <tr><td class="sidehead"><?% gettext("Keywords",20) %?></td></tr>

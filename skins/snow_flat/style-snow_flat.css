@@ -384,7 +384,7 @@ width:150px;
 
 td.fieldhead {
 vertical-align:middle;
-background:url(images/head200.gif) no-repeat;
+background:url(images/head200.png) no-repeat;
 height:20px;
 color:#000;
 font-size:12px;
@@ -394,13 +394,13 @@ padding:0 12px 0 4px;
 
 td.fieldtext {
 vertical-align:top;
-background:url(images/dark200.gif) repeat-y;
+background:url(images/mid200.png) repeat-y;
 padding:4px 12px 4px 4px;
 }
 
 td.fieldbottom {
 vertical-align:bottom;
-background:url(images/down200.gif) no-repeat;
+background:url(images/down200.png) no-repeat;
 height:15px;
 }
 
@@ -426,7 +426,7 @@ margin-bottom:5px;
 
 td.sidehead {
 vertical-align:middle;
-background:url(images/head180.gif) no-repeat;
+background:url(images/head180.png) no-repeat;
 height:20px;
 color:#000;
 font-size:12px;
@@ -438,14 +438,14 @@ white-space:nowrap;
 
 td.sidetext {
 vertical-align:top;
-background:url(images/dark180.gif) repeat-y;
+background:url(images/mid180.png) repeat-y;
 font-size:12px;
 padding:4px 12px 4px 4px;
 }
 
 td.sidebottom {
 vertical-align:bottom;
-background:url(images/down180.gif) no-repeat;
+background:url(images/down180.png) no-repeat;
 height:13px;
 }
 
@@ -475,7 +475,7 @@ font-size:12px;
 
 td.areahead {
 vertical-align:middle;
-background:url(images/head400.gif) no-repeat;
+background:url(images/head400.png) no-repeat;
 height:20px;
 color:#000;
 font-size:12px;
@@ -485,13 +485,13 @@ padding:0 12px 0 4px;
 
 td.areatext {
 vertical-align:top;
-background:url(images/dark400.gif) repeat-y;
+background:url(images/mid400.png) repeat-y;
 padding:4px 12px 4px 4px;
 }
 
 td.areabottom {
 vertical-align:bottom;
-background:url(images/down400.gif) no-repeat;
+background:url(images/down400.png) no-repeat;
 height:15px;
 }
 
@@ -511,7 +511,7 @@ float:left;
 
 td.editorhead {
 vertical-align:middle;
-background:url(images/head600.gif) no-repeat;
+background:url(images/head600.png) no-repeat;
 height:20px;
 color:#000;
 font-size:12px;
@@ -521,24 +521,24 @@ padding:0 12px 0 4px;
 
 td.editortext {
 vertical-align:top;
-background:url(images/dark600.gif) repeat-y;
+background:url(images/mid600.png) repeat-y;
 padding:4px 12px 4px 4px;
 }
 
 td.editorbottom {
 vertical-align:bottom;
-background:url(images/down600.gif) no-repeat;
+background:url(images/down600.png) no-repeat;
 height:15px;
 }
 
 table.largetable {
-width:800px;
+width:1000px;
 color:#000;
 }
 
 td.largehead {
 vertical-align:middle;
-background:url(images/head800.gif) no-repeat;
+background:url(images/head1000.png) no-repeat;
 height:20px;
 color:#000;
 font-size:12px;
@@ -548,14 +548,14 @@ padding:0 12px 0 4px;
 
 td.largetext {
 vertical-align:top;
-background:url(images/dark800.gif) repeat-y;
+background:url(images/mid1000.png) repeat-y;
 font-size:11px;
-padding:4px 12px 4px 4px;
+padding:4px 15px 4px 4px;
 }
 
 td.largebottom {
 vertical-align:bottom;
-background:url(images/down800.gif) no-repeat;
+background:url(images/down1000.png) no-repeat;
 height:15px;
 }
 
