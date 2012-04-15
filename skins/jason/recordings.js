@@ -12,8 +12,15 @@ minTime = function() {
                         Ext.form.TimeField.prototype.initDateFormat).clearTime();
 };
 
+pad = function(n) {
+ return String("00" + parseInt(n)).slice(-2);
+};
+
 SecondsToHMS = function(t) {
-  return new Date(minTime().getTime()+(t * 1000)).dateFormat('H:i:s');
+  var s = t % 60;
+  var m = parseInt(t / 60) % 60;
+  var h = parseInt(t / 3600);
+  return h + ":" + pad(m) + ":" + pad(s);
 };
 
 /******************************************************************************/
