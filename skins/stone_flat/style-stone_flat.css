@@ -340,6 +340,7 @@ border-style:hidden;
 border-width:0;
 margin:0;
 padding:0;
+border:0px none #FFF;
 }
 
 table.fieldtable {
@@ -381,7 +382,6 @@ padding:2px;
 td.fieldbottom {
 vertical-align:bottom;
 background:url(images/downfield.gif) no-repeat;
-height:1px;
 }
 
 table.fieldinline {
@@ -428,7 +428,6 @@ padding:4px;
 td.sidebottom {
 vertical-align:bottom;
 background:url(images/down150.gif) no-repeat;
-height:1px;
 }
 
 #sidebar ul {
@@ -476,7 +475,6 @@ padding:4px;
 td.areabottom {
 vertical-align:bottom;
 background:url(images/down400.gif) no-repeat;
-height:1px;
 }
 
 table.editortable {
@@ -514,13 +512,12 @@ padding:4px;
 td.editorbottom {
 vertical-align:bottom;
 background:url(images/down600.gif) no-repeat;
-height:1px;
 }
 
 table.largetable {
 background:url(images/dark1000.gif) repeat-y;
 width:1000px;
-margin-bottom:5px;
+//margin-bottom:5px;
 }
 
 td.largehead {
@@ -538,13 +535,11 @@ vertical-align:top;
 background:url(images/dark1000.gif) repeat-y;
 color:#000;
 font-size:12px;
-padding:1px;
 }
 
 td.largebottom {
 vertical-align:bottom;
 background:url(images/down1000.gif) no-repeat;
-height:1px;
 }
 
 td.rcbutton,td.rcbuttonlarge {

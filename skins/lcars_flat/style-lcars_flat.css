@@ -362,6 +362,7 @@ border-style:hidden;
 border-width:0;
 margin:0;
 padding:0;
+border:0px none #FFF;
 }
 
 td {
@@ -392,12 +393,11 @@ font-size:14px;
 td.fieldhead {
 vertical-align:middle;
 background:url(images/head220.png) no-repeat;
-height:35px;
 color:#000;
 font-size:11px;
 overflow:hidden;
 text-align:left;
-padding:0 0 15px 25px;
+padding:2px 0 15px 25px;
 }
 
 td.fieldtext {
