@@ -776,7 +776,7 @@ WHERE
         'description' => {
             msg       =>  gettext('Description'),
             typ       => $default->{description} ? 'textfield' : 'hidden',
-            def       => $default->{description},
+            def       => $default->{description} ? $default->{description} : '',
             readonly  => 1
         }
     ];
