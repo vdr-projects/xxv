@@ -35,11 +35,10 @@ apt-get install \
   libdate-manip-perl \
   libdbd-mysql-perl \
   libdbi-perl \
-	libfont-ttf-perl \
-  libmd5-perl \
+  libfont-ttf-perl \
   libdigest-hmac-perl \
   libevent-perl \
-  libgd-gd2-noxpm-perl libgd-graph-perl libgd-graph3d-perl libgd-text-perl \
+  libgd-gd2-perl libgd-graph-perl libgd-graph3d-perl libgd-text-perl \
   txt2html \
   libhtml-tree-perl \
   libjson-perl \
@@ -49,7 +48,7 @@ apt-get install \
   libmp3-info-perl \
   libnet-amazon-perl \
   libnet-xmpp-perl \
-  libproc-process-perl \
+  libproc-processtable-perl \
   libsoap-lite-perl \
   libtemplate-perl \
   libhtml-template-perl \
