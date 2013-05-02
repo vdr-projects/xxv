@@ -928,7 +928,7 @@ sub _checkSession {
 
     my $user;
     # check User
-    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE SQL_CACHE USER.Id as Id,Name,Level,Prefs,UserPrefs,Deny,MaxLifeTime,MaxPriority,sid from USER,SESSION where USER.Id = SESSION.uid and SESSION.sid = ( ? ) and SESSION.source = ( ? ) and SESSION.expires > NOW()');
+    my $sth = $self->{dbh}->prepare('SELECT SQL_CACHE USER.Id as Id,Name,Level,Prefs,UserPrefs,Deny,MaxLifeTime,MaxPriority,sid from USER,SESSION where USER.Id = SESSION.uid and SESSION.sid = ( ? ) and SESSION.source = ( ? ) and SESSION.expires > NOW()');
     $sth->execute($sid, $ip)
         or return error sprintf("Couldn't execute query: %s.",$sth->errstr);
     $user = $sth->fetchrow_hashref();
