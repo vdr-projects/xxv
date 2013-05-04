@@ -22,7 +22,7 @@
 <table border="0" width="95%">
 <?% fields = data.shift %?>
     <tr>
-    <?% FOREACH field = fields %?>
+    <?% FOREACH field IN fields %?>
         <?% NEXT IF field.match('^__') %?>
         <th>
             <nobr><?% field %?>
@@ -35,11 +35,11 @@
     <?% END %?>
     </tr>
     <?% x = -1 %?>
-    <?% FOREACH zeile = data %?>
+    <?% FOREACH zeile IN data %?>
     <tr>
         <?% x = x + 1 %?>
         <?% c = -1 %?>
-        <?% FOREACH field = zeile %?>
+        <?% FOREACH field IN zeile %?>
             <?% c = c + 1 %?>
             <?% NEXT IF fields.$c.match('^__') %?>
             <td <?% IF (x mod 2) == 0 %?>bgcolor='#F5F5F5'<?% END %?>>

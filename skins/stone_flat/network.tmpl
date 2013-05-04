@@ -13,7 +13,7 @@
         fields = data.shift;
 
         timestamps = [];
-        FOREACH row = data;
+        FOREACH row IN data;
             iname = row.0.split(':').first;
 
             rxbytes.${iname} = [];
@@ -24,7 +24,7 @@
             oldentry.${iname} = [];
         END;
 
-        FOREACH row = data;
+        FOREACH row IN data;
             IF ot != row.5;
              t = date.format(row.5, '%H:%M');
              timestamps.push(t);
@@ -46,7 +46,7 @@
                 oldentry.${iname} = row;
         END;
 
-        FOREACH iname = rxbytes.keys.sort;
+        FOREACH iname IN rxbytes.keys.sort;
 
             # Data ...
             d = [
@@ -92,7 +92,7 @@
 <h1><?% param.headingText %?></h1>
 <?% END %?>
 
-<?% FOREACH file = statusfiles %?>
+<?% FOREACH file IN statusfiles %?>
 <table class="editortable" summary="">
     <tr><td class="editorhead"><?% file.0 %?></td></tr>
     <tr>

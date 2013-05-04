@@ -1,7 +1,7 @@
 <!-- display -->
 <?% IF verbose  %?>
-<!-- First: <?% FOREACH x = data.first %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
-<!-- Last: <?% FOREACH x = data.last %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
+<!-- First: <?% FOREACH x IN data.first %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
+<!-- Last: <?% FOREACH x IN data.last %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
 <?% END %?>
 <?%
   USE date;
@@ -62,7 +62,7 @@ END %?>
 		<?% IF description != "" || bild != "" %?>
         <p class="description">
 		<?% IF bild != "" %?>
-        <?% FOREACH img = bild.split("\n") %?>
+        <?% FOREACH img IN bild.split("\n") %?>
             <img class="epgimages" src="?cmd=eimage&data=<?% img %?>" alt="" />
         <?% END %?>
     <?% END %?>

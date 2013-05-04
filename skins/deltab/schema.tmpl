@@ -6,7 +6,7 @@
 <?% gettext("Schema") %?>
  : <?% date.format(param.zeitvon, '%A, %H:%M', locale) %?>
  - <?% date.format(param.zeitbis, '%H:%M', locale) %?>
-    <?% FOREACH cgrp = param.cgroups %?>
+    <?% FOREACH cgrp IN param.cgroups %?>
     <?% IF param.channelgroup == cgrp.last %?> ( <?% cgrp.first %?> ) <?% END %?>
     <?% END %?>
 </h1>
@@ -77,7 +77,7 @@
                         <?%- ############################################## -%?>                                
                   </td>
                 </tr>
-                <?% FOREACH cpos = data.keys.nsort %?>
+                <?% FOREACH cpos IN data.keys.nsort %?>
                  <tr<?% IF (loop.count mod 2) == 0 %?> class="two"<?% END %?>>
                     <td class="schema">
                     <?% channel = data.$cpos.first.4 %?>
@@ -99,7 +99,7 @@
                     </td>
                     <td class="schema" colspan="<?% colspan %?>" style="white-space:nowrap;">
                         <?%- ges = 0; oldend = param.zeitvon -%?>
-                        <?%- FOREACH event = data.$cpos;
+                        <?%- FOREACH event IN data.$cpos;
                                 id = event.0;
                                 title = event.1;
                                 subtitle = event.2;
@@ -182,7 +182,7 @@
         <form action="">
         <p>
         <select name="cgroups" onchange="di('?cmd=schema&amp;data=<?% param.zeitvon %?>&amp;__cgrp=',this.form.cgroups.options[this.form.cgroups.options.selectedIndex].value)">
-            <?% FOREACH cgrp = param.cgroups %?>
+            <?% FOREACH cgrp IN param.cgroups %?>
               <option value="<?% cgrp.last %?>"<?% ' selected="selected"' IF param.channelgroup == cgrp.last %?>><?% cgrp.first %?></option>
             <?% END %?>
         </select>
@@ -210,7 +210,7 @@
             <select size="<?% zeiten.size + 3 %?>" name='data' onchange="di('?cmd=sch&amp;__cgrp=<?% cgi.param('__cgrp') %?>&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">
             <?% today = [] %?>
             <?% tomor = [] %?>
-        <?% FOREACH zeit = zeiten %?>
+        <?% FOREACH zeit IN zeiten %?>
             <?% tom = 0 %?>
             <?% PERL %?>
                 use Date::Manip;
@@ -231,12 +231,12 @@
         <?% END %?>
         <?% IF today.size > 0 %?>
             <optgroup label="<?% date.format(today.0, "%A", locale) %?>">
-        <?% FOREACH z = today %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
+        <?% FOREACH z IN today %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
             </optgroup>
         <?% END %?>
         <?% IF tomor.size > 0 %?>
             <optgroup label="<?% date.format(tomor.0, "%A", locale) %?>">
-        <?% FOREACH z = tomor %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
+        <?% FOREACH z IN tomor %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
             </optgroup>
         <?% END %?>
             </select>

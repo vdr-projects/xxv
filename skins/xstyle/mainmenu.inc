@@ -17,7 +17,7 @@ var myBar = new WebFXMenuBar;
     <?% groupnames = getModule('CHANNELS').ChannelGroupsArray('Name') %?>
     <?% IF groupnames.size %?>
         var runnowGrp = new WebFXMenu;
-    <?% FOREACH group = groupnames%?>
+    <?% FOREACH group IN groupnames%?>
         runnowGrp.add(new WebFXMenuItem('<?% group.first %?>',  "?cmd=now&data=&__cgrp=<?% group.last %?>"));
     <?% END %?>
         runnow.add(new WebFXMenuItem("<?% gettext("Running now",cuttext ) %?>",null,null,runnowGrp));
@@ -25,7 +25,7 @@ var myBar = new WebFXMenuBar;
 
     <?% IF groupnames.size %?>
         var runnextGrp = new WebFXMenu;
-    <?% FOREACH group = groupnames %?>
+    <?% FOREACH group IN groupnames %?>
         runnextGrp.add(new WebFXMenuItem('<?% group.first %?>',  "?cmd=next&data=&__cgrp=<?% group.last %?>"));
     <?% END %?>
         runnow.add(new WebFXMenuItem("<?% gettext("Next",cuttext ) %?>",null,null,runnextGrp));
@@ -34,7 +34,7 @@ var myBar = new WebFXMenuBar;
 
     <?% USE date %?>
     <?% periods = getModule('EPG').periods %?>
-    <?% FOREACH zeit = periods.split(','); %?>
+    <?% FOREACH zeit IN periods.split(','); %?>
         <?% runningnext = 0 %?>
         <?% tom = 0 %?>
         <?% PERL %?>
@@ -132,7 +132,7 @@ var myBar = new WebFXMenuBar;
 
 <?% IF allow('configedit') %?>
     var prefs = new WebFXMenu;
-    <?% FOREACH co = getModule('CONFIG').realModNames %?>
+    <?% FOREACH co IN getModule('CONFIG').realModNames %?>
       <?% IF co != "CONFIG" %?>
         prefs.add(new WebFXMenuItem("<?% chop(co,cuttext ) %?>",  "?cmd=configedit&amp;data=<?% co %?>"));
       <?% END %?>

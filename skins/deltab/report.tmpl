@@ -2,7 +2,7 @@
 <div id="body">
 <h1><?% gettext("Protocol of the activities") %?></h1>
 
-<?% FOREACH name = data.keys.sort %?>
+<?% FOREACH name IN data.keys.sort %?>
     <h2><?% gettext("Report for module") %?>&nbsp;
         <?% name %?>:</h2>
     <?% IF name == 'RECORDS';
@@ -16,7 +16,7 @@
         END;
      %?>
 
-    <?% FOREACH typ = data.$name.keys.sort %?>
+    <?% FOREACH typ IN data.$name.keys.sort %?>
         <?% IF typ == 'message' %?>
             <p><?% data.$name.$typ %?>
             </p>
@@ -24,7 +24,7 @@
            <?% fields = data.$name.$typ.shift %?>
                   <table summary=""  width="100%">
                     <tr>
-                    <?% FOREACH field = fields %?>
+                    <?% FOREACH field IN fields %?>
                         <?% NEXT IF field.match('^__') %?>
                         <th>
                             <nobr><?% field %?>
@@ -32,10 +32,10 @@
                         </th>
                     <?% END %?>
                     </tr>
-                    <?% FOREACH zeile = data.$name.$typ %?>
+                    <?% FOREACH zeile IN data.$name.$typ %?>
                     <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
                         <?% c = -1 %?>
-                        <?% FOREACH field = zeile %?>
+                        <?% FOREACH field IN zeile %?>
                             <?% c = c + 1 %?>
                             <?% NEXT IF fields.$c.match('^__') %?>
                             <td><?% IF link %?><a href="<?% link %?><?% zeile.first %?>"><?% END %?>

@@ -140,7 +140,7 @@
         <th><?% PROCESS SortItem row="CA" label=gettext('Conditional access (CA)') trunc=10  %?></th>
         <th align="right"></th>
     </tr>
-    <?% FOREACH zeile = data %?>
+    <?% FOREACH zeile IN data %?>
         <?% id=zeile.0;name=zeile.1;frequency=zeile.2;parameters=zeile.3;source=zeile.4;srate=zeile.5;VPID=zeile.6;APID=zeile.7;TPID=zeile.8;CA=zeile.9;SID=zeile.10;NID=zeile.11;TID=zeile.12;RID=zeile.13;GRP=zeile.14;POS=zeile.15;CGRP=zeile.16;HOST=zeile.17; %?>
         <?% IF not sortby.defined && OLDHOST != HOST  %?>
             <tr>

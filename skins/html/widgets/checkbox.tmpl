@@ -7,9 +7,9 @@
         <?% val = cgi.param(data.NAME) || data.def %?>
         <table style="border:0px solid #000000;"><tr>
         <?% c = 0 %?>
-        <?% FOREACH wert = data.choices %?>
+        <?% FOREACH wert IN data.choices %?>
             <?% "</tr><tr>" IF (c mod 3) == 0 %?>
-            <td><input type="checkbox" name="<?% data.NAME %?>" value="<?% wert %?>" <?% "checked" IF val.grep("^${wert}").size %?> <?% FOREACH p = param.tags; "$p ";END %?>><?% wert %?></td>
+            <td><input type="checkbox" name="<?% data.NAME %?>" value="<?% wert %?>" <?% "checked" IF val.grep("^${wert}").size %?> <?% FOREACH p IN param.tags; "$p ";END %?>><?% wert %?></td>
             <?% c = c + 1 %?>
         <?% END %?>
         </tr></table>

@@ -5,7 +5,7 @@
     <li>
         <select name='ranges' onChange="di(this.form.ranges.options[this.form.ranges.options.selectedIndex].value, '?cmd=mllist&__range=')">
             <option value="0"><?% gettext('Ranges') %?></option>
-        <?% FOREACH r = param.ranges %?>
+        <?% FOREACH r IN param.ranges %?>
             <option value='<?% r.first %?>'<?% " selected" IF cgi.param('__range') == r.first %?> ><?% r.last %?></option>
         <?% END %?>
         </select>

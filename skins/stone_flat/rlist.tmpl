@@ -162,8 +162,8 @@
                         <td class="largetext" align="left">
                         <table  summary="" width="100%">
                         <tr height="0"><th width="<?% IF param.previewcommand != 'n' %?>200<?% ELSE %?>20<?% END %?>"></th><th></th><th width="64"></th></tr>
-     <?%- FOREACH zeile = data;
-          IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END;
+     <?%- FOREACH zeile IN data;
+          IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END;
           id=zeile.0;
           eventid=zeile.1;
           title=zeile.2.split('&#x7e;').last;
@@ -259,7 +259,7 @@
             <li><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></li>
         </ul>
 <?% END %?>
-    <?% FOREACH row = fields %?>
+    <?% FOREACH row IN fields %?>
       <?% NEXT IF row.match('^__') %?>
         <?% PROCESS SortItem label=chop(row,20) %?>
       <?% END %?>
@@ -331,7 +331,7 @@
         <?% IF param.keywords.size <  steps %?>
           <?% factor = factor * (param.keywords.size /  steps) %?>
         <?% END %?>
-        <?% FOREACH keyword = param.keywords %?>
+        <?% FOREACH keyword IN param.keywords %?>
               <?% level = 80 + (3*(((keyword.1 - basis) * factor) div 1)) %?>
               <a href="?cmd=rk&amp;data=<?% keyword.0 %?>">
                 <font style="font-size:<?% level %?>%"><?% keyword.0 %?></font>

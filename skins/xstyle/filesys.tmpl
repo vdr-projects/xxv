@@ -5,7 +5,7 @@ trash = param.usage.shift;
 
 IF param.graphic;
     FILTER null;
-        FOREACH device = param.usage;
+        FOREACH device IN param.usage;
             name = reentities(device.first).split('/').last;
 
             free = 100 - device.5;
@@ -42,7 +42,7 @@ END;
 <?% IF param.graphic %?>
     <table border="0" width="95%">
     <?% count = 0 %?>
-    <?% FOREACH file = statusfiles %?>
+    <?% FOREACH file IN statusfiles %?>
     	<?% IF count % 2 == 0 %?>
     		<?% IF count > 0 %?>
     </tr>
@@ -61,13 +61,13 @@ END;
 <?% ELSE %?>
     <table border="0" width="95%">
             <tr>
-            <?% FOREACH field = trash %?>
+            <?% FOREACH field IN trash %?>
                 <th><?% field %?></th>
             <?% END %?>
             </tr>
-            <?% FOREACH zeile = data %?>
+            <?% FOREACH zeile IN data %?>
             <tr>
-                <?% FOREACH field = zeile %?>
+                <?% FOREACH field IN zeile %?>
                 <td><?% field %?></td>
                 <?% END %?>
             </tr>

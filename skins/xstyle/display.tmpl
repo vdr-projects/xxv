@@ -31,7 +31,7 @@
     <?% IF values.13 %?>
        <?% Image = values.13 %?>
     <?% END %?>
-    <?% FOREACH field = fields %?>
+    <?% FOREACH field IN fields %?>
         <?% c = c + 1 %?>
         <?%# NEXT UNLESS values.$c %?>
         <?% NEXT IF field == gettext('Percent') && values.$c > 100 %?>
@@ -58,7 +58,7 @@
             <td>
             <?% IF Image %?>
                 <table align="right" border=0><tr><td>
-                <?% FOREACH img = Image.split("\n") %?>
+                <?% FOREACH img IN Image.split("\n") %?>
                 <img src='?cmd=eimage&data=<?% img %?>' border=1 vspace=2><br/>
                 <?% END %?>
                 </td></tr></table>

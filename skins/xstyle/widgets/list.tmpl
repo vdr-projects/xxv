@@ -11,19 +11,19 @@
             <?% values = val %?>
         <?% END %?>
         <?% IF data.options == 'multi' %?>
-            <select name="<?% data.NAME %?>" multiple size="10" <?% FOREACH p = param.tags; "$p ";END %?>>
+            <select name="<?% data.NAME %?>" multiple size="10" <?% FOREACH p IN param.tags; "$p ";END %?>>
         <?% ELSE %?>
-            <select name="<?% data.NAME %?>" <?% FOREACH p = param.tags; "$p ";END %?>>
+            <select name="<?% data.NAME %?>" <?% FOREACH p IN param.tags; "$p ";END %?>>
         <?% END %?>
-            <?% FOREACH l = data.choices %?>
+            <?% FOREACH l IN data.choices %?>
                 <?% sel = '' %?>
                 <?% dis = '' %?>
-                <?% FOREACH valch = values %?>
+                <?% FOREACH valch IN values %?>
 					          <?% IF valch == l.1 %?>
                     <?% sel = ' selected="selected"';LAST %?>
                     <?% END %?>
                 <?% END %?>
-                <?% FOREACH valch = data.disabled %?>
+                <?% FOREACH valch IN data.disabled %?>
 					          <?% IF valch == l.1 %?>
                     <?% dis = ' disabled="disabled"';LAST %?>
                     <?% END %?>

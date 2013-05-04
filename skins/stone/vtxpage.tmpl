@@ -13,7 +13,7 @@
         <td class="sidetext">
             <form action="">
                 <select size="5" name='chan' onchange="di('?cmd=vt&amp;channel=',this.form.chan.options[this.form.chan.options.selectedIndex].value)">
-                	<?% FOREACH ch = param.channels %?>
+                	<?% FOREACH ch IN param.channels %?>
                 	    <option value="<?% ch.1 %?>" <?% 'selected="selected"' IF channel == ch.1 %?>><?% ch.0 %?></option>
                 	<?% END %?>
                 </select>
@@ -83,7 +83,7 @@
 <div id="body">
 <h1><?% gettext("Teletext") %?></h1>
 <?% END %?>
-    <?% FOREACH zeile = data %?>
+    <?% FOREACH zeile IN data %?>
        <?% id=zeile.0;page=zeile.1;subpage=zeile.2;channels=zeile.3;prev=zeile.4;next=zeile.5;mtime=zeile.6 %?>
 <div class="areabegin" id="<?% id %?>">
   <table class="areatable" summary="">

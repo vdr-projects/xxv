@@ -177,8 +177,8 @@
         <th width="100"></th>
         <th width="60" align="right"></th>
     </tr>
-    <?% FOREACH zeile = data %?>
-    <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+    <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
     <?%- id=zeile.0;
           eventid=zeile.1;
@@ -257,7 +257,7 @@
             <td style="padding:0px;" width="20"><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></td>
         </tr>
 <?% END %?>
-      <?% FOREACH row = fields %?>
+      <?% FOREACH row IN fields %?>
       <?% NEXT IF row.match('^__') %?>
         <?% PROCESS SortItem label=chop(row,20) %?>
       <?% END %?>
@@ -301,7 +301,7 @@
         <?% IF param.keywords.size <  steps %?>
           <?% factor = factor * (param.keywords.size /  steps) %?>
         <?% END %?>
-        <?% FOREACH keyword = param.keywords %?>
+        <?% FOREACH keyword IN param.keywords %?>
               <?% level = 80 + (3*(((keyword.1 - basis) * factor) div 1)) %?>
               <a href="?cmd=rk&amp;data=<?% keyword.0 %?>">
                 <font style="font-size:<?% level %?>%"><?% keyword.0 %?></font>

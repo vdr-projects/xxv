@@ -90,8 +90,8 @@
 <?% ######################################################################## %?>
 <h1><?% gettext("Media library") %?></h1>
 <form name="mlist" action="">
-     <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+     <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;imgurl=zeile.1;title=zeile.2;subtitle=zeile.3;year=zeile.4;director=zeile.5;description=zeile.6; %?>
         <?% PROCESS ItemAsArea %?>
     <?% END %?>
@@ -119,7 +119,7 @@
     <td class="sidetext">
       <form name="mediarange" action="">
       <select name='range' onchange="di('?cmd=mllist&amp;__range=',this.form.range.options[this.form.range.options.selectedIndex].value)">
-      <?% FOREACH r = param.ranges %?>
+      <?% FOREACH r IN param.ranges %?>
           <option value="<?% url( r.0 ) %?>"<?% ' selected="selected"' IF param.range == r.0 %?>><?% r.1 %?></option>
       <?% END %?>
       </select>

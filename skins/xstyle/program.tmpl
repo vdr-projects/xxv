@@ -7,7 +7,7 @@
 </SCRIPT>
 
 <!-- TableTemplate -->
-<?% FOREACH ch = param.channels %?>
+<?% FOREACH ch IN param.channels %?>
     <?% IF cgi.param('data') == ch.1 || cgi.param('data') == ch.0 || param.current == ch.1 %?>
         <?% channel = ch.0 %?>
         <?% channelpos = ch.1 %?>
@@ -32,12 +32,12 @@
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% NEXT IF field.match('^__') || loop.count == 6 %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
             <?% c = 0 %?>
             <?% day = zeile.5 %?>
             <?% IF !oldday.defined || day != oldday %?>
@@ -46,7 +46,7 @@
                 </td></tr>
             <?% END %?>
         <tr class="<?% myclass %?>"<?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
                 <?% c = c + 1 %?>
                 <?% IF c == 1; # Id Field %?>
                 <td>

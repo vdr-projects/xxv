@@ -57,8 +57,8 @@
 <h1><?% gettext("User administration") %?></h1>
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
-    <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;user=zeile.1;right=zeile.2 %?>
         <?% IF zeile.size <= 1 %?>
           <div class="areaclose"></div>

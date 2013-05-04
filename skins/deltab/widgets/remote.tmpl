@@ -229,7 +229,7 @@ aktiv = window.setInterval("grab()", inter);
                     <tr>
                         <td colspan="7" align="center">
                             <select style="width:175px;" name="vdr">
-                            <?% FOREACH l = param.vdrlist %?>
+                            <?% FOREACH l IN param.vdrlist %?>
                                 <option value='<?% l.1 %?>'<?% IF l.1 == param.vdr %?> selected<?% END %?>><?% l.0 %?></option>
                             <?% END %?>
                             </select>
@@ -245,7 +245,7 @@ aktiv = window.setInterval("grab()", inter);
                     <tr>
                         <td colspan="7" align="center">
                             <select style="width:175px;" name="channels" onchange="post('switch', this.form.channels.options[this.form.channels.options.selectedIndex].value + '&amp;__vdr=' + ( this.form.vdr.options ? this.form.vdr.options[this.form.vdr.options.selectedIndex].value : this.form.vdr.value ))">
-                            <?% FOREACH l = param.channels %?>
+                            <?% FOREACH l IN param.channels %?>
                             <?% IF l.2 && l.2 != optgroup %?>
                               <?% IF optgroup %?>
                               </optgroup>

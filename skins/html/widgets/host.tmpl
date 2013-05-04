@@ -9,7 +9,7 @@
             type="text"
             name="<?% data.NAME %?>"
             value="<?% val %?>"
-            <?% FOREACH p = param.tags; "$p ";END %?>
+            <?% FOREACH p IN param.tags; "$p ";END %?>
             onBlur="check<?% data.NAME %?>Host()"
         ><br/>
         <span id='id<?% param.count %?>'></span>

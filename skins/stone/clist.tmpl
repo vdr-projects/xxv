@@ -115,8 +115,8 @@
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
 <form name="clist" action="">
-    <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?%- id=zeile.0;name=zeile.1;frequency=zeile.2;parameters=zeile.3;
              source=zeile.4;srate=zeile.5;VPID=zeile.6;APID=zeile.7;TPID=zeile.8;
              CA=zeile.9;SID=zeile.10;NID=zeile.11;TID=zeile.12;RID=zeile.13;GRP=zeile.14;
@@ -225,7 +225,7 @@
             <li><a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></li>
         </ul>
 <?% END %?>
-    <?% FOREACH row = fields %?>
+    <?% FOREACH row IN fields %?>
       <?% NEXT IF row.match('^__') %?>
         <?% PROCESS SortItem label=chop(row,20) %?>
       <?% END %?>

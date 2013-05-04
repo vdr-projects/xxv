@@ -6,7 +6,7 @@
     <?% IF ! param.hide_HeadRow %?>
     <td>Name</td><td>Value</td>
     <?% END %?>
-    <?% FOREACH name = data.keys.sort %?>
+    <?% FOREACH name IN data.keys.sort %?>
     <tr>
         <td width="50%"><?% name %?></td><td><?% data.$name.replace('\|', '<p>').replace('\n', '<br>') %?></td>
     </tr>
@@ -14,17 +14,17 @@
 <?% ELSE %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% NEXT IF field.match('^__') %?>
             <td>
                 <?% field | html %?>
             </td>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <tr>
             <?% c = -1 %?>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
                 <?% c = c + 1 %?>
                 <?% NEXT IF fields.$c.match('^__') %?>
                 <td><?% field.replace('\|', '<p>').replace('\n', '<br>') %?></td>

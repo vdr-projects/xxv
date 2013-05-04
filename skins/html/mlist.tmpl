@@ -5,7 +5,7 @@
 <tr>
     <th>
     <?% gettext("Artists") %?>: <select name='artists' onChange="di('artist:' + this.form.artists.options[this.form.artists.options.selectedIndex].value, '?cmd=ml&amp;data=')">
-    <?% FOREACH ch = param.artists %?>
+    <?% FOREACH ch IN param.artists %?>
         <option value="<?% url( ch.0 ) %?>" <?% "selected" IF cgi.param('data').split(':').first == 'artist' && cgi.param('data').split(':').last == ch.0 %?>><?% ch.0 %?></option>
     <?% END %?>
     </select>
@@ -13,7 +13,7 @@
 
     <th>
     <?% gettext("Albums") %?>: <select name='albums' onChange="di('album:' + this.form.albums.options[this.form.albums.options.selectedIndex].value, '?cmd=ml&amp;data=')">
-    <?% FOREACH ch = param.albums %?>
+    <?% FOREACH ch IN param.albums %?>
         <option value="<?% url( ch.0 ) %?>" <?% "selected" IF cgi.param('data').split(':').first == 'album' && cgi.param('data').split(':').last == ch.0 %?>><?% chop(ch.0,50) %?></option>
     <?% END %?>
     </select>
@@ -25,7 +25,7 @@
     </th>
     <th>
     <?% gettext("Genres") %?>: <select name='genres' onChange="di('genre:' + this.form.genres.options[this.form.genres.options.selectedIndex].value, '?cmd=ml&amp;data=')">
-    <?% FOREACH ch = param.genres %?>
+    <?% FOREACH ch IN param.genres %?>
         <option value="<?% url( ch.0 ) %?>" <?% "selected" IF cgi.param('data').split(':').first == 'genre' && cgi.param('data').split(':').last == ch.0 %?>><?% ch.0 %?></option>
     <?% END %?>
     </select>
@@ -58,7 +58,7 @@
 <table border="0" width="95%">
 <?% IF data.size %?>
     <?% fields = data.shift %?>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <?% IF !oldalbum.defined || zeile.2 != oldalbum %?>
         <tr>
         <td colspan=<?% zeile.size %?>>
@@ -79,7 +79,7 @@
         </td>
         </tr>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
         <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
@@ -87,7 +87,7 @@
         <?% END %?>
         <tr>
             <?% c = -1 %?>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
                 <?% c = c + 1 %?>
                 <?% NEXT IF fields.$c.match('^__') %?>
                 <?% IF c == 0; # Id Field %?>

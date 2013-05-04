@@ -14,16 +14,16 @@
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
         <?% x = -1 %?>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <?% x = x + 1 %?>
         <tr class="<?% myclass %?>" <?% IF (x mod 2) != 0 %?>bgcolor='#F5F5F5'<?% END %?>>
             <?% c = 0 %?>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
                 <?% c = c + 1 %?>
                 <?% IF c == 1; # Id Field %?>
                 <td>

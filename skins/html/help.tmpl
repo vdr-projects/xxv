@@ -24,7 +24,7 @@ var tree = new WebFXTree("XXV", "?cmd=<?% getModule('HTTPD').StartPage %?>");
         runnow.add(new WebFXTreeItem("<?% gettext("Next",12) %?>",  "?cmd=next"));
 
     <?% USE date %?>
-    <?% FOREACH zeit = param.periods.split(','); %?>
+    <?% FOREACH zeit IN param.periods.split(','); %?>
         <?% runningnext = 0 %?>
         <?% tom = 0 %?>
         <?% PERL %?>
@@ -50,7 +50,7 @@ var tree = new WebFXTree("XXV", "?cmd=<?% getModule('HTTPD').StartPage %?>");
 <?% IF allow('schema') %?>
     var program = new WebFXTreeItem("<?% gettext("Program guide") %?>","?cmd=schema",tree);
     <?% IF allow('topten') %?>program.add(new WebFXTreeItem("<?% gettext("Top ten entry") %?>",    "?cmd=t10"));<?% END %?>
-    <?% FOREACH ch = param.CHANNELS %?>
+    <?% FOREACH ch IN param.CHANNELS %?>
         <?% IF ch.2 != lastgroup;lastgroup = ch.2 %?>
         <?% CNT = CNT + 1 %?>
     var programgroup<?% CNT %?> = new WebFXTreeItem("<?% escape(chop(lastgroup,10)) %?>",  "?cmd=program&amp;data=<?% ch.1 %?>",program);
@@ -116,7 +116,7 @@ var admin = new WebFXTreeItem("<?% gettext("Administration") %?>",0,tree);
 
 <?% IF allow('configedit') %?>
     var prefs = new WebFXTreeItem("<?% gettext("Preferences") %?>","?cmd=configedit",tree);
-    <?% FOREACH co = param.CONFIGS %?>
+    <?% FOREACH co IN param.CONFIGS %?>
       <?% IF co != "CONFIG" %?>
         prefs.add(new WebFXTreeItem("<?% chop(co,10) %?>",  "?cmd=configedit&amp;data=<?% co %?>"));
       <?% END %?>
@@ -155,8 +155,8 @@ document.write(tree);
 <p><?% data.shift %?></p>
   <?% IF data.size > 1 %?>
 <table summary=""  width="100%">
-    <?% FOREACH zeile = data %?>
-    <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+    <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
         <?% short=zeile.0;long=zeile.1;modul=zeile.2;desc=zeile.3 %?>
         <?% IF allow(long) %?>

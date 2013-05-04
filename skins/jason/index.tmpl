@@ -68,7 +68,7 @@
   <?% END %?>
 <?% IF verbose != 0;scripts.1 = "ext-3.0.3/ext-all-debug.js";END %?>
 <?% END %?>
-<?% FOREACH script = scripts %?>
+<?% FOREACH script IN scripts %?>
 <script type="text/javascript" src="<?% script %?>"></script>
 <?% END %?>
 <?% IF lang.1 %?>

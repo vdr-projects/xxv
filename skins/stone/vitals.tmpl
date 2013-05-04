@@ -16,7 +16,7 @@
         utildata = [];
         userdata = [];
         timestamps = [];
-        FOREACH item = param.stack;
+        FOREACH item IN param.stack;
             t = date.format(item.timestamp, '%H:%M');
             timestamps.push(t);
             l = item.load.first * 10;
@@ -86,7 +86,7 @@
   <tr>
     <td class="areatext">
             <table summary="" width="100%">
-                <?% FOREACH name = data.keys.sort %?>
+                <?% FOREACH name IN data.keys.sort %?>
                 <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
                     <td><?% name %?></td>
                     <td><?% data.$name.replace('\n', '<br />') %?></td>
@@ -100,7 +100,7 @@
 </div>
 
 
-<?% FOREACH file = statusfiles %?>
+<?% FOREACH file IN statusfiles %?>
 <div class="areabegin">
 <table class="areatable" summary="">
     <tr><td class="areahead"><?% file.0 %?></td></tr>

@@ -5,7 +5,7 @@
             <?% data %?>
         <?% ELSE %?>
             <table summary="">
-            <?% FOREACH zeile = data %?>
+            <?% FOREACH zeile IN data %?>
                 <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
                     <td><?% zeile %?></td>
                 </tr>

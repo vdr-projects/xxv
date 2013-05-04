@@ -105,8 +105,8 @@
 <h1><?% gettext("Wished automated recordings") %?></h1>
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
-    <?% FOREACH zeile = data %?>
-       <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+       <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
        <?% id=zeile.0;title=zeile.2;channels=zeile.3;directory=zeile.4;start=zeile.5;stop=zeile.6;minlength=zeile.7 %?>
        <?% IF zeile.1 == 'y' %?><?% aktiv = 1 %?><?% ELSE %?><?% aktiv = 0 %?><?% END %?>
        <?% PROCESS ItemAsArea %?>
@@ -158,7 +158,7 @@
             <li><a href="?cmd=<?% cmd %?><?% datas %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/down.<?% global.imagetyp %?>" alt="" /></a></li>
         </ul>
 <?% END %?>
-    <?% FOREACH row = fields %?>
+    <?% FOREACH row IN fields %?>
       <?% NEXT IF row.match('^__') %?>
         <?% PROCESS SortItem label=chop(row,20) %?>
       <?% END %?>

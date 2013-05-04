@@ -5,7 +5,7 @@
     </td>
     <td>
         <?% val = cgi.param(data.NAME) || data.def %?>
-        <?% FOREACH wert = data.choices %?>
+        <?% FOREACH wert IN data.choices %?>
             <input type="radio" name="<?% data.NAME %?>" value="<?% wert %?>" <?% 'checked="checked"' IF val.grep("^${wert}").size %?> /><?% wert %?>&nbsp;
         <?% END %?>
     </td>

@@ -15,15 +15,15 @@
         <?% ELSE %?>
             <select style="width:400px;" name="<?% data.NAME %?>">
         <?% END %?>
-            <?% FOREACH l = data.choices %?>
+            <?% FOREACH l IN data.choices %?>
                 <?% sel = '' %?>
                 <?% dis = '' %?>
-                <?% FOREACH valch = values %?>
+                <?% FOREACH valch IN values %?>
                     <?% IF valch == l.1 %?>
                     <?% sel = ' selected="selected"';LAST %?>
                     <?% END %?>
                 <?% END %?>
-                <?% FOREACH valch = data.disabled %?>
+                <?% FOREACH valch IN data.disabled %?>
                     <?% IF valch == l.1 %?>
                     <?% dis = ' disabled="disabled"';LAST %?>
                     <?% END %?>

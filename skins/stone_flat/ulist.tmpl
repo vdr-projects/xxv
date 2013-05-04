@@ -44,8 +44,8 @@
                         <td class="largetext" align="left">
                         <table  summary="" width="100%">
                         <tr height="0"><th></th><th></th><th width="60" align="right"></th></tr>
-    <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;user=zeile.1;right=zeile.2 %?>
         <?% PROCESS ItemAsFlat %?>
     <?% END %?>

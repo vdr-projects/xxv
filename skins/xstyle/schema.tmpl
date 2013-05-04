@@ -41,7 +41,7 @@ sec_height = 0.1;
     <li><a href='?cmd=schema&amp;data=<?% (param.zeitvon - Duration) %?>&amp;__cgrp=<?% param.channelgroup %?>'><?% tt=param.zeitvon - Duration;date.format(tt, '%H:%M') %?>-<?% date.format(param.zeitvon, '%H:%M') %?></a></li>
     <li>
         <select name='cgroups' onChange="di(this.form.cgroups.options[this.form.cgroups.options.selectedIndex].value, '?cmd=schema&amp;data=<?% param.zeitvon %?>&amp;__cgrp=')">
-            <?% FOREACH cgrp = param.cgroups %?>
+            <?% FOREACH cgrp IN param.cgroups %?>
             <option value='<?% cgrp.last %?>' <?% "selected" IF param.channelgroup == cgrp.last %?>><?% cgrp.first %?>
             <?% END %?>
         </select>
@@ -65,7 +65,7 @@ sec_height = 0.1;
 }
 </style>
 <table width='<?% (data.keys.size * 210) %?>'><td>
-<?% FOREACH cpos = data.keys.nsort %?>
+<?% FOREACH cpos IN data.keys.nsort %?>
 <?% channelName = data.$cpos.first.3;
     channelId = data.$cpos.first.4;
     oldend = 0;
@@ -73,7 +73,7 @@ sec_height = 0.1;
 <div id=channel>
     <div id=channeltitle><a href="?cmd=program&data=<?% channelId %?>"><?% channelName %?></a></div>
     <div id=channelcontainer>
-        <?% FOREACH event = data.$cpos %?>
+        <?% FOREACH event IN data.$cpos %?>
             <?% INCLUDE eventbox e=event o=oldend %?>
             <?% oldend = event.10 %?>
         <?% END %?>

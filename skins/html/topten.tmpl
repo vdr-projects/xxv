@@ -15,12 +15,12 @@
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <?% c = 0 %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
             channel=zeile.4;start=zeile.5;stop=zeile.6;day=zeile.7;description=zeile.8;
@@ -28,7 +28,7 @@
             rank=zeile.13 div 1;level=zeile.14;quantity=zeile.15;
             %?>
         <tr <?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
-            <?% FOREACH field = [id,title,channel,start,stop,day,rank] %?>
+            <?% FOREACH field IN [id,title,channel,start,stop,day,rank] %?>
                 <?% c = c + 1 %?>
                 <?% IF c == 1; # Id Field %?>
                 <td>

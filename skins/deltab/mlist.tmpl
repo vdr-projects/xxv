@@ -108,8 +108,8 @@
         <th></th>
         <th width="100" align="right"></th>
     </tr>
-    <?% FOREACH zeile = data %?>
-    <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+    <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
         <?% id=zeile.0;artist=zeile.1;album=zeile.2;title=zeile.3;track=zeile.4;year=zeile.5;playtime=zeile.6;genre=zeile.7;comment=zeile.8 %?>
 
@@ -143,17 +143,17 @@
     <form name="genreform" action="">
     <p>
     <?% gettext("Genres",20) %?>:<br /><select name="genres" onchange="di('?cmd=ml&amp;data=','genre:' + this.form.genres.options[this.form.genres.options.selectedIndex].value)">
-    <?% FOREACH ch = param.genres %?>
+    <?% FOREACH ch IN param.genres %?>
         <option value="<?% url( ch.1 ) %?>"<?% ' selected="selected"' IF cgi.param('data').split(':').first == 'genre' && cgi.param('data').split(':').last == ch.1 %?>><?% ch.0 %?></option>
     <?% END %?>
     </select>
     <?% gettext("Artists",20) %?>:<br /><select name="artists" onchange="di('?cmd=ml&amp;data=','artist:' + this.form.artists.options[this.form.artists.options.selectedIndex].value)">
-    <?% FOREACH ch = param.artists %?>
+    <?% FOREACH ch IN param.artists %?>
         <option value="<?% url( ch.0 ) %?>"<?% ' selected="selected"' IF cgi.param('data').split(':').first == 'artist' && cgi.param('data').split(':').last == ch.0 %?>><?% ch.0 %?></option>
     <?% END %?>
     </select>
     <?% gettext("Albums",20) %?>:<br /><select name="albums" onchange="di('?cmd=ml&amp;data=','album:' + this.form.albums.options[this.form.albums.options.selectedIndex].value)">
-    <?% FOREACH ch = param.albums %?>
+    <?% FOREACH ch IN param.albums %?>
         <option value="<?% url( ch.0 ) %?>"<?% ' selected="selected"' IF cgi.param('data').split(':').first == 'album' && cgi.param('data').split(':').last == ch.0 %?>><?% ch.0 %?></option>
     <?% END %?>
     </select>

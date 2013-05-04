@@ -17,7 +17,7 @@
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <th style="white-space: nowrap">
                 <?% field %?>
                 <?% IF param.sortable %?>
@@ -28,7 +28,7 @@
         <?% END %?>
         </tr>
         <?% x = -1 %?>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <?% IF zeile.1 == 'n' %?>
             <?% myclass = "deactive" %?>
         <?% ELSE %?>
@@ -37,7 +37,7 @@
         <?% x = x + 1 %?>
         <tr class="<?% myclass %?>" <?% IF (x mod 2) == 0 %?>bgcolor='#F5F5F5'<?% END %?>>
             <?% c = 0 %?>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
                 <?% c = c + 1 %?>
                 <?% IF c == 1; # Id Field %?>
                 <td><nobr>
@@ -65,7 +65,7 @@
                 <?% ELSIF c == 4; # Channel Field %?>
                 <td>
                     <select style="width: 100%">
-                    <?% FOREACH ch = field.split(',') %?>
+                    <?% FOREACH ch IN field.split(',') %?>
                         <option><?% ch %?></option>
                     <?% END %?>
                     </select>

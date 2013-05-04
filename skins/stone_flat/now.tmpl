@@ -127,8 +127,8 @@
                         <td class="largetext" align="left">
                         <table summary="" width="100%">
                         <tr><th width="150"></th><th></th><th width="140"></th><th width="110"></th><th width="40"></th></tr>
-    <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
             channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;
             description=zeile.8;duration=zeile.9;
@@ -165,7 +165,7 @@
       <td class="sidetext">
         <form action="">
         <select name="cgroups" onchange="di('?cmd=<?% cgi.param('cmd') %?>&amp;data=<?% cgi.param('data') %?>&amp;__cgrp=',this.form.cgroups.options[this.form.cgroups.options.selectedIndex].value)">
-            <?% FOREACH cgrp = param.cgroups %?>
+            <?% FOREACH cgrp IN param.cgroups %?>
               <option value="<?% cgrp.last %?>"<?% ' selected="selected"' IF param.channelgroup == cgrp.last %?>><?% cgrp.first %?></option>
             <?% END %?>
         </select>
@@ -188,7 +188,7 @@
             <select size="<?% zeiten.size + 3 %?>" name='data' onchange="di('?cmd=now&amp;__cgrp=<?% cgi.param('__cgrp') %?>&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">
             <?% today = [] %?>
             <?% tomor = [] %?>
-        <?% FOREACH zeit = zeiten %?>
+        <?% FOREACH zeit IN zeiten %?>
             <?% tom = 0 %?>
             <?% PERL %?>
                 use Date::Manip;
@@ -209,12 +209,12 @@
         <?% END %?>
         <?% IF today.size > 0 %?>
             <optgroup label="<?% date.format(today.0, "%A", locale) %?>">
-        <?% FOREACH z = today %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
+        <?% FOREACH z IN today %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
             </optgroup>
         <?% END %?>
         <?% IF tomor.size > 0 %?>
             <optgroup label="<?% date.format(tomor.0, "%A", locale) %?>">
-        <?% FOREACH z = tomor %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
+        <?% FOREACH z IN tomor %?><option value="<?% z %?>"><?% date.format(z, "%H:%M", locale) %?></option><?% END %?> 
             </optgroup>
         <?% END %?>
             </select>

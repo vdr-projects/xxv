@@ -10,7 +10,7 @@
     <tr>  
         <td class="editortext" align="left">
             <table summary="" width="100%">
-                <?% FOREACH n = benchdata.keys.sort %?>
+                <?% FOREACH n IN benchdata.keys.sort %?>
                     <?% NEXT IF benchdata.$n > 1000 %?>
                     <?% ges = benchdata.$n + ges %?>
                 <tr>

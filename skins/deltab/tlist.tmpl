@@ -149,8 +149,8 @@
         <th></th>
         <th width="64" align="right"></th>
     </tr>
-	<?% FOREACH zeile = data %?>
-     <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+	<?% FOREACH zeile IN data %?>
+     <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
 			<?%- id=zeile.0;
           aktiv= ( zeile.1 ? zeile.1 mod 2 : 0 );
           sender=zeile.2;
@@ -267,7 +267,7 @@
         <?% IF param.keywords.size <  steps %?>
           <?% factor = factor * (param.keywords.size /  steps) %?>
         <?% END %?>
-        <?% FOREACH keyword = param.keywords %?>
+        <?% FOREACH keyword IN param.keywords %?>
               <?% level = 80 + (3*(((keyword.1 - basis) * factor) div 1)) %?>
               <a href="?cmd=tk&amp;data=<?% keyword.0 %?>">
                 <font style="font-size:<?% level %?>%"><?% keyword.0 %?></font>

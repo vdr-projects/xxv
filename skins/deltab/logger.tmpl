@@ -8,17 +8,17 @@
     <table summary=""  width="100%">
 <?% fields = data.shift %?>
     <tr>
-    <?% FOREACH field = fields %?>
+    <?% FOREACH field IN fields %?>
         <?% NEXT IF field.match('^__') %?>
         <th>
             <?% field %?>
         </th>
     <?% END %?>
     </tr>
-    <?% FOREACH zeile = data %?>
+    <?% FOREACH zeile IN data %?>
     <tr<?% ' class="two"' IF loop.count mod 2 == 0 %?>>
         <?% c = -1 %?>
-        <?% FOREACH field = zeile %?>
+        <?% FOREACH field IN zeile %?>
             <?% c = c + 1 %?>
             <?% NEXT IF fields.$c.match('^__') %?>
             <td>

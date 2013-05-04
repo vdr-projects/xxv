@@ -10,7 +10,7 @@
         cacheddata = [];
         inactivedata = [];
         timestamps = [];
-        FOREACH row = data;
+        FOREACH row IN data;
             t = date.format(row.6, '%H:%M');
             timestamps.push(t);
             activedata.push(row.2 / (1024));

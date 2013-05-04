@@ -6,7 +6,7 @@
         fields = data.shift;
 
         timestamps = [];
-        FOREACH row = data;
+        FOREACH row IN data;
             iname = row.0.split(':').first;
 
             rxbytes.${iname} = [];
@@ -17,7 +17,7 @@
             oldentry.${iname} = [];
         END;
 
-        FOREACH row = data;
+        FOREACH row IN data;
             IF ot != row.5;
              t = date.format(row.5, '%H:%M');
              timestamps.push(t);
@@ -39,7 +39,7 @@
                 oldentry.${iname} = row;
         END;
 
-        FOREACH iname = rxbytes.keys.sort;
+        FOREACH iname IN rxbytes.keys.sort;
 
             # Data ...
             d = [
@@ -86,7 +86,7 @@
 <?% END %?>
 <table border="0" width="95%">
 
-        <?% FOREACH file = statusfiles.keys %?>
+        <?% FOREACH file IN statusfiles.keys %?>
         <tr>
             <td colspan="<?% fields.size %?>" align=center>
                 <img src="<?% statusfiles.$file %?>">

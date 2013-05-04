@@ -70,7 +70,7 @@
 <?% END %?>
 <?% ######################################################################################
     channelpos=0;priorchannel=0;nextchannel=0;priortitle="";nexttitle="";
-    FOREACH ch = param.channels;
+    FOREACH ch IN param.channels;
         IF cgi.param('data') == ch.1 || cgi.param('data') == ch.0 || param.current == ch.1;
             channel = ch.0;
             channelpos = ch.1;
@@ -91,8 +91,8 @@
 <?% IF data.size > 1 %?>
 <?% fields = data.shift %?>
     <?% z = 0 %?>
-    <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;
             description=zeile.6;pdc=zeile.7;timerid=zeile.8;recording=zeile.9;running=zeile.10;
             day = zeile.5 %?>
@@ -160,7 +160,7 @@
     <td class="sidetext">
     <form action="">
         <select size="15" name="data" onchange="di('?cmd=program&amp;data=',this.form.data.options[this.form.data.options.selectedIndex].value)">
-        <?% FOREACH ch = param.channels %?>
+        <?% FOREACH ch IN param.channels %?>
           <?% IF ch.2 != channelgroup %?>
             <?% IF channelgroup %?>
             </optgroup>

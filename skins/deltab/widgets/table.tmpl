@@ -3,7 +3,7 @@
 <table summary="">
 <?% IF type == 'HASH' %?>
     <th>Name</th><th>Value</th>
-     <?% FOREACH name = data.keys.sort %?>
+     <?% FOREACH name IN data.keys.sort %?>
      <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
         <td><?% name %?></td><td><?% data.$name | replace('\|', '<br />') %?></td>
     </tr>
@@ -11,7 +11,7 @@
 <?% ELSE %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <th style="white-space: nowrap">
                 <?% field %?>
                 <?% IF param.sortable %?>
@@ -21,9 +21,9 @@
             </th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
             <td><?% field %?></td>
             <?% END %?>
         </tr>

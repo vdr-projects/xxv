@@ -13,8 +13,8 @@
 </h1>
 
 
-<?% FOREACH zeile = data %?>
-  <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+<?% FOREACH zeile IN data %?>
+  <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <?% importurl = zeile.0;imgurl=zeile.1;title=zeile.2;description=zeile.3 %?>
     <div class="areabegin">
       <table class="fieldtable" summary="">

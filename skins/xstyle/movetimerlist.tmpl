@@ -86,8 +86,8 @@
                 <th><?% gettext('Move timer') %?></th>
                 <th><?% gettext('Change original timer') %?></th>
             </tr>
-     <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+     <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?%- id=zeile.0;source=zeile.1;destination=zeile.2;when=zeile.3;action=zeile.4 -%?>
         <?% PROCESS Item %?>
      <?% END %?>

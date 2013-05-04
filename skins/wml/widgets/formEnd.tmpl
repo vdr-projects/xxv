@@ -1,4 +1,4 @@
-<a href="?<?% global.hiddenfield.join('&amp;') %?><?% FOREACH field = global.fomularfield %?>&amp;<?% field %?>=\$(<?% field | replace('__','var') %?>)<?% END %?>">
+<a href="?<?% global.hiddenfield.join('&amp;') %?><?% FOREACH field IN global.fomularfield %?>&amp;<?% field %?>=\$(<?% field | replace('__','var') %?>)<?% END %?>">
 <img src="images/apply.wbm" alt="<?% gettext("Apply") %?>" />
 </a>
 <anchor><img src="images/refresh.wbm" alt="<?% gettext("Reset") %?>" /><refresh/></anchor>

@@ -31,7 +31,7 @@
 <?% END %?>
 <?% scripts = [ 'extjs/adapter/ext/ext-base.js', 'extjs/ext-all.js','login.js' ] %?>
 <?% IF verbose != 0;scripts.1 = "ext-3.0.0/ext-all-debug.js";END %?>
-<?% FOREACH script = scripts %?>
+<?% FOREACH script IN scripts %?>
 <script type="text/javascript" src="<?% script %?>"></script>
 <?% END %?>
 <?% IF lang.1 %?>

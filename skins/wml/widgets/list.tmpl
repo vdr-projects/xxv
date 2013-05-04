@@ -6,8 +6,8 @@
 <?% values = val %?>
 <?% END %?>
 <?% select = [] %?>
-<?% FOREACH valch = values;
-        FOREACH l = data.choices;
+<?% FOREACH valch IN values;
+        FOREACH l IN data.choices;
             IF valch == l.1;
                 select.push(loop.count);
                 LAST;
@@ -19,7 +19,7 @@
 <?% ELSE %?>
 <select name="<?% data.NAME | replace('__','var') %?>" ivalue="<?% select.join(';') %?>">
 <?% END %?>
-<?% FOREACH l = data.choices %?>
+<?% FOREACH l IN data.choices %?>
     <option value='<?% l.1 %?>'><?% entities(l.0) %?></option>
     <?% IF data.NAME == "__ChannelID" && loop.count >= global.MaxChannelsTimer;LAST;END %?>
 <?% END %?>

@@ -24,12 +24,12 @@
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <?% c=0 %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
             channel=zeile.4;start=zeile.5;stop=zeile.6;day = zeile.7;description=zeile.8;

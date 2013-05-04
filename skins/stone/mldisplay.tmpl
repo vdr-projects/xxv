@@ -77,7 +77,7 @@ seen = f.25;
                 <tr><td><?% gettext("Genres") %?>:</td><td colspan="3">
                     <?% selection = param.genres_sel %?>
                     <?% genres = param.genres_all %?>
-                    <?% FOREACH x = selection %?>
+                    <?% FOREACH x IN selection %?>
                     <?% genres.$x.name %?>&nbsp;
                     <?% END %?>
                 </td></tr>
@@ -123,8 +123,8 @@ seen = f.25;
 
 <?% IF param.actors.0.0 %?>
 <h2><?% gettext("Actors") %?></h2>
-<?% FOREACH zeile = param.actors %?>
-  <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+<?% FOREACH zeile IN param.actors %?>
+  <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <?% actor = zeile.0;imgurl=zeile.1 %?>
     <div class="areabegin">
       <table class="fieldtable" summary="">

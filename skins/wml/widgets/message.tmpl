@@ -11,7 +11,7 @@
         <?% IF data.size <= 0 %?>
             <?% data | html %?>
         <?% ELSE %?>
-            <?% FOREACH zeile = data %?>
+            <?% FOREACH zeile IN data %?>
                     <?% zeile %?><br />
              <?% END %?>
         <?% END %?>

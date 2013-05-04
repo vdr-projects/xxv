@@ -8,7 +8,7 @@
 		<h2 class="tab">Last Logs</h2>
 
 		<table>
-        <?% FOREACH logline = llog(5) %?>
+        <?% FOREACH logline IN llog(5) %?>
         <tr><td>
             <div style='font-size:10px'><?% logline %?><br></div>
         </td></tr>
@@ -20,7 +20,7 @@
 	<div class="tab-page" id="tabPage2">
 		<h2 class="tab">Benchmark</h2>
             <table width=100%>
-                <?% FOREACH n = data.keys.sort %?>
+                <?% FOREACH n IN data.keys.sort %?>
                     <?% NEXT IF data.$n > 1000 %?>
                     <?% ges = data.$n + ges %?>
                 <tr>

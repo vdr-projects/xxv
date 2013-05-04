@@ -14,7 +14,7 @@
             <?% data %?>
         <?% ELSE %?>
             <table summary="" width="100%">
-            <?% FOREACH zeile = data %?>
+            <?% FOREACH zeile IN data %?>
                 <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
                     <td><?% zeile %?></td>
                 </tr>

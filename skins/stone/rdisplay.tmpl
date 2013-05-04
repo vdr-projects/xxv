@@ -45,7 +45,7 @@
 		<div id="slideright"><img src="images/forward.<?% global.imagetyp %?>" title="<?% gettext("Next") %?>" alt="" /></div>
         <?% END %?>
 		<div id="slidelist" style="left:<?% IF files.size <= 3 %?><?% 280 - (160 * ( files.size / 2 ) )  %?><?% ELSE %?>0<?% END %?>px; width:<?% files.size * 200 %?>px;" >
-        <?% FOREACH frame = files %?>
+        <?% FOREACH frame IN files %?>
           <?% d = ( frame ) / 25 %?>
           <?% IF allowplay %?><a href="javascript:setstart('<?% PROCESS hfs %?>')" ><?% END %?>
           <img class="recorddetails" src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" title="<?% PROCESS hfs %?>" />
@@ -171,7 +171,7 @@
 	        ml = data.Marks.split(',');
           totaltime = ticks * window * 3;
           IF ml.size > 1;
-		FOREACH marker = ml;
+		FOREACH marker IN ml;
                 b = c;
                 c = c + 1;
                 m = marker.split(':');
@@ -236,7 +236,7 @@
 									<form action="">
 										<select name='data' onchange="di('?cmd=rconvert&amp;data=<?% id %?>&amp;__action=save&amp;__cmd=',this.form.data.options[this.form.data.options.selectedIndex].value)"> 
 											<option value='0'><?% gettext("Choose a command to edit this recording ...") %?></option>
-											<?% FOREACH cmd = param.reccmds %?>
+											<?% FOREACH cmd IN param.reccmds %?>
                       <option value='<?% loop.count %?>'><?% cmd %?></option>
 											<?% END %?>
 										</select>
@@ -257,7 +257,7 @@
 							<tr>
 								<td colspan="2">
                         <?% gettext('Keywords') %?>&nbsp;:&nbsp;
-		                    <?% FOREACH keyword = data.keywords %?>
+		                    <?% FOREACH keyword IN data.keywords %?>
                             <?% IF allowkeywords %?>
                                     <a target="_top" href="?cmd=rk&amp;data=<?% keyword.0 %?>">
                             <?% END %?>

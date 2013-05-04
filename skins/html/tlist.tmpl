@@ -42,7 +42,7 @@
         <tr>
         <?% fields = data.shift %?>
         <?% c = -1 %?>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% c = c + 1 %?>
             <?% NEXT IF field.match('^__') or c == 4 %?>
             <th><?% field %?></th>
@@ -54,7 +54,7 @@
             <th width="64"><?% gettext("Selection",7) %?></th>
 <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
             <?% aktiv= ( zeile.1 ? zeile.1 mod 2 : 0 );
                 pdc= ( zeile.1 ? zeile.1 mod 8 div 4 : 0 );
                 day = zeile.4;
@@ -73,7 +73,7 @@
             <?% END %?>
             <tr class="<?% myclass %?>" <?% IF (loop.count mod 2) == 0 %?>bgcolor='#F5F5F5'<?% END %?>>
                 <?% c = -1 %?>
-                <?% FOREACH field = zeile %?>
+                <?% FOREACH field IN zeile %?>
                     <?% c = c + 1 %?>
                     <?% NEXT IF fields.$c.match('^__') or c == 4 %?>
                     <?% IF c == 0; # Id Field %?>
@@ -108,7 +108,7 @@
                     <?% ELSIF c == 7; # Title %?>
                     <td>
                         <?% IF zeile.10 %?><?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field desc=zeile.13 eventid=zeile.10 linkid=zeile.10 ttp_offset=0 %?><?% END %?>
-                        <?% FOREACH f = field.split('~') %?>
+                        <?% FOREACH f IN field.split('~') %?>
                             <div class="<?% myclass %?>"><?% f %?></div>
                         <?% END %?>
                         <?% IF zeile.10 %?></a><?% END %?>

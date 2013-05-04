@@ -34,7 +34,7 @@
     <li><a href="#" onclick="suche('<?% gettext('Please put a time in XX:XX format:') %?>', '?cmd=now&data=', '<?% t %?>', '&__cgrp=<?% cgi.param('__cgrp') %?>')"><?% gettext("Choose time") %?></a></li>
     <li>
         <select name='cgroups' onChange="di(this.form.cgroups.options[this.form.cgroups.options.selectedIndex].value, '?cmd=<?% cgi.param("cmd") %?>&amp;data=<?% param.zeitvon || cgi.param('data') %?>&amp;__cgrp=')">
-        <?% FOREACH cgrp = param.cgroups %?>
+        <?% FOREACH cgrp IN param.cgroups %?>
             <option value='<?% cgrp.last %?>' <?% "selected" IF param.channelgroup == cgrp.last %?>><?% cgrp.first %?>
         <?% END %?>
         </select>
@@ -47,12 +47,12 @@
 <?% IF data.size %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;desc=zeile.8;duration=zeile.9 %?>
             <?% IF group != old %?>
                 <tr><td colspan="6" bgcolor='#DDDDDD'>

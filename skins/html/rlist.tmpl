@@ -157,7 +157,7 @@
     <table border="0" width="95%">
         <tr>
         <?% c = -1 %?>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% c = c + 1 %?>
             <?% NEXT IF field.match('^__') %?>
             <th style="white-space: nowrap">
@@ -174,7 +174,7 @@
             </th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <?%- id=zeile.0;eventid=zeile.1;title=zeile.2.split('~').last;subtitle=zeile.3;
              duration=zeile.4;start=zeile.5;new=zeile.6;type=zeile.7;folder=zeile.8;fulltitle=zeile.9;
              isrecording=zeile.10;desc=zeile.11;foldertitle=fulltitle.split('~').last -%?>
@@ -193,7 +193,7 @@
             </td>
             <?% ELSE %?>
             <?% c = -1 %?>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
              <?%- id=zeile.0;eventid=zeile.1;title=zeile.2.split('~').last;subtitle=zeile.3;
                    duration=zeile.4;start=zeile.5;new=zeile.6;type=zeile.7;folder=zeile.8;fulltitle=zeile.9;
                    isrecording=zeile.10;desc=zeile.11;foldertitle=fulltitle.split('~').last -%?>
@@ -236,14 +236,14 @@
 <a href="?cmd=<?% cmd %?><?% daten %?>&amp;__sortby=<?% row %?>&amp;__desc=1" ><img src="images/desc.png"></a>&nbsp;
 <?% END %?>
         <?% gettext('Sorting') %?> :
-        <?% FOREACH row = fields %?>
+        <?% FOREACH row IN fields %?>
         <?% NEXT IF row.match('^__') %?>
           <?% PROCESS SortItem label=row %?>
         <?% END %?>
 <?% END %?>
       <div>
-        <?% FOREACH zeile = data %?>
-            <!-- Item: <?% FOREACH x = zeile %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
+        <?% FOREACH zeile IN data %?>
+            <!-- Item: <?% FOREACH x IN zeile %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
             <?%- id=zeile.0;eventid=zeile.1;title=zeile.2.split('~').last;subtitle=zeile.3;
              duration=zeile.4;start=zeile.5;new=zeile.6;type=zeile.7;folder=zeile.8;fulltitle=zeile.9;
              isrecording=zeile.10;desc=zeile.11;preview=zeile.12;foldertitle=fulltitle.split('~').last -%?>

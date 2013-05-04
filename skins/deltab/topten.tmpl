@@ -71,8 +71,8 @@
 <h1><?% gettext("Top Ten entrys") %?></h1>
 <table  summary="" width="100%">
   <tr height="0"><th width="120"></th><th></th><th width="100"></th><th width="40" align="right"></th></tr>
-    <?% FOREACH zeile = data %?>
-        <?% IF verbose;"<!-- Item: ";FOREACH x = zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
+    <?% FOREACH zeile IN data %?>
+        <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
             channel=zeile.4;start=zeile.5;stop=zeile.6;day=zeile.7;description=zeile.8;
             pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;

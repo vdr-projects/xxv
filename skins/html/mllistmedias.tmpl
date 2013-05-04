@@ -25,7 +25,7 @@
                     <?% IF fields.4 && fields.5 %?>;<?% END %?>
                     <?% IF fields.5 %?>
                         <?% mydirectors = [] %?>
-                        <?% FOREACH director = fields.5.split(',') %?>
+                        <?% FOREACH director IN fields.5.split(',') %?>
                             <?% director = director.replace('^\s+|\s+$','') %?>
                             <?% director = "<a href=\"?cmd=mlsearch&__search&__selfields=director&__searchitem=$director\">$director</a>" %?>
                             <?% mydirectors.push(director) %?>

@@ -98,7 +98,7 @@
             <select name="__mediatype">
                 <option label="" value="0" <?% IF (data.mediatype || param.mediatype) && (data.mediatype == 0 || param.mediatype == 0) %?>selected="selected"<?% END %?>></option>
                 <?% mediatypes = param.mediatypes %?>
-                <?% FOREACH type = mediatypes %?>
+                <?% FOREACH type IN mediatypes %?>
                 <option label="<?% type.1 %?>" value="<?% type.0 %?>" <?% IF data.mediatype == type.0 || param.mediatype == type.0 %?>selected="selected"<?% END %?>><?% type.1 %?></option>
                 <?% END %?>
             </select>

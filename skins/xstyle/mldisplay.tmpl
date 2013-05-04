@@ -50,7 +50,7 @@
     <td width="30%">
         <?% IF fields.11 %?>
             <?% mydirectors = [] %?>
-            <?% FOREACH director = fields.11.split(',') %?>
+            <?% FOREACH director IN fields.11.split(',') %?>
                 <?% director = director.replace('^\s+|\s+$','') %?>
                 <?% director = "<a href=\"?cmd=mlsearch&__search&__selfields=director&__searchitem=$director\">$director</a>" %?>
                 <?% mydirectors.push(director) %?>
@@ -64,7 +64,7 @@
     <td width="30%">
         <?% IF fields.4 %?>
             <?% mylanguages = [] %?>
-            <?% FOREACH language = fields.4.split(',') %?>
+            <?% FOREACH language IN fields.4.split(',') %?>
                 <?% language = language.replace('^\s+|\s+$','') %?>
                 <?% language = "<a href=\"?cmd=mlsearch&__search&__selfields=director&__searchitem=$language\">$language</a>" %?>
                 <?% mylanguages.push(language) %?>
@@ -80,7 +80,7 @@
     <td width="30%">
         <?% IF fields.14 %?>
             <?% mycountrys = [] %?>
-            <?% FOREACH country = fields.14.split('&#x2f;') %?>
+            <?% FOREACH country IN fields.14.split('&#x2f;') %?>
                 <?% country = country.replace('^\s+|\s+$','') %?>
                 <?% country = "<a href=\"?cmd=mlsearch&__search&__selfields=country&__searchitem=$country\">$country</a>" %?>
                 <?% mycountrys.push(country) %?>
@@ -181,7 +181,7 @@
     <td colspan=3>
         <?% selection = param.genres_sel %?>
         <?% genres = param.genres_all %?>
-        <?% FOREACH id = selection %?>
+        <?% FOREACH id IN selection %?>
         <a href="?cmd=mlsearch&__search&__genres=<?% genres.$id.id %?>"><?% genres.$id.name %?></a>&nbsp;
         <?% END %?>
     </td>

@@ -33,7 +33,7 @@
         <td colspan="<?% colspan %?>"><nobr><?%- secold = 0;
         c = -1;
         ml = d.split(',');
-        FOREACH marker = ml;
+        FOREACH marker IN ml;
                 b = c;
                 c = c + 1;
                 m = marker.split(':');
@@ -111,7 +111,7 @@
 <?% IF allow('rconvert') %?>
     <select name='data' onChange="di(this.form.data.options[this.form.data.options.selectedIndex].value, '?cmd=rconvert&amp;data=<?% data.RecordId %?>&amp;__action=save&amp;__cmd=')">
         <option value='0'><?% gettext("Choose a command to edit this recording ...") %?>:</option>
-    <?% FOREACH cmd = param.reccmds %?>
+    <?% FOREACH cmd IN param.reccmds %?>
         <option value='<?% loop.count %?>'><?% cmd %?></option>
     <?% END %?>
     </select>
@@ -125,7 +125,7 @@
     <img src="images/radio.png" alt="" title="<?% gettext('Radio recording') %?>" />
   <?% ELSIF files.size > 0; %?>
         <table border="0" align='left'>
-    <?% FOREACH frame = files %?>
+    <?% FOREACH frame IN files %?>
         <tr>
         <td>
           <img src="?cmd=ri&data=<?% data.RecordId %?>_<?% frame %?>" alt="" width="200" title="<?% gettext('Television recording') %?> : <?% x=frame / 25;PROCESS hfs d=x %?>" />
@@ -175,7 +175,7 @@
           <td>&nbsp;</td>
 					<td>
                   <?% gettext('Keywords') %?>&nbsp;:&nbsp;
-                  <?% FOREACH keyword = data.keywords %?>
+                  <?% FOREACH keyword IN data.keywords %?>
                       <?% IF allowkeywords %?>
                               <a href="?cmd=rk&amp;data=<?% keyword.0 %?>">
                       <?% END %?>

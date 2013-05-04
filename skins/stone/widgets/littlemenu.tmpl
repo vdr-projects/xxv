@@ -50,7 +50,7 @@
     </tr>
     <tr>
     <td class="sidetext">
-<?% FOREACH l = data.links %?>
+<?% FOREACH l IN data.links %?>
 <?% "<strong>" IF data.highlight == l.key %?>
          <a href="<?% l.value.link %?>"><?% chop(l.value.text,22) %?></a>
 <?% "</strong>" IF data.highlight == l.key %?><br />

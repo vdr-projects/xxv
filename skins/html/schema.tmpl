@@ -29,7 +29,7 @@ Duration = param.zeitbis - param.zeitvon;
 
 <!-- TableTemplate -->
 <select name='cgroups' onChange="di(this.form.cgroups.options[this.form.cgroups.options.selectedIndex].value, '?cmd=schema&amp;data=<?% param.zeitvon %?>&amp;__cgrp=')">
-<?% FOREACH cgrp = param.cgroups %?>
+<?% FOREACH cgrp IN param.cgroups %?>
     <option value='<?% cgrp.last %?>' <?% "selected" IF param.channelgroup == cgrp.last %?>><?% cgrp.first %?>
 <?% END %?>
 </select>
@@ -89,7 +89,7 @@ Duration = param.zeitbis - param.zeitvon;
 </tr>
 
 <?% x = -1 %?>
-<?% FOREACH cpos = data.keys.nsort %?>
+<?% FOREACH cpos IN data.keys.nsort %?>
 <tr><td colspan="<?% (colspan + 1) %?>"><img src='images/blank.png' width='10' height=1 border=0 align='left' /></td></tr>
 <?% x = x + 1;
     channelName = data.$cpos.first.3;
@@ -102,7 +102,7 @@ Duration = param.zeitbis - param.zeitvon;
     <td colspan="<?% colspan %?>" style="white-space: nowrap">
         <?%- ges = 0; oldend = param.zeitvon -%?>
         <?%-
-        FOREACH event = data.$cpos;
+        FOREACH event IN data.$cpos;
                 epgId       = event.0;
                 epgTitle    = event.1;
                 epgSubTitle = event.2;

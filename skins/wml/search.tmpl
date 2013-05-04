@@ -26,7 +26,7 @@
 <?% offset = skip + global.MaxCards %?>
 <?% IF data.size > skip %?>
 <?% fields = data.shift %?>
-   	<?% FOREACH zeile = data %?>
+   	<?% FOREACH zeile IN data %?>
         <?% IF loop.count < skip;NEXT;END %?>
         <?% title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;start=zeile.5;stop=zeile.6;desc=zeile.8 %?>
     	<?% IF id.defined %?>

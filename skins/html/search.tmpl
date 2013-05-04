@@ -40,7 +40,7 @@
     <td>
     <select name='__channel'>
         <option value="0"><?% gettext('All channels') %?>
-    <?% FOREACH ch = param.channels %?>
+    <?% FOREACH ch IN param.channels %?>
       <?% IF ch.2 && ch.2 != channelgroup %?>
         <?% IF channelgroup %?>
         </optgroup>
@@ -110,12 +110,12 @@
             <?% IF enableform %?>
               <th></th>
             <?% END %?>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% NEXT IF field.match('^__') || loop.count == 8 || loop.count == 9 %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
             <?% c = -1 %?>
             <?% day = zeile.7 %?>
             <?% IF !oldday.defined || day != oldday %?>
@@ -124,7 +124,7 @@
                 </td></tr>
             <?% END %?>
             <tr class="<?% myclass %?>"<?% IF (loop.count mod 2) == 0 %?> bgcolor='#F5F5F5'<?% END %?>>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
                 <?% c = c + 1 %?>
                 <?% NEXT IF fields.$c.match('^__') %?>
                 <?% IF c == 0; # Id Field %?>

@@ -8,7 +8,7 @@
     <?% IF ! param.hide_HeadRow %?>
     <th width="1%">Name</th><th>Value</th>
     <?% END %?>
-    <?% FOREACH name = data.keys.sort %?>
+    <?% FOREACH name IN data.keys.sort %?>
     <?% NEXT IF name.match('^__') %?>
     <tr>
         <td width="50%"><?% name %?></td><td><?% data.$name %?></td>
@@ -17,7 +17,7 @@
 <?% ELSE %?>
     <?% fields = data.shift %?>
         <tr>
-        <?% FOREACH field = fields %?>
+        <?% FOREACH field IN fields %?>
             <?% NEXT IF field.match('^__') %?>
             <th>
                 <nobr><?% field %?>
@@ -29,10 +29,10 @@
             </th>
         <?% END %?>
         </tr>
-        <?% FOREACH zeile = data %?>
+        <?% FOREACH zeile IN data %?>
         <tr>
             <?% c = -1 %?>
-            <?% FOREACH field = zeile %?>
+            <?% FOREACH field IN zeile %?>
                 <?% c = c + 1 %?>
                 <?% NEXT IF fields.$c.match('^__') %?>
                 <td><?% field %?></td>

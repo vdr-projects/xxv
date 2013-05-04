@@ -13,8 +13,8 @@
 <div>
 <?% END %?>
 <?% IF verbose  %?>
-<!-- First: <?% FOREACH x = data.first %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
-<!-- Last: <?% FOREACH x = data.last %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
+<!-- First: <?% FOREACH x IN data.first %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
+<!-- Last: <?% FOREACH x IN data.last %?><?% loop.count - 1 %?>:<?% x %?>|<?% END %?> -->
 <?% END %?>
 <?%
   USE date;
@@ -66,7 +66,7 @@ END %?>
     <div id="slideright"><img src="images/forward.<?% global.imagetyp %?>" title="<?% gettext("Next") %?>" alt="" /></div>
         <?% END %?>
       <div id="slidelist" style="left:<?% IF files.size <= 3 %?><?% 280 - (170 * ( files.size / 2 ) )  %?><?% ELSE %?>0<?% END %?>px; width:<?% files.size * 180 %?>px;" >
-        <?% FOREACH frame = files %?>
+        <?% FOREACH frame IN files %?>
           <img class="epgimages" src="?cmd=ei&data=<?% frame %?>" alt="" title="" />
         <?% END %?>
       <div id="slideend"></div>
