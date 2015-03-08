@@ -509,14 +509,14 @@ height:15px;
 }
 
 table.largetable {
-width:800px;
+width:1000px;
 color:#FFF;
 font-size:11px;
 }
 
 td.largehead {
 vertical-align:middle;
-background:url(images/head800.png) no-repeat;
+background:url(images/head1000.png) no-repeat;
 height:22px;
 color:#FFF;
 font-size:13px;
@@ -526,13 +526,13 @@ padding:0 12px 0 4px;
 
 td.largetext {
 vertical-align:top;
-background:url(images/mid800.png) repeat-y;
+background:url(images/mid1000.png) repeat-y;
 padding:4px 14px 4px 4px;
 }
 
 td.largebottom {
 vertical-align:bottom;
-background:url(images/down800.png) no-repeat;
+background:url(images/down1000.png) no-repeat;
 height:15px;
 }
 
