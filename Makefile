@@ -1,10 +1,9 @@
 #
 # Makefile
 #
-# $Id$
 
 XXV = xxv
-VERSION = 1.6.1
+VERSION = 1.7.0
 
 ### The name of the distribution archive:
 
@@ -29,7 +28,8 @@ tmpfolder:
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
 
 copyfiles:
-	@svn export . $(TMPDIR)/$(ARCHIVE)
+	@mkdir -p $(TMPDIR)/$(ARCHIVE)
+	@git checkout-index -a -f --prefix=$(TMPDIR)/$(ARCHIVE)/
 
 
 removefiles:
@@ -70,7 +70,7 @@ dist: tmpfolder\
     updateversion\
     setpermission
 	@chown root.root -R $(TMPDIR)/$(ARCHIVE)/*
-	@tar czf $(PACKAGE).tgz --exclude=.svn -C $(TMPDIR) $(ARCHIVE)
+	@tar czf $(PACKAGE).tgz --exclude=.git -C $(TMPDIR) $(ARCHIVE)
 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
 	@echo Distribution package created as $(PACKAGE).tgz
 

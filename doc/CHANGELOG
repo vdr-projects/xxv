@@ -1,3 +1,51 @@
+1.7.0 - Stable release (bugfixed)
+
+Move project homepage
+Update package depends
+Update translations
+
+Skins: 
+* blue, snow, stone  Expansion of the table width (#933, #1358)
+* correct border padding for Internet Explorer (#941)
+* skin flat - add missing vtx template
+* remove dead links to tvm
+* remove fallback to "default skin" handling
+* jason
+    if the recording is greater than 24 hours a wrong time is displayed (#938)
+    hide toggle button on event without timer
+    allow toggle from any view
+    epg-view 'now' toggle timer failed
+    support content description
+
+Moduls
+* Support VDR > 1.7.21
+* Use default FOREACH syntax #1355
+* Option 'SQL_CACHE' used twice in statement (#1356)
+* don't dump internal preferences into perl self documentation (pod)
+* Disable INTERFACE, TELNET, WAPD by default
+* AUTOTIMER: 
+    limit extract of abstract title
+* RECORDS:
+    wrong path of ts-recording created, if lifetime was edited (#844)
+    Add checks if framerate missed, #18381
+* EPG
+    handle SI:content description
+    only first Channel is shown in the EPG Timeframe (#838)
+    all events marked as running (#838)
+    improve sql-query on single host environment
+* TIMERS: 
+    improve query performence
+* SVDRP: 
+    independent hold of version for any VDR
+    read svdrp default port from /etc/services (tcp:6419)
+* RECORDS:
+    Improve handling if vdr offline
+    Warn if info file missed (fix database insert)
+    Generate some more preview images
+* HTTP:
+    Report epg search to browser via opensearch
+
+
 1.6.1 - Stable release (bugfixed)
 --------------------------------------------------------------------------------
 
