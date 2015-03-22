@@ -41,7 +41,7 @@ bool decode (const char* szMPVfile,
   ss << " -an -i '" << szMPVfile << "'";
 
   if(width > 0 && height > 0) {
-    ss << " -vf scale=" << width << "x" << height;
+    ss << " -vf scale=" << width << ":" << height;
   } else if(height > 0) { // Nur Höhe wurde definiert
     ss << " -vf scale=-1:" << height;
   } else if(width > 0) { // Nur Weite wurde definiert
