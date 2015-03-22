@@ -6,16 +6,7 @@ um Vorschaubilder von Aufnahmen zu generieren.
 
 Erfordernisse
 -------------
-ffmpeg-svn (getestet mit r15589)
-
-Empfohlen
-------------
-ffmpeg als shared libary und mit Software Scaler
-
-$ cd ffmpeg && \
- ./configure --enable-shared --enable-swscale && \
-  make && \
-  make install
+ffmpeg
 
 Installation
 ------------
@@ -27,9 +18,8 @@ $ make install
 um mehr Info zu erhalten
 $ make all DEBUG=1 
 
-um ein statisches Programm zu erhalten
-$ make all STATIC=1 
-=> es werden keine externen Bibliotheken zur Laufzeit benötigt.
+um ein abweichendes ffmpeg-Programm definieren
+$ make all FFMPEG_BIN=/usr/local/bin/ffmpeg
 
 
 Verwendung 

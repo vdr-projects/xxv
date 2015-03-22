@@ -5,16 +5,7 @@ vdr2jpeg are used from xxv to generated preview images of recordings.
 
 Requirements
 -------------
-ffmpeg-svn (tested with r15589)
-
-Recommended
-------------
-ffmpeg as shared libary and with software scaler
-
-$ cd ffmpeg && \
- ./configure --enable-shared --enable-swscale && \
-  make && \
-  make install
+ffmpeg
 
 Installation
 ------------
@@ -28,9 +19,8 @@ $ make install
 or build with more diagnostic
 $ make all DEBUG=1 
 
-or to link vdr2jpeg static, 
-if your want that no external libraries are needed at run-time
-$ make all STATIC=1 
+or to change to a other path of ffmpeg binary
+$ make all FFMPEG_BIN=/usr/local/bin/ffmpeg
 
  
 Usage 

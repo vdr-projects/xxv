@@ -19,14 +19,10 @@
 #define FFMPEG_BIN "ffmpeg"
 #endif
 
-bool decode (const char* szMPVfile, /* const tPackedList & packed, */
+bool decode (const char* szMPVfile,
              const char* szTmpMask, 
              int width, int height)
 {
-
-  int frame_width = 0;
-  int frame_height = 0;
-  int keep_aspect_ratio = 1;
 
 #if 0
   std::cerr << "szMPVfile:" << szMPVfile << std::endl;
@@ -34,22 +30,6 @@ bool decode (const char* szMPVfile, /* const tPackedList & packed, */
   std::cerr << "width:" << width << std::endl;
   std::cerr << "height:" << height << std::endl;
 #endif
-
-  if (width > 0 || height > 0) {
-    if (width > 0) {
-      frame_width = width;
-          keep_aspect_ratio |= 1;
-      } else {
-          keep_aspect_ratio &= ~1;
-      }
-
-    if (height > 0) {
-      frame_height = height;
-          keep_aspect_ratio |= 2;
-      } else {
-          keep_aspect_ratio &= ~2;
-      }
-  }
 
   std::stringstream ss;
   ss << FFMPEG_BIN;
@@ -62,12 +42,12 @@ bool decode (const char* szMPVfile, /* const tPackedList & packed, */
 #endif
   ss << " -an -i '" << szMPVfile << "'";
 
-  if((keep_aspect_ratio & 2) == keep_aspect_ratio) { // Nur Höhe wurde definiert
-    ss << " -vf scale=-1:" << frame_height;
-  } else if((keep_aspect_ratio & 1) == keep_aspect_ratio) { // Nur Weite wurde definiert
-    ss << " -vf scale=" << frame_width << ":-1";
-  } else {
-    ss << " -vf scale=" << frame_width << ":" << frame_height;
+  if(width > 0 && height > 0) {
+    ss << " -vf scale=" << width << "x" << height;
+  } else if(height > 0) { // Nur Höhe wurde definiert
+    ss << " -vf scale=-1:" << height;
+  } else if(width > 0) { // Nur Weite wurde definiert
+    ss << " -vf scale=" << width << ":-1";
   }
 
   ss << " '" << szTmpMask << "'";
