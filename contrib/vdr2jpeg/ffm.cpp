@@ -13,8 +13,6 @@
 #include <sstream>
 #include "ffm.h"
 
-#define STRING(s) #s
-
 #ifndef FFMPEG_BIN
 #define FFMPEG_BIN "ffmpeg"
 #endif
