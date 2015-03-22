@@ -21,7 +21,7 @@
 #include "ffm.h"
 #include "gop.h"
 
-static const char *VERSION        = "0.1.9";
+static const char *VERSION        = "0.2.0";
 
 void help(int argc, char *argv[])
 {
@@ -208,7 +208,6 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     if(-1 != option(argc, argv, 'g', true, szGOP)) {
-      ffminit x;
       std::vector < int >::const_iterator i = nFrame.begin();
       std::vector < int >::const_iterator e = nFrame.end();
       for(; i != e; ++i)
@@ -219,7 +218,6 @@ int main(int argc, char *argv[])
 #endif //DEBUG
     std::vector < std::pair<tFrame,tFrame> > nGOP;
     if(ReadIndexFile(szIndex, nIndexVersion, nFrame, nGOP)) {
-        ffminit x;
         if(ReadRecordings(szFolder, nIndexVersion, 
                           szOutPath, szTempPath, 
                           nGOP, width, height, exact, true)) {
