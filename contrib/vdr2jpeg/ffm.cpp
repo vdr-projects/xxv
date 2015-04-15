@@ -36,21 +36,21 @@ bool decode (const char* szMPVfile,
 #ifdef DEBUG
   ss << "verbose -report";
 #else
-  ss << "quiet";
+  ss << "error";
 #endif
   ss << " -an -i '" << szMPVfile << "'";
 
   if(width > 0 && height > 0) {
-    ss << " -vf scale=" << width << ":" << height;
+    ss << " -vf 'scale=" << width << ":ih*" << height << "/iw'";
   } else if(height > 0) { // Nur Höhe wurde definiert
-    ss << " -vf scale=-1:" << height;
+    ss << " -vf 'scale=iw*trunc(oh*a/2)*2/ih:" << height << "'";
   } else if(width > 0) { // Nur Weite wurde definiert
-    ss << " -vf scale=" << width << ":-1";
+    ss << " -vf 'scale=" << width << ":ih*trunc(ow/a/2)*2/iw'";
   }
 
   ss << " '" << szTmpMask << "'";
 #ifdef DEBUG
-  std::cerr << ss.str();
+  std::cerr << ss.str() << std::endl;
 #endif
 
   return (0 == system(ss.str().c_str()));
