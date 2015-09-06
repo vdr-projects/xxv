@@ -143,7 +143,7 @@ sub _insertData {
     my $self = shift || return error('No object defined!');
 
     my $sql = qq|
-INSERT IGNORE INTO CHRONICLE 
+REPLACE INTO CHRONICLE 
   SELECT SQL_CACHE  
     0, MD5(CONCAT(e.channel_id,FLOOR(UNIX_TIMESTAMP(e.starttime) / 900),REPLACE(IF(ISNULL(e.subtitle) OR Length(e.subtitle)<=0, IF(left(e.title,1) = "%",SUBSTR(e.title FROM 2),e.title), CONCAT_WS("~",e.title,e.subtitle)),"~%","~"))),
     REPLACE(IF(ISNULL(e.subtitle) OR Length(e.subtitle)<=0, IF(left(e.title,1) = "%",SUBSTR(e.title FROM 2),e.title), CONCAT_WS("~",e.title,e.subtitle)),"~%","~") as title,
@@ -228,7 +228,7 @@ ORDER BY starttime
 
     unless($console->typ eq 'AJAX') {
       map {
-    $_->[3] = datum($_->[3],'weekday');
+        $_->[3] = datum($_->[3],'weekday');
       } @$erg;
       unshift(@$erg, $fields);
     }
