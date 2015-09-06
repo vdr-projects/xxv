@@ -188,7 +188,8 @@ SELECT SQL_CACHE
   UNIX_TIMESTAMP(starttime) as \'$f{'day'}\',
   DATE_FORMAT(starttime, '%H:%i') as \'$f{'start'}\',
   DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration), '%H:%i') as \'$f{'stop'}\'
- ,description as _description
+  ,duration as __duration
+  ,description as __description
 FROM CHRONICLE
 ORDER BY starttime
 |;
@@ -227,7 +228,7 @@ ORDER BY starttime
 
     unless($console->typ eq 'AJAX') {
       map {
-	$_->[3] = datum($_->[3],'weekday');
+    $_->[3] = datum($_->[3],'weekday');
       } @$erg;
       unshift(@$erg, $fields);
     }
@@ -270,7 +271,8 @@ SELECT SQL_CACHE
   UNIX_TIMESTAMP(starttime) as \'$f{'day'}\',
   DATE_FORMAT(starttime, '%H:%i') as \'$f{'start'}\',
   DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + duration), '%H:%i') as \'$f{'stop'}\'
- ,description as _description
+  ,duration as __duration
+  ,description as __description
 FROM CHRONICLE
 |;
     $sql .= sprintf("WHERE %s ORDER BY starttime",$query->{query});
@@ -311,7 +313,7 @@ FROM CHRONICLE
 
     unless($console->typ eq 'AJAX') {
       map {
-	$_->[3] = datum($_->[3],'weekday');
+        $_->[3] = datum($_->[3],'weekday');
       } @$erg;
       unshift(@$erg, $fields);
     }

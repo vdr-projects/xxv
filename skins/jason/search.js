@@ -19,6 +19,7 @@ Ext.xxv.searchStore = function(lookup) {
                                     ,{name: 'pos', type: 'int'}
                                     ,{name: 'start', type: 'string' }
                                     ,{name: 'stop', type: 'string' }
+                                    ,{name: 'duration', type: 'int' }
                                     ,{name: 'day', type: 'date', convert : function(x){ return new Date(x * 1000);}  }
                                     ,{name: 'description', type: 'string'}
                                     ,{name: 'vps', type: 'string' }
@@ -71,11 +72,18 @@ Ext.xxv.searchGrid = function(viewer, lookup) {
         },{
            header: this.szColStart,
            dataIndex: 'start',
-           width: 50
+           width: 30
         },{
            header: this.szColStop,
            dataIndex: 'stop',
-           width: 50
+           width: 30
+        },{
+           header: this.szColDuration
+           ,dataIndex: 'duration'
+           ,width: 30
+           ,renderer: function (v, m, r) {
+             return SecondsToHM(v);
+           }
         }
     ];
 
@@ -119,6 +127,7 @@ Ext.extend(Ext.xxv.searchGrid, Ext.grid.GridPanel, {
     ,szColDay        : "Day"
     ,szColStart      : "Start"
     ,szColStop       : "Stop"
+    ,szColDuration   : "Duration"
     ,szColDayFormat  : "l, m/d/Y"
     ,szLoadException : "Couldn't find data!\r\n{0}"
 

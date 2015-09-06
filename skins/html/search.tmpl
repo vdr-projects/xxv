@@ -111,13 +111,13 @@
               <th></th>
             <?% END %?>
         <?% FOREACH field IN fields %?>
-            <?% NEXT IF field.match('^__') || loop.count == 8 || loop.count == 9 %?>
+            <?% NEXT IF field.match('^__') || loop.count == 9 || loop.count == 10 %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
         <?% FOREACH zeile IN data %?>
             <?% c = -1 %?>
-            <?% day = zeile.7 %?>
+            <?% day = zeile.8 %?>
             <?% IF !oldday.defined || day != oldday %?>
                 <tr><td colspan="<?% zeile.size %?>" bgcolor='#DDDDDD'>
                 <b><?% day %?></b>
@@ -130,7 +130,7 @@
                 <?% IF c == 0; # Id Field %?>
                 <?% IF enableform %?>
                 <td>
-                <?% IF !zeile.10 %?>
+                <?% IF !zeile.11 %?>
             			<input type="checkbox" value="<?% zeile.0 %?>" name="<?% zeile.1 %?><?% IF zeile.2 != "";"~";zeile.2;END %?>" />
 	              <?% END %?>
                 </td>
@@ -140,7 +140,7 @@
                 </td>
                 <?% ELSIF c == 1; # Text Field %?>
                 <td>
-                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.8 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
+                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.9 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
                     <?% IF zeile.11 %?>
                     <b><?% field %?></b>
                     <?% ELSE %?>
@@ -149,8 +149,8 @@
                     <?% IF zeile.2 != "" %?>
                     <br><small><?% zeile.2 %?></small>
                     <?% END %?>
-                    <?% IF zeile.8.length > 0 %?>
-                    <br><small><em><?% chop(zeile.8,80) | replace('<br />',' ') %?></em></small>
+                    <?% IF zeile.9.length > 0 %?>
+                    <br><small><em><?% chop(zeile.9,80) | replace('<br />',' ') %?></em></small>
                     <?% END %?>
                     </a>
                 </td>
@@ -158,8 +158,8 @@
                 <td>
                     <a href="?cmd=program&amp;data=<?% zeile.4 %?>"><?% field %?></a>
                 </td>
-                <?% ELSIF c == 7; # Day Field %?>
-                <?% ELSIF c == 8; # Desc Field %?>
+                <?% ELSIF c == 8; # Day Field %?>
+                <?% ELSIF c == 9; # Desc Field %?>
                 <?% ELSE %?>
                 <td><?% field %?></td>
                 <?% END %?>

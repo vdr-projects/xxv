@@ -65,7 +65,7 @@
 <h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?></h1>
 <?% ELSE %?>
 <?% fields = data.shift %?>
-<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% data.first.7 %?></h1>
+<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% data.first.8 %?></h1>
 <table summary="" width="100%">
     <tr>
         <th width="180"></th>
@@ -76,9 +76,8 @@
 	<?% FOREACH zeile IN data %?>
      <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
-            channel=zeile.4;start=zeile.5;stop=zeile.6;description=zeile.8;
-            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            day = zeile.7 %?>
+            channel=zeile.4;start=zeile.5;stop=zeile.6;duration=zeile.7;day=zeile.8;description=zeile.9;
+            pdc=zeile.10;timerid=zeile.11;recording=zeile.12;running=zeile.13 %?>
 		<?% IF old.defined && day != old %?>
    		  <tr>
             <td colspan="12" align="left">

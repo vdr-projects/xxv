@@ -108,10 +108,10 @@
     <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
     <tr<?% " class='two'" IF loop.count mod 2 == 0 %?>>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
-            channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;
-            description=zeile.8;duration=zeile.9;
-            timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            pdc=zeile.13; %?>
+            channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;duration=zeile.8;
+            description=zeile.9;progress=zeile.10;
+            timerid=zeile.11;recording=zeile.12;running=zeile.13;
+            pdc=zeile.14; %?>
         <?% IF old.defined && group != old %?>
     </tr>
 </table>

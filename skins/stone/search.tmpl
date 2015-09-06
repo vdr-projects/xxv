@@ -81,6 +81,9 @@
                     <td class="fieldinline" style="white-space: nowrap">
                        <font class="description<?% IF state != "";" ";state;END %?>">
                        <?% start %?>&nbsp;-&nbsp;<?% stop %?>
+                        <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% pdc %?>) <?% END %?>
+                        <br />
+                        <?% gettext("Duration") %?>&nbsp;:&nbsp;<?% duration %?>
                        </font>
                     </td>
                     <td class="fieldinline push">
@@ -102,13 +105,13 @@
 <h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?></h1>
 <?% ELSE %?>
 <?% fields = data.shift %?>
-<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% data.first.7 %?></h1>
+<h1><?% gettext("Search text") %?> : <?% cgi.param('data') %?> - <?% data.first.8 %?></h1>
 <form name="searchlist" action="">
     <?% FOREACH zeile IN data %?>
         <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
-            channel=zeile.4;start=zeile.5;stop=zeile.6;day=zeile.7;description=zeile.8;
-            pdc=zeile.9;timerid=zeile.10;recording=zeile.11;running=zeile.12 %?>
+            channel=zeile.4;start=zeile.5;stop=zeile.6;duration=zeile.7;day=zeile.8;description=zeile.9;
+            pdc=zeile.10;timerid=zeile.11;recording=zeile.12;running=zeile.13 %?>
         <?% IF old.defined && day != old %?>
 <div class="areaclose"></div>
 <h2><?% day %?></h2>

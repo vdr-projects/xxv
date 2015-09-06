@@ -33,13 +33,13 @@
     <?% fields = data.shift %?>
         <tr>
         <?% FOREACH field IN fields %?>
-            <?% NEXT IF field.match('^__') || loop.count == 6 %?>
+            <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
         <?% FOREACH zeile IN data %?>
             <?% c = 0 %?>
-            <?% day = zeile.5 %?>
+            <?% day = zeile.6 %?>
             <?% IF !oldday.defined || day != oldday %?>
                 <tr><td colspan="<?% zeile.size %?>" bgcolor='#DDDDDD'>
                 <b><?% day %?></b>
@@ -50,12 +50,12 @@
                 <?% c = c + 1 %?>
                 <?% IF c == 1; # Id Field %?>
                 <td>
-                <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile timerid=zeile.10 level=zeile.13 %?>
+                <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile timerid=zeile.11 level=zeile.14 %?>
                 </td>
                 <?% ELSIF c == 2; # Text Field %?>
                 <td>
-                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.6 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
-                    <?% IF zeile.11 %?>
+                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.7 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
+                    <?% IF zeile.12 %?>
                     <b><?% field %?></b>
                     <?% ELSE %?>
                     <?% field %?>
@@ -64,15 +64,16 @@
                     <br><small><?% zeile.2 %?></small>
                     <?% END %?>
                     </a>
-                    <?% IF zeile.6.length > 0 %?>
-                    <br><small><em><?% chop(zeile.6,80) | replace('<br />',' ') %?></em></small>
+                    <?% IF zeile.7.length > 0 %?>
+                    <br><small><em><?% chop(zeile.7,80) | replace('<br />',' ') %?></em></small>
                     <?% END %?>
                 </td>
                 <?% ELSIF c == 3; # Subtitle Field %?>
-                <?% ELSIF c == 6; # Day Field %?>
-                <?% ELSIF c >= 7; # Desc Field %?>
+                <?% ELSIF c == 6; # Duration Field %?>
+                <?% ELSIF c == 7; # Day Field %?>
+                <?% ELSIF c >= 8; # Desc Field %?>
                 <?% ELSE %?>
-                    <?% IF zeile.11 %?>
+                    <?% IF zeile.12 %?>
                             <td><b><?% field %?></b></td>
                     <?% ELSE %?>
                             <td><?% field %?></td>

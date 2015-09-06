@@ -568,3 +568,13 @@ object#audio-player { display:inline; }
   height:200px;
   width:200px;
 }
+
+.now .x-progress-text {
+    text-align:left !important;
+    font-size:10px;
+    padding:0 3px !important;
+}
+
+.now .x-progress-bar {
+    height:14px;
+}

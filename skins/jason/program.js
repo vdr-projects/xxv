@@ -18,6 +18,7 @@ Ext.xxv.programStore = function(data) {
                                     ,{name: 'subtitle', type: 'string'}
                                     ,{name: 'start', type: 'string' }
                                     ,{name: 'stop', type: 'string' }
+                                    ,{name: 'duration', type: 'int' }
                                     ,{name: 'day', type:'date', dateFormat:'timestamp'}
                                     ,{name: 'description', type: 'string'}
                                     ,{name: 'vps', type:'date', dateFormat:'timestamp'}
@@ -66,12 +67,20 @@ Ext.xxv.programGrid = function(viewer, record) {
         },{
            header: this.szColStart,
            dataIndex: 'start',
-           width: 50
+           width: 30
         },{
            header: this.szColStop,
            dataIndex: 'stop',
-           width: 50
-    }];
+           width: 30
+        },{
+           header: this.szColDuration
+           ,dataIndex: 'duration'
+           ,width: 30
+           ,renderer: function (v, m, r) {
+             return SecondsToHM(v);
+           }
+        }
+    ];
 
     var cm = new Ext.grid.ColumnModel(this.columns);
     cm.defaultSortable = true;
@@ -129,6 +138,7 @@ Ext.extend(Ext.xxv.programGrid, Ext.grid.GridPanel, {
     ,szColDay        : "Day"
     ,szColStart      : "Start"
     ,szColStop       : "Stop"
+    ,szColDuration   : "Duration"
     ,szColDayFormat  : "l, m/d/Y"
     ,szLoadException : "Couldn't get program data!\r\n{0}"
 

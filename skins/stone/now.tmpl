@@ -92,7 +92,9 @@
                         <?% start %?>&nbsp;-&nbsp;<?% stop %?>
                         <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% pdc %?>) <?% END %?>
                         <br />
-                        <?% PROCESS dur d=duration %?>
+                        <?% gettext("Duration") %?>&nbsp;:&nbsp;<?% duration %?>
+                        <br />
+                        <?% PROCESS dur d=progress %?>
                     </td>
                     <td class="push">
                         <?% INCLUDE widgets/tooltip.inc cmd="display" eventid=id linkid=id ttp_offset=-200 %?>
@@ -135,10 +137,10 @@
     <?% FOREACH zeile IN data %?>
         <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
         <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;
-            channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;
-            description=zeile.8;duration=zeile.9;
-            timerid=zeile.10;recording=zeile.11;running=zeile.12;
-            pdc=zeile.13; %?>
+            channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;duration=zeile.8;
+            description=zeile.9;progress=zeile.10;
+            timerid=zeile.11;recording=zeile.12;running=zeile.13;
+            pdc=zeile.14; %?>
         <?% IF old.defined && group != old %?>
 <div class="areaclose"></div>
 <h2><?% group %?></h2>

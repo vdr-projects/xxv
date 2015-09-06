@@ -716,6 +716,7 @@ sub search {
           'channel' => gettext('Channel'),
           'start' => gettext('Start'),
           'stop' => gettext('Stop'),
+          'duration' => gettext('Duration'),
           'day' => gettext('Day')
       );
 
@@ -728,6 +729,7 @@ sub search {
           c.hash as __position,
           DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
           DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
+          e.duration as \'$f{'duration'}\',
           UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
           IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
           IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
@@ -798,7 +800,8 @@ sub search {
 
       unless($console->typ eq 'AJAX') {
         map {
-            $_->[7] = datum($_->[7],'weekday');
+            $_->[7] = fmtSec2Time($_->[7]);
+            $_->[8] = datum($_->[8],'weekday');
         } @$erg;
 
         unshift(@$erg, $fields);
@@ -844,8 +847,7 @@ sub program {
         'id' => gettext('Service'),
         'title' => gettext('Title'),
         'start' => gettext('Start'),
-        'stop' => gettext('Stop'),
-        'day' => gettext('Day')
+        'stop' => gettext('Stop')
     );
 
     my $sql = qq|
@@ -855,7 +857,8 @@ SELECT SQL_CACHE
     e.subtitle as __Subtitle,
     DATE_FORMAT(e.starttime, '%H:%i') as \'$f{'start'}\',
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(e.starttime) + e.duration), '%H:%i') as \'$f{'stop'}\',
-    UNIX_TIMESTAMP(e.starttime) as \'$f{'day'}\',
+    e.duration as __duration,
+    UNIX_TIMESTAMP(e.starttime) as __day,
     IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
     IF(e.vpstime!=0,DATE_FORMAT(e.vpstime, '%H:%i'),'') as __PDC,
     ( SELECT 
@@ -925,7 +928,8 @@ order by
 
     unless($console->typ eq 'AJAX') {
       map {
-          $_->[5] = datum($_->[5],'weekday');
+          $_->[5] = fmtSec2Time($_->[5]);
+          $_->[6] = datum($_->[6],'weekday');
       } @$erg;
 
       unshift(@$erg, $fields);
@@ -1138,6 +1142,7 @@ SELECT SQL_CACHE
     g.name as __Channelgroup,
     DATE_FORMAT(e.starttime, "%H:%i") as \'$f{'Start'}\',
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
+    e.duration as __duration,
     IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
     999 as __Percent,
     ( SELECT 
@@ -1238,9 +1243,9 @@ ORDER BY g.pos, c.pos, c.vid
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unless($console->typ eq 'AJAX') {
-#      map {
-#        $_->[5] = datum($_->[5],'short');
-#      } @$erg;
+      map {
+          $_->[8] = fmtSec2Time($_->[8]);
+      } @$erg;
       unshift(@$erg, $fields);
     }
 
@@ -1294,6 +1299,7 @@ SELECT SQL_CACHE
     g.name as __Channelgroup,
     DATE_FORMAT(e.starttime, "%H:%i") as \'$f{'Start'}\',
     DATE_FORMAT(FROM_UNIXTIME(UNIX_TIMESTAMP(starttime) + e.duration), "%H:%i") as \'$f{'Stop'}\',
+    e.duration as __duration,
     IF(CHAR_LENGTH(e.description)>77,RPAD(LEFT(e.description,77),80,'.'),e.description) as __Description,
     (unix_timestamp(e.starttime) + e.duration - unix_timestamp())/e.duration*100 as \'$f{'Percent'}\',
     ( SELECT 
@@ -1398,9 +1404,9 @@ ORDER BY g.pos, c.pos, c.vid
     my $fields = $sth->{'NAME'};
     my $erg = $sth->fetchall_arrayref();
     unless($console->typ eq 'AJAX') {
-#      map {
-#        $_->[5] = datum($_->[5],'short');
-#      } @$erg;
+      map {
+          $_->[8] = fmtSec2Time($_->[8]);
+      } @$erg;
       unshift(@$erg, $fields);
     }
 

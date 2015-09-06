@@ -37,7 +37,7 @@ use constant FRAMESPERSECOND => 25;
  &deleteDir &getip &convert &int &entities &reentities &bench &fmttime 
  &getDataByTable &getDataById &getDataBySearch &getDataByFields &touch &url
  &con_err &con_msg &text2frame &frame2hms &gettext &setcharset &resolv_symlink
- &connectDB &findttf
+ &connectDB &findttf &fmtSec2Time
 );
 
 
@@ -50,6 +50,17 @@ sub fmttime {
     my $value = sprintf('%04d',$tim);
     my $ret = sprintf('%02d:%02d', substr($value, 0, 2), substr($value, 2, 2));
     return $ret;
+}
+
+# ------------------
+sub fmtSec2Time {
+# ------------------
+    my $time = shift  || 0;
+
+    my $min  = ($time / 60) % 60;
+    my $hour = CORE::int($time/3600);
+
+    return sprintf('%d:%02d', $hour, $min); 
 }
 
 use constant MONTHS => qw/Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec/;

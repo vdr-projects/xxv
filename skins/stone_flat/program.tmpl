@@ -45,7 +45,7 @@
         <tr<?% ' class="two"' IF z mod 2 == 0 %?>>
             <td class="fieldinline<?% IF state != "";" ";state;END %?>"><?% start %?>&nbsp;-&nbsp;<?% stop %?>
             <?% IF pdc && pdc != start %?> (<?% gettext("PDC") %?>:<?% pdc %?>) <?% END %?>
-            </td>
+            <br/><?% gettext("Duration") %?>&nbsp;:&nbsp;<?% duration %?></td>
             <td class="fieldinline">
                   <a id="E<?% id %?>" href="javascript:popup('display','<?% id %?>',620,670,0)" class="fieldinline">
                   <font class="title<?% IF state != "";" ";state;END %?>"><?% chop(title,45) %?></font>
@@ -93,9 +93,8 @@
     <?% z = 0 %?>
     <?% FOREACH zeile IN data %?>
         <?% IF verbose;"<!-- Item: ";FOREACH x IN zeile;loop.count - 1;":";x.replace("-"," ");"|";END;"-->";END %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;
-            description=zeile.6;pdc=zeile.7;timerid=zeile.8;recording=zeile.9;running=zeile.10;
-            day = zeile.5 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;start=zeile.3;stop=zeile.4;duration=zeile.5;day = zeile.6;
+            description=zeile.7;pdc=zeile.8;timerid=zeile.9;recording=zeile.10;running=zeile.11; %?>
         <?% IF !old.defined || day != old %?>
             <?% IF old.defined  %?>
             </table>

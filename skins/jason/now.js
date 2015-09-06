@@ -20,8 +20,9 @@ Ext.xxv.NowStore = function() {
                                     ,{name: 'grpname', type: 'string'}
                                     ,{name: 'start', type: 'string' }
                                     ,{name: 'stop', type: 'string' }
+                                    ,{name: 'duration', type: 'int' }
                                     ,{name: 'description', type: 'string'}
-                                    ,{name: 'prozent', type: 'string'}
+                                    ,{name: 'progress', type: 'string'}
                                     ,{name: 'timerid', type: 'string'}
                                     ,{name: 'timeractiv', type: 'string'}
                                     ,{name: 'running', type: 'string'}
@@ -46,6 +47,13 @@ Ext.xxv.NowStore = function() {
             ,hasMultiSort:false
             ,multiSortInfo:{}
     });
+};
+
+SecondsToHM = function(t) {
+  var s = t % 60;
+  var m = parseInt(t / 60) % 60;
+  var h = parseInt(t / 3600);
+  return h + ":" + pad(m);
 };
 
 Ext.xxv.NowGrid = function(viewer) {
@@ -112,11 +120,34 @@ Ext.xxv.NowGrid = function(viewer) {
         },{
            header: this.szColStart,
            dataIndex: 'start',
-           width: 50
+           width: 30
         },{
            header: this.szColStop,
            dataIndex: 'stop',
-           width: 50
+           width: 30
+        },{
+            header: this.szColDuration,
+            dataIndex: 'duration',
+            width: 30,
+            renderer: function (v, m, r) {
+
+            var follow = r.store.baseParams.cmd != 'n' || r.store.baseParams.data; 
+            if(follow) {
+              return SecondsToHM(v);
+            } else {
+              var id = Ext.id();
+                (function() {
+                   var bar = new Ext.ProgressBar({
+                      height: 14
+                      ,renderTo: id
+                      ,value: ((100 - r.data.progress) / 100)
+                      ,text: SecondsToHM(v)
+                      ,cls:'now'
+                    });
+                }).defer(25);
+                return (String.format('<div id="{0}"></div>', id));
+              }
+            }
         }
     ];
 
@@ -179,6 +210,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szColGrpName    : "Group of channel"
     ,szColStart      : "Start"
     ,szColStop       : "Stop"
+    ,szColDuration   : "Duration"
     ,szLoadException : "Couldn't get data!\r\n{0}"
     ,szRecordSuccess : "Timer created successful.\r\n{0}"
     ,szRecordFailure : "Couldn't create timer!\r\n{0}"
@@ -186,7 +218,7 @@ Ext.extend(Ext.xxv.NowGrid, Ext.grid.GridPanel, {
     ,szDeleteSuccess : "Timer deleted successful.\r\n{0}"
     ,szDeleteFailure : "Couldn't delete timer!\r\n{0}"
     ,szDetailsFailure : "Couldn't update details of event!\r\n{0}"
-
+    ,stateful:  true
     ,onLoadException :  function( scope, o, arg, e) {
       var msg = '';
       if(e && e.message && typeof(e.message) == 'string') {

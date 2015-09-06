@@ -20,6 +20,7 @@ Ext.xxv.chronicleStore = function() {
                       {name: 'day', type:'date', dateFormat:'timestamp'},
                       {name: 'start', type: 'string'},
                       {name: 'stop', type: 'string'},
+                      {name: 'duration', type: 'int' },
                       {name: 'description', type: 'string'}
                     ]
                 })
@@ -58,11 +59,18 @@ Ext.xxv.ChronicleGrid = function(viewer) {
         },{
            header: this.szColStart
            ,dataIndex: 'start'
-           ,width: 50
+           ,width: 30
         },{
            header: this.szColStop
            ,dataIndex: 'stop'
-           ,width: 50
+           ,width: 30
+        },{
+           header: this.szColDuration
+           ,dataIndex: 'duration'
+           ,width: 30
+           ,renderer: function (v, m, r) {
+             return SecondsToHMS(v);
+           }
         }
     ];
 
@@ -117,6 +125,7 @@ Ext.extend(Ext.xxv.ChronicleGrid,  Ext.grid.EditorGridPanel, {
     ,szColChannel    : "Channel"
     ,szColStart      : "Start"
     ,szColStop       : "Stop"
+    ,szColDuration   : "Duration"
     ,szColDayFormat  : "l, m/d/Y"
     ,szLoadException : "Couldn't get data from chronicle!\r\n{0}"
     ,szDeleteSuccess : "Data from chronicle deleted successful.\r\n{0}"

@@ -53,7 +53,7 @@
         <?% END %?>
         </tr>
         <?% FOREACH zeile IN data %?>
-        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;desc=zeile.8;duration=zeile.9 %?>
+        <?% id=zeile.0;title=zeile.1;subtitle=zeile.2;sender=zeile.3;channel=zeile.4;group=zeile.5;start=zeile.6;stop=zeile.7;duration=zeile.8;desc=zeile.9;progress=zeile.10 %?>
             <?% IF group != old %?>
                 <tr><td colspan="6" bgcolor='#DDDDDD'>
                 <b><?% group %?></b>
@@ -61,7 +61,7 @@
             <?% END %?>
         <tr class="<?% myclass %?>" <?% IF (loop.count mod 2) == 0 %?>bgcolor='#F5F5F5'<?% END %?>>
                 <td><nobr>
-                <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile switch=1 timerid=zeile.10 level=zeile.14 %?>
+                <?% INCLUDE 'bloecke/event_links.tmpl' data=zeile switch=1 timerid=zeile.11 level=zeile.15 %?>
                 </td>
                 <td>
                     <?% IF zeile.11 %?><b><?% END %?>
@@ -76,10 +76,10 @@
                 </td>
                 <td><?% IF zeile.11 %?><b><?% END %?><?% start %?><?% IF zeile.11 %?></b><?% END %?></td>
                 <td><?% IF zeile.11 %?><b><?% END %?><?% stop %?><?% IF zeile.11 %?></b><?% END %?></td>
-                <?% UNLESS duration > 100 OR duration <= 0 %?>
+                <?% UNLESS progress > 100 OR progress <= 0 %?>
                 <td width="100" valign='bottom'><nobr>
-                    <?% per = (100 - duration) + 0.999 div 1; per = (per > 100 ? 100 : per)  %?>
-                    <?% INCLUDE 'bloecke/percentbar.tmpl' barwidth=100 percent=per color_switch=1 %?>
+                    <?% per = (100 - progress) + 0.999 div 1; per = (per > 100 ? 100 : per)  %?>
+                    <?% INCLUDE 'bloecke/percentbar.tmpl' barwidth=100 percent=per color_switch=1 title=duration %?>
                 </td>
                 <?% END %?>
         </tr>

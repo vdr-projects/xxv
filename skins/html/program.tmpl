@@ -54,13 +54,13 @@
     <?% fields = data.shift %?>
         <tr>
         <?% FOREACH field IN fields %?>
-            <?% NEXT IF field.match('^__') || loop.count == 6 %?>
+            <?% NEXT IF field.match('^__') %?>
             <th><?% field %?></th>
         <?% END %?>
         </tr>
         <?% FOREACH zeile IN data %?>
             <?% c = 0 %?>
-            <?% day = zeile.5 %?>
+            <?% day = zeile.6 %?>
             <?% IF !oldday.defined || day != oldday %?>
                 <tr><td colspan="<?% zeile.size %?>" bgcolor='#DDDDDD'>
                 <b><?% day %?></b>
@@ -72,8 +72,8 @@
                 <?% IF c == 1; # Id Field %?>
                 <td>
                     <a href="?cmd=search&amp;data=<?% url( zeile.1 ) %?>">[<?% gettext("Rep") %?>]</a>
-    <?% IF zeile.10 && allow('tedit') %?>
-                    <a href="?cmd=tedit&amp;data=<?% zeile.10 %?>"><b><span name='recordlink' id='<?% zeile.0 %?>' class='normal'>[<?% gettext("Edit this timer") %?>]</span></b></a>
+    <?% IF zeile.9 && allow('tedit') %?>
+                    <a href="?cmd=tedit&amp;data=<?% zeile.9 %?>"><b><span name='recordlink' id='<?% zeile.0 %?>' class='normal'>[<?% gettext("Edit this timer") %?>]</span></b></a>
     <?% ELSIF allow('tnew') %?>
                     <a href="?cmd=tnew&amp;data=<?% zeile.0 %?>"><span name='recordlink' id='<?% zeile.0 %?>' class='normal'>[<?% gettext("To record") %?>]</span></a>
     <?% END %?>
@@ -82,8 +82,8 @@
                 </td>
                 <?% ELSIF c == 2; # Text Field %?>
                 <td>
-                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.6 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
-                    <?% IF zeile.11 %?>
+                    <?% INCLUDE bloecke/tooltip.tmpl cmd="display" title=field subtitle=zeile.2 desc=zeile.7 eventid=zeile.0 linkid=zeile.0 ttp_offset=0 %?>
+                    <?% IF zeile.12 %?>
                     <b><?% field %?></b>
                     <?% ELSE %?>
                     <?% field %?>
@@ -91,16 +91,17 @@
                     <?% IF zeile.2.length > 0  %?>
                     <br><small><?% zeile.2 %?></small>
                     <?% END %?>
-                    <?% IF zeile.6.length > 0 %?>
-                    <br><small><em><?% chop(zeile.6,80) | replace('<br />',' ') %?></em></small>
+                    <?% IF zeile.7.length > 0 %?>
+                    <br><small><em><?% chop(zeile.7,80) | replace('<br />',' ') %?></em></small>
                     <?% END %?>
                     </a>
                 </td>
                 <?% ELSIF c == 3; # Subtitle Field %?>
-                <?% ELSIF c == 6; # Day Field %?>
-                <?% ELSIF c >= 7; # Desc Field %?>
+                <?% ELSIF c == 6; # Duration Field %?>
+                <?% ELSIF c == 7; # Day Field %?>
+                <?% ELSIF c >= 8; # Desc Field %?>
                 <?% ELSE %?>
-                    <?% IF zeile.11 %?>
+                    <?% IF zeile.12 %?>
                             <td><b><?% field %?></b></td>
                     <?% ELSE %?>
                             <td><?% field %?></td>
