@@ -578,7 +578,7 @@ sub init_signal_handler {
       &quit(0);
     };
     $SIG{TERM} = sub{
-      &quit(1);
+      &quit(0);
     };
 
     $SIG{HUP} = sub{
